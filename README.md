@@ -16,6 +16,8 @@ Cresvoid는 crescent(초승달)와 void를 합친 이름이다.
 | bash | 엔진이 풀이 프로그램을 새 프로세스 그룹에서 실행할 때 쓴다 |
 | less | `cresvoid read` 의 문서 보기. `$PAGER` 로 바꿀 수 있다 |
 
+Kotlin CLI 2.4.20을 권장한다. 2.4.0에서는 포함된 `agent-runtime` 입력 생성기 스크립트를 분석하다 컴파일러 예외가 발생할 수 있다.
+
 엔진은 Gradle 로 빌드하는 Kotlin 프로그램이다. `engine/bin/cresvoid` 는 엔진 소스가 jar 보다 새로울 때만 `engine/gradlew jar` 로 다시 빌드한다. Gradle 은 래퍼가 처음 빌드할 때 내려받는다. `engine/bin` 을 PATH 에 추가한다.
 
 ```sh
