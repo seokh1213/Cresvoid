@@ -34,6 +34,7 @@ import cresvoid.runner.ProcessRunner
 import cresvoid.runner.Program
 import cresvoid.runner.ProgramFailure
 import cresvoid.runner.Verdict
+import cresvoid.runner.checkEditScope
 import cresvoid.runner.countChangedLines
 import cresvoid.runner.firstDifference
 import cresvoid.runner.joinInput
@@ -283,6 +284,7 @@ class Validation(
             }
             val changed = attempt { countChangedLines(starterDiff(stage, runner)) } ?: continue
             console.println(dim("  시작 코드와 참조 풀이 사이에 바뀐 줄: ${changed.total}줄 (추가 ${changed.added}, 삭제 ${changed.removed})"))
+            attempt { checkEditScope(stage, stage.solutionDir) }
         }
     }
 

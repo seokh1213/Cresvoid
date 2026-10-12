@@ -24,6 +24,7 @@ import cresvoid.runner.CaseInput
 import cresvoid.runner.Harness
 import cresvoid.runner.ProcessRunner
 import cresvoid.runner.Verdict
+import cresvoid.runner.checkEditScope
 import cresvoid.runner.judge
 import cresvoid.runner.referenceProgram
 import cresvoid.study.TestGate
@@ -106,6 +107,7 @@ class TestCommand(
 
         fun run() {
             console.println("${dim("풀이:")} ${project.rel(solutionDir)}")
+            checkEditScope(target, solutionDir)
             if (solutionDir.resolve("build.sh").isRegularFile()) console.println(dim("빌드 중…"))
             harness.buildFailure(solutionDir)?.let { failure ->
                 console.println(red("✗ 빌드 실패"))

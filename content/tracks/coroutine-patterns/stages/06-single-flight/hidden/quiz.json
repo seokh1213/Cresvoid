@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "b의 결과 줄은 무엇인가?",
+      "context": "SERVICE p 4:OK:9\nASK 2 a p 0 0\nASK 6 b p 0 0\nLOOKUPS 10",
+      "choices": ["LOOKUP b FETCHED 10 9", "LOOKUP b FETCHED 6 9", "LOOKUP b FRESH 6 9", "LOOKUP b STALE 6 9", "LOOKUP b TIMEOUT 6"],
+      "answer": 2,
+      "refs": ["3.1", "5.3"],
+      "quote": "요청 시작과 하위 호출 완료가 같으면 요청 시작을 먼저 처리한다.",
+      "explanation": "b는 시각 6에 먼저 시작해 아직 진행 중인 호출에 합류한다. 그 호출도 시각 6에 완료되므로 b는 새 호출을 만들거나 캐시를 읽지 않고 FETCHED 9를 받는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "두 요청의 결과와 시작된 하위 호출 수를 옳게 묶은 것은?",
+      "context": "SERVICE p 2:FAIL:503 3:OK:12\nSEED p 7 1\nASK 5 a p 0 0\nASK 8 b p 0 0\nLOOKUPS 4",
+      "choices": ["a=STALE 5 7, b=STALE 8 7, calls=2", "a=FAIL 7 503, b=STALE 8 7, calls=2", "a=STALE 5 7, b=FETCHED 11 12, calls=2", "a=STALE 5 7, b=STALE 8 7, calls=1", "a=FRESH 5 7, b=STALE 8 7, calls=2"],
+      "answer": 1,
+      "refs": ["4.1", "4.3"],
+      "quote": "배경 갱신이 실패하면 오래된 값과 원래 기록 시각을 그대로 둔다.",
+      "explanation": "기록 시각 1에 수명 4를 더한 시각 5부터 값 7은 오래됐다. a는 시각 5에 STALE을 받는다. 이때 시작한 갱신은 시각 7에 실패한다. 원래 기록 시각이 남으므로 b도 시각 8에 STALE 7을 받고 두 번째 갱신을 시작한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "첫 요청이 취소된 뒤 두 번째 요청과 공유 호출은 어떻게 끝나는가?",
+      "context": "SERVICE p 6:OK:9\nASK 2 a p 0 4\nASK 3 b p 0 0\nLOOKUPS 10",
+      "choices": ["시각 4에 호출을 취소하고 b도 CANCELLED가 된다.", "시각 4에 호출을 취소하고 b가 새 호출을 시작한다.", "b는 시각 4에 오래된 캐시 값 9를 받는다.", "b는 같은 호출을 기다려 시각 8에 FETCHED 9를 받는다."],
+      "answer": 4,
+      "refs": ["3.2", "3.4"],
+      "quote": "남은 대기자가 있으면 공유 호출을 계속한다.",
+      "explanation": "a만 시각 4에 CANCELLED가 된다. b가 남아 있으므로 시각 2에 시작한 호출은 계속 진행하고 시각 8에 성공한다. 호출의 수명도 첫 요청의 Job에 묶이지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "c의 결과 줄을 정확히 쓰라.",
+      "context": "SERVICE p 8:OK:5 2:OK:6\nASK 1 a p 3 0\nASK 2 b p 0 5\nASK 7 c p 0 0\nLOOKUPS 10",
+      "answers": ["LOOKUP c FETCHED 9 6"],
+      "refs": ["3.2", "5.2"],
+      "quote": "뒤에 온 요청은 새 호출을 시작한다.",
+      "explanation": "a는 시각 4에 시간 제한으로, 마지막 대기자 b는 시각 5에 취소로 떠난다. 첫 호출도 취소되므로 c는 시각 7에 두 번째 호출을 시작하고, 지연 2 뒤인 시각 9에 값 6을 받는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "b의 결과 줄을 정확히 쓰라.",
+      "context": "SERVICE p 4:OK:20\nSEED p 10 0\nASK 5 a p 0 0\nASK 9 b p 0 0\nASK 10 c p 0 0\nLOOKUPS 5",
+      "answers": ["LOOKUP b STALE 9 10"],
+      "refs": ["4.1", "5.3"],
+      "quote": "따라서 그 요청은 아직 진행 중인 전경 호출에 합류하거나 아직 오래된 캐시 값을 받는다.",
+      "explanation": "시각 5에 a가 오래된 값 10을 받고 배경 갱신을 시작한다. b의 시작과 갱신 완료가 모두 시각 9라서 b가 먼저 오래된 값 10을 받는다. 직후 성공한 갱신의 값 20은 다음 조회부터 쓴다."
+    }
+  ]
+}

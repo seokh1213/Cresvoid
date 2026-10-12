@@ -1,4 +1,5 @@
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -130,7 +131,7 @@ private fun VirtualTime.liveFeed(label: String, events: List<PriceEvent>, log: E
 }
 
 private fun VirtualTime.follow(subscriber: Subscriber, prices: Flow<Int>, log: EventLog) {
-    val collecting = launch {
+    val collecting = launch(start = CoroutineStart.LAZY) {
         delay(subscriber.from)
         log.record("join ${subscriber.name}")
         prices.collect { price ->
@@ -143,4 +144,5 @@ private fun VirtualTime.follow(subscriber: Subscriber, prices: Flow<Int>, log: E
         collecting.cancel()
         log.record("leave ${subscriber.name}")
     }
+    collecting.start()
 }

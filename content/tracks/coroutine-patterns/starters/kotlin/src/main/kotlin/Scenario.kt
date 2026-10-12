@@ -1,5 +1,5 @@
 class Scenario {
-    private val groups = listOf(DetailCommands(), RefreshCommands(), FeedCommands(), PriceCommands())
+    private val groups = listOf(DetailCommands(), RefreshCommands(), FeedCommands(), PriceCommands(), BatchCommands(), LookupCommands())
     private var trace = true
 
     fun execute(line: String): List<String> {

@@ -540,6 +540,26 @@
       ]
     },
     {
+      "name": "watch-completion-at-leave",
+      "refs": ["4.21", "4.22", "5.2"],
+      "quote": "수집자는 끝 시각에 `leave <이름>` 을 기록하고 더는 받지 않는다.",
+      "input": [
+        "EVENT 2 p 1 LIST 100",
+        "EVENT 20 p 2 SALE 0",
+        "WATCH w 0 5 5",
+        "PRICES p 0 0"
+      ],
+      "expected": [
+        "0 join w",
+        "0 open shared",
+        "0 recv w 0",
+        "2 emit shared 2",
+        "5 close shared",
+        "5 leave w",
+        "PRICES p 100"
+      ]
+    },
+    {
       "name": "leave-drops-pending",
       "refs": [
         "4.6",

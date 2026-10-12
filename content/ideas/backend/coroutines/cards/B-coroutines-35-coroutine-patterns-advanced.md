@@ -4,7 +4,7 @@ title: 코루틴 동시 처리 심화
 kind: build
 track: coroutine-patterns
 stage: 05-batching, 06-single-flight
-status: 후보
+status: 완료(2026-10-13)
 wave: 4
 env: kotlinx-coroutines
 prereq: B-coroutines-20

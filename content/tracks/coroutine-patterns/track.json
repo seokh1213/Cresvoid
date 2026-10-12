@@ -1,11 +1,13 @@
 {
   "title": "코루틴으로 동시 처리 짜기",
   "kind": "build",
-  "summary": "kotlinx.coroutines 로 동시 호출과 시간 제한, 동시 실행 상한과 재시도, Channel 파이프라인, Flow 가격 처리를 가상 시간 위에서 구현한다.",
+  "summary": "kotlinx.coroutines 로 동시 호출과 시간 제한, 실행 상한과 재시도, Channel·Flow, 묶음 저장과 요청 합치기를 가상 시간 위에서 구현한다.",
   "stages": [
     { "dir": "01-fan-out", "title": "동시 호출과 시간 제한" },
     { "dir": "02-limits", "title": "동시 실행 상한과 재시도" },
     { "dir": "03-channels", "title": "Channel 파이프라인" },
-    { "dir": "04-flow", "title": "Flow 와 StateFlow" }
+    { "dir": "04-flow", "title": "Flow 와 StateFlow" },
+    { "dir": "05-batching", "title": "묶음 저장과 역압력" },
+    { "dir": "06-single-flight", "title": "상품별 요청 합치기와 오래된 캐시" }
   ]
 }

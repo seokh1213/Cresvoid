@@ -87,3 +87,7 @@ core SHA-256은 `d1d75aa01dffbb4d1c520e67e4c4e7f5f6174718e7cb4632412503f2f0e604f
 ## D24. 프로젝트 이름과 공개 범위를 Cresvoid로 정한다 (2026-10-13)
 
 Cresvoid는 crescent와 void의 합성어다. CLI·패키지·스킬·빌드 산출물은 `cresvoid`를 쓴다. GitHub의 Cresvoid 저장소와 main 브랜치를 사용한다. 개인 도구 설정·작업 기록·학습자 공간·빌드 결과는 공개에서 제외한다.
+
+## D25. 버그 수정 단계는 필요할 때 수정 파일을 제한한다 (2026-10-13)
+
+출력만 맞추려고 관찰용 실행 틀이나 가짜 서비스를 바꾸면 실제 버그가 남을 수 있다. 단계의 `hidden/allowed-edits.txt`가 있으면 `cresvoid test`는 시작 코드와 풀이를 비교해 명시한 Kotlin 파일 밖의 수정을 거절한다. `cresvoid validate`는 참조 풀이에도 같은 제한을 확인한다. 이 목록은 실제 수정 위치를 숨기는 단계에는 두지 않는다.

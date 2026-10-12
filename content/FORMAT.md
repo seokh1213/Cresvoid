@@ -21,6 +21,7 @@ content/tracks/<트랙 id>/
     └── hidden/               채점용 파일
         ├── quiz.json         build·reading·code 트랙
         ├── tests.json        build·fix 트랙
+        ├── allowed-edits.txt 선택. fix 트랙에서 수정 가능한 파일 목록
         ├── gen.main.kts      선택. 무작위 입력 생성기
         └── solution/         build·fix 트랙. 참조 풀이 Kotlin 프로젝트
 ```
@@ -220,6 +221,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 
 - build 트랙: `cresvoid start` 가 `starters/<언어>/` 를 트랙 작업 공간으로 복사한다. 시작 코드는 빌드와 실행은 되지만 1단계 테스트는 통과하지 못해야 한다.
 - fix 트랙: `cresvoid start` 가 단계의 `starter/` 를 그 단계 작업 공간으로 복사한다. 시작 코드는 빌드되고 그 단계 테스트 가운데 하나 이상에서 실패해야 한다. 참조 풀이와의 차이는 버그를 고치는 데 필요한 줄뿐이다.
+- fix 단계가 `hidden/allowed-edits.txt` 를 두면 각 줄에 `starter/` 기준으로 수정 가능한 `src/main/kotlin/*.kt` 경로 하나를 적는다. `cresvoid test` 는 빌드 전에 이 파일 외의 시작 코드와 제출 작업 공간을 비교한다. `build/`, `.gradle/`, `.kotlin/`, `.idea/`, `.DS_Store` 는 비교하지 않는다. 허용하지 않은 소스의 추가·삭제와 실행 스크립트 수정도 거절한다. `cresvoid validate` 는 참조 풀이에도 같은 범위를 검사한다.
 - 복사할 때 `build/` 디렉터리와 `.DS_Store` 는 빼고 실행 권한은 유지한다.
 
 ## 9. 엔진 동작
@@ -308,6 +310,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 4. build 트랙에서 단계 N 의 참조 풀이는 1~N 단계 테스트를 모두 제한 시간 안에 통과한다. gen 테스트는 seed 1 과 2 로 실행한다. 기대값은 그 테스트가 속한 단계의 참조 풀이로 만든다. `expected` 가 없는 테스트는 같은 입력으로 두 번 실행해 같은 출력이 나와야 한다.
 5. build 트랙의 시작 코드는 1단계 테스트에서 실패한다. N 이 2 이상이면 N−1 단계 참조 풀이는 N 단계 테스트 가운데 하나 이상에서 실패한다.
 6. fix 트랙에서 단계마다 참조 풀이는 그 단계 테스트를 모두 제한 시간 안에 통과하고 시작 코드는 하나 이상에서 실패한다. 시작 코드와 참조 풀이 사이에 바뀐 줄 수를 보여 준다.
+   `allowed-edits.txt` 가 있으면 참조 풀이의 수정 범위도 검사한다.
 7. code 트랙에서 단계마다 `code/` 가 빌드되고 실행된다.
 
 ## 11. 작성 기준

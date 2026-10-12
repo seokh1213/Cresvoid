@@ -9,7 +9,7 @@
 | [읽기](reading/README.md) | 15 | 12 | 0 | 3 | 0 |
 | [구현](implementation/README.md) | 28 | 22 | 0 | 6 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 3 | 0 | 2 | 0 |
-| [Kotlin 코루틴](backend/coroutines/README.md) | 8 | 3 | 0 | 5 | 0 |
+| [Kotlin 코루틴](backend/coroutines/README.md) | 8 | 2 | 0 | 6 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 6 | 0 | 2 | 0 |
 | [분산 시스템](backend/distributed/README.md) | 5 | 3 | 0 | 2 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
@@ -25,7 +25,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 16 | 14 | 0 | 2 | 0 |
-| 합계 | 153 | 115 | 0 | 36 | 2 |
+| 합계 | 153 | 114 | 0 | 37 | 2 |
 
 ## 다음 후보
 
@@ -84,7 +84,6 @@
 | 4 | [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 없음 |
 | 4 | [B-system-design-130](backend/system-design/cards/B-system-design-130-leaderboard.md) | 실시간 순위표 만들기 | build | leaderboard | 01-sorted-set, 02-range-queries, 03-sharding | 없음 |
 | 4 | [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | key-exchange | 없음 |
-| 4 | [B-coroutines-35](backend/coroutines/cards/B-coroutines-35-coroutine-patterns-advanced.md) | 코루틴 동시 처리 심화 | build | coroutine-patterns | 05-batching, 06-single-flight | kotlinx-coroutines |
 | 4 | [L-coroutines-50](backend/coroutines/cards/L-coroutines-50-dispatcher-starvation.md) | 블로킹 호출과 디스패처 고갈 | lab | coroutine-lab | dispatcher-starvation | kotlinx-coroutines, k6 |
 | 4 | [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | gap-lock | docker, maven |
 | 4 | [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | metadata-lock | docker, maven, k6 |
@@ -166,7 +165,7 @@
 | columnar | build | 없음 | 04 |  | 01-encode(B-lakehouse-20 4차), 02-pruning(B-lakehouse-20 4차), 03-nested(B-lakehouse-20 4차) |
 | consistent-hashing | build | 없음 | 04 |  | 01-ring(B-distributed-40 4차), 02-rebalance(B-distributed-40 4차), 03-replication(B-distributed-40 4차) |
 | coroutine-lab | lab | 없음 | 01 |  | dispatcher-starvation(L-coroutines-50 4차) |
-| coroutine-patterns | build | 있음 | 07 | 01-fan-out(B-coroutines-20 완료), 02-limits(B-coroutines-20 완료), 03-channels(B-coroutines-20 완료), 04-flow(B-coroutines-20 완료) | 05-batching(B-coroutines-35 4차), 06-single-flight(B-coroutines-35 4차) |
+| coroutine-patterns | build | 있음 | 07 | 01-fan-out(B-coroutines-20 완료), 02-limits(B-coroutines-20 완료), 03-channels(B-coroutines-20 완료), 04-flow(B-coroutines-20 완료), 05-batching(B-coroutines-35 완료), 06-single-flight(B-coroutines-35 완료) |  |
 | coroutine-runtime | build | 없음 | 05 |  | 01-event-loop(B-coroutines-40 4차), 02-structured(B-coroutines-40 4차), 03-cancellation(B-coroutines-40 4차), 04-exceptions(B-coroutines-40 4차) |
 | crawler | build | 없음 | 04 |  | 01-frontier(B-system-design-60 4차), 02-dedup(B-system-design-60 4차), 03-politeness(B-system-design-60 4차) |
 | crdt | build | 없음 | 04 |  | 01-counters(B-distributed-30 5차), 02-sets-and-registers(B-distributed-30 5차), 03-convergence(B-distributed-30 5차) |
@@ -294,7 +293,7 @@
 | [C-coroutines-30](backend/coroutines/cards/C-coroutines-30-coroutine-order.md) | 코루틴 실행 순서와 디스패처 | code | code-reading | 02-coroutine-order | 완료(2026-10-12) | 3 | kotlinx-coroutines | B-coroutines-20 |
 | [F-coroutines-31](backend/coroutines/cards/F-coroutines-31-order-deadline.md) | 주문 확정 제한 시간 | fix | bug-fix | 02-order-deadline | 완료(2026-10-12) | 3 | kotlinx-coroutines | B-coroutines-20 |
 | [C-coroutines-32](backend/coroutines/cards/C-coroutines-32-flow-semantics.md) | StateFlow 와 SharedFlow 의 의미 | code | code-reading | 03-flow-semantics | 완료(2026-10-12) | 4 | kotlinx-coroutines | C-coroutines-30 |
-| [B-coroutines-35](backend/coroutines/cards/B-coroutines-35-coroutine-patterns-advanced.md) | 코루틴 동시 처리 심화 | build | coroutine-patterns | 05-batching, 06-single-flight | 후보 | 4 | kotlinx-coroutines | B-coroutines-20 |
+| [B-coroutines-35](backend/coroutines/cards/B-coroutines-35-coroutine-patterns-advanced.md) | 코루틴 동시 처리 심화 | build | coroutine-patterns | 05-batching, 06-single-flight | 완료(2026-10-13) | 4 | kotlinx-coroutines | B-coroutines-20 |
 | [B-coroutines-40](backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md) | 작은 코루틴 실행기 만들기 | build | coroutine-runtime | 01-event-loop, 02-structured, 03-cancellation, 04-exceptions | 후보 | 4 | 없음 | B-coroutines-20 |
 | [L-coroutines-50](backend/coroutines/cards/L-coroutines-50-dispatcher-starvation.md) | 블로킹 호출과 디스패처 고갈 | lab | coroutine-lab | dispatcher-starvation | 후보 | 4 | kotlinx-coroutines, k6 | B-coroutines-20 |
 
