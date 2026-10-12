@@ -1,0 +1,10 @@
+{
+  "title": "Raft 시뮬레이터",
+  "kind": "build",
+  "summary": "노드와 네트워크를 흉내 내는 결정적 시뮬레이터 위에서 Raft 의 선출, 로그 복제, 커밋을 표준 입출력 명령 처리기로 구현한다.",
+  "stages": [
+    { "dir": "01-election", "title": "리더 선출" },
+    { "dir": "02-replication", "title": "로그 복제" },
+    { "dir": "03-commit", "title": "커밋과 안전성" }
+  ]
+}

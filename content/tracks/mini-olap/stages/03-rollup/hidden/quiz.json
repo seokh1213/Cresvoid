@@ -1,0 +1,115 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 SELECT 의 결과 행에서 SUM(v) 값을 위에서부터 차례로 나열한 것은?",
+      "context": "<보기>\nCREATE TABLE s (g STRING, h STRING, v INT)\nINSERT INTO s VALUES ('a', 'x', 1), ('b', 'x', 2), ('a', NULL, 4), (NULL, 'y', 8), ('c', 'y', 16)\nSELECT g, h, SUM(v) FROM s GROUP BY GROUPING SETS ((h), (g, h), ())",
+      "choices": [
+        "1, 4, 2, 16, 8, 3, 24, 4, 31",
+        "1, 2, 3, 16, 8, 24, 4, 4, 31",
+        "3, 24, 4, 1, 2, 16, 8, 4, 31",
+        "1, 2, 3, 16, 24, 8, 31, 4, 4",
+        "4, 4, 1, 2, 3, 8, 16, 24, 31"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.7",
+        "4.9"
+      ],
+      "quote": "값이 NULL 인 행은 그 열이 빠진 행보다 앞선다.",
+      "explanation": "정답은 ②이다. [4.5]에 따라 그룹 열은 GROUP BY 에 처음 나온 순서대로 h, g 다. 결과 행은 (h) 그룹 집합의 세 행(x 3, y 24, NULL 4), (g, h) 그룹 집합의 다섯 행, () 그룹 집합의 총계 31 이다. [4.9]에 따라 먼저 h 로 비교하고 한 열 안에서는 값, 진짜 NULL, 빠진 열 순서다. h 가 'x' 인 행은 g 가 'a', 'b', 빠진 행 순서로 1, 2, 3 이다. h 가 'y' 인 행은 g 가 'c', 진짜 NULL, 빠진 행 순서로 16, 8, 24 다. h 가 진짜 NULL 인 두 행은 g 가 'a' 인 행이 g 가 빠진 행보다 앞서므로 4, 4 다. h 와 g 가 모두 빠진 총계 31 이 맨 끝에 온다. ① 그룹 열을 g, h 순서로 본 답이다. 그룹 열의 순서를 정하는 [4.5]와 그 순서로 비교하는 [4.9]를 함께 적용해야 오답임을 알 수 있다. ③ 그룹 집합을 쓴 순서대로 결과를 이어 붙인 답이다. [4.9]의 기본 순서는 그룹 집합과 상관없이 결과 행 전체에 쓴다. ④ 빠진 열을 진짜 NULL 보다 앞에 둔 답이다. ⑤ 진짜 NULL 을 값보다 앞에 둔 답이다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 처리한 뒤 다음 줄 가운데 하나를 이어서 입력할 때 출력이 `AGGREGATE m` 인 것은?",
+      "context": "<보기>\nCREATE TABLE s (region STRING, item STRING, day INT, qty INT)\nINSERT INTO s VALUES ('east', 'pen', 1, 3), ('west', 'ink', 2, 5), (NULL, 'pen', 2, NULL)\nCREATE AGGREGATE m AS SELECT region, day, COUNT(*), SUM(qty), MIN(qty) FROM s GROUP BY region, day",
+      "choices": [
+        "`EXPLAIN SELECT day, GROUPING(day), MIN(qty), COUNT(*) FROM s WHERE region IS NULL GROUP BY CUBE(day)`",
+        "`EXPLAIN SELECT region, AVG(qty) FROM s GROUP BY region`",
+        "`EXPLAIN SELECT region, SUM(qty) FROM s WHERE qty > 1 GROUP BY region`",
+        "`EXPLAIN SELECT region, COUNT(*) FROM s GROUP BY ROLLUP(region, item)`",
+        "`EXPLAIN SELECT region, COUNT(DISTINCT day) FROM s GROUP BY region`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.5",
+        "4.16",
+        "4.17"
+      ],
+      "quote": "측정값은 함수와 열이 모두 같아야 하므로 COUNT(*) 는 COUNT(c) 를 대신하지 못하고 COUNT(c) 도 COUNT(*) 를 대신하지 못한다.",
+      "explanation": "정답은 ①이다. [4.16]에 따라 질의의 그룹 열 day 와 WHERE 에 나온 region 이 모두 m 의 차원이다. [4.17]에 따라 MIN(qty) 와 COUNT(*) 에 맞는 측정값이 m 에 있고 GROUPING 은 측정값이 없어도 된다. ② AVG(qty) 에는 SUM(qty) 와 COUNT(qty) 가 함께 있어야 한다. m 에는 COUNT(*) 만 있고 COUNT(*) 는 COUNT(qty) 를 대신하지 못한다. [4.17]의 두 규칙을 함께 적용해야 오답임을 알 수 있다. ③ WHERE 에 나온 qty 는 m 의 차원이 아니다. ④ [4.5]에 따라 ROLLUP 의 그룹 열은 region 과 item 이고 item 은 m 의 차원이 아니다. (region) 과 () 그룹 집합만 보면 답할 수 있을 것 같지만 [4.16]은 그룹 열 전체가 차원이어야 한다고 정한다. ⑤ [4.17]에 따라 COUNT(DISTINCT) 가 있는 질의는 day 가 차원이어도 어떤 사전 집계로도 답할 수 없다. ②~⑤는 모두 `TABLE s` 를 출력한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "3단계 프로그램의 동작을 바르게 설명한 것은?",
+      "choices": [
+        "WHERE 를 통과한 행이 없으면 `GROUP BY ROLLUP(region)` 질의도 1단계의 `GROUP BY region` 질의처럼 머리줄만 출력한다.",
+        "테이블 sales 가 있을 때 `CREATE AGGREGATE sales AS SELECT region, AVG(qty) FROM sales GROUP BY region` 은 AVG 가 측정값이 될 수 없으므로 `ERR NOT_MERGEABLE` 을 출력한다.",
+        "`SELECT region, GROUPING(region), COUNT(*) FROM sales GROUP BY region` 에서 region 이 NULL 인 그룹의 GROUPING(region) 은 1 이다.",
+        "답할 수 있는 사전 집계가 여럿이면 그 가운데 질의의 WHERE 에 맞는 행이 가장 적은 사전 집계를 고른다.",
+        "원본 테이블에 행이 하나도 없을 때 질의에 답할 수 있는 사전 집계가 둘 이상이면 EXPLAIN 은 그 가운데 이름이 1단계 4.9 의 순서로 가장 앞서는 사전 집계를 출력한다."
+      ],
+      "answer": 5,
+      "refs": [
+        "4.6",
+        "4.8",
+        "4.13",
+        "4.14",
+        "4.15",
+        "4.18"
+      ],
+      "quote": "원본 테이블에 행이 없으면 사전 집계의 행 수는 0 이다.",
+      "explanation": "정답은 ⑤이다. [4.15]에 따라 원본 테이블에 행이 없으면 모든 사전 집계의 행 수가 0 이다. 답할 수 있는 사전 집계의 행 수가 모두 같으므로 [4.18]에 따라 이름이 앞서는 것을 고른다. ① [4.6]에 따라 ROLLUP 이 만드는 빈 그룹 집합은 통과한 행이 없어도 총계 행 하나를 낸다. ② [4.13]은 그 이름을 이미 쓰고 있는지를 가장 먼저 확인한다. [4.14]에 따라 테이블과 사전 집계는 이름 공간을 함께 쓰므로 `ERR EXISTS` 가 먼저 나온다. 두 규칙을 함께 적용해야 오답임을 알 수 있다. ③ [4.8]에 따라 1단계의 열 목록으로 묶은 질의에서 GROUPING 은 언제나 0 이다. region 이 NULL 인 그룹은 진짜 NULL 값의 그룹이고 region 이 빠진 행이 아니다. ④ [4.18]에 따라 비교하는 행 수는 사전 집계의 행을 모두 센 것이고 WHERE 와 상관없다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE TABLE t (a STRING, b INT, v INT)",
+        "INSERT INTO t VALUES ('x', 1, 10), ('y', 2, 20)",
+        "CREATE AGGREGATE m0 AS SELECT a, SUM(v), COUNT(*) FROM t GROUP BY a",
+        "CREATE AGGREGATE m1 AS SELECT a, b, SUM(v), COUNT(v) FROM t GROUP BY a, b",
+        "CREATE AGGREGATE m2 AS SELECT a, COUNT(v), SUM(v) FROM t GROUP BY a",
+        "INSERT INTO t VALUES ('x', 5, NULL), (NULL, 3, 30)",
+        "EXPLAIN SELECT a, AVG(v) FROM t GROUP BY a"
+      ],
+      "answers": [
+        "AGGREGATE m2"
+      ],
+      "refs": [
+        "4.15",
+        "4.17",
+        "4.18"
+      ],
+      "quote": "답할 수 있는 사전 집계가 여럿이면 그 질의를 실행하는 시점의 행 수(4.15)가 가장 적은 것을 고른다.",
+      "explanation": "정답은 `AGGREGATE m2` 다. 질의의 그룹 열 a 는 세 사전 집계 모두의 차원이다. [4.17]에 따라 AVG(v) 에는 SUM(v) 와 COUNT(v) 가 함께 있어야 하므로 COUNT(*) 만 있는 m0 은 답할 수 없고 m1 과 m2 가 남는다. [4.15]에 따라 사전 집계는 만든 뒤에 넣은 행도 반영한다. EXPLAIN 을 실행하는 시점의 행 수는 m1 이 (x, 1), (y, 2), (x, 5), (NULL, 3) 의 4 이고 m2 가 x, y, NULL 의 3 이다. [4.18]에 따라 행이 적은 m2 를 고른다. COUNT(*) 가 COUNT(v) 를 대신한다고 보면 m0 과 m2 가 3 으로 같아 이름이 앞선 `AGGREGATE m0` 을 답하게 된다. 사전 집계를 만든 시점의 행 수로 고르면 m1 과 m2 가 2 로 같아 `AGGREGATE m1` 을 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE TABLE sales (region STRING, item STRING, day INT, qty INT)",
+        "INSERT INTO sales VALUES ('east', 'pen', 1, 3), ('west', 'ink', 2, 5)",
+        "CREATE AGGREGATE by_item_region AS SELECT item, region, COUNT(*), SUM(qty) FROM sales GROUP BY item, region",
+        "EXPLAIN SELECT item, GROUPING(region), SUM(qty) FROM sales WHERE region = 'east' GROUP BY GROUPING SETS ((item), ())"
+      ],
+      "answers": [
+        "ERR NOT_GROUPED region"
+      ],
+      "refs": [
+        "4.5",
+        "4.8",
+        "4.21"
+      ],
+      "quote": "넷째 확인에서는 SELECT 목록의 GROUPING 항목도 열 이름 항목과 함께 앞에서부터 보고 그 열이 그룹 열이 아니면 `ERR NOT_GROUPED <열>` 이다.",
+      "explanation": "정답은 `ERR NOT_GROUPED region` 이다. [4.21]에 따라 EXPLAIN 은 SELECT 문에 오류가 있으면 그 SELECT 문을 실행했을 때와 같은 오류 줄을 낸다. [4.5]에 따라 이 질의의 그룹 열은 item 하나다. WHERE 에는 그룹 열이 아닌 region 을 써도 되지만 [4.8]에 따라 넷째 확인은 GROUPING 항목도 열 이름 항목과 함께 앞에서부터 보므로 item 다음의 GROUPING(region) 에서 오류가 난다. 오류를 놓치면 그룹 열 item 과 WHERE 의 region 이 모두 by_item_region 의 차원이고 SUM(qty) 도 측정값에 있어 `AGGREGATE by_item_region` 을 답하게 된다."
+    }
+  ]
+}

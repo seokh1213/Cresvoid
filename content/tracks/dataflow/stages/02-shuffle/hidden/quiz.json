@@ -1,0 +1,120 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PROFILE w 가 출력하는 셔플 줄은?",
+      "context": "<보기>\nDATA fruit 2\n0 banana 1\n0 NULL 2\n0 banana 3\n0 kiwi 4\n1 quince 5\n1 banana 6\n1 NULL 7\n1 apple 8\nEND\nPIPE w = source fruit | reduceByKey sum 4\nPROFILE w\n\nbanana, quince, kiwi, apple 의 해시값은 차례로 −1396355227, −948584341, 3292336, 93029210 이다.",
+      "choices": [
+        "`write records 7 bytes 97 spills 0 sizes 34,32,15,16`",
+        "`write records 7 bytes 97 spills 0 sizes 34,16,15,32`",
+        "`write records 8 bytes 113 spills 0 sizes 34,48,15,16`",
+        "`write records 5 bytes 71 spills 0 sizes 24,16,15,16`",
+        "`write records 7 bytes 105 spills 0 sizes 42,32,15,16`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.7",
+        "4.8",
+        "4.10",
+        "4.12",
+        "4.18"
+      ],
+      "quote": "그렇지 않으면 p(K) 는 4.8 의 해시값 h(K) 를 n 으로 나눈 나머지 가운데 0 이상 n 미만인 수다.",
+      "explanation": "정답은 ①이다. [4.10]에 따라 맵 태스크는 맡은 파티션의 서로 다른 키마다 레코드 하나를 보낸다. 맵 태스크 0 은 banana, NULL, kiwi 셋을, 맵 태스크 1 은 quince, banana, NULL, apple 넷을 보내므로 [4.18]의 R 은 7 이다. [4.12]에 따라 banana 와 quince 는 16바이트, kiwi 는 14바이트, apple 은 15바이트, NULL 은 10바이트이고 레코드 일곱 개의 바이트 합은 97 이다. [4.7]에 따라 NULL 은 받는 파티션 0 으로 간다. 해시값을 4 로 나눈 0 이상의 나머지는 banana 가 1, quince 가 3, kiwi 가 0, apple 이 2 다. 그래서 크기는 파티션 0 이 NULL 둘과 kiwi 로 34, 파티션 1 이 banana 둘로 32, 파티션 2 가 15, 파티션 3 이 16 이다. ② 해시값의 절댓값을 4 로 나눈 나머지를 써서 banana 를 파티션 3 에, quince 를 파티션 1 에 둔 답이다. ③ 결합하지 않고 행 8개를 모두 보낸 답이다. ④ 두 맵 태스크에 걸친 같은 키까지 하나로 합친 답이다. 결합은 맵 태스크 안에서만 한다는 [4.10]과 맵 태스크들이 보낸 레코드 수를 더한 값이 R 이라는 [4.18]을 함께 적용해야 오답임을 알 수 있다. ⑤ NULL 의 키 부분을 `NULL` 네 글자에 2 를 더한 6 으로 센 답이다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PROFILE r 이 출력하는 셔플 줄은?",
+      "context": "<보기>\nDATA ev 1\n0 a 1\n0 bb 1\n0 dd 1\n0 a 1\n0 a 1\n0 bb 1\n0 bb 1\n0 ccc 1\nEND\nPIPE r = source ev | reduceByKey sum 2\nSET memory 23\nPROFILE r\n\na, bb, dd, ccc 의 해시값은 차례로 97, 3136, 3200, 98307 이다.",
+      "choices": [
+        "`write records 4 bytes 48 spills 1 sizes 24,24`",
+        "`write records 4 bytes 48 spills 4 sizes 24,24`",
+        "`write records 4 bytes 48 spills 2 sizes 24,24`",
+        "`write records 6 bytes 71 spills 2 sizes 36,35`",
+        "`write records 4 bytes 48 spills 3 sizes 24,24`"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.10",
+        "4.12",
+        "4.13",
+        "4.14",
+        "4.15",
+        "4.18"
+      ],
+      "quote": "넓은 의존인 reduceByKey 의 맵 태스크는 버퍼를 마지막으로 비운 뒤 같은 키의 행이 이미 들어왔으면 버퍼 크기를 그대로 두고 처음 들어오는 키이면 그 행의 바이트 수만큼 버퍼 크기를 늘린다.",
+      "explanation": "정답은 ③이다. [4.12]에 따라 a 는 11바이트, bb 와 dd 는 12바이트, ccc 는 13바이트다. [4.14]에 따라 버퍼는 a 에서 11, bb 에서 23 이 된다. 23 은 한도 23 보다 크지 않으므로 흘리지 않는다. dd 에서 35 가 되어 첫 흘림이 생기고 버퍼를 비우면서 들어온 키도 잊는다. 다음 a 는 새 키로 들어와 11 이 되고 그다음 a 는 크기를 바꾸지 않는다. bb 에서 23 이 되고 다음 bb 는 크기를 바꾸지 않으며 ccc 에서 36 이 되어 둘째 흘림이 생긴다. [4.15]에 따라 흘림은 보내는 레코드를 바꾸지 않으므로 레코드는 서로 다른 키 넷이고 바이트는 48 이다. 해시값을 2 로 나눈 나머지는 bb 와 dd 가 0, a 와 ccc 가 1 이므로 크기는 24, 24 다. ① 버퍼를 비운 뒤에도 들어온 키를 기억한다고 본 답이다. ② 버퍼 크기가 한도와 같을 때도 흘린다고 본 답이다. ④ 흘릴 때마다 그때까지 결합한 레코드를 따로 보낸다고 본 답이다. 버퍼를 비우면 들어온 키를 잊는다는 [4.14]와 흘림이 보내는 레코드를 바꾸지 않는다는 [4.15]를 함께 적용해야 오답임을 알 수 있다. ⑤ 같은 키의 행이 다시 와도 버퍼가 커진다고 본 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PROFILE g 의 출력에서 stage 1 줄 바로 다음 줄은?",
+      "context": "<보기>\nDATA s 2\n0 x 2\n0 NULL 5\n0 k 5\n0 bb 4\n1 m 5\n1 x 9\nEND\nPIPE g = source s | groupByKey 2 | repartition 3\nPROFILE g\n\nx, k, bb, m 의 해시값은 차례로 120, 107, 3136, 109 이다.",
+      "choices": [
+        "`write records 5 bytes 83 spills 0 sizes 23,29,31`",
+        "`write records 5 bytes 83 spills 0 sizes 14,31,38`",
+        "`write records 5 bytes 55 spills 0 sizes 10,23,22`",
+        "`write records 5 bytes 83 spills 0 sizes 31,37,15`",
+        "`write records 5 bytes 83 spills 0 sizes 29,31,23`"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.9",
+        "4.11",
+        "4.12"
+      ],
+      "quote": "넓은 의존인 groupByKey 의 받는 파티션에는 온 레코드를 키가 같은 것끼리 묶어 목록 값으로 만든 행이 키 순서로 놓인다.",
+      "explanation": "정답은 ②이다. [4.7]에 따라 groupByKey 2 의 셔플에서 x, bb, NULL 은 받는 파티션 0 으로, k, m 은 받는 파티션 1 로 간다. [4.11]에 따라 받는 파티션 0 에는 `NULL [5]`, `bb [4]`, `x [2,9]` 가 키 순서로 놓이고 받는 파티션 1 에는 `k [5]`, `m [5]` 가 놓인다. [4.6]에 따라 groupByKey 의 출력 파티션 0 과 1 이 repartition 셔플의 맵 태스크 0 과 1 이다. [4.9]에 따라 맵 태스크 0 은 NULL, bb, x 를 받는 파티션 0, 1, 2 로, 맵 태스크 1 은 k, m 을 받는 파티션 1, 2 로 보낸다. [4.12]에 따라 레코드 크기는 `NULL [5]` 가 14, `bb [4]` 가 16, `x [2,9]` 가 23, `k [5]` 와 `m [5]` 가 15 다. 그래서 크기는 14, 31, 38 이고 바이트 합은 83 이다. ① 받는 파티션 0 의 행을 키 순서가 아니라 처음 나온 차례인 x, NULL, bb 로 놓은 답이다. 받는 파티션의 행이 키 순서로 놓인다는 [4.11]과 맵 태스크 안에서 몇째 레코드인지가 받는 파티션을 정한다는 [4.9]를 함께 적용해야 오답임을 알 수 있다. ③ 목록 값의 값 부분을 정수 값처럼 8 로 센 답이다. ④ NULL 키를 마지막 파티션으로 보낸 답이다. ⑤ 맵 태스크마다 받는 파티션 0 부터 보내기 시작한 답이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "DATA ev 1",
+        "0 a 1",
+        "END",
+        "PIPE r = source ev | reduceByKey sum 2",
+        "SET memory 1000000000000000",
+        "SET   memory   -1",
+        "SET spill -2"
+      ],
+      "answers": [
+        "ERR UNKNOWN_SETTING"
+      ],
+      "refs": [
+        "4.19",
+        "4.20",
+        "5.1"
+      ],
+      "quote": "둘째, 설정 이름이 이 단계까지 정한 이름이 아니면 `ERR UNKNOWN_SETTING` 이다.",
+      "explanation": "정답은 `ERR UNKNOWN_SETTING` 이다. [4.20]에 따라 memory 의 값은 −1 이거나 1 이상 1,000,000,000,000,000 이하이므로 첫 두 SET 은 성공하고 [4.19]에 따라 아무것도 출력하지 않는다. 1단계 3.5 에 따라 토큰 사이의 공백 수는 상관없으므로 둘째 SET 도 세 토큰이다. 셋째 SET 은 세 토큰이지만 spill 은 이 단계의 설정 이름이 아니다. [5.1]에 따라 설정 이름을 값보다 먼저 확인하므로 값 −2 를 보기 전에 `ERR UNKNOWN_SETTING` 이 나온다. 값을 먼저 확인하면 `ERR SYNTAX` 를 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "DATA ev 1",
+        "0 a 1",
+        "END",
+        "PIPE r = source ev | reduceByKey sum 2",
+        "SET memory 11",
+        "SET adaptive on now"
+      ],
+      "answers": [
+        "ERR SYNTAX"
+      ],
+      "refs": [
+        "4.20",
+        "5.1"
+      ],
+      "quote": "다만 줄이 세 토큰이고 설정 이름이 broadcastThreshold, skewFactor, skewThreshold, advisorySize, adaptive, minPartitionSize 가운데 하나이면 이 문서는 그 줄부터 입력 끝까지의 출력을 정하지 않는다.",
+      "explanation": "정답은 `ERR SYNTAX` 다. `SET memory 11` 은 [4.20]의 범위 안이라 아무것도 출력하지 않는다. [5.1]의 단서에 따라 이 문서가 출력을 정하지 않는 줄은 세 토큰이면서 설정 이름이 adaptive 같은 뒤 단계 이름인 줄뿐이다. `SET adaptive on now` 는 네 토큰이라 단서에 들지 않으므로 첫째 확인에서 `ERR SYNTAX` 가 나온다. 설정 이름을 먼저 보면 `ERR UNKNOWN_SETTING` 을 답하게 된다."
+    }
+  ]
+}

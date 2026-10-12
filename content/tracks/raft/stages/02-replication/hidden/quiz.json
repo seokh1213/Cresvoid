@@ -1,0 +1,104 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>의 상태를 바르게 설명한 것은?",
+      "context": "<보기>\n리더 a 의 임기는 3 이고 로그는 `1:x=1 1:x=2 2:x=3 3:x=4 3:x=5 3:x=6 3:x=7` 이다. a 는 nextIndex[b] 를 4, matchIndex[b] 를 0 으로 두고 있다. 팔로워 b 의 임기는 3 이고 로그는 `1:x=1 1:x=2 1:y=8 1:y=9` 다.",
+      "choices": [
+        "a 가 지금 b 에 보내는 AppendEntries 의 앞 항목의 인덱스는 3, 앞 항목의 임기는 2 이고 실린 항목은 4개다.",
+        "b 는 이 요청을 받으면 일관성 검사를 통과하고 인덱스 3 의 `1:y=8` 을 a 의 항목으로 바꾼다.",
+        "b 가 이 요청에 보내는 실패 응답의 응답 인덱스는 b 의 마지막 인덱스인 4 다.",
+        "a 는 이 요청의 실패 응답을 받으면 nextIndex[b] 를 3 으로 바꾸고 곧바로 앞 항목의 인덱스가 2 인 요청을 b 에 보낸다.",
+        "a 가 앞 항목의 인덱스가 3 인 요청의 실패 응답을 두 번 받으면 nextIndex[b] 는 2 가 된다."
+      ],
+      "answer": 1,
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.8",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "리더가 노드 f 에 보낼 때 앞 항목의 인덱스는 nextIndex[f] − 1 이고 앞 항목의 임기는 리더 로그에서 그 인덱스에 있는 항목의 임기다.",
+      "explanation": "정답은 ①이다. [4.6]에 따라 앞 항목의 인덱스는 nextIndex[b] − 1 = 3 이고 앞 항목의 임기는 a 로그의 인덱스 3 항목 `2:x=3` 의 임기 2 다. 실린 항목은 인덱스 4 부터 마지막 7 까지 가운데 앞에서부터 많아야 4개이므로 네 항목이 모두 실린다. ② [4.8]에서 b 로그의 인덱스 3 항목은 임기가 1 이라 앞 항목의 임기 2 와 다르므로 검사에 실패하고 로그를 바꾸지 않는다. 앞 항목의 임기를 [4.6]대로 구한 뒤 [4.8]의 검사를 적용해야 지울 수 있다. ③ [4.7]에서 실패 응답의 응답 인덱스는 요청의 앞 항목의 인덱스 3 이다. ④ [4.13]에 따라 nextIndex[b] 는 3 이 되지만 [4.14]에서 리더는 곧바로 다시 보내지 않고 다음 하트비트가 바뀐 nextIndex 로 정한 내용을 싣는다. ⑤ 첫 실패 응답으로 nextIndex[b] 가 3 이 된 뒤에는 응답 인덱스 3 이 nextIndex[b] − 1 = 2 와 다르므로 [4.13]에 따라 둘째 응답은 무시한다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때 NEXT b 가 출력하는 둘째 줄은?",
+      "context": "<보기>\nNODE a 2\nNODE b 7\nNODE c 30\nTICK 5\nREQUEST a k 1\nREQUEST a k 2\nTICK 3\nPARTITION a,b c\nREQUEST a k 3\nREQUEST a k 4\nREQUEST a k 5\nTICK 3\nPARTITION a b,c\nDELAY c b 2\nTICK 17\nNEXT b",
+      "choices": [
+        "`c next=5 match=0`",
+        "`c next=2 match=0`",
+        "`c next=6 match=0`",
+        "`c next=4 match=0`",
+        "`c next=3 match=0`"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.5",
+        "4.7",
+        "4.8",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "같은 앞 항목의 인덱스를 담은 요청이 여러 번 거절되어도 nextIndex[f] 는 한 번만 줄어든다.",
+      "explanation": "정답은 ④이다. a 는 시각 4 에 리더가 되어 c 가 떨어지기 전에 항목 1, 2 를 c 에 복제하고 항목 3~5 는 b 에만 복제한다. 두 번째 PARTITION 전에 보낸 하트비트가 시각 12 에 b 에 도착하므로 b 의 선거 시각은 19 다. 시각 20 에 c 가 b 에게 표를 주지만 c 에서 b 로 가는 링크만 지연이 2 라서 응답은 시각 22 에 도착하고 b 는 그때 리더가 된다. [4.5]에 따라 nextIndex[c] 는 6 이다. 시각 22 에 보낸 요청은 앞 항목의 인덱스 5 가 c 의 마지막 인덱스 2 보다 커서 [4.8]의 검사에 실패한다. [4.7]에 따라 응답 인덱스 5 를 실은 실패 응답이 시각 25 에 도착해 nextIndex[c] 는 5 가 된다. 시각 23, 24 에 보낸 같은 요청의 실패 응답은 [4.13]에 따라 무시한다. [4.14]대로 시각 25 의 하트비트가 앞 항목의 인덱스 4 를 싣고 그 실패 응답이 시각 28 에 도착해 nextIndex[c] 는 4 가 된다. ① 지연 2 를 두 방향에 모두 적용하면 왕복이 4틱이라 시각 28 에는 아직 5 다. DELAY 가 한 방향의 링크만 바꾼다는 1단계 4.13 과 [4.13]을 함께 적용해야 지울 수 있다. ② 실패 응답마다 nextIndex 를 줄이면 시각 25 부터 틱마다 줄어 2 가 된다. ③ 실패 응답의 응답 인덱스를 c 의 마지막 인덱스 2 로 보면 [4.13]의 조건을 한 번도 만족하지 못해 6 에 머문다. ⑤ 지연을 무시하고 2틱마다 줄어든다고 계산하면 3 이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때 REQUEST 의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nNODE a 3 40\nNODE b 8\nNODE c 9\nTICK 6\nREQUEST a k 1\nTICK 3\nPARTITION a b,c\nTICK 9\nREQUEST b k 2\nREQUEST c k 3\nTICK 1\nREQUEST c k 4\nREQUEST a k 5\nTICK 1\nREQUEST b k 6",
+      "choices": [
+        "`REQUEST b k 2` 는 b 가 선거를 시작하기 전에 알던 리더를 알려 `NOT_LEADER a` 를 출력한다.",
+        "`REQUEST c k 3` 은 c 가 리더 a 와 끊겨 있으므로 `NOT_LEADER -` 를 출력한다.",
+        "`REQUEST a k 5` 는 `OK 2 1` 을 출력한다.",
+        "`REQUEST c k 4` 는 c 가 표를 준 후보 b 를 알려 `NOT_LEADER b` 를 출력한다.",
+        "`REQUEST b k 6` 은 a 가 분할 뒤에 받은 항목 다음에 덧붙여 `OK 3 2` 를 출력한다."
+      ],
+      "answer": 3,
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.4"
+      ],
+      "quote": "소수 쪽에 남은 옛 리더처럼 자기가 리더라고 믿는 노드는 모두 항목을 덧붙이고 `OK` 를 출력한다.",
+      "explanation": "정답은 ③이다. 분할 뒤에도 a 는 더 높은 임기를 보지 못해 자기가 리더라고 믿는다. [4.2]에 따라 a 는 로그 `1:k=1` 뒤에 인덱스 2, 임기 1 의 항목을 덧붙이고 `OK 2 1` 을 출력한다. ① b 는 시각 18 에 선거를 시작하며 1단계 4.22 에 따라 알고 있는 리더를 비운다. [4.3]에 따라 `NOT_LEADER -` 다. ② 알고 있는 리더는 링크가 끊겨도 바뀌지 않는다. 시각 18 의 c 는 아직 b 의 요청을 받지 않았으므로 [4.3]에 따라 `NOT_LEADER a` 다. ④ 시각 19 에 c 는 임기 2 의 RequestVote 를 받아 1단계 4.20 대로 알고 있는 리더를 비운 뒤 b 에게 표를 준다. 1단계 4.31 에 따라 표를 주는 것으로는 알고 있는 리더를 정하지 않으므로 `NOT_LEADER -` 다. 두 규칙을 함께 적용해야 지울 수 있다. ⑤ b 는 시각 20 에 리더가 되었고 로그에는 분할 전에 a 에게 받은 `1:k=1` 만 있다. [4.4]에 따라 a 의 REQUEST 는 메시지를 보내지 않고 a 의 하트비트는 끊긴 링크에서 사라지므로 b 의 새 항목은 인덱스 2 에 붙어 `OK 2 2` 다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>는 프로그램을 한 번 실행한 기록이고 표기는 1단계 6.1 과 같다. 마지막 줄 STATE c 의 출력은?",
+      "context": "<보기>\n> NODE a 4\n> NODE b 7\n> NODE c 15\n> TICK 7\n4 a CANDIDATE 1\n6 a LEADER 1\n> REQUEST a m 1\nOK 1 1\n> TICK 2\n> PARTITION a,b c\n> REQUEST a m 2\nOK 2 1\n> REQUEST a m 3\nOK 3 1\n> TICK 3\n> PARTITION a b,c\n> TICK 12\n20 b CANDIDATE 2\n22 b LEADER 2\n> STATE c",
+      "answers": [
+        "c follower term=2 vote=b leader=b deadline=39"
+      ],
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "검사에 실패해도 앞에서 바꾼 역할, 알고 있는 리더, 선거 시각은 되돌리지 않는다.",
+      "explanation": "정답은 `c follower term=2 vote=b leader=b deadline=39` 다. c 의 로그는 분할 전에 받은 `1:m=1` 하나다. 시각 21 에 c 는 임기 2 의 RequestVote 를 받아 b 에게 표를 주고 선거 시각을 21 + 15 = 36 으로 맞춘다. b 는 시각 22 에 리더가 되며 [4.5]에 따라 nextIndex[c] 를 4 로 정한다. 그래서 [4.6]대로 b 의 하트비트는 앞 항목의 인덱스 3 을 싣고 이 값이 c 의 마지막 인덱스 1 보다 커서 [4.8]의 검사에 실패한다. 검사에 실패해도 c 는 이미 요청을 받아들였으므로 [4.8]에 따라 알고 있는 리더를 b 로 정하고 다시 맞춘 선거 시각을 그대로 둔다. 시각 22 와 23 에 보낸 하트비트가 시각 23 과 24 에 도착하므로 선거 시각은 24 + 15 = 39 다. 검사에 실패한 요청은 아무것도 바꾸지 않는다고 보면 `c follower term=2 vote=b leader=- deadline=36` 을 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>는 프로그램을 한 번 실행한 기록이고 표기는 1단계 6.1 과 같다. 마지막 줄 LOG a 의 출력은?",
+      "context": "<보기>\n> NODE a 3 40\n> NODE b 8\n> NODE c 9\n> TICK 6\n3 a CANDIDATE 1\n5 a LEADER 1\n> REQUEST a k 1\nOK 1 1\n> REQUEST a k 2\nOK 2 1\n> TICK 3\n> PARTITION a b,c\n> REQUEST a k 3\nOK 3 1\n> REQUEST a k 4\nOK 4 1\n> TICK 12\n18 b CANDIDATE 2\n20 b LEADER 2\n> REQUEST b v 5\nOK 3 2\n> REQUEST b v 6\nOK 4 2\n> REQUEST b v 7\nOK 5 2\n> REQUEST b v 8\nOK 6 2\n> REQUEST b v 9\nOK 7 2\n> HEAL\n> TICK 3\n23 a FOLLOWER 2\n> LOG a",
+      "answers": [
+        "1:k=1 1:k=2 2:v=5 2:v=6 2:v=7 2:v=8"
+      ],
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.9",
+        "4.12"
+      ],
+      "quote": "노드가 리더가 되면(1단계 4.25) 첫 AppendEntries 를 보내기 전에 다른 노드 f 마다 nextIndex[f] 를 자기 마지막 인덱스 + 1 로, matchIndex[f] 를 0 으로 정한다.",
+      "explanation": "정답은 `1:k=1 1:k=2 2:v=5 2:v=6 2:v=7 2:v=8` 이다. b 는 시각 20 에 로그가 `1:k=1 1:k=2` 일 때 리더가 되므로 [4.5]에 따라 nextIndex[a] 는 3 이다. 그 뒤의 REQUEST 는 nextIndex 를 바꾸지 않는다. HEAL 뒤 시각 22 에 b 가 a 에 보낸 하트비트는 [4.6]에 따라 앞 항목의 인덱스 2 와 인덱스 3~6 의 항목 4개를 싣는다. 시각 23 에 a 는 임기 2 를 보고 팔로워가 된 뒤 검사를 통과한다. [4.9]에 따라 a 는 임기가 다른 인덱스 3 의 `1:k=3` 과 그 뒤의 `1:k=4` 를 지우고 실린 항목을 덧붙인다. 시각 23 에 보낸 하트비트도 같은 항목을 실어 시각 24 에 도착하므로 로그는 그대로다. 인덱스 7 의 항목은 [4.12]로 nextIndex[a] 가 7 이 된 뒤 시각 24 의 하트비트에 실려 시각 25 에 도착한다. 실을 수 있는 항목 수의 한도를 잊으면 `2:v=9` 까지 붙은 일곱 항목을, nextIndex[a] 를 REQUEST 뒤의 마지막 인덱스 + 1 인 8 로 보면 검사에 실패한 a 의 로그 `1:k=1 1:k=2 1:k=3 1:k=4` 를 답하게 된다."
+    }
+  ]
+}

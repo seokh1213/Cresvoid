@@ -1,0 +1,110 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE logs 2 batch.size=6\nPRODUCE logs - abc\nPRODUCE logs a zzzzzzzz\nPRODUCE logs - def\nPRODUCE logs - g\nPARTITIONS logs 3\nPRODUCE logs - hhhhhh\nPRODUCE logs - i",
+      "choices": [
+        "`PRODUCE logs - def` 는 `partition=1 offset=0` 을 출력한다.",
+        "`PRODUCE logs - g` 는 `partition=0 offset=3` 을 출력한다.",
+        "`PRODUCE logs - hhhhhh` 는 `partition=1 offset=1` 을 출력한다.",
+        "`PRODUCE logs - i` 는 `partition=0 offset=3` 을 출력한다.",
+        "`PRODUCE logs - i` 는 `partition=1 offset=1` 을 출력한다."
+      ],
+      "answer": 3,
+      "refs": [
+        "4.7",
+        "4.10",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "더한 값이 `batch.size` 이상이면 스티키 파티션을 (스티키 파티션 + 1) 을 지금 파티션 수로 나눈 나머지로 바꾸고 누적 바이트를 0 으로 되돌린다.",
+      "explanation": "정답은 ③이다. 키 없는 레코드의 크기는 값의 바이트 수다. abc 는 스티키 파티션 0 의 오프셋 0 으로 덧붙고 누적 바이트는 3 이 된다. 키 a 의 메시지는 부호 비트를 0 으로 바꾼 해시값 1678518572 가 짝수라서 [4.10]에 따라 파티션 0 의 오프셋 1 로 가고 [4.13]에 따라 누적 바이트를 바꾸지 않는다. def 는 파티션 0 의 오프셋 2 로 덧붙고 누적 바이트가 6 이 되어 [4.12]에 따라 스티키 파티션이 1 로 바뀐다. g 는 파티션 1 의 오프셋 0 으로 가고 누적 바이트는 1 이 된다. PARTITIONS 는 스티키 파티션과 누적 바이트를 바꾸지 않으므로 hhhhhh 는 파티션 1 의 오프셋 1 로 간다. 이때 누적 바이트가 7 이 되어 스티키 파티션은 (1 + 1) 을 지금 파티션 수 3 으로 나눈 나머지 2 가 된다. 그래서 i 의 PRODUCE 는 `partition=2 offset=0` 을 출력한다. ① 키 있는 메시지의 9바이트를 누적 바이트에 더하거나 누적 바이트를 batch.size 이상으로 만드는 메시지부터 다음 파티션으로 보내면 이렇게 답하게 된다. [4.12]의 마지막 문장과 [4.13]을 함께 적용해야 지울 수 있다. ② 누적 바이트가 batch.size 보다 커야 바뀐다고 보면 def 뒤에도 스티키 파티션이 0 이라 g 가 파티션 0 의 오프셋 3 으로 간다. [4.12]는 batch.size 이상이면 바꾼다. ④ 다음 스티키 파티션을 CREATE 때의 파티션 수 2 로 나누어 구하면 0 이 된다. [4.7]로 파티션 수가 3 이 된 뒤에는 [4.12]가 지금 파티션 수로 나눈다. 두 규칙을 함께 적용해야 지울 수 있다. ⑤ PARTITIONS 가 스티키 파티션을 0 으로 되돌린다고 보거나 batch.size 보다 커야 바뀐다고 보면 이렇게 답하게 된다. [4.13]에 따라 PARTITIONS 는 스티키 파티션을 바꾸지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE s 1 segment.bytes=6 retention.bytes=7\nPRODUCE s - aaa\nPRODUCE s - bbb\nPRODUCE s k c\nPRODUCE s - dddd\nPRODUCE s - e\nTICK 1\nSEGMENTS s 0\nOFFSETS s 0\nFETCH s 0 1 2\nFETCH s 0 5 1",
+      "choices": [
+        "`SEGMENTS s 0` 은 두 줄을 출력하고 첫 줄은 `base=2 records=2 bytes=6 max_time=0` 이다.",
+        "`OFFSETS s 0` 은 `start=0 end=5` 를 출력한다.",
+        "`FETCH s 0 1 2` 는 `2 k c` 와 `3 - dddd` 를 출력한다.",
+        "`FETCH s 0 5 1` 은 `ERR OFFSET_OUT_OF_RANGE` 를 출력한다.",
+        "`SEGMENTS s 0` 의 마지막 줄은 `base=3 records=2 bytes=5 max_time=0 active` 다."
+      ],
+      "answer": 1,
+      "refs": [
+        "4.15",
+        "4.19",
+        "4.20",
+        "4.23",
+        "4.24"
+      ],
+      "quote": "닫힌 세그먼트마다 로그 크기에서 그 세그먼트의 크기를 뺀 값이 `retention.bytes` 이상이면 그 세그먼트를 지우고 로그 크기를 그 값으로 바꾼다.",
+      "explanation": "정답은 ①이다. [4.15]에 따라 bbb 를 더하면 3 + 3 = 6 이 segment.bytes 6 보다 크지 않아 롤하지 않으므로 첫 세그먼트는 오프셋 0, 1 을 담은 6바이트가 된다. 2바이트인 `k c` 를 더하면 8 이 되어 롤하고 기준 오프셋 2 의 세그먼트가 `k c` 와 dddd 를 담아 6바이트가 된다. e 를 더하면 7 이 되어 다시 롤하므로 기준 오프셋 4 의 활성 세그먼트가 생긴다. TICK 뒤 [4.19]의 로그 크기는 활성 세그먼트까지 더한 6 + 6 + 1 = 13 이다. 첫 세그먼트는 13 − 6 = 7 이 retention.bytes 7 이상이라 지워지고 로그 크기는 7 이 된다. 둘째 세그먼트는 7 − 6 = 1 이 7 보다 작아 남고 판단은 여기서 멈춘다. 그래서 SEGMENTS 는 기준 오프셋 2 와 4 의 두 줄을 출력한다. ② 로그 크기에서 활성 세그먼트를 빼거나 retention.bytes 보다 커야 지운다고 보면 첫 세그먼트가 남아 이렇게 답하게 된다. ③ [4.20]에 따라 로그 시작 오프셋은 2 이고 [4.23]에 따라 그보다 작은 오프셋 1 은 `ERR OFFSET_OUT_OF_RANGE` 다. 첫 세그먼트를 지우는 [4.19]와 범위 오류를 정하는 [4.23]을 함께 적용해야 지울 수 있다. ④ 오프셋 5 는 로그 끝 오프셋과 같으므로 [4.24]에 따라 `(empty)` 다. ⑤ 크기가 segment.bytes 와 같아지면 롤한다고 보면 이렇게 답하게 된다. [4.15]는 더한 값이 segment.bytes 보다 클 때만 롤한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때 세 OFFSETS 의 출력을 차례로 나열한 것은?",
+      "context": "<보기>\nCREATE t 1 segment.bytes=4 retention.ms=100\nPRODUCE t - aa\nTICK 50\nPRODUCE t - bb\nPRODUCE t - c\nTICK 90\nOFFSETS t 0\nTICK 10\nOFFSETS t 0\nPRODUCE t - ddd\nTICK 1000\nOFFSETS t 0",
+      "choices": [
+        "`start=0 end=3`, `start=2 end=3`, `start=2 end=4`",
+        "`start=2 end=3`, `start=2 end=3`, `start=2 end=4`",
+        "`start=0 end=3`, `start=0 end=3`, `start=4 end=4`",
+        "`start=0 end=3`, `start=0 end=3`, `start=2 end=4`",
+        "`start=1 end=3`, `start=1 end=3`, `start=3 end=4`"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.14",
+        "4.15",
+        "4.17",
+        "4.18"
+      ],
+      "quote": "지금 시각에서 세그먼트의 최대 시각을 뺀 값이 `retention.ms` 보다 큰 닫힌 세그먼트를 지운다.",
+      "explanation": "정답은 ④다. aa 는 시각 0 에, bb 와 c 는 시각 50 에 덧붙는다. bb 를 더하면 2 + 2 = 4 라 롤하지 않고 c 를 더할 때 롤하므로 첫 세그먼트는 오프셋 0, 1 을 담고 [4.14]에 따라 최대 시각은 50 이다. 시각 140 에서는 140 − 50 = 90 이, 시각 150 에서는 100 이 retention.ms 100 보다 크지 않으므로 [4.18]에 따라 첫 세그먼트는 남는다. 시각 0 에 쓴 오프셋 0 도 같은 세그먼트에 있어 함께 남는다. ddd 는 활성 세그먼트의 1바이트에 더해도 4 라 그 세그먼트에 덧붙는다. 시각 1150 에는 첫 세그먼트가 지워지고 [4.17]에 따라 활성 세그먼트는 지우지 않으므로 로그 시작 오프셋은 2 다. ① 지난 시간이 retention.ms 와 같을 때도 지우면 시각 150 에 첫 세그먼트가 지워진다. ② 세그먼트에서 가장 이른 레코드 시각으로 판단하면 시각 140 에 140 − 0 = 140 이라 첫 세그먼트가 지워진다. [4.14]의 최대 시각과 [4.18]을 함께 적용해야 지울 수 있다. ③ 활성 세그먼트까지 지우면 마지막에 로그 시작 오프셋이 로그 끝 오프셋 4 와 같아진다. ⑤ 크기가 segment.bytes 와 같아질 때 롤한다고 보면 bb 부터 새 세그먼트에 들어가고 오프셋 0 만 담은 세그먼트가 시각 140 에 지워진다. [4.15]의 롤 조건과 [4.18]을 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE orders 3 segment.bytes=5",
+        "PARTITIONS orders 7",
+        "PRODUCE orders a 1234"
+      ],
+      "answers": [
+        "partition=3 offset=0"
+      ],
+      "refs": [
+        "4.7",
+        "4.10",
+        "4.21"
+      ],
+      "quote": "파티션 번호는 해시값의 부호 비트, 곧 가장 높은 비트를 0 으로 바꾼 값을 지금 파티션 수로 나눈 나머지다.",
+      "explanation": "정답은 `partition=3 offset=0` 이다. 레코드의 크기 1 + 4 = 5 는 segment.bytes 5 보다 크지 않으므로 [4.21]에 따라 오류가 아니다. [4.7]로 파티션 수가 7 이 되었으므로 [4.10]에 따라 키 a 의 해시값에서 부호 비트를 0 으로 바꾼 1678518572 를 7 로 나눈 나머지 3 을 고른다. CREATE 때의 파티션 수 3 으로 나누면 `partition=2 offset=0`, 해시값의 절댓값 468965076 을 쓰면 `partition=6 offset=0`, 32비트를 부호 없는 수 3826002220 으로 읽으면 `partition=5 offset=0`, 음수 해시값을 그대로 7 로 나누어 음이 아닌 나머지를 구하면 `partition=1 offset=0` 을 답하게 된다. 크기가 segment.bytes 와 같을 때도 너무 크다고 보면 `ERR RECORD_TOO_LARGE` 를 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE logs 1000 retention.ms=-1 retention.bytes=0",
+        "CREATE logs 3 segment.bytes=-1"
+      ],
+      "answers": [
+        "ERR BAD_ARGUMENT"
+      ],
+      "refs": [
+        "4.5",
+        "4.6",
+        "5.5"
+      ],
+      "quote": "`-1` 은 3.10 의 정수가 아니며 두 보관 설정에만 쓸 수 있는 값이다.",
+      "explanation": "정답은 `ERR BAD_ARGUMENT` 다. 첫 CREATE 의 파티션 수 1000 은 범위 안이고 [4.5]에 따라 retention.ms 에는 `-1` 을 쓸 수 있으며 retention.bytes 의 0 도 범위 안이다. 그래서 토픽이 만들어지고 아무것도 출력하지 않는다. 둘째 CREATE 의 segment.bytes 는 1 이상이어야 하고 `-1` 은 두 보관 설정에만 쓸 수 있으므로 형식에 맞지 않는 인자다. [5.5]에 따라 인자 형식을 [4.6]의 토픽 확인보다 먼저 확인하므로 같은 이름의 토픽이 있어도 `ERR BAD_ARGUMENT` 가 나온다. 토픽이 있는지를 먼저 확인하면 `ERR TOPIC_EXISTS` 를 답하게 된다."
+    }
+  ]
+}

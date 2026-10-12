@@ -1,0 +1,420 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "snippet-basic",
+      "refs": [
+        "1.1",
+        "4.1",
+        "4.14",
+        "4.15",
+        "2.1"
+      ],
+      "quote": "고른 구간이 위치 a 부터 b 까지면 t[a] 원문 범위의 첫 글자부터 t[b] 원문 범위의 마지막 글자까지 원문을 그대로 옮겨 출력한다.",
+      "input": [
+        "ADD 1 The quick brown fox jumps over the lazy dog",
+        "SNIPPET 1 fox",
+        "SNIPPET 1 quick fox",
+        "SNIPPET 1 dog cat"
+      ],
+      "expected": [
+        "[fox]",
+        "[quick] brown [fox]",
+        "[dog]"
+      ]
+    },
+    {
+      "name": "interval-choice",
+      "refs": [
+        "4.12",
+        "4.11",
+        "4.9"
+      ],
+      "quote": "후보 구간 가운데 검색어 종류 수가 가장 큰 구간을 고른다.",
+      "input": [
+        "ADD 1 red green blue red yellow green blue red",
+        "ADD 2 alpha beta x x x x gamma alpha",
+        "SNIPPET 1 red blue",
+        "SNIPPET 1 red green blue",
+        "SNIPPET 1 yellow red",
+        "SNIPPET 1 blue",
+        "SNIPPET 2 alpha beta gamma",
+        "SNIPPET 2 gamma alpha"
+      ],
+      "expected": [
+        "[blue] [red]",
+        "[red] [green] [blue]",
+        "[red] [yellow]",
+        "[blue]",
+        "[alpha] [beta] x x x x [gamma]",
+        "[gamma] [alpha]"
+      ]
+    },
+    {
+      "name": "interval-token-limit",
+      "refs": [
+        "4.10",
+        "4.12"
+      ],
+      "quote": "후보 구간은 t[a] 와 t[b] 가 모두 Q 에 속하고 토큰 수가 10 이하인 구간이다.",
+      "input": [
+        "ADD 1 start one two three four five six seven eight end finish",
+        "SNIPPET 1 start end",
+        "SNIPPET 1 start finish",
+        "SNIPPET 1 one finish",
+        "SNIPPET 1 finish start end",
+        "ADD 2 a b x x x x x x x x c a b c",
+        "SNIPPET 2 a b c",
+        "SNIPPET 2 c a"
+      ],
+      "expected": [
+        "[start] one two three four five six seven eight [end]",
+        "[start]",
+        "[one] two three four five six seven eight end [finish]",
+        "[end] [finish]",
+        "[c] [a] [b]",
+        "[c] [a]"
+      ]
+    },
+    {
+      "name": "repeated-query-tokens",
+      "refs": [
+        "4.15",
+        "4.11"
+      ],
+      "quote": "같은 검색어 토큰이 구간 안에 여러 번 나오면 모두 감싼다.",
+      "input": [
+        "ADD 1 Apple pie, APPLE tart and apple juice",
+        "SNIPPET 1 pie juice",
+        "SNIPPET 1 pie juice apple",
+        "SNIPPET 1 tart apple",
+        "SNIPPET 1 apple",
+        "ADD 2 red apple red red pie",
+        "SNIPPET 2 apple pie red",
+        "SNIPPET 2 red"
+      ],
+      "expected": [
+        "[pie], APPLE tart and apple [juice]",
+        "[pie], [APPLE] tart and [apple] [juice]",
+        "[APPLE] [tart]",
+        "[Apple]",
+        "[apple] [red] [red] [pie]",
+        "[red]"
+      ]
+    },
+    {
+      "name": "token-level-marking",
+      "refs": [
+        "4.16",
+        "4.8",
+        "2.2",
+        "3.1"
+      ],
+      "quote": "표시는 토큰 단위로 붙는다.",
+      "input": [
+        "ADD 1 Kotlin은 JVM에서 돈다, e-mail은 abc가나다",
+        "SNIPPET 1 kotlin jvm",
+        "SNIPPET 1 KOTLIN은",
+        "SNIPPET 1 jvm에서",
+        "SNIPPET 1 mail",
+        "SNIPPET 1 e-mail",
+        "SNIPPET 1 가나다 abc",
+        "SNIPPET 1 은",
+        "SNIPPET 1 mail 은",
+        "SNIPPET 1 돈다 jvm",
+        "ADD 2 Kotlin은 JVM, 언어다",
+        "SNIPPET 2 kotlin 언어다",
+        "SNIPPET 2 jvm 은"
+      ],
+      "expected": [
+        "[Kotlin]은 [JVM]",
+        "[Kotlin][은]",
+        "[JVM][에서]",
+        "[mail]",
+        "[e]-[mail]",
+        "[abc][가나다]",
+        "[은]",
+        "[mail][은]",
+        "[JVM]에서 [돈다]",
+        "[Kotlin]은 JVM, [언어다]",
+        "[은] [JVM]"
+      ]
+    },
+    {
+      "name": "original-characters-kept",
+      "refs": [
+        "4.18",
+        "4.14",
+        "4.6"
+      ],
+      "quote": "탭, CR, 한글 자모, 라틴 확장 문자, 이모지처럼 본문에 들어 있는 구분자도 구간 안에 있으면 그대로 옮긴다.",
+      "input": [
+        "ADD 2 Hello   World\tnaïve ㅋㅋ 😀 Done\u00a0Now\rLater",
+        "SNIPPET 2 hello world",
+        "SNIPPET 2 world done",
+        "SNIPPET 2 naive",
+        "SNIPPET 2 naïve",
+        "SNIPPET 2 done now",
+        "SNIPPET 2 now later",
+        "SNIPPET 2 hello later"
+      ],
+      "expected": [
+        "[Hello]   [World]",
+        "[World]\tnaïve ㅋㅋ 😀 [Done]",
+        "(none)",
+        "[na]ï[ve]",
+        "[Done]\u00a0[Now]",
+        "[Now]\r[Later]",
+        "[Hello]   World\tnaïve ㅋㅋ 😀 Done\u00a0Now\r[Later]"
+      ]
+    },
+    {
+      "name": "brackets-in-original",
+      "refs": [
+        "4.17",
+        "4.14"
+      ],
+      "quote": "원문에 이미 있는 `[` 와 `]` 는 다른 글자와 똑같이 그대로 옮긴다.",
+      "input": [
+        "ADD 3 [todo] fix [[bug]] in ]core[",
+        "SNIPPET 3 todo",
+        "SNIPPET 3 todo fix",
+        "SNIPPET 3 fix bug",
+        "SNIPPET 3 in core",
+        "SNIPPET 3 bug core",
+        "SNIPPET 3 [core]"
+      ],
+      "expected": [
+        "[todo]",
+        "[todo]] [fix]",
+        "[fix] [[[bug]",
+        "[in] ][core]",
+        "[bug]]] in ][core]",
+        "[core]"
+      ]
+    },
+    {
+      "name": "replace-and-delete",
+      "refs": [
+        "4.7",
+        "4.6",
+        "4.19",
+        "5.3"
+      ],
+      "quote": "같은 id 로 다시 ADD 하면 원문도 새 본문으로 바뀐다.",
+      "input": [
+        "ADD 4 Old Title here",
+        "SNIPPET 4 title",
+        "ADD 4 New TITLE there",
+        "SNIPPET 4 title",
+        "SNIPPET 4 old",
+        "SNIPPET 4 new title",
+        "STATS",
+        "DEL 4",
+        "SNIPPET 4 title",
+        "ADD 4 title",
+        "SNIPPET 4 TITLE",
+        "STATS"
+      ],
+      "expected": [
+        "[Title]",
+        "[TITLE]",
+        "(none)",
+        "[New] [TITLE]",
+        "1 3",
+        "ERR NOT_FOUND",
+        "[title]",
+        "1 1"
+      ]
+    },
+    {
+      "name": "no-candidate-interval",
+      "refs": [
+        "4.13",
+        "5.4",
+        "4.3"
+      ],
+      "quote": "후보 구간이 없으면 `(none)` 을 출력한다.",
+      "input": [
+        "ADD 5",
+        "ADD 6 !!! ㅋㅋ",
+        "ADD 7 hello world",
+        "SNIPPET 5 hello",
+        "SNIPPET 6 hello",
+        "SNIPPET 7",
+        "SNIPPET 7 !!! ㅋㅋ",
+        "SNIPPET 7 bye",
+        "SNIPPET 7 hello!!!",
+        "SNIPPET 5",
+        "SNIPPET 6 ㅋㅋ"
+      ],
+      "expected": [
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)",
+        "(none)",
+        "[hello]",
+        "(none)",
+        "(none)"
+      ]
+    },
+    {
+      "name": "word-normalization",
+      "refs": [
+        "4.5",
+        "4.4"
+      ],
+      "quote": "SNIPPET 의 낱말에서는 괄호, 큰따옴표, AND·OR·NOT, `NEAR/`, `+`, `-` 에 특별한 뜻이 없다.",
+      "input": [
+        "ADD 8 New York is not near 3 big cities and towns",
+        "SNIPPET 8 \"new york\"",
+        "SNIPPET 8 NOT",
+        "SNIPPET 8 NEAR/3",
+        "SNIPPET 8 -york +new",
+        "SNIPPET 8 (cities) AND towns",
+        "SNIPPET 8 York YORK york",
+        "SNIPPET 8 big-cities OR"
+      ],
+      "expected": [
+        "[New] [York]",
+        "[not]",
+        "[near] [3]",
+        "[New] [York]",
+        "[cities] [and] [towns]",
+        "[York]",
+        "[big] [cities]"
+      ]
+    },
+    {
+      "name": "argument-errors",
+      "refs": [
+        "5.2",
+        "5.3",
+        "4.2"
+      ],
+      "quote": "SNIPPET 은 id 형식을 먼저 확인하고 그다음에 문서가 있는지 확인한다.",
+      "input": [
+        "ADD 9 hello world",
+        "SNIPPET",
+        "SNIPPET 09 hello",
+        "SNIPPET hello",
+        "SNIPPET 0 hello",
+        "SNIPPET 1234567890 hello",
+        "SNIPPET 9\thello",
+        "SNIPPET -9 hello",
+        "SNIPPET 9,1 hello",
+        "SNIPPET 10 hello",
+        "SNIPPET 10",
+        "SNIPPET 999999999",
+        "SNIPPET 9",
+        "  SNIPPET   9   world  "
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NOT_FOUND",
+        "ERR NOT_FOUND",
+        "ERR NOT_FOUND",
+        "(none)",
+        "[world]"
+      ]
+    },
+    {
+      "name": "unknown-commands",
+      "refs": [
+        "5.1",
+        "1.2"
+      ],
+      "quote": "명령어는 대소문자를 구분하므로 `snippet` 은 여전히 모르는 명령어다.",
+      "input": [
+        "ADD 1 hello world",
+        "snippet 1 hello",
+        "Snippet 1 hello",
+        "SNIPPETS 1 hello",
+        "SNIPPET\t1 hello",
+        "ＳＮＩＰＰＥＴ 1 hello",
+        "SNIPPET1 hello",
+        "SNIPPET 1 hello",
+        "SUGGEST 5 wor",
+        "FUZZY 5 helo",
+        "QUERY hello world"
+      ],
+      "expected": [
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "[hello]",
+        "world:1",
+        "hello:1:1",
+        "1"
+      ]
+    },
+    {
+      "name": "random-snippet",
+      "refs": [
+        "4.12",
+        "4.15",
+        "4.10",
+        "4.18"
+      ],
+      "quote": "그런 구간이 여럿이면 그 가운데 토큰 수가 가장 적은 구간을 고르고 그래도 여럿이면 a 가 가장 작은 구간을 고른다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "80"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "random-churn",
+      "refs": [
+        "4.7",
+        "4.6",
+        "5.3"
+      ],
+      "quote": "DEL 로 지운 문서는 원문도 함께 사라진다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10",
+        "--queries",
+        "150"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "large-scale",
+      "refs": [
+        "7.3",
+        "2.4",
+        "2.5",
+        "2.6"
+      ],
+      "quote": "대규모 테스트는 문서 1,000개와 SNIPPET 500,000개로 이뤄진다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "1000",
+        "--queries",
+        "500000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

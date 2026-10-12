@@ -1,0 +1,130 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PLAN p 가 출력하는 줄은?",
+      "context": "<보기>\nDATA sales 4\n0 a 1\n1 b 2\n2 c 3\n3 d 4\nEND\nPIPE base = source sales | reduceByKey sum 3\nPIPE p = source base | filter key != x | groupByKey 3 | map value count | coalesce 1 | reduceByKey max 3 | repartition 2 | coalesce 4\nPLAN p",
+      "choices": [
+        "`stage 1 tasks 3 reduceByKey filter groupByKey map coalesce -> shuffle 2`",
+        "`stage 2 tasks 1 groupByKey map coalesce -> shuffle 3`",
+        "`stage 3 tasks 4 repartition coalesce -> result`",
+        "`stage 1 tasks 1 reduceByKey filter groupByKey map coalesce -> shuffle 2`",
+        "`stage 1 tasks 3 reduceByKey filter groupByKey map coalesce reduceByKey -> shuffle 2`"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.23",
+        "4.24",
+        "4.25",
+        "4.26",
+        "4.27"
+      ],
+      "quote": "스테이지의 태스크 수는 그 스테이지의 마지막 변환이 내보내는 파티션 수다.",
+      "explanation": "정답은 ④이다. p 의 계보는 source sales, reduceByKey 3, filter, groupByKey 3, map, coalesce 1, reduceByKey 3, repartition 2, coalesce 4 다. 첫 reduceByKey 는 파티셔너가 없는 source 의 출력을 받으므로 넓은 의존이다. [4.24]에 따라 filter 는 해시 파티셔너 3 을 이어받으므로 [4.25]에 따라 groupByKey 3 은 좁은 의존이다. map 과 coalesce 의 출력에는 파티셔너가 없으므로 둘째 reduceByKey 는 넓은 의존이다. repartition 도 넓은 의존이다. [4.26]에 따라 PLAN 은 `stage 0 tasks 4 source(sales) -> shuffle 1`, `stage 1 tasks 1 reduceByKey filter groupByKey map coalesce -> shuffle 2`, `stage 2 tasks 3 reduceByKey -> shuffle 3`, `stage 3 tasks 2 repartition coalesce -> result` 를 출력한다. [4.27]에 따라 스테이지 1 의 태스크 수는 마지막 변환 coalesce 1 이 내보내는 파티션 수 1 이다. ① 태스크 수를 스테이지의 첫 변환이 내보내는 파티션 수로 센 답이다. ② filter 가 파티셔너를 잃는다고 보고 groupByKey 앞에서 계보를 끊은 답이다. filter 가 입력의 파티셔너를 그대로 가진다는 [4.24]와 입력이 해시 파티셔너 n 으로 나뉘어 있으면 좁은 의존이라는 [4.25]를 함께 적용해야 오답임을 알 수 있다. ③ coalesce 4 가 파티션 수를 4 로 늘린다고 본 답이다. [4.23]에 따라 coalesce 4 는 파티션 수 2 를 늘리지 못한다. ⑤ map 과 coalesce 를 지나도 해시 파티셔너 3 이 남는다고 보고 둘째 reduceByKey 를 좁은 의존으로 본 답이다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 RUN 이 출력하는 머리줄은?",
+      "context": "<보기>\nDATA s 2\n0 k 1\nEND\nPIPE p = source s | map value add 1 | reduceByKey sum 2\nRUN p 01\nPLAN p\nRUN p\nAPPEND s\n1 k 2\n1 m 3\n1 NULL 4\nEND\nPIPE q = source p | filter value > 2\nRUN q 1",
+      "choices": [
+        "`job 2 stages 2 tasks 4 rows 3`",
+        "`job 1 stages 2 tasks 4 rows 3`",
+        "`job 1 stages 2 tasks 4 rows 1`",
+        "`job 1 stages 2 tasks 4 rows 0`",
+        "`job 1 stages 2 tasks 4 rows 2`"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.2",
+        "4.16",
+        "4.19",
+        "4.20",
+        "4.31",
+        "4.33"
+      ],
+      "quote": "오류가 난 명령과 PLAN 은 잡을 만들지 않는다.",
+      "explanation": "정답은 ②이다. [4.2]에 따라 `01` 은 정수 토큰이 아니므로 `RUN p 01` 은 문법 오류다. [4.31]에 따라 오류가 난 명령과 PLAN 은 잡을 만들지 않으므로 `RUN p` 가 잡 0 이고 `RUN q 1` 이 잡 1 이다. q 의 계보는 source s, map, reduceByKey 2, filter 이고 두 스테이지의 태스크 수를 더하면 2 + 2 = 4 다. [4.16]에 따라 마지막 RUN 은 APPEND 로 더한 행까지 읽는다. 값에 1 을 더해 키별로 합하면 NULL 5, k 5, m 4 다. [4.19]에 따라 filter value 는 값만 비교하므로 NULL 키 행도 남는다. [4.33]에 따라 머리줄의 행 수는 출력한 행 수가 아니라 결과 행 전체의 수 3 이다. ① 오류가 난 RUN 이나 PLAN 을 잡으로 센 답이다. `01` 이 정수 토큰이 아니라는 [4.2]와 오류가 난 명령은 잡을 만들지 않는다는 [4.31]을 함께 적용해야 오답임을 알 수 있다. ③ 출력한 행 수를 머리줄에 쓴 답이다. ④ p 를 정의할 때의 행만 읽어 k 2 가 filter 를 통과하지 못한다고 본 답이다. ⑤ filter value 도 NULL 키 행을 버린다고 본 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 RUN p 가 출력하는 결과 행을 차례로 나열한 것은?",
+      "context": "<보기>\nDATA logs 2\n0 ab 3\n0 NULL 1\n0 null 2\n1 abc 5\n1 a 4\n1 b 6\n1 null 1\n1 a 4\nEND\nPIPE p = source logs | filter key != b | map key prefix 2 | groupByKey 3\nRUN p",
+      "choices": [
+        "`a [4]`, `ab [3,5]`, `nu [1,2]`",
+        "`NULL [1]`, `a [4,4]`, `ab [3,5]`, `nu [1,2]`",
+        "`ab [3,5]`, `a [4,4]`, `nu [1,2]`",
+        "`a [4,4]`, `ab [3,5]`",
+        "`a [4,4]`, `ab [3,5]`, `nu [1,2]`"
+      ],
+      "answer": 5,
+      "refs": [
+        "4.3",
+        "4.18",
+        "4.19",
+        "4.21",
+        "4.34",
+        "4.35"
+      ],
+      "quote": "그래서 NULL 키 행은 두 filter 를 모두 통과하지 못한다.",
+      "explanation": "정답은 ⑤이다. [4.3]에 따라 `null` 은 키 정규식에 맞는 문자열 키이고 NULL 키가 아니다. [4.19]에 따라 `filter key != b` 는 키가 NULL 이 아니고 b 와 다른 행만 남기므로 b 행과 NULL 키 행을 버리고 null 행은 남긴다. [4.18]에 따라 키를 앞 두 글자로 줄이면 ab 와 abc 는 ab, null 은 nu 가 되고 a 는 그대로다. [4.21]에 따라 groupByKey 는 같은 값을 그 수만큼 담으므로 a 의 목록은 `[4,4]` 다. [4.34]에 따라 a 는 ab 의 앞부분이라 ab 보다 앞서고 [4.35]에 따라 목록의 원소는 작은 것부터 쓴다. ① 목록에서 같은 값을 하나로 줄인 답이다. ② `filter key !=` 가 NULL 키 행을 남긴다고 본 답이다. ③ 짧은 쪽이 앞선다는 [4.34]를 거꾸로 적용한 답이다. ④ 문자열 `null` 을 NULL 키로 보고 filter 가 버린다고 본 답이다. `null` 이 문자열 키라는 [4.3]과 `filter key !=` 가 NULL 키 행만 따로 버린다는 [4.19]를 함께 적용해야 오답임을 알 수 있다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "DATA s 4",
+        "0 apple 1",
+        "1 avocado 2",
+        "2 NULL 3",
+        "3 banana 2",
+        "END",
+        "PIPE r = source s | map key prefix 1 | repartition 3 | reduceByKey sum 3 | filter value >= 3 | groupByKey 3",
+        "APPEND s",
+        "1 cherry 9",
+        "3 NULL 1",
+        "END",
+        "RUN r 0"
+      ],
+      "answers": [
+        "job 0 stages 3 tasks 10 rows 3"
+      ],
+      "refs": [
+        "4.16",
+        "4.19",
+        "4.24",
+        "4.25",
+        "4.27",
+        "4.31",
+        "4.33"
+      ],
+      "quote": "map, repartition, coalesce 의 출력에는 파티셔너가 없다.",
+      "explanation": "정답은 `job 0 stages 3 tasks 10 rows 3` 이다. [4.24]에 따라 repartition 의 출력에는 파티셔너가 없으므로 [4.25]에 따라 뒤따르는 reduceByKey 3 은 파티션 수가 같아도 넓은 의존이다. filter 는 reduceByKey 의 해시 파티셔너 3 을 이어받으므로 groupByKey 3 은 좁은 의존이다. 그래서 스테이지는 source map(태스크 4), repartition(태스크 3), reduceByKey filter groupByKey(태스크 3) 셋이고 [4.27]에 따라 태스크는 모두 10 이다. [4.16]에 따라 RUN 은 PIPE 뒤에 APPEND 로 더한 행까지 읽는다. 키를 한 글자로 줄여 합하면 a 3, NULL 4, b 2, c 9 이고 `filter value >= 3` 은 a, NULL, c 를 남긴다. [4.19]에 따라 filter value 는 값만 비교하므로 NULL 키 행도 남는다. [4.33]에 따라 개수가 0 이어도 머리줄의 행 수는 3 이고 [4.31]에 따라 앞선 잡이 없으므로 잡 번호는 0 이다. repartition 뒤의 reduceByKey 를 좁은 의존으로 보면 `stages 2 tasks 7` 을, filter 가 파티셔너를 잃는다고 보면 `stages 4 tasks 13` 을 답하게 된다. APPEND 를 빼고 계산하거나 NULL 키 행을 버리거나 `>=` 를 `>` 로 읽으면 행 수가 2 가 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "DATA s 2",
+        "0 a 1",
+        "END",
+        "PIPE g = source s | groupByKey 2",
+        "PIPE c = source g | map value count",
+        "PIPE z = source c | filter key != b | groupByKey 3 | map value sum | map value min"
+      ],
+      "answers": [
+        "ERR TYPE 5"
+      ],
+      "refs": [
+        "4.13",
+        "4.14"
+      ],
+      "quote": "i 는 그 변환이 몇째 변환인지를 1 부터 센 번호이고 source 가 1 이다.",
+      "explanation": "정답은 `ERR TYPE 5` 다. 앞의 세 명령은 오류가 없어 아무것도 출력하지 않는다. [4.13]에 따라 `source c` 의 값 종류는 c 의 마지막 변환 map value count 가 내보내는 정수 값이다. filter key 는 정수 값을 그대로 내보내고 groupByKey 3 은 정수 값을 받아 목록 값을 내보낸다. map value sum 은 목록 값을 받아 정수 값을 내보낸다. map value min 은 목록 값만 받으므로 정수 값을 받는 여기서 오류가 난다. [4.14]에 따라 번호는 z 의 줄에 적힌 변환을 source 부터 1 로 센 것이므로 5 다. `source c` 를 g 처럼 목록 값으로 보면 `ERR TYPE 3` 을, 펼친 계보 전체를 세면 `ERR TYPE 7` 을, source 를 빼고 세면 `ERR TYPE 4` 를 답하게 된다."
+    }
+  ]
+}

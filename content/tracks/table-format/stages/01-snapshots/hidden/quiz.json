@@ -1,0 +1,74 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "1단계 스펙에 따른 설명으로 옳은 것은?",
+      "choices": [
+        "`CREATE code:string n:long PARTITION bucket[8](code)` 로 만든 테이블에서 code 값이 `ab` 인 행의 파티션 값은 `{code_bucket=3}` 이다.",
+        "`CREATE ts:timestamp n:long PARTITION day(ts)` 로 만든 테이블에서 조건 `ts>2024-03-01T23:59:59` 는 날짜 2024-03-01 을 허용한다.",
+        "`CREATE ts:timestamp id:long PARTITION day(ts) bucket[4](id)` 로 만든 테이블에서 조건 `id>=17` 은 17 의 bucket[4] 결과인 3 보다 작은 결과를 허용하지 않는다.",
+        "`CREATE id:long n:long PARTITION bucket[2](id)` 로 만든 테이블에서 id 값이 `-5` 인 행과 `5` 인 행은 파티션 값이 같다.",
+        "`CREATE ts:timestamp id:long PARTITION day(ts) bucket[4](id)` 로 만든 테이블에서 MANIFESTS 가 `id_bucket=1..3` 으로 보여 준 매니페스트에 id_bucket 이 1 인 파일과 3 인 파일만 있으면 `SCAN WHERE id=6` 은 이 매니페스트를 읽지 않는다."
+      ],
+      "answer": 4,
+      "refs": ["2.6", "4.10", "4.37", "4.38", "4.39"],
+      "quote": "값의 해시는 값을 적은 문자열의 글자에 앞에서부터 1, 2, 3, … 의 자리 번호를 매기고 각 글자의 ASCII 코드에 그 글자의 자리 번호를 곱해 모두 더한 수다.",
+      "explanation": "정답은 ④이다. [4.10]에 따라 해시는 값을 적은 문자열로 구한다. `-5` 의 해시는 1×45 + 2×53 = 151 이고 `5` 의 해시는 1×53 = 53 이다. 둘 다 2 로 나눈 나머지가 1 이므로 두 행의 파티션 값은 모두 `{id_bucket=1}` 이다. ① `ab` 의 해시는 1×97 + 2×98 = 293 이고 8 로 나눈 나머지는 5 다. 자리 번호를 곱하지 않고 97 + 98 = 195 로 계산하면 3 이 나온다. ② [4.37]에서 `>` 는 d 의 23:59:59 가 값보다 뒤일 때만 d 를 허용한다. 2024-03-01 의 23:59:59 는 값과 같으므로 이 날짜를 허용하지 않는다. [2.6]에 나온 Iceberg 의 예라면 이 날짜를 허용하지만 이 트랙의 규칙은 그보다 좁다. ③ [4.38]에 따라 `=` 가 아닌 조건은 bucket 결과를 모두 허용한다. 해시는 값의 순서를 보존하지 않는다. ⑤ `6` 의 해시는 54 이고 bucket[4] 결과는 2 다. [4.39]에 따라 매니페스트를 제외할지는 파일에 실제로 있는 결과가 아니라 lo 이상 hi 이하인 결과로 정한다. 2 는 1..3 안에 있으므로 이 매니페스트는 제외되지 않는다. [4.10]으로 결과를 구한 뒤 [4.39]의 범위 규칙을 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE ts:timestamp id:long PARTITION day(ts) bucket[4](id)\nBEGIN a\nAPPEND a f1 2024-03-01T09:00:00,17\nCOMMIT a\nBEGIN b\nBEGIN c\nAPPEND c f2 2024-03-01T10:00:00,5\nCOMMIT c\nREMOVE b f2\nBEGIN d\nCOMMIT d\nAPPEND z f2 2024-03-02T10:00:00,5 2024-03-03T10:00:00,5\nAPPEND d f3 2024-03-02T10:00:00,5 2024-03-03T10:00:00,5\nAPPEND d f3 2024-03-02T11:00:00,5\nSCAN WHERE id=<5\nENTRIES -",
+      "choices": [
+        "`REMOVE b f2` 는 f2 가 현재 스냅숏 c 에 살아 있으므로 `b REMOVE f2` 를 출력한다.",
+        "`APPEND z f2 …` 는 f2 가 이미 쓴 파일 이름이므로 `z ERR FILE_EXISTS f2` 를 출력한다.",
+        "`APPEND d f3 2024-03-02T11:00:00,5` 는 `d APPEND f3 {ts_day=2024-03-02,id_bucket=1} rows=1` 을 출력한다.",
+        "`SCAN WHERE id=<5` 는 id 가 5 이하인 행이 있을 수 있는 파일을 계획한다.",
+        "`ENTRIES -` 는 `-` 가 이름이 아니므로 `ERR BAD_ARGUMENT` 를 출력한다."
+      ],
+      "answer": 3,
+      "refs": ["4.10", "4.23", "4.36", "5.4", "5.5", "5.6"],
+      "quote": "COMMIT 은 더할 파일도 지울 파일도 없으면 `<트랜잭션> ERR EMPTY` 를 출력하고 트랜잭션은 활동 중으로 남는다.",
+      "explanation": "정답은 ③이다. [5.5]에 따라 `COMMIT d` 는 `d ERR EMPTY` 를 출력하고 d 는 활동 중으로 남는다. ③의 줄 바로 앞에 있는 `APPEND d f3 …` 는 두 행의 날짜가 달라 `d ERR MIXED_PARTITION` 을 출력했다. [5.5]대로 오류를 낸 APPEND 의 파일 이름은 쓴 적이 없는 이름으로 남으므로 마지막 APPEND 는 성공한다. [4.10]에 따라 5 의 해시 53 을 4 로 나눈 나머지 1 이 bucket[4] 결과다. ① [4.23]에서 REMOVE 할 파일은 그 트랜잭션의 시작 스냅숏에 살아 있어야 한다. b 의 시작 스냅숏은 a 이고 f2 는 그 뒤에 c 가 더했으므로 `b ERR NOT_LIVE f2` 다. ② z 는 BEGIN 한 적이 없다. [5.6]에서 상태는 트랜잭션을 먼저 확인하므로 파일 이름을 확인하기 전에 `z ERR NO_TX` 를 출력한다. [5.5]의 오류 종류와 [5.6]의 확인 순서를 함께 적용해야 지울 수 있다. ④ [4.36]에서 연산자 자리가 `<=` 나 `>=` 로 시작할 때만 두 글자 연산자로 읽는다. `id=<5` 의 연산자는 `=` 이고 값 `<5` 는 long 값이 아니므로 [5.4]에 따라 `ERR BAD_ARGUMENT` 다. ⑤ [5.4]에서 ENTRIES 의 인자는 형식을 따지지 않으므로 [5.5]에 따라 `ERR NO_MANIFEST -` 를 출력한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE id:long name:string\nBEGIN a\nSCAN\nAPPEND a f1 1,ann 2,bob\nCOMMIT a\nBEGIN b\nREMOVE b f1\nAPPEND b f10 3,cat\nCOMMIT b\nSCAN AT a WHERE id>=2\nSCAN WHERE id>=2\nENTRIES a-m1\nLS",
+      "choices": [
+        "첫 SCAN 은 읽을 스냅숏이 없으므로 `ERR NO_SNAPSHOT -` 를 출력한다.",
+        "LS 는 객체 이름 10개를 보여 주고 `f10` 을 `f1` 바로 다음, `meta-1` 바로 앞에 쓴다.",
+        "`SCAN WHERE id>=2` 의 첫 줄은 `SCAN b manifests=1/2 files=1 rows=1` 이다.",
+        "`ENTRIES a-m1` 은 a-m1 이 현재 스냅숏 b 의 매니페스트 목록에 없으므로 `ERR NO_MANIFEST a-m1` 을 출력한다.",
+        "`SCAN AT a WHERE id>=2` 의 첫 줄은 `SCAN a manifests=1/1 files=1 rows=2` 다."
+      ],
+      "answer": 2,
+      "refs": ["3.12", "4.27", "4.33", "4.34", "4.39", "4.42", "4.43"],
+      "quote": "다른 글자가 나오기 전에 한 문자열이 끝나면 짧은 쪽이 앞이다.",
+      "explanation": "정답은 ②이다. 저장소에는 [4.8]의 meta-1, 두 커밋이 쓴 meta-2 와 meta-3, 매니페스트 목록 snap-a-1 과 snap-b-1, 매니페스트 a-m1, b-m1, b-m2, 데이터 파일 f1 과 f10 이 있다. b-m2 는 [4.27]에 따라 a-m1 을 다시 쓴 매니페스트이고 [4.12]에 따라 1단계는 객체를 지우지 않으므로 f1 도 남는다. [3.12]에 따라 f1 은 f10 보다 짧아 앞에 오고 f 는 m 보다 앞이므로 [4.34]의 순서는 a-m1, b-m1, b-m2, f1, f10, meta-1, … 이다. ① [4.43]에 따라 AT 이 없고 현재 스냅숏이 없으면 `SCAN - manifests=0/0 files=0 rows=0` 을 출력한다. ③ b 의 목록에는 b-m1 과 DELETED 항목만 담은 b-m2 가 있다. [4.39]에서 파티션을 나누지 않는 테이블은 어떤 매니페스트도 제외하지 않는다. [4.42]의 읽은 매니페스트 수에는 계획한 파일이 없는 b-m2 도 들어가므로 `manifests=2/2` 다. 두 규칙을 함께 적용해야 지울 수 있다. ④ [4.33]에서 매니페스트는 현재 메타데이터 파일의 스냅숏 가운데 하나 이상의 목록에 들어 있으면 된다. a-m1 은 스냅숏 a 의 목록에 있다. ⑤ 스냅숏 a 에서 f1 은 살아 있고 id 상한 2 가 2 보다 작지 않아 계획된다. [4.42]에 따라 조건에 맞는 행만 세므로 id 가 2 인 행 하나뿐이라 `rows=1` 이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄이 출력하는 첫 줄은?",
+      "context": "<보기>\nCREATE ts:timestamp user:long page:string PARTITION day(ts) bucket[3](user)\nBEGIN a\nAPPEND a f1 2024-05-01T08:00:00,21,home 2024-05-01T23:59:59,21,cart\nAPPEND a f2 2024-05-01T12:00:00,5,home\nCOMMIT a\nBEGIN b\nAPPEND b f3 2024-05-02T09:00:00,30,home\nAPPEND b f4 2024-05-02T10:00:00,12,cart\nCOMMIT b\nBEGIN c\nAPPEND c g1 2024-05-03T07:00:00,4,home 2024-05-03T08:00:00,70,cart\nAPPEND c g2 2024-05-02T11:00:00,21,home 2024-05-02T12:00:00,40,cart\nAPPEND c g3 2024-05-02T13:00:00,70,home 2024-05-02T14:00:00,100,cart\nCOMMIT c\nSCAN WHERE user=21 AND ts>2024-05-01T23:59:59",
+      "answers": ["SCAN c manifests=2/3 files=2 rows=1"],
+      "refs": ["4.10", "4.37", "4.39", "4.40", "4.41", "4.42"],
+      "quote": "lo 이상 hi 이하인 결과 가운데 그 조건이 허용하는 결과가 하나도 없으면 그 조건이 그 매니페스트를 제외한다.",
+      "explanation": "정답은 `SCAN c manifests=2/3 files=2 rows=1` 이다. [4.10]에 따라 21 의 해시는 1×50 + 2×49 = 148 이고 bucket[3] 결과는 1 이다. 같은 방법으로 구하면 5 와 12 는 2, 30 은 0, 4, 40, 70, 100 은 1 이다. c 의 목록은 c-m1(user_bucket=1..1, ts_day=2024-05-02..2024-05-03), b-m1(user_bucket=0..2), a-m1(ts_day=2024-05-01..2024-05-01) 순서다. [4.37]에서 `>` 는 d 의 23:59:59 가 값보다 뒤일 때만 d 를 허용하므로 2024-05-01 을 허용하지 않고 [4.39]에 따라 a-m1 을 제외한다. b-m1 에는 결과가 1 인 파일이 없지만 범위 0..2 에 1 이 들어가므로 읽는다. 읽은 b-m1 에서 결과가 0 인 f3 과 2 인 f4 는 [4.40]에 따라 제외한다. c-m1 의 g3 은 user 하한 70 이 21 보다 커서 [4.41]에 따라 제외한다. g1 은 user 범위 4..70 에 21 이 들어가 계획되지만 맞는 행이 없다. 두 조건에 맞는 행은 g2 의 행 하나다. [4.42]에 따라 맞는 행이 없는 g1 도 계획한 파일로 센다. Iceberg 의 포함 투영처럼 2024-05-01 을 허용하면 `manifests=3/3` 이 된다. 파일에 실제로 있는 결과만으로 b-m1 을 제외하면 `manifests=1/3` 이 된다. 맞는 행이 없는 g1 을 세지 않으면 `files=1`, 열 통계로 g3 을 거르지 않으면 `files=3` 이 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄이 출력하는 마지막 줄은?",
+      "context": "<보기>\nCREATE id:long name:string PARTITION bucket[4](id)\nBEGIN a\nAPPEND a f1 1,ann\nAPPEND a f2 4,bob\nCOMMIT a\nBEGIN b\nAPPEND b f3 3,cat\nCOMMIT b\nBEGIN c\nAPPEND c f4 6,dan\nREMOVE c f2\nCOMMIT c\nBEGIN d\nREMOVE d f1\nCOMMIT d\nMANIFESTS d",
+      "answers": ["d-m1 data seq=4 added=0 existing=0 deleted=1 id_bucket=1..1"],
+      "refs": ["4.17", "4.27", "4.28", "4.29", "4.32"],
+      "quote": "다시 쓴 매니페스트는 원래 매니페스트의 살아 있는 항목을 같은 차례로 옮겨 담고 DELETED 항목은 옮기지 않는다.",
+      "explanation": "정답은 `d-m1 data seq=4 added=0 existing=0 deleted=1 id_bucket=1..1` 이다. [4.10]에 따라 f1, f2, f3, f4 의 bucket[4] 결과는 1, 0, 3, 2 다. c 의 목록은 c-m1, b-m1, c-m2 순서이고 a-m1 을 다시 쓴 c-m2 는 EXISTING f1 과 DELETED f2 를 담는다. d 는 더할 파일이 없으므로 [4.29]에 따라 c-m2 를 다시 쓴 매니페스트가 d 의 첫 매니페스트 d-m1 이 된다. [4.27]에 따라 d-m1 은 c-m2 의 살아 있는 항목 f1 만 옮겨 DELETED 로 바꾸고 DELETED 항목 f2 는 옮기지 않는다. [4.28]에 따라 d-m1 은 c-m2 가 있던 마지막 자리에 들어가고 d 의 순서 번호 4 로 적힌다. [4.17]에 따라 파티션 범위는 d-m1 의 항목인 f1 의 결과 1 로만 정해진다. f2 의 DELETED 항목까지 옮기면 `deleted=2 id_bucket=0..1` 이 된다. 원래 매니페스트의 순서 번호를 이어 쓰면 `seq=3` 이 된다. 다시 쓴 매니페스트를 목록 맨 앞에 두면 마지막 줄이 b-m1 의 줄이 된다."
+    }
+  ]
+}

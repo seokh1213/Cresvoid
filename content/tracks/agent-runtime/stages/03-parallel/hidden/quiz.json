@@ -1,0 +1,112 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력에 나오는 exec 줄은?",
+      "context": "<보기>\nconfig {\"concurrency\":2,\"timeout_ms\":200,\"retries\":1,\"trace\":true}\ntool {\"name\":\"get\"}\ntool {\"name\":\"put\",\"side_effect\":true}\nfake {\"tool\":\"get\",\"input\":{\"k\":1},\"output\":\"하나\",\"ms\":150}\nfake {\"tool\":\"get\",\"input\":{\"k\":3},\"attempts\":[{\"error\":\"busy\",\"ms\":50},{\"output\":\"셋\",\"ms\":200}]}\nfake {\"tool\":\"put\",\"input\":{\"k\":4},\"error\":\"conflict\",\"ms\":30}\nfake {\"tool\":\"get\",\"input\":{\"k\":5},\"output\":\"다섯\",\"ms\":500}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"x1\",\"name\":\"get\",\"input\":{\"k\":1}},{\"type\":\"tool\",\"id\":\"x2\",\"name\":\"get\",\"input\":{\"k\":2}},{\"type\":\"tool\",\"id\":\"x3\",\"name\":\"get\",\"input\":{\"k\":3}},{\"type\":\"tool\",\"id\":\"x4\",\"name\":\"put\",\"input\":{\"k\":4}},{\"type\":\"tool\",\"id\":\"x5\",\"name\":\"get\",\"input\":{\"k\":5}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"x4 는 충돌했다.\"}]}\nask {\"text\":\"다섯 개를 처리해 줘\"}",
+      "choices": [
+        "`exec x5 180 580 timeout 2`",
+        "`exec x3 0 250 timeout 2`",
+        "`exec x5 210 610 timeout 2`",
+        "`exec x5 180 1180 timeout 2`",
+        "`exec x3 0 50 error 1`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.7",
+        "4.9",
+        "4.10",
+        "4.11",
+        "4.12",
+        "4.22"
+      ],
+      "quote": "도구에 부수효과가 있거나 지금까지 한 시도의 수가 retries 보다 크면 블록의 실행은 그 실패로 끝난다.",
+      "explanation": "정답은 ①이다. x2 는 가짜 결과가 없어 [4.7]에 따라 실행하지 않고 시간을 쓰지 않는다. 슬롯이 둘이므로 x1 과 x3 이 0 에 시작한다. x3 의 첫 시도는 50 에 error 로 실패한다. 시도 수 1 이 retries 1 이하이므로 [4.12]에 따라 다시 시도한다. backoff_ms 가 기본값 0 이라 [4.22]에 따라 x3 은 50 에 바로 둘째 시도를 시작한다. 둘째 시도의 200 은 timeout_ms 와 같아 [4.11]에서 시간 초과가 아니므로 x3 은 250 에 성공한다. x4 는 x1 이 끝나 슬롯이 빈 150 에 시작해 180 에 실패하고 부수효과가 있는 도구라 다시 시도하지 않는다. [4.10]에 따라 x5 는 x4 가 슬롯을 비운 180 에 시작한다. x5 의 ms 500 은 timeout_ms 보다 크므로 두 시도가 각각 380 과 580 에 시간 초과로 실패한다. 시도 수 2 가 retries 보다 크므로 x5 의 실행은 580 에 끝난다. ② ms 가 timeout_ms 와 같은 시도를 시간 초과로 읽으면 나온다. ③ 부수효과가 있는 도구도 error 뒤에는 다시 시도한다고 읽으면 x4 가 210 에 끝나므로 x5 도 210 에 시작한다. [4.12]의 부수효과 규칙과 [4.10]의 슬롯 배정을 함께 적용해야 지울 수 있다. ④ 시간 초과한 시도가 ms 를 모두 쓴다고 읽은 것이다. [4.11]에서 그 시도는 시작 시각에서 timeout_ms 가 지난 시각에 실패한다. ⑤ 시도 수가 retries 보다 작을 때만 다시 시도한다고 읽으면 x3 이 첫 시도에서 끝난다. [4.12]는 시도 수가 retries 이하이면 다시 시도한다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때의 출력에 대한 설명으로 옳은 것은?",
+      "context": "<보기>\nconfig {\"trace\":true,\"retries\":2,\"timeout_ms\":100,\"repeat_limit\":2}\ntool {\"name\":\"ping\"}\nfake {\"tool\":\"ping\",\"input\":{\"host\":\"a\"},\"attempts\":[{\"error\":\"down\",\"ms\":40},{\"output\":\"up\",\"ms\":150}]}\nfake {\"tool\":\"ping\",\"input\":{\"host\":\"b\"},\"output\":\"up\",\"ms\":70}\nfake {\"tool\":\"ping\",\"input\":{\"host\":\"b\"},\"error\":\"down\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"p1\",\"name\":\"ping\",\"input\":{\"host\":\"a\"}},{\"type\":\"tool\",\"id\":\"p2\",\"name\":\"ping\",\"input\":{\"host\":\"b\"}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"p3\",\"name\":\"ping\",\"input\":{\"host\":\"c\"}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"a 는 응답이 없다.\"}]}\nask {\"text\":\"두 서버를 확인해 줘\"}",
+      "choices": [
+        "p2 의 exec 줄은 `exec p2 0 210 error 3` 이다.",
+        "p1 의 결과 줄은 `user result p1 error \"down\"` 이다.",
+        "첫 차례의 도구 단계 뒤에 ask 가 repeated_error 로 끝난다.",
+        "p1 의 exec 줄은 `exec p1 0 240 timeout 3` 이다.",
+        "둘째 차례의 도구 단계에서는 clock 줄이 나오지 않는다."
+      ],
+      "answer": 4,
+      "refs": [
+        "4.4",
+        "4.11",
+        "4.12",
+        "4.13",
+        "4.16",
+        "4.20"
+      ],
+      "quote": "k 가 attempts 의 길이보다 크면 마지막 시도 객체를 쓴다.",
+      "explanation": "정답은 ④이다. p1 의 첫 시도는 40 에 error 로 실패한다. 둘째 시도는 ms 150 이 timeout_ms 100 보다 커서 [4.11]에 따라 140 에 시간 초과로 실패한다. retries 가 2 이므로 [4.12]에 따라 셋째 시도까지 한다. [4.4]에 따라 셋째 시도는 attempts 의 마지막 시도 객체를 다시 쓴다. p1 은 240 에 시간 초과로 끝나고 [4.13]에 따라 결과는 `timeout after 100 ms` 다. ① [4.4]에 따라 같은 입력의 가짜 결과를 다시 정하면 이전 시도 객체를 모두 버린다. 새 fake 에 ms 가 없으므로 ms 는 0 이다. p2 의 세 시도는 모두 0 에 끝나므로 exec 줄은 `exec p2 0 0 error 3` 이다. ② 셋째 시도에 attempts 의 첫 시도 객체를 다시 쓴다고 읽으면 나온다. ③ p1 의 결과는 시간 초과이므로 `down` 은 p2 의 결과 한 번뿐이다. [4.16]에 따라 다시 시도하기 전에 실패한 p1 의 첫 시도는 세지 않는다. attempts 를 처음부터 다시 쓴다고 읽으면 p1 의 결과도 `down` 이 되어 같은 오류가 두 번이 된다. [4.4]와 [4.16]을 함께 적용해야 지울 수 있다. ⑤ 둘째 차례의 p3 은 가짜 결과가 없어 실행하지 않는다. 그래도 [4.20]에 따라 trace 가 true 이면 `clock 0` 을 출력한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때의 출력에 대한 설명으로 옳은 것은?",
+      "context": "<보기>\nconfig {\"concurrency\":3,\"timeout_ms\":250,\"retries\":1}\ntool {\"name\":\"send\",\"side_effect\":true}\ntool {\"name\":\"load\"}\nfake {\"tool\":\"send\",\"input\":{\"to\":\"kim\"},\"output\":\"보냄\",\"ms\":400}\nfake {\"tool\":\"load\",\"input\":{\"id\":1},\"attempts\":[{\"output\":\"늦은 1번\",\"ms\":300},{\"output\":\"1번\",\"ms\":250}]}\nfake {\"tool\":\"send\",\"input\":{\"to\":\"lee\"},\"error\":\"mailbox full\",\"ms\":20}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"m1\",\"name\":\"send\",\"input\":{\"to\":\"kim\"}},{\"type\":\"tool\",\"id\":\"l1\",\"name\":\"load\",\"input\":{\"id\":1}},{\"type\":\"tool\",\"id\":\"m2\",\"name\":\"send\",\"input\":{\"to\":\"lee\"}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"kim 에게 보냈는지 모른다.\"}]}\nask {\"text\":\"보내고 불러와 줘\"}",
+      "choices": [
+        "`stop tool` 바로 다음 줄은 `exec m2 0 20 error 1` 이다.",
+        "l1 의 결과 줄은 `user result l1 error \"timeout after 250 ms\"` 이다.",
+        "m1 의 결과 줄은 `user result m1 error \"timeout after 250 ms; outcome unknown\"` 이다.",
+        "결과 줄은 m2, m1, l1 순서로 나온다.",
+        "m2 의 결과 줄은 `user result m2 error \"mailbox full; outcome unknown\"` 이다."
+      ],
+      "answer": 3,
+      "refs": [
+        "4.5",
+        "4.11",
+        "4.12",
+        "4.13",
+        "4.15",
+        "4.17"
+      ],
+      "quote": "시간 초과로 실패했으면 오류 결과이고 내용은 부수효과가 없는 도구이면 `timeout after <timeout_ms> ms`, 부수효과가 있는 도구이면 `timeout after <timeout_ms> ms; outcome unknown` 이다.",
+      "explanation": "정답은 ③이다. 슬롯이 셋이라 세 블록이 모두 0 에 시작한다. m1 은 ms 400 이 timeout_ms 250 보다 커서 250 에 시간 초과로 실패하고 부수효과가 있는 도구라 다시 시도하지 않는다. [4.13]에 따라 내용은 `timeout after 250 ms; outcome unknown` 이다. ① trace 를 바꾸지 않았으므로 [4.5]의 기본값 false 다. [4.17]에 따라 exec 줄과 clock 줄을 출력하지 않는다. ② l1 의 첫 시도는 250 에 시간 초과로 실패하지만 시도 수 1 이 retries 1 이하이므로 [4.12]대로 다시 시도한다. 둘째 시도의 ms 250 은 timeout_ms 와 같아 [4.11]에서 시간 초과가 아니므로 l1 은 500 에 성공하고 결과는 `1번` 이다. 다시 시도하지 않는다고 읽거나 ms 가 timeout_ms 와 같은 시도를 시간 초과로 읽으면 이 선지가 맞아 보인다. [4.11]과 [4.12]를 함께 적용해야 지울 수 있다. ④ m2, m1, l1 은 끝난 시각 순서다. [4.15]에 따라 결과 줄은 도구 사용 블록 순서인 m1, l1, m2 로 나온다. ⑤ [4.13]에서 `; outcome unknown` 은 부수효과가 있는 도구가 시간 초과로 실패했을 때만 붙는다. m2 는 error 로 실패했으므로 내용은 `mailbox full` 이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 clock 줄에 나오는 시각은?",
+      "context": "<보기>\nconfig {\"concurrency\":2,\"retries\":2,\"backoff_ms\":40,\"trace\":true}\ntool {\"name\":\"sync\"}\nfake {\"tool\":\"sync\",\"input\":{\"n\":1},\"attempts\":[{\"error\":\"busy\",\"ms\":20},{\"error\":\"busy\",\"ms\":20},{\"output\":\"1\"}]}\nfake {\"tool\":\"sync\",\"input\":{\"n\":2},\"output\":\"2\",\"ms\":100}\nfake {\"tool\":\"sync\",\"input\":{\"n\":3},\"output\":\"3\",\"ms\":40}\nfake {\"tool\":\"sync\",\"input\":{\"n\":4},\"output\":\"4\",\"ms\":30}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"y1\",\"name\":\"sync\",\"input\":{\"n\":1}},{\"type\":\"tool\",\"id\":\"y2\",\"name\":\"sync\",\"input\":{\"n\":2}},{\"type\":\"tool\",\"id\":\"y3\",\"name\":\"sync\",\"input\":{\"n\":3}},{\"type\":\"tool\",\"id\":\"y4\",\"name\":\"sync\",\"input\":{\"n\":4}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"동기화했다.\"}]}\nask {\"text\":\"동기화해 줘\"}",
+      "answers": [
+        "160"
+      ],
+      "refs": [
+        "4.10",
+        "4.21",
+        "4.22",
+        "4.23"
+      ],
+      "quote": "그래서 시각 t 에 끝난 시도가 비운 슬롯과 시각 t 에 다시 준비된 블록이 모두 시각 t 의 배정에 들어간다.",
+      "explanation": "정답은 160 이다. 슬롯이 둘이라 y1 과 y2 가 0 에 시작한다. y1 의 첫 시도는 20 에 실패하고 [4.21]에 따라 40 을 기다려 60 에 다시 준비된다. [4.22]에 따라 y1 이 비운 슬롯은 20 에 y3 이 받아 60 까지 쓴다. 60 에는 y3 의 시도가 끝나고 y1 이 다시 준비된다. [4.23]에 따라 실행기는 두 일을 모두 반영한 뒤 [4.10]의 배정을 하므로 준비된 y1 과 y4 가운데 블록 순서가 앞선 y1 이 60 에 둘째 시도를 시작한다. 둘째 시도는 80 에 실패하고 두 번째로 다시 시도하기 전에는 80 을 기다리므로 y1 은 160 에 다시 준비된다. y4 는 80 에 시작해 110 에 끝나고 y2 는 100 에 끝난다. y1 의 셋째 시도는 걸리는 시간이 0 이라 160 에 성공한다. 60 에 y3 의 끝만 반영하고 바로 배정하거나 먼저 준비된 y4 에 슬롯을 주면 y4 가 60 에 시작해 y1 이 190 에 끝난다. 기다리는 동안 슬롯을 붙잡는다고 읽으면 170 이, 대기 시간을 늘리지 않으면 120 이 나온다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 z2 의 exec 줄은?",
+      "context": "<보기>\nconfig {\"concurrency\":1,\"timeout_ms\":100,\"retries\":3,\"backoff_ms\":25,\"trace\":true}\ntool {\"name\":\"push\",\"side_effect\":true}\ntool {\"name\":\"poll\"}\nfake {\"tool\":\"push\",\"input\":{\"id\":1},\"output\":\"보냄\",\"ms\":150}\nfake {\"tool\":\"poll\",\"input\":{\"id\":2},\"attempts\":[{\"error\":\"empty\",\"ms\":10},{\"output\":\"도착\",\"ms\":150}]}\nfake {\"tool\":\"poll\",\"input\":{\"id\":3},\"output\":\"있음\",\"ms\":50}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"z1\",\"name\":\"push\",\"input\":{\"id\":1}},{\"type\":\"tool\",\"id\":\"z2\",\"name\":\"poll\",\"input\":{\"id\":2}},{\"type\":\"tool\",\"id\":\"z3\",\"name\":\"poll\",\"input\":{\"id\":3}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"보냈는지 모른다.\"}]}\nask {\"text\":\"보내고 확인해 줘\"}",
+      "answers": [
+        "exec z2 100 610 timeout 4"
+      ],
+      "refs": [
+        "4.4",
+        "4.11",
+        "4.12",
+        "4.18",
+        "4.21",
+        "4.22"
+      ],
+      "quote": "두 시각 사이에는 다시 시도하기 전에 기다린 시간과 빈 슬롯을 기다린 시간도 들어간다.",
+      "explanation": "정답은 `exec z2 100 610 timeout 4` 이다. 슬롯이 하나다. z1 은 ms 150 이 timeout_ms 100 보다 커서 100 에 시간 초과로 실패하고 부수효과가 있는 도구라 [4.12]에 따라 다시 시도하지 않는다. z2 의 첫 시도는 100 에 시작해 110 에 error 로 실패한다. [4.21]에 따라 z2 는 25 를 기다려 135 에 다시 준비된다. [4.22]에 따라 기다리는 동안 슬롯은 z3 이 110 에 받아 160 까지 쓰므로 z2 는 160 에 둘째 시도를 시작한다. 둘째 시도는 [4.11]에 따라 260 에 시간 초과로 실패한다. z2 는 50 을 기다려 310 에 셋째 시도를, 100 을 기다려 510 에 넷째 시도를 시작한다. [4.4]에 따라 셋째와 넷째 시도도 attempts 의 마지막 시도 객체를 쓰므로 모두 시간 초과다. 넷째 시도는 610 에 끝나고 시도 수 4 가 retries 3 보다 크므로 실행이 끝난다. [4.18]에 따라 시작 시각은 첫 시도가 시작한 100 이다. 기다리는 동안 슬롯을 붙잡는다고 읽으면 `exec z2 100 585 timeout 4` 를, 대기 시간을 늘리지 않으면 `exec z2 100 510 timeout 4` 를 답하게 된다."
+    }
+  ]
+}

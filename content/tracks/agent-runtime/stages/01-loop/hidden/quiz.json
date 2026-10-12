@@ -1,0 +1,106 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력에 나오는 줄은?",
+      "context": "<보기>\ntool {\"name\":\"find\"}\nfake {\"tool\":\"find\",\"input\":{\"k\":1},\"output\":\"하나\"}\nconfig {\"max_turns\":1}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"f1\",\"name\":\"find\",\"input\":{\"k\":1.0}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"text\",\"text\":\"다시 찾는다.\"},{\"type\":\"tool\",\"id\":\"f1\",\"name\":\"find\",\"input\":{\"k\":1}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"찾았다.\"}]}\nask {\"text\":\"찾아 줘\"}\nconfig {\"max_turns\":3}\nask {\"text\":\"계속\"}\nask {\"text\":\"다시\"}",
+      "choices": [
+        "`turn 2 messages=3 limit=1000`",
+        "`reject pairing`",
+        "`turn 1 messages=5 limit=1000`",
+        "`turn 2 messages=5 limit=1000`",
+        "`reject script_exhausted`"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.19",
+        "4.22",
+        "4.28",
+        "4.32",
+        "4.37"
+      ],
+      "quote": "정지 이유가 tool 이면 실행기는 응답을 모델 메시지로 기록 끝에 더한다.",
+      "explanation": "정답은 ④이다. 첫 ask 는 max_turns 가 1 이라 첫 차례에서 끝난다. [4.37]에 따라 f1 이 든 모델 메시지는 기록에 들어가지만 도구는 실행하지 않는다. 둘째 ask 는 [4.19]대로 f1 에 답하는 `not executed` 오류 결과와 `계속` 텍스트 블록을 담은 새 사용자 메시지를 더하고 `turn 1 messages=3` 으로 시작한다. 둘째 응답의 f1 을 실행해 결과 메시지를 더하므로 둘째 차례는 `turn 2 messages=5 limit=1000` 이다. 이 요청에는 id 가 f1 인 도구 사용 블록이 두 모델 메시지에 하나씩 있어 [4.28]의 duplicate_id 로 거절된다. [4.32]에 따라 기록은 비고 셋째 응답은 각본에 남으므로 셋째 ask 는 `turn 1 messages=1` 로 시작해 `done end \"찾았다.\"` 로 끝난다. ① 첫 ask 가 끝날 때 모델 메시지를 기록에 넣지 않는다고 읽으면 둘째 ask 의 둘째 차례가 `messages=3` 이 된다. [4.22]와 달리 차례 번호를 ask 사이에 이어 세어도 둘째 ask 의 첫 차례 줄이 이렇게 나온다. ② 둘째 ask 가 텍스트 블록을 결과 블록보다 앞에 두거나 결과 블록을 빠뜨리면 pairing 으로 거절된다. [4.19]는 결과 블록을 먼저 담고 텍스트 블록을 그 뒤에 담게 한다. ③ 거절한 뒤에도 기록을 남긴다고 읽으면 셋째 ask 가 마지막 사용자 메시지에 텍스트를 더해 `messages=5` 로 시작한다. 첫 ask 의 모델 메시지를 기록에 넣지 않는다고 읽어도 셋째 ask 의 기록이 다섯 메시지가 된다. [4.32]와 [4.37]을 함께 적용해야 지울 수 있다. ⑤ 거절한 차례가 셋째 응답을 꺼낸다고 읽으면 셋째 ask 에서 각본이 빈다. 첫 ask 의 모델 메시지를 기록에 넣지 않는다고 읽어도 duplicate_id 가 생기지 않아 둘째 ask 가 셋째 응답을 쓰므로 같은 줄이 나온다. 이 선지도 [4.32]와 [4.37]을 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 세 ask 의 done 줄에 나오는 종료 상태를 출력된 순서로 나열한 것은?",
+      "context": "<보기>\nconfig {\"reply_limit\":600,\"reply_limit_cap\":2000,\"max_turns\":3}\ntool {\"name\":\"draft\"}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"text\",\"text\":\"초안을 쓴다.\"},{\"type\":\"tool\",\"id\":\"d1\",\"name\":\"draft\",\"incomplete\":true}]}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"tool\",\"id\":\"d2\",\"name\":\"draft\",\"incomplete\":true}]}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"text\",\"text\":\"계속 쓰면\"},{\"type\":\"tool\",\"id\":\"d3\",\"name\":\"draft\",\"incomplete\":true}]}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"text\",\"text\":\"다시 쓰면\"},{\"type\":\"tool\",\"id\":\"d4\",\"name\":\"draft\",\"incomplete\":true}]}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"text\",\"text\":\"요약하면\"},{\"type\":\"tool\",\"id\":\"d5\",\"name\":\"draft\",\"input\":{\"v\":1}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"끝냈다.\"}]}\nask {\"text\":\"보고서 초안\"}\nask {\"text\":\"이어서\"}\nask {\"text\":\"마무리\"}",
+      "choices": [
+        "`max_turns`, `length`, `end`",
+        "`length`, `length`, `end`",
+        "`length`, `length`, `length`",
+        "`length`, `end`, `rejected`",
+        "`length`, `rejected`, `length`"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.20",
+        "4.38",
+        "4.39",
+        "4.40"
+      ],
+      "quote": "그다음 응답 한도가 reply_limit_cap 과 같으면 ask 를 종료 상태 length 로 끝낸다.",
+      "explanation": "정답은 ②이다. 첫 ask 는 한도 600, 1200, 2000 으로 차례 셋을 쓰고 세 응답을 모두 버린다. 셋째 차례는 차례 번호가 max_turns 3 과 같지만 [4.38]은 한도가 reply_limit_cap 과 같은지를 먼저 확인하므로 `length` 로 끝난다. 버린 응답은 기록에 들어가지 않아 기록은 사용자 메시지 하나로 끝난다. 둘째 ask 는 [4.20]대로 그 메시지에 텍스트 블록을 더하고 [4.40]에 따라 한도 600 에서 다시 시작한다. 넷째 응답을 버린 뒤 한도 1200 으로 다시 요청해 다섯째 응답을 받는다. 다섯째 응답은 마지막 블록이 incomplete 가 false 인 도구 사용 블록이므로 [4.39]대로 기록에 들어가고 ask 는 `length` 로 끝난다. 셋째 ask 는 d5 에 답하는 `not executed` 결과를 먼저 담고 여섯째 응답을 받아 `end` 로 끝난다. ① 셋째 차례에서 max_turns 를 한도보다 먼저 확인하면 나온다. ③ 한도 2000 이 둘째 ask 까지 이어진다고 읽으면 둘째 ask 는 넷째 응답을 버린 뒤 바로 `length` 로 끝난다. 셋째 ask 는 다섯째 응답을 받아 `length` 가 된다. 한도가 [4.40]대로 600 으로 돌아간다는 것과 [4.38]대로 한도를 올려 다시 요청한다는 것을 함께 적용해야 지울 수 있다. ④ 다섯째 응답의 d5 를 실행한다고 읽으면 둘째 ask 는 여섯째 응답을 받아 `end` 가 된다. 셋째 ask 는 각본이 비어 `rejected` 가 된다. [4.39]는 그 블록을 실행하지 않는다고 했다. ⑤ 둘째 ask 가 새 사용자 메시지를 더한다고 읽으면 사용자 메시지 둘이 이어져 role_order 로 거절된다. 거절한 차례는 응답을 꺼내지 않으므로 셋째 ask 가 넷째와 다섯째 응답을 써서 `length` 가 된다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력에 나오는 결과 줄은?",
+      "context": "<보기>\nfake {\"tool\":\"geo\",\"input\":{\"pos\":[1,2],\"opt\":{\"z\":-0}},\"output\":\"첫째\"}\nfake {\"tool\":\"geo\",\"input\":{\"opt\":{\"z\":0.0},\"pos\":[1.0,2e0]},\"output\":\"둘째\\/끝\"}\nfake {\"tool\":\"map\",\"input\":{\"pos\":[1,2]},\"output\":\"지도\"}\ntool {\"name\":\"geo\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g1\",\"name\":\"geo\",\"input\":{\"pos\":[1,2],\"opt\":{\"z\":0}}},{\"type\":\"tool\",\"id\":\"g2\",\"name\":\"geo\",\"input\":{\"pos\":[2,1],\"opt\":{\"z\":0}}},{\"type\":\"tool\",\"id\":\"g3\",\"name\":\"map\",\"input\":{\"pos\":[1,2]}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"끝\"}]}\nask {\"text\":\"좌표\"}",
+      "choices": [
+        "`user result g1 ok \"둘째/끝\"`",
+        "`user result g1 ok \"첫째\"`",
+        "`user result g1 ok \"둘째\\/끝\"`",
+        "`user result g2 ok \"둘째/끝\"`",
+        "`user result g3 ok \"지도\"`"
+      ],
+      "answer": 1,
+      "refs": [
+        "3.8",
+        "3.10",
+        "4.4",
+        "4.5",
+        "4.41"
+      ],
+      "quote": "도구 이름이 같고 입력이 3.8 의 뜻으로 같은 가짜 결과가 이미 있으면 그 결과를 새 output 으로 바꾼다.",
+      "explanation": "정답은 ①이다. 둘째 fake 의 입력은 필드 순서가 다르고 수를 `1.0`, `2e0`, `0.0` 으로 썼지만 [3.8]에 따라 첫째 fake 의 입력과 같은 값이다. `-0` 과 `0` 도 같은 수다. 그래서 [4.4]대로 둘째 fake 가 첫째 결과를 바꾸고 output 은 `둘째/끝` 이 된다. g1 의 입력도 같은 값이므로 정상 결과가 나온다. [3.10]에 따라 `/` 는 이스케이프 없이 그대로 쓴다. ② 둘째 fake 의 입력을 첫째와 다른 값으로 판단하거나 같은 입력의 가짜 결과를 다시 정해도 먼저 정한 결과가 남는다고 읽으면 나온다. [3.8]과 [4.4]를 함께 적용해야 지울 수 있다. ③ 입력에 쓴 `\\/` 를 출력에도 그대로 쓴 것이다. [3.10]에서 입력의 `\\/` 는 출력에서 `/` 가 된다. ④ 배열의 원소 순서를 따지지 않으면 g2 도 가짜 결과를 찾는다. [3.8]에서 배열은 같은 자리의 원소가 모두 같아야 같으므로 g2 의 결과는 `no result for this input` 오류 결과다. ⑤ [4.5]대로 fake 는 정의되지 않은 도구 map 에도 결과를 정할 수 있다. 그러나 [4.41]은 도구 정의를 먼저 확인하므로 g3 의 결과는 `unknown tool: map` 오류 결과다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력에 나오는 turn 줄 가운데 마지막 줄은?",
+      "context": "<보기>\nconfig {\"reply_limit\":3e3}\nconfig {\"reply_limit_cap\":2500,\"reply_limit\":1E3}\nconfig {\"reply_limit\":2000.0,\"max_turns\":0}\ntool {\"name\":\"memo\"}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"tool\",\"id\":\"m1\",\"name\":\"memo\",\"incomplete\":true}]}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"text\",\"text\":\"메모를\"},{\"type\":\"tool\",\"id\":\"m2\",\"name\":\"memo\",\"incomplete\":true}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"메모했다.\"}]}\nask {\"text\":\"메모해 줘\"}",
+      "answers": [
+        "turn 3 messages=1 limit=2500"
+      ],
+      "refs": [
+        "3.14",
+        "4.13",
+        "4.23",
+        "4.38"
+      ],
+      "quote": "실행기는 인자의 필드를 지금 설정에 적용한 결과를 먼저 만든다.",
+      "explanation": "정답은 `turn 3 messages=1 limit=2500` 이다. 첫째 config 로 reply_limit 은 3000 이 된다. 둘째 config 는 [4.13]에 따라 두 필드를 모두 적용한 결과를 먼저 만들고 그 결과의 reply_limit 1000 을 reply_limit_cap 2500 과 비교하므로 오류가 아니다. [3.14]에 따라 `1E3` 은 정수 1000 이다. 셋째 config 는 max_turns 0 이 범위 밖이라 오류이고 [4.13]에 따라 reply_limit 2000 도 적용하지 않는다. 그래서 ask 의 첫 차례 한도는 1000 이다. [4.38]에 따라 첫째와 둘째 응답은 미완성 도구 사용 블록으로 잘려 버려지고 기록에 들어가지 않는다. 한도는 1000 에서 2000 으로 오르고 다음에는 4000 대신 상한 2500 이 된다. 셋째 차례의 기록도 사용자 메시지 하나뿐이다. [4.23]에 따라 한도는 소수점과 지수 없이 쓴다. 둘째 config 의 reply_limit_cap 2500 을 바꾸기 전의 reply_limit 3000 과 비교해 오류로 읽으면 한도가 3000, 4000 으로 오르고 둘째 차례에서 상한에 닿아 `turn 2 messages=1 limit=4000` 을 답하게 된다. 오류를 낸 셋째 config 의 reply_limit 을 적용하면 `turn 2 messages=1 limit=2500` 을 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력의 마지막 줄은?",
+      "context": "<보기>\ntool {\"name\":\"t\"}\nconfig {\"max_turns\":2}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"text\",\"text\":\"먼저 \"},{\"type\":\"tool\",\"id\":\"x1\",\"name\":\"t\",\"input\":{}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"text\",\"text\":\"A\\/\"},{\"type\":\"tool\",\"id\":\"x2\",\"name\":\"t\",\"input\":{}},{\"type\":\"text\",\"text\":\"\\\"B\\\"\"}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"끝\"}]}\nask {\"text\":\"가\"}",
+      "answers": [
+        "done max_turns \"A/\\\"B\\\"\""
+      ],
+      "refs": [
+        "3.10",
+        "4.35",
+        "4.37",
+        "4.43"
+      ],
+      "quote": "응답의 텍스트는 응답에 든 텍스트 블록의 text 를 블록 순서대로 구분자 없이 이은 문자열이다.",
+      "explanation": "정답은 `done max_turns \"A/\\\"B\\\"\"` 이다. 첫 차례의 x1 은 가짜 결과가 없어 오류 결과를 받고 둘째 차례가 시작된다. 둘째 차례 번호가 max_turns 2 와 같으므로 [4.37]에 따라 x2 는 실행하지 않고 ask 를 max_turns 로 끝낸다. [4.43]에서 done 줄의 문자열은 ask 를 끝낸 차례에서 받은 응답의 텍스트다. [4.35]에 따라 둘째 응답의 두 텍스트 블록은 사이에 도구 사용 블록이 있어도 구분자 없이 이어지므로 텍스트는 `A/\"B\"` 다. [3.10]에 따라 출력에서 `\"` 는 `\\\"` 로 쓰고 입력에 쓴 `\\/` 는 `/` 로 쓴다. 첫 차례 응답의 텍스트까지 이으면 `done max_turns \"먼저 A/\\\"B\\\"\"` 를, 도구 사용 블록 앞의 텍스트만 쓰면 `done max_turns \"A/\"` 를 답하게 된다."
+    }
+  ]
+}

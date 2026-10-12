@@ -1,0 +1,85 @@
+# 코루틴 현황과 완성 계획
+
+2026-10-13 기준이다. 현재 승인된 작업은 기존 콘텐츠 품질 보강과 `coroutine-patterns`의 05·06 제작이다. 실행기 6~7단계와 lab 기반·스킬·디스패처 실험은 후속 계획으로만 보관한다. 제작·검증은 순차 진행한다.
+
+## 현재 콘텐츠
+
+코루틴 카드는 8장이다. 완료 카드 5장에 실제 콘텐츠 8단계가 있고, 나머지 3장은 활용 심화·실행기·실험 후보 카드다. 후보가 완료되기 전에는 실제 학습 단계로 세지 않는다.
+
+- [R-coroutines-10](../content/ideas/backend/coroutines/cards/R-coroutines-10-coroutines.md): `tech-reading/06-coroutines`. 중단과 상태 기계, 구조적 동시성, 취소와 예외 전파를 읽는다.
+- [B-coroutines-20](../content/ideas/backend/coroutines/cards/B-coroutines-20-coroutine-patterns.md): `coroutine-patterns/01-fan-out`, `02-limits`, `03-channels`, `04-flow`. 동시 호출·시간 제한, 실행 상한·재시도, Channel 파이프라인, Flow·StateFlow를 구현한다.
+- [C-coroutines-30](../content/ideas/backend/coroutines/cards/C-coroutines-30-coroutine-order.md): `code-reading/02-coroutine-order`. 실행 순서·구조적 동시성·취소를 코드로 추적한다.
+- [F-coroutines-31](../content/ideas/backend/coroutines/cards/F-coroutines-31-order-deadline.md): `bug-fix/02-order-deadline`. 하위 호출 시간 제한의 버그를 고친다.
+- [C-coroutines-32](../content/ideas/backend/coroutines/cards/C-coroutines-32-flow-semantics.md): `code-reading/03-flow-semantics`. StateFlow·SharedFlow의 전달·수집 의미를 추적한다.
+
+## 이번 작업: 기존 품질 보강
+
+- 코드 읽기 두 단계: 전 문항을 높은 확신으로 맞힌 기존 풀이의 난도 판정을 다시 검토한다. 수정된 문항을 새 독립 풀이로 확인하고 Dispatchers.IO 학습 목표의 근거를 강화한다.
+- 버그 수정: 허용한 수정 범위를 검사하고, 실행 틀을 바꿔 우회하는 수정이 통과하지 않도록 보강한다. 원인과 위치를 알려 주지 않는 버그 신고를 독립적으로 다시 푼다.
+- 활용 구현 02·03: 스펙만 받은 독립 구현으로 명확성과 난도를 확인한다. 기존 검토의 예상 시간 1~1.5시간과 목표 2~3시간의 차이를 기록한다.
+- 활용 구현 04: WATCH 시작과 종료가 같은 시각인 경계를 명확히 하고 인위적인 입력 제외 조건을 제거할 수 있는지 실행으로 확인한다. 연산자 선택 중심의 범위는 유지하고 설계 난도는 05·06에서 보완한다.
+- 개념 독해: 마지막으로 수정된 문항이 지문만으로 하나의 정답을 갖는지 독립적으로 다시 확인한다.
+
+검증 명령 통과와 블라인드 풀이·난도 판정을 각각 기록한다. 품질 관문을 통과하기 전에는 보강을 완료로 표시하지 않는다.
+
+## 이번 작업: 활용 심화 05·06
+
+[B-coroutines-35](../content/ideas/backend/coroutines/cards/B-coroutines-35-coroutine-patterns-advanced.md)를 기존 트랙 뒤에 더한다. 기존 01~04를 제작 스킬의 `existing`에 넘기고 회귀 검증한다. 두 단계 모두 숙련자 기준 2~3시간을 목표로 한다.
+
+### 05-batching
+
+N개 또는 첫 이벤트부터 T시간이 되면 묶음을 닫고 순서대로 저장한다. 저장 중 대기 묶음 수를 제한해 역압력을 적용하고 정상 완료 시 남은 이벤트를 저장한다. 이벤트·타이머 경합, 실패, 취소 정책을 스펙에 명시한다. 타이머와 select 등 여러 정답 구현을 허용한다.
+
+### 06-single-flight
+
+같은 상품 요청은 하위 호출 하나를 공유한다. 기다리는 요청 하나가 취소돼도 다른 요청의 호출은 유지하고, 모두 사라지면 취소한다. 실패는 현재 대기자에게만 전달하고 캐시하지 않는다. 오래된 캐시 값은 즉시 반환하며 뒤에서 갱신 하나만 실행한다. 일반 대기 호출과 백그라운드 갱신의 생명주기를 구분하고 만료·갱신 실패의 경계를 정의한다.
+
+학습자 코드는 kotlinx.coroutines 1.11.0의 안정 API만 사용한다. 참조 풀이·고정 테스트·문항은 각각 독립적으로 만들고 교차 검증한다.
+
+## 후속 계획: 실행기 6~7단계
+
+[B-coroutines-40](../content/ideas/backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md)는 아직 기본 4단계를 적은 카드다. 확장안을 반영하기 전에 카드·스펙의 최종 범위를 정한다. 이번에는 제작하지 않는다.
+
+기본 단계는 다음과 같다.
+
+1. 이벤트 루프: Continuation, suspend/resume, 가상 delay와 준비 큐, async/await.
+2. 구조적 동시성: 부모·자식 완료, join과 scope.
+3. 취소: 협력적 취소, 정리, 취소 불가 구간, timeout.
+4. 예외: 부모·형제 전파, supervisor, await, 루트 처리기.
+
+기존 단계 보강안은 01의 중단 가로채기·dispatch와 루프 진입, 02의 context 상속·교체와 lazy start·Job 상태, 03의 yield와 완료 처리기 시점이다. 이 보강안은 기존 단계에 내용을 더하는 안이다.
+
+추가 05는 rendezvous·buffer Channel과 Mutex 대기 순서, 06은 cold Flow·수집·map/filter/take·상류 취소다. 이 둘을 넣으면 6단계다. 선행 시퀀스 생성기를 별도 단계로 넣으면 총 7단계이며 번호를 다시 정해야 한다.
+
+실제 suspend·Continuation 기반 API를 구현하도록 설계한다. 단일 스레드 가상 시간 모델을 쓰고, 다중 스레드 dispatcher·select·SharedFlow·StateFlow의 내부 구현은 기본 확장 범위에서 제외한다. 활용 단계에서 안정 API를 사용하는 것과는 별개다.
+
+## 후속 계획: lab 기반과 디스패처 실험
+
+[L-coroutines-50](../content/ideas/backend/coroutines/cards/L-coroutines-50-dispatcher-starvation.md)은 `coroutine-lab` 후보 카드다. 현재 엔진은 build·reading·code·fix만 지원한다. [lab 설계 초안](../content/ideas/backend/lab.md)에 맞춰 FORMAT·엔진·제작 스킬을 먼저 만든 뒤 실험을 제작한다. 이번에는 구현하지 않는다.
+
+JDK HttpServer와 k6를 사용해 Default에서 블로킹하는 가짜 JDBC 호출을 관찰한다. IO·limitedParallelism·Semaphore로 개선하며 별도 경로의 p95와 블로킹 동시 실행 상한을 검사한다. 정확한 임계값과 observe·implement를 한 단계로 묶을지는 아직 정하지 않았다. Redis는 이 실험에 필요하지 않다.
+
+## 보관한 추가 아이디어
+
+도메인 README의 카드 밖 아이디어는 다섯 개다. 별도 제작 승인을 뜻하지 않는다.
+
+- Channel 생산자·소비자 코드 읽기: rendezvous, buffer, close와 반복 종료.
+- runTest와 가상 시간 코드 읽기.
+- 가상 스레드와 코루틴 비교 실험.
+- Flow 역압력 실험: buffer, conflate, collectLatest.
+- `07-keyed-workers`: 키별 순서·작업자 상한·종료 기한·미처리 보고. 02·03과 작업자·정리 부분이 겹쳐 활용 심화에서 제외한 안이다. 새 07단계가 확정된 상태가 아니다.
+
+INDEX.md의 '다음 번호 07'은 예정 06 뒤의 빈 번호다. 보관한 keyed-workers나 실행기 확장 단계 수와 혼동하지 마라.
+
+## 다른 도메인과의 연결
+
+- JVM의 코루틴 취소·블로킹 실험은 디스패처 실험과 함께 범위를 검토한다.
+- [부하 도메인](../content/ideas/backend/load/README.md)의 캐시 스탬피드·분산 잠금은 06의 프로세스 안 요청 공유와 다르다. single-flight가 Redis 분산 잠금을 대신하지 않는다.
+- [메시징](../content/ideas/backend/messaging/README.md)의 poll 묶음 변경 합치기·오프셋 커밋은 05의 묶음 저장과 별도 의미 규칙이다.
+- Kotlin 재시도 정책 카드는 계산·지터·오류 분류를 다루며 코루틴 취소 검증을 대신하지 않는다.
+
+## 범위 계산
+
+현재 카드 기준은 기존 8단계 + 활용 심화 2 + 실행기 기본 4 + lab 1 = 총 15단계다. 실행기를 6단계로 확장하면 총 17, 선택 시퀀스까지 넣으면 18단계다. lab을 두 단계로 나누면 각각 하나 늘어난다. 카드 밖 아이디어는 포함하지 않는다.
+
+이번에는 기존 품질 보강과 활용 심화 두 단계만 완성한다. 이후 실행기, lab 기반과 실험, 추가 아이디어 순으로 범위를 다시 정한다.

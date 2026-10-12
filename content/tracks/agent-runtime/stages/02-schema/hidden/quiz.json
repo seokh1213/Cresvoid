@@ -1,0 +1,109 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 b1 의 결과 줄에 담긴 내용은?",
+      "context": "<보기>\ntool {\"name\":\"order\",\"schema\":{\"type\":\"object\",\"properties\":{\"size\":{\"type\":\"integer\",\"enum\":[1,2,3],\"maximum\":2},\"tags\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"tags\",\"owner\",\"size\"]}}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"b1\",\"name\":\"order\",\"input\":{\"tags\":[\"a\",7],\"size\":5.0}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"입력을 고치겠다.\"}]}\nask {\"text\":\"주문해 줘\"}",
+      "choices": [
+        "`invalid input: /owner required; /tags/1 expected string; /size not in enum; /size above maximum 2`",
+        "`invalid input: /owner required; /size expected integer; /tags/1 expected string`",
+        "`invalid input: /size not in enum; /size above maximum 2; /tags/1 expected string; /owner required`",
+        "`invalid input: /owner required; /size not in enum; /tags/1 expected string`",
+        "`invalid input: /owner required; /size not in enum; /size above maximum 2; /tags/1 expected string`"
+      ],
+      "answer": 5,
+      "refs": [
+        "4.15",
+        "4.16",
+        "4.17",
+        "4.18",
+        "4.19",
+        "4.20",
+        "4.21",
+        "4.22"
+      ],
+      "quote": "그래서 오류는 바깥 값의 enum, minimum, maximum, required 오류, 안쪽 필드와 원소의 오류 순서로 나온다.",
+      "explanation": "정답은 ⑤이다. 바깥 객체는 type 이 맞고 [4.19]에 따라 required 를 배열 순서대로 확인하므로 `/owner required` 가 먼저 나온다. 이어서 [4.20]에 따라 properties 에 적힌 순서대로 size, tags 의 안쪽 값을 검증한다. `5.0` 은 [4.15]가 가리키는 1단계 3.14 의 정수이므로 type 을 통과한다. size 는 [4.16]에 따라 enum 의 어느 원소와도 같지 않아 `/size not in enum` 이 나오고 [4.17]에 따라 2 보다 크므로 `/size above maximum 2` 도 나온다. tags 는 [4.21]에 따라 원소를 0 번째부터 검증하므로 7 의 경로는 `/tags/1` 이다. ① 입력에 쓰인 필드 순서대로 검증한 것이다. [4.20]은 properties 에 적힌 순서를 따른다. ② `5.0` 을 정수가 아니라고 읽으면 [4.15]에서 size 의 검증이 끝나 나온다. 1단계 3.14 의 정수 정의와 [4.15]의 type 규칙을 함께 적용해야 지울 수 있다. ③ 안쪽 오류를 바깥 required 오류보다 먼저 썼다. [4.22]에서 바깥 값의 required 오류는 안쪽 오류보다 먼저 나온다. ④ enum 오류가 나면 그 값의 검증을 멈춘다고 읽은 것이다. [4.15]에서 검증을 끝내는 것은 type 이 맞지 않을 때뿐이다. [4.18]에 따라 enum 오류 뒤에 maximum 오류도 낸다. [4.15]와 [4.18]을 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 마지막 줄은?",
+      "context": "<보기>\nconfig {\"repeat_limit\":2,\"max_turns\":3}\ntool {\"name\":\"geo\",\"schema\":{\"type\":\"object\",\"properties\":{\"zip\":{\"type\":\"string\"}},\"required\":[\"zip\"]}}\ntool {\"name\":\"geo2\",\"schema\":{\"type\":\"object\",\"properties\":{\"zip\":{\"type\":\"string\"}},\"required\":[\"zip\"]}}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"text\",\"text\":\"우편번호를 찾는다.\"},{\"type\":\"tool\",\"id\":\"z1\",\"name\":\"geo\",\"input\":{\"zip\":123}},{\"type\":\"tool\",\"id\":\"z2\",\"name\":\"geo2\",\"input\":{\"zip\":456}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"text\",\"text\":\"다시 찾는다.\"},{\"type\":\"tool\",\"id\":\"z3\",\"name\":\"geo\",\"input\":{\"zip\":789}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"text\",\"text\":\"한 번 더.\"},{\"type\":\"tool\",\"id\":\"z4\",\"name\":\"geo\",\"input\":{\"zip\":\"06236\"}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"찾지 못했다.\"}]}\nask {\"text\":\"우편번호 위치를 알려 줘\"}",
+      "choices": [
+        "`done repeated_error \"우편번호를 찾는다.\"`",
+        "`done max_turns \"한 번 더.\"`",
+        "`done repeated_error \"다시 찾는다.\"`",
+        "`done repeated_error \"\"`",
+        "`done repeated_error \"invalid input: /zip expected string\"`"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.13",
+        "4.27",
+        "4.28",
+        "4.30"
+      ],
+      "quote": "블록의 name 과 오류 결과의 내용이 모두 같은 두 오류 결과는 같은 오류다.",
+      "explanation": "정답은 ③이다. z1, z2, z3 의 zip 은 모두 수이므로 [4.13]에 따라 세 블록의 오류 결과 내용은 모두 `invalid input: /zip expected string` 이다. [4.27]에서 같은 오류는 블록의 name 과 내용이 모두 같은 것이므로 첫 차례의 z1(geo)과 z2(geo2)는 서로 다른 오류로 한 번씩 센다. 둘째 차례의 z3 은 input 이 z1 과 달라도 name 과 내용이 같아 geo 의 오류가 두 번이 된다. [4.28]에 따라 결과를 출력한 뒤 repeated_error 로 끝난다. done 줄의 문자열은 이 차례에서 받은 응답의 텍스트인 `다시 찾는다.` 다. ① name 을 따지지 않고 내용만 같아도 같은 오류로 세면 첫 차례에서 두 번이 되어 나온다. 같은 오류를 바르게 세더라도 done 줄에 ask 의 첫 응답 텍스트를 쓰면 같은 줄이 나온다. [4.27]과 [4.28]을 함께 적용해야 지울 수 있다. ② input 까지 같아야 같은 오류라고 읽으면 셋째 차례까지 간다. repeat_limit 번보다 많이 나와야 멈춘다고 읽거나 검증 실패를 세지 않아도 같다. 셋째 차례는 차례 번호가 max_turns 와 같아 [4.30]대로 도구 단계 없이 max_turns 로 끝난다. ④ repeated_error 로 끝나면 rejected 처럼 문자열이 빈다고 읽으면 나온다. [4.28]에서 done 줄의 문자열은 이 차례에서 받은 응답의 텍스트이고 둘째 응답에는 텍스트 `다시 찾는다.` 가 있다. 응답에 텍스트 블록이 없을 때만 빈 문자열이 된다. ⑤ [4.28]에서 done 줄의 문자열은 오류 결과의 내용이 아니라 이 차례에서 받은 응답의 텍스트다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 reject 줄에 나오는 코드를 출력된 순서로 나열한 것은?",
+      "context": "<보기>\ntool {\"name\":\"calc\",\"schema\":{\"type\":\"object\",\"properties\":{\"n\":{\"minimum\":10,\"maximum\":1}}}}\nask {\"text\":\"계산해 줘\"}\ntool {\"name\":\"calc\",\"schema\":{\"type\":\"object\",\"properties\":{\"n\":{\"type\":\"integer\"}},\"required\":[\"n\",\"n\"]}}\nask {\"text\":\"계산해 줘\"}\ntool {\"name\":\"calc\"}\nask {\"text\":\"계산해 줘\"}\ntool {\"name\":\"합계\",\"schema\":{\"type\":\"array\"}}\nask {\"text\":\"계산해 줘\"}",
+      "choices": [
+        "`tool_schema`, `tool_schema`, `script_exhausted`, `tool_name`",
+        "`script_exhausted`, `tool_schema`, `script_exhausted`, `tool_name`",
+        "`script_exhausted`, `script_exhausted`, `script_exhausted`, `tool_name`",
+        "`script_exhausted`, `tool_schema`, `tool_schema`, `tool_name`",
+        "`script_exhausted`, `tool_schema`, `script_exhausted`, `tool_schema`"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.2",
+        "4.7",
+        "4.8",
+        "4.9",
+        "4.11",
+        "4.12"
+      ],
+      "quote": "각본에 남은 응답이 있는지는 요청이 여섯 규칙을 모두 지켰을 때만 확인한다.",
+      "explanation": "정답은 ②이다. 각본이 비어 있으므로 여섯 규칙을 모두 지킨 요청은 [4.12]에 따라 script_exhausted 로 거절된다. 첫째 스키마는 [4.9]에 따라 minimum 이 maximum 보다 커도 형식에 맞는다. [4.11]이 type 을 반드시 요구하는 것은 최상위 스키마뿐이라 type 이 없는 안쪽 스키마도 형식에 맞는다. 둘째 스키마는 required 에 n 이 두 번 있어 [4.7]을 어기므로 tool_schema 다. 셋째 tool 은 [4.2]에 따라 calc 를 스키마가 없는 도구로 바꾸므로 다시 script_exhausted 다. 넷째 요청에는 이름 형식에 맞지 않는 `합계` 가 있고 [4.12]에서 tool_name 을 tool_schema 보다 먼저 검사하므로 tool_name 이다. ① minimum 이 maximum 보다 크면 안 된다고 읽거나 안쪽 스키마에도 type 이 있어야 한다고 읽으면 첫 요청이 tool_schema 가 된다. [4.9]와 [4.11]을 함께 적용해야 지울 수 있다. ③ required 의 겹친 원소를 enum 처럼 허용하면 둘째 요청이 통과한다. [4.8]의 enum 과 달리 [4.7]의 required 에는 같은 문자열이 둘 이상 있으면 안 된다. ④ schema 없이 다시 정의해도 이전 스키마가 남는다고 읽으면 셋째 요청이 tool_schema 가 된다. ⑤ tool_schema 를 tool_name 보다 먼저 검사하면 넷째 요청이 tool_schema 가 된다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 g1 의 결과 내용에서 `invalid input: ` 뒤에 오는 부분은?",
+      "context": "<보기>\ntool {\"name\":\"tag\",\"schema\":{\"type\":\"object\",\"properties\":{\"\":{\"type\":\"string\"},\"x/y\":{\"type\":\"array\",\"items\":{\"type\":\"integer\",\"maximum\":1E1}}}}}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g1\",\"name\":\"tag\",\"input\":{\"x/y\":[10.0,1e1,10.5,-0],\"\":0}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"고치겠다.\"}]}\nask {\"text\":\"태그를 검사해 줘\"}",
+      "answers": [
+        "/ expected string; /x/y/2 expected integer"
+      ],
+      "refs": [
+        "3.2",
+        "4.15",
+        "4.20",
+        "4.21"
+      ],
+      "quote": "경로가 p 인 객체의 필드 n 의 경로는 p 뒤에 `/` 와 n 을 붙인 문자열이다.",
+      "explanation": "정답은 `/ expected string; /x/y/2 expected integer` 이다. [4.20]에 따라 properties 의 필드는 입력에 쓰인 순서가 아니라 properties 에 적힌 순서대로 검증하므로 이름이 빈 문자열인 필드가 먼저다. [3.2]에 따라 그 필드의 경로는 빈 경로 뒤에 `/` 와 빈 이름을 붙인 `/` 이고 값 0 은 문자열이 아니므로 `/ expected string` 이 나온다. 이름이 `x/y` 인 필드의 경로는 이름을 바꾸지 않고 붙인 `/x/y` 다. [4.21]에 따라 배열 원소를 0 번째부터 검증한다. `10.0`, `1e1`, `-0` 은 정수이고 10 이하라 통과한다. `10.5` 는 정수가 아니므로 [4.15]에 따라 `/x/y/2 expected integer` 를 내고 그 원소의 검증을 끝낸다. 그래서 maximum 오류는 나오지 않는다. 입력에 쓰인 필드 순서로 검증하면 두 오류의 순서가 바뀐다. type 이 맞지 않은 값에도 maximum 을 검사하면 `/x/y/2 above maximum 1E1` 이 더 붙는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 두 번째 ask 가 출력하는 turn 줄 가운데 마지막 줄은?",
+      "context": "<보기>\nconfig {\"repeat_limit\":2,\"max_turns\":1}\ntool {\"name\":\"get\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"a1\",\"name\":\"get\",\"input\":{\"k\":1}},{\"type\":\"tool\",\"id\":\"a2\",\"name\":\"get\",\"input\":{\"k\":2}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"a3\",\"name\":\"get\",\"input\":{\"k\":3}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"a4\",\"name\":\"get\",\"input\":{\"k\":4}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"찾지 못했다.\"}]}\nask {\"text\":\"찾아 줘\"}\nconfig {\"max_turns\":3}\nask {\"text\":\"계속 찾아 줘\"}",
+      "answers": [
+        "turn 2 messages=5 limit=1000"
+      ],
+      "refs": [
+        "4.27",
+        "4.28",
+        "4.30"
+      ],
+      "quote": "1단계 4.19 에서 ask 가 담은 `not executed` 오류 결과는 세지 않는다.",
+      "explanation": "정답은 `turn 2 messages=5 limit=1000` 이다. 첫 ask 는 max_turns 가 1 이라 [4.30]대로 도구 단계 없이 끝나고 a1, a2 가 든 모델 메시지가 기록에 남는다. 두 번째 ask 는 1단계 4.19 에 따라 a1, a2 에 답하는 `not executed` 오류 결과와 텍스트 블록을 담은 사용자 메시지를 더하므로 첫 차례는 `messages=3` 이다. [4.27]에 따라 이 두 오류 결과는 세지 않는다. 첫 차례의 a3 은 가짜 결과가 없어 get 의 `no result for this input` 오류가 한 번 나온다. 둘째 차례의 a4 는 입력이 a3 과 달라도 name 과 내용이 같아 같은 오류가 두 번이 된다. [4.28]에 따라 실행기는 셋째 차례를 시작하지 않고 repeated_error 로 끝낸다. `not executed` 결과도 세면 첫 도구 단계 뒤에 멈춰 `turn 1 messages=3 limit=1000` 을 답하게 된다. input 까지 같아야 같은 오류라고 읽으면 셋째 차례까지 가서 `turn 3 messages=7 limit=1000` 을 답하게 된다."
+    }
+  ]
+}

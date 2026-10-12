@@ -1,0 +1,132 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 SEARCH 의 출력은?",
+      "context": "<보기>\nCREATE 2\nPUT 1 a acme 500 trail shoe\nPUT 2 b acme 300 trail shoe\nPUT 3 a zeta 300 rain shoe\nPUT 4 b zeta 100 rain shoe\nPUT 5 a acme 200 trail shoe\nSEARCH sort=price,id size=2\nPUT 5 a acme 400 trail shoe\nPUT 3 a zeta 150 rain shoe\nSEARCH sort=price,id size=2 search_after=200,5\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "hits 5 merged 3 / 2 0 300 2 / 3 1 300 3",
+        "hits 3 merged 3 / 2 0 300 2 / 5 1 400 5",
+        "hits 5 merged 4 / 2 0 300 2 / 5 1 400 5",
+        "hits 5 merged 3 / 2 0 300 2 / 5 1 400 5",
+        "hits 5 merged 3 / 2 0 300 2 / 1 1 500 1"
+      ],
+      "answer": 4,
+      "refs": [
+        "2.6",
+        "4.15",
+        "4.17",
+        "4.20",
+        "4.21",
+        "4.22"
+      ],
+      "quote": "search_after 는 넘긴 값 뒤만 읽으므로 지나온 자리에 새로 들어온 문서를 보지 못하고 정렬 값이 바뀐 문서는 두 번 나오거나 빠진다.",
+      "explanation": "정답은 ④이다. pit 가 없으므로 둘째 SEARCH 는 그때의 색인을 읽는다. 첫 SEARCH 가 문서 4 와 5 를 출력한 뒤 문서 5 의 가격은 400, 문서 3 의 가격은 150 으로 바뀐다. [4.17]에 따라 (200, 5) 뒤에 오는 결과는 가격이 200 보다 크거나 가격이 200 이고 id 가 5 보다 큰 결과다. 지금 색인에서 여기에 드는 문서는 2(300), 5(400), 1(500)이다. 가격이 150 이 된 문서 3 과 100 인 문서 4 는 남지 않는다. 남은 결과를 [4.15]대로 정렬하고 [4.21]에 따라 앞의 둘을 [4.22]의 형식으로 출력한다. [4.20]에서 결과 수는 search_after 와 상관없이 5 이고 합친 결과 수는 샤드 0 의 1개와 샤드 1 의 2개를 더한 3 이다. 문서 5 는 두 페이지에 모두 나오고 문서 3 은 어느 페이지에도 나오지 않는다. ① 첫 SEARCH 때의 색인을 그대로 읽는다고 본 결과다. PIT 없이 넘기면 [2.6]처럼 바뀐 색인을 읽는다. ② 결과 수를 search_after 가 남긴 결과의 수로 읽은 결과다. ③ search_after 가 남기지 않은 결과까지 합친 결과 수에 넣은 결과다. [4.20]에서는 샤드마다 search_after 가 남긴 결과 수와 from + size 가운데 작은 값을 더한다. ⑤ 앞 페이지에 나온 문서는 다시 나오지 않는다고 본 결과다. [4.17]은 정렬 값만으로 남길 결과를 정하므로 앞 페이지에 나온 문서도 다시 남는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기> 뒤에 줄을 더 넣었을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE 2\nPUT 1 a acme 500 trail shoe\nPUT 2 b acme 300 trail shoe\nPUT 3 a zeta 300 rain shoe\nOPEN_PIT",
+      "choices": [
+        "`SEARCH pit=7 sort=_shard_doc from=9995` 를 넣으면 `ERR NOT_FOUND` 를 출력한다.",
+        "`SEARCH pit=1 sort=price search_after=300` 을 넣으면 sort 의 정렬 키가 price 하나뿐이므로 가격이 300 보다 큰 문서 1 을 출력한다.",
+        "`SEARCH pit=1 sort=price:desc,_shard_doc:desc` 를 넣으면 가격이 같은 문서 2 와 3 가운데 샤드 번호가 작은 문서 2 가 앞선다.",
+        "`SEARCH size=0 from=10000` 을 넣으면 from 과 size 를 더한 값이 10000 이므로 `ERR RESULT_WINDOW` 를 출력한다.",
+        "`CLOSE_PIT 1` 과 `OPEN_PIT` 을 차례로 넣으면 OPEN_PIT 은 `pit 1` 을 출력한다."
+      ],
+      "answer": 1,
+      "refs": [
+        "4.2",
+        "4.11",
+        "4.12",
+        "4.14",
+        "4.15",
+        "5.7",
+        "5.8",
+        "5.9"
+      ],
+      "quote": "인자가 모두 올바르고 pit 가 있으면 그 id 의 PIT 가 열려 있는지 확인한다.",
+      "explanation": "정답은 ①이다. pit 가 있으므로 [4.11]에 따라 _shard_doc 을 정렬 키로 쓸 수 있고 인자는 모두 올바르다. [5.8]에 따라 PIT 7 이 열려 있는지를 먼저 확인하므로 from + size 가 10005 라도 [5.9]의 `ERR RESULT_WINDOW` 보다 `ERR NOT_FOUND` 가 먼저 나온다. ② [4.11]에 따라 pit 가 있으면 실제 정렬 키는 price 와 _shard_doc 이다. [4.12]와 [5.7]에 따라 search_after 값도 둘이어야 하므로 `ERR BAD_ARGUMENT` 다. ③ [4.14]에서 _shard_doc 은 샤드 번호 × 4294967296 + 내부 번호이므로 문서 2 는 0, 문서 3 은 4294967297 이다. [4.15]에서 샤드 번호와 내부 번호로 순서를 정하는 것은 실제 정렬 키의 값이 모두 같을 때뿐이다. 가격이 같아도 _shard_doc 이 다르고 그 방향이 desc 이므로 문서 3 이 앞선다. [4.14]와 [4.15]를 함께 적용해야 이 선지를 걸러 낼 수 있다. ④ [5.9]에서는 from + size 가 10000 보다 클 때만 오류를 낸다. 10000 은 한도를 넘지 않으므로 `hits 3 merged 3` 을 출력한다. ⑤ [4.2]에 따라 닫은 PIT 의 id 는 다시 쓰지 않으므로 `pit 2` 를 출력한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 SEARCH 의 출력은?",
+      "context": "<보기>\nCREATE 2\nPUT 1 a acme 300 trail shoe\nPUT 2 b acme 300 trail shoe\nPUT 3 a zeta 300 rain shoe\nPUT 4 b zeta 100 rain shoe\nPUT 1 a acme 300 trail shoe\nOPEN_PIT\nPUT 5 b acme 300 trail shoe\nDEL 3 a\nSEARCH pit=1 sort=price:desc size=3 search_after=300,0\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "hits 4 merged 3 / 5 0 300 2 / 1 1 300 4294967298 / 4 0 100 1",
+        "hits 4 merged 3 / 3 1 300 4294967297 / 1 1 300 4294967298 / 4 0 100 1",
+        "hits 4 merged 3 / 1 1 300 4294967296 / 3 1 300 4294967297 / 4 0 100 1",
+        "hits 4 merged 4 / 2 0 300 0 / 3 1 300 4294967297 / 1 1 300 4294967298",
+        "hits 4 merged 3 / 3 1 300 1 / 1 1 300 2 / 4 0 100 1"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.3",
+        "4.10",
+        "4.11",
+        "4.14",
+        "4.15",
+        "4.17",
+        "4.20",
+        "4.22"
+      ],
+      "quote": "문서마다 id, 샤드 번호, 내부 번호, 브랜드, 가격, 제목이 고정된다.",
+      "explanation": "정답은 ②이다. a 는 샤드 1 로, b 는 샤드 0 으로 간다. PIT 1 을 열 때 샤드 0 에는 문서 2(내부 번호 0)와 문서 4(내부 번호 1)가, 샤드 1 에는 문서 3(내부 번호 1)과 다시 색인한 문서 1(내부 번호 2)이 있다. [4.3]에 따라 그 뒤의 `PUT 5` 와 `DEL 3 a` 는 PIT 에 반영되지 않는다. [4.11]에 따라 실제 정렬 키는 price:desc 와 _shard_doc:asc 이고 [4.14]의 _shard_doc 은 문서 2 가 0, 문서 4 가 1, 문서 3 이 4294967297, 문서 1 이 4294967298 이다. [4.17]에 따라 (300, 0) 뒤에 오는 결과는 가격이 300 이고 _shard_doc 이 0 보다 큰 문서 3 과 1, 가격이 300 보다 낮은 문서 4 다. 정렬 값이 search_after 값과 같은 문서 2 는 남지 않는다. [4.10]과 [4.20]에 따라 결과 수는 PIT 의 문서 4개이고 합친 결과 수는 샤드 0 의 1개와 샤드 1 의 2개를 더한 3 이다. ① PIT 를 연 뒤의 PUT 과 DEL 이 PIT 에 반영된다고 읽은 결과다. ③ 다시 색인한 문서 1 이 처음 받은 내부 번호 0 을 지킨다고 본 결과다. 1단계 [4.14]에 따라 대체한 문서는 새 내부 번호를 받고 [4.3]에 따라 PIT 는 열 때의 내부 번호를 고정한다. ④ 정렬 값이 search_after 값과 같은 문서 2 도 남긴다고 읽은 결과다. ⑤ _shard_doc 을 내부 번호만으로 계산한 결과다. [4.14]에서 _shard_doc 은 샤드 번호 × 4294967296 + 내부 번호다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 처리했을 때 SEARCH 가 출력하는 첫 줄은?",
+      "input": [
+        "CREATE 3",
+        "PUT 1 c acme 100 trail shoe",
+        "PUT 2 c acme 200 trail shoe",
+        "PUT 3 c acme 300 trail shoe",
+        "PUT 4 a acme 400 rain shoe",
+        "PUT 5 b acme 500 trail shoe",
+        "PUT 6 b acme 600 trail shoe",
+        "PUT 1 b zeta 700 trail shoe",
+        "DEL 2 f",
+        "SEARCH q=trail sort=price:desc from=2 size=0"
+      ],
+      "answers": [
+        "hits 5 merged 4"
+      ],
+      "refs": [
+        "4.7",
+        "4.20",
+        "4.21"
+      ],
+      "quote": "합친 결과 수는 샤드마다 search_after 가 남긴 그 샤드의 결과 수와 from + size 가운데 작은 값을 구해 모두 더한 값이다.",
+      "explanation": "정답은 `hits 5 merged 4` 이다. c(99)와 f(102)는 샤드 0 으로, a(97)는 샤드 1 로, b(98)는 샤드 2 로 간다. `DEL 2 f` 는 샤드 0 의 문서 2 를 지우고 문서 1 은 샤드 0 과 샤드 2 에 하나씩 있다. 제목에 trail 이 있는 결과는 샤드 0 의 문서 1, 3 과 샤드 2 의 문서 5, 6, 1 로 다섯 개다. [4.20]에 따라 search_after 가 없으면 결과가 모두 남은 것으로 본다. 샤드마다 결과 수와 from + size 인 2 가운데 작은 값을 더하므로 합친 결과 수는 2 + 0 + 2 = 4 다. [4.21]에 따라 size 가 0 이면 첫 줄만 나온다. 1단계처럼 결과 수와 size 가운데 작은 값을 더하면 `hits 5 merged 0` 이, 결과 전체의 수와 from + size 가운데 작은 값을 쓰면 `hits 5 merged 2` 가, 두 샤드의 문서 1 을 하나로 세면 `hits 4 merged 4` 가 나온다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 처리했을 때 SEARCH 가 출력하는 첫 줄은?",
+      "input": [
+        "CREATE 2",
+        "PUT 1 a acme 500 trail shoe",
+        "PUT 2 b acme 300 trail shoe",
+        "PUT 3 a zeta 300 rain shoe",
+        "PUT 4 b zeta 100 rain shoe",
+        "PUT 5 a zeta 100 rain shoe",
+        "SEARCH q=shoe sort=price:desc from=0 search_after=100"
+      ],
+      "answers": [
+        "hits 5 merged 0"
+      ],
+      "refs": [
+        "4.13",
+        "4.17",
+        "4.20",
+        "4.21"
+      ],
+      "quote": "모든 키에서 값이 같은 결과는 뒤에 오지 않는다.",
+      "explanation": "정답은 `hits 5 merged 0` 이다. [4.13]에 따라 search_after 와 함께 쓴 from 이 0 이므로 오류가 아니다. 실제 정렬 키는 price:desc 하나라서 [4.17]에 따라 가격이 100 보다 낮은 결과만 100 뒤에 온다. 가격이 100 인 문서 4 와 5 는 search_after 값과 정렬 값이 같아 남지 않고 나머지 문서는 100 보다 비싸서 앞에 놓인다. 남은 결과가 없으므로 [4.20]의 합친 결과 수는 0 이고 [4.21]대로 첫 줄만 나온다. 결과 수는 search_after 의 영향을 받지 않아 5 다. 방향을 무시하고 100 보다 비싼 결과가 남는다고 읽으면 `hits 5 merged 3` 이, 샤드 번호가 큰 문서 5 가 문서 4 뒤에 온다고 보고 남기면 `hits 5 merged 1` 이, from 을 함께 썼다고 오류로 보면 `ERR BAD_ARGUMENT` 가 나온다."
+    }
+  ]
+}

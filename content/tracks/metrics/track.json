@@ -1,0 +1,10 @@
+{
+  "title": "지표 엔진",
+  "kind": "build",
+  "summary": "시계열 지표를 저장하고 범위 증가량과 비율, 히스토그램 분위수 추정, SLO 소진율 경보를 표준 입출력 명령 처리기로 구현한다.",
+  "stages": [
+    { "dir": "01-counters", "title": "카운터와 비율" },
+    { "dir": "02-histograms", "title": "히스토그램과 분위수" },
+    { "dir": "03-slo-alerts", "title": "소진율 경보" }
+  ]
+}

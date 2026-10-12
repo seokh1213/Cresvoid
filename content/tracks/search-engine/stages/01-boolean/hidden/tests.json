@@ -1,0 +1,608 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "basic-boolean",
+      "refs": [
+        "1.2",
+        "3.1",
+        "3.2",
+        "3.8",
+        "4.7",
+        "4.29",
+        "2.4",
+        "4.13",
+        "4.26",
+        "4.32"
+      ],
+      "quote": "`x AND y` 의 결과는 두 결과의 교집합이고 `x OR y` 의 결과는 합집합이다.",
+      "input": [
+        "ADD 1 apple banana",
+        "ADD 2 banana cherry",
+        "ADD 3 cherry apple date",
+        "QUERY apple",
+        "QUERY banana AND cherry",
+        "QUERY apple cherry",
+        "QUERY apple OR banana",
+        "QUERY grape",
+        "STATS"
+      ],
+      "expected": [
+        "1 3",
+        "2",
+        "3",
+        "1 2 3",
+        "(none)",
+        "3 4"
+      ]
+    },
+    {
+      "name": "id-numeric-order",
+      "refs": [
+        "4.31",
+        "4.8"
+      ],
+      "quote": "QUERY 는 식의 결과에 든 문서의 id 를 수 크기의 오름차순으로 정렬해 공백 하나씩 띄워 한 줄에 출력한다.",
+      "input": [
+        "ADD 10 sort me",
+        "ADD 9 sort me",
+        "ADD 100 sort",
+        "ADD 2 sort",
+        "ADD 999999999 sort",
+        "ADD 11 me",
+        "QUERY sort",
+        "QUERY me",
+        "QUERY sort OR me"
+      ],
+      "expected": [
+        "2 9 10 100 999999999",
+        "9 10 11",
+        "2 9 10 11 100 999999999"
+      ]
+    },
+    {
+      "name": "tokenize-classes",
+      "refs": [
+        "4.2",
+        "4.4",
+        "4.5",
+        "2.1"
+      ],
+      "quote": "토큰은 같은 부류 문자가 최대로 이어진 구간이다.",
+      "input": [
+        "ADD 1 Kotlin은 JVM용 언어다",
+        "ADD 2 abc가나 a1b2 X86",
+        "ADD 3 Hello-WORLD hello",
+        "STATS",
+        "QUERY kotlin",
+        "QUERY 은",
+        "QUERY ABC",
+        "QUERY 가나abc",
+        "QUERY a1b2",
+        "QUERY a1",
+        "QUERY X86",
+        "QUERY HELLO world",
+        "QUERY 언어"
+      ],
+      "expected": [
+        "3 11",
+        "1",
+        "1",
+        "2",
+        "2",
+        "2",
+        "(none)",
+        "2",
+        "3",
+        "(none)"
+      ]
+    },
+    {
+      "name": "replace-and-delete",
+      "refs": [
+        "4.11",
+        "4.12",
+        "4.13",
+        "4.14",
+        "2.6"
+      ],
+      "quote": "이전 본문의 토큰은 그 문서에 남지 않는다.",
+      "input": [
+        "ADD 1 red apple",
+        "ADD 2 green apple",
+        "ADD 3 red cherry",
+        "STATS",
+        "ADD 1 yellow banana",
+        "STATS",
+        "QUERY red",
+        "QUERY apple",
+        "QUERY yellow OR red",
+        "DEL 3",
+        "STATS",
+        "QUERY red",
+        "QUERY NOT green",
+        "ADD 2",
+        "STATS",
+        "QUERY apple",
+        "QUERY NOT yellow",
+        "ADD 3 red red",
+        "QUERY red",
+        "DEL 2",
+        "DEL 1",
+        "DEL 3",
+        "STATS",
+        "QUERY NOT red"
+      ],
+      "expected": [
+        "3 4",
+        "3 6",
+        "3",
+        "2",
+        "1 3",
+        "2 4",
+        "(none)",
+        "1",
+        "2 2",
+        "(none)",
+        "2",
+        "3",
+        "0 0",
+        "(none)"
+      ]
+    },
+    {
+      "name": "precedence-and-implicit-and",
+      "refs": [
+        "4.25",
+        "4.26",
+        "4.28",
+        "4.27",
+        "2.7",
+        "2.8"
+      ],
+      "quote": "생략한 AND 와 적은 AND 는 우선순위가 같다.",
+      "input": [
+        "ADD 1 a b",
+        "ADD 2 b c",
+        "ADD 3 a c",
+        "ADD 4 c",
+        "ADD 5 a b c",
+        "ADD 6 d",
+        "QUERY a OR b AND c",
+        "QUERY a b OR c",
+        "QUERY c OR a NOT b",
+        "QUERY a NOT b",
+        "QUERY NOT a b",
+        "QUERY NOT NOT a",
+        "QUERY NOT a OR b",
+        "QUERY (a OR b) c",
+        "QUERY NOT (a OR b) OR d",
+        "QUERY a AND b OR c AND d",
+        "QUERY a OR b OR d",
+        "QUERY a OR NOT b c"
+      ],
+      "expected": [
+        "1 2 3 5",
+        "1 2 3 4 5",
+        "2 3 4 5",
+        "3",
+        "2",
+        "1 3 5",
+        "1 2 4 5 6",
+        "2 3 5",
+        "4 6",
+        "1 5",
+        "1 2 3 5 6",
+        "1 3 4 5"
+      ]
+    },
+    {
+      "name": "not-uses-all-documents",
+      "refs": [
+        "4.30",
+        "4.10",
+        "4.32",
+        "2.5",
+        "3.9"
+      ],
+      "quote": "`NOT x` 의 결과는 현재 모든 문서의 집합에서 x 의 결과를 뺀 집합이다.",
+      "input": [
+        "QUERY NOT anything",
+        "STATS",
+        "ADD 1 apple",
+        "ADD 2 !!! ㅋㅋ",
+        "ADD 3",
+        "ADD 4 banana",
+        "QUERY NOT apple",
+        "QUERY NOT (apple OR banana)",
+        "STATS",
+        "DEL 2",
+        "QUERY NOT apple",
+        "ADD 3 apple",
+        "QUERY NOT apple",
+        "QUERY NOT banana NOT apple"
+      ],
+      "expected": [
+        "(none)",
+        "0 0",
+        "2 3 4",
+        "2 3",
+        "4 2",
+        "3 4",
+        "4",
+        "(none)"
+      ]
+    },
+    {
+      "name": "tokenize-separators",
+      "refs": [
+        "4.3",
+        "4.1",
+        "4.2"
+      ],
+      "quote": "L 부류도 H 부류도 아닌 문자는 모두 구분자다.",
+      "input": [
+        "ADD 1 snake_case don't Café naïve",
+        "ADD 2 가ㄱ나 ＡＢＣ１２３ ½ привет 日本 ² ß",
+        "ADD 3 x86_64 v2.0",
+        "ADD 4 힣가 ㅋㅋ",
+        "STATS",
+        "QUERY snake",
+        "QUERY don't",
+        "QUERY t",
+        "QUERY Café",
+        "QUERY naïve",
+        "QUERY 가 나",
+        "QUERY 가나",
+        "QUERY ＡＢＣ snake",
+        "QUERY 64 v2",
+        "QUERY 0",
+        "QUERY 힣가"
+      ],
+      "expected": [
+        "4 14",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "2",
+        "(none)",
+        "1",
+        "3",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "name": "multi-and-zero-token-words",
+      "refs": [
+        "4.21",
+        "4.19",
+        "4.20"
+      ],
+      "quote": "이 항은 토큰을 AND 로 이어 괄호로 묶은 식과 같다.",
+      "input": [
+        "ADD 1 send an e-mail today",
+        "ADD 2 mail e",
+        "ADD 3 email",
+        "ADD 4 new york pizza",
+        "ADD 5 york new delhi",
+        "ADD 6 new mexico",
+        "QUERY e-mail",
+        "QUERY NOT e-mail",
+        "QUERY mail.E",
+        "QUERY mexico OR new-york",
+        "QUERY NOT new-york-pizza",
+        "QUERY pizza !!!",
+        "QUERY !!! pizza OR ??? delhi",
+        "QUERY pizza AND !!!",
+        "QUERY pizza OR ... OR delhi",
+        "QUERY ㅋㅋ ( pizza )",
+        "QUERY e-mail-email"
+      ],
+      "expected": [
+        "1 2",
+        "3 4 5 6",
+        "1 2",
+        "4 5 6",
+        "1 2 3 5 6",
+        "4",
+        "4 5",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "4",
+        "(none)"
+      ]
+    },
+    {
+      "name": "lexing-parens-and-operators",
+      "refs": [
+        "4.16",
+        "4.17",
+        "4.18"
+      ],
+      "quote": "괄호 `(` 와 `)` 는 앞뒤에 다른 문자가 붙어 있어도 한 글자짜리 독립 어휘다.",
+      "input": [
+        "ADD 1 red apple",
+        "ADD 2 green apple and pear",
+        "ADD 3 red cherry or not",
+        "ADD 4 green grape",
+        "QUERY NOT(red)apple",
+        "QUERY (red OR green)(apple)",
+        "QUERY (green)OR(red)",
+        "QUERY and",
+        "QUERY Not",
+        "QUERY red or",
+        "QUERY red OR, green",
+        "QUERY NOT!",
+        "QUERY (NOT)",
+        "QUERY NOT\tred",
+        "QUERY green AND grape",
+        "QUERY green and grape"
+      ],
+      "expected": [
+        "2",
+        "1 2",
+        "1 2 3 4",
+        "2",
+        "3",
+        "3",
+        "(none)",
+        "3",
+        "ERR SYNTAX",
+        "3",
+        "4",
+        "(none)"
+      ]
+    },
+    {
+      "name": "argument-errors",
+      "refs": [
+        "5.3",
+        "5.4",
+        "5.5",
+        "5.6",
+        "5.1",
+        "3.10"
+      ],
+      "quote": "오류를 낸 명령은 상태를 바꾸지 않는다.",
+      "input": [
+        "ADD 7 alpha",
+        "ADD",
+        "ADD 0 x",
+        "ADD 01 x",
+        "ADD 1234567890 x",
+        "ADD 1,2 x",
+        "ADD +5 x",
+        "ADD -5 x",
+        "ADD ５ x",
+        "ADD 7x beta",
+        "ADD 1000000000 x",
+        "STATS",
+        "DEL 7 8",
+        "DEL 99 8",
+        "DEL 99",
+        "DEL 7x",
+        "DEL 07",
+        "DEL",
+        "STATS now",
+        "QUERY alpha",
+        "DEL 7",
+        "DEL 7",
+        "STATS"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "1 1",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NOT_FOUND",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "7",
+        "ERR NOT_FOUND",
+        "0 0"
+      ]
+    },
+    {
+      "name": "unknown-commands",
+      "refs": [
+        "3.7",
+        "5.2",
+        "3.6"
+      ],
+      "quote": "명령어가 ADD, DEL, STATS, QUERY, SEARCH 가운데 어느 것과도 정확히 같지 않으면 `ERR UNKNOWN_COMMAND` 를 출력한다.",
+      "input": [
+        "ADD 1 hello world",
+        "add 2 hello",
+        "Add 3 hello",
+        "Stats",
+        "QUERY(hello)",
+        "QUERY hello",
+        "DELETE 1",
+        "ＡＤＤ 4 hello",
+        "ADD 5 hello",
+        "STATS"
+      ],
+      "expected": [
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "1",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "1 2"
+      ]
+    },
+    {
+      "name": "syntax-errors",
+      "refs": [
+        "5.7",
+        "5.8",
+        "4.22",
+        "4.23",
+        "4.24"
+      ],
+      "quote": "0토큰 낱말을 지운 식이 4.22~4.24 를 만족하지 않으면 `ERR SYNTAX` 를 출력한다.",
+      "input": [
+        "ADD 1 a b",
+        "ADD 2 b c",
+        "QUERY",
+        "QUERY    ",
+        "QUERY !!! ???",
+        "QUERY ()",
+        "QUERY (a",
+        "QUERY a)",
+        "QUERY (a))",
+        "QUERY a OR OR b",
+        "QUERY a OR",
+        "QUERY OR a",
+        "QUERY AND a",
+        "QUERY a AND AND b",
+        "QUERY a NOT",
+        "QUERY ) a (",
+        "QUERY a () b",
+        "QUERY ((a) OR (c))",
+        "QUERY NOT NOT NOT a",
+        "QUERY a AND (NOT b OR c)"
+      ],
+      "expected": [
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "1 2",
+        "2",
+        "(none)"
+      ]
+    },
+    {
+      "name": "spaces-tabs-and-cr",
+      "refs": [
+        "3.4",
+        "3.5",
+        "3.6",
+        "4.9",
+        "4.15",
+        "3.3"
+      ],
+      "quote": "탭(U+0009)과 CR(U+000D)은 공백이 아니다.",
+      "input": [
+        "   ADD 1   alpha   beta   ",
+        "",
+        "     ",
+        "ADD 2\tgamma",
+        "ADD\t3 delta",
+        "\tSTATS",
+        "STATS\r",
+        "ADD 4 \tepsilon",
+        "DEL 4\r",
+        "STATS   ",
+        "QUERY   alpha",
+        "QUERY alpha\tbeta",
+        "QUERY alpha\tOR\tepsilon",
+        "QUERY alpha OR epsilon",
+        "QUERY epsilon\r",
+        "  DEL   1  ",
+        "STATS"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR BAD_ARGUMENT",
+        "2 3",
+        "1",
+        "1",
+        "(none)",
+        "1 4",
+        "4",
+        "1 1"
+      ]
+    },
+    {
+      "name": "random-mixed",
+      "refs": [
+        "4.22",
+        "4.30",
+        "4.11",
+        "4.14",
+        "5.1"
+      ],
+      "quote": "0토큰 낱말을 지운 어휘의 열은 아래 문법의 or_expr 하나와 정확히 맞아야 한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "80"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "random-churn",
+      "refs": [
+        "4.11",
+        "4.12",
+        "4.14",
+        "4.30"
+      ],
+      "quote": "대체나 삭제로 어느 문서에도 남지 않은 토큰은 세지 않는다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10",
+        "--queries",
+        "150"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "large-scale",
+      "refs": [
+        "7.6",
+        "2.2",
+        "2.3"
+      ],
+      "quote": "대규모 테스트는 문서 20,000개(문서당 평균 30토큰 안팎)와 QUERY 20,000개로 이뤄진다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "20000",
+        "--queries",
+        "20000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

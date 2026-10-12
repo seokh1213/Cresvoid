@@ -1,0 +1,131 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nTYPE req_total counter\nTYPE err_total counter\nSLO pay 99.5 req_total err_total svc=pay\nADD 30 300 req_total svc=pay pod=a\nADD 60 600 req_total svc=pay pod=a\nADD 90 900 req_total svc=pay pod=a\nADD 30 0 err_total svc=pay pod=a\nADD 60 0 err_total svc=pay pod=a\nADD 90 3 err_total svc=pay pod=a\nADD 30 0 err_total svc=web\nADD 90 90 err_total svc=web\nBURN 60 60 pay\nBURN 90 90 pay\nBURN 90 60 pay\nBURN 90 45 pay\nBURN 60 30 pay",
+      "choices": [
+        "`BURN 60 60 pay` 는 `NONE` 을 출력한다.",
+        "`BURN 90 90 pay` 는 `31.000000` 을 출력한다.",
+        "`BURN 90 60 pay` 는 `2.000000` 을 출력한다.",
+        "`BURN 90 45 pay` 는 `0.020000` 을 출력한다.",
+        "`BURN 60 30 pay` 는 `0.000000` 을 출력한다."
+      ],
+      "answer": 3,
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "T 나 B 가 NONE 이거나 T 가 0 이면 소진율이 없다.",
+      "explanation": "정답은 ③이다. [4.3]에 따라 SLO 를 정한 뒤에 생긴 시계열도 고르고 [4.4]에 따라 목표 99.5 의 오류 예산 비율은 0.005 다. 시각 90 의 60초 창은 30 < s ≤ 90 이라 시각 60 과 90 의 표본이 든다. [4.5]에 따라 T 는 300 × 60 ÷ 30 = 600, B 는 3 × 60 ÷ 30 = 6 이고 [4.6]에 따라 소진율은 (6 ÷ 600) ÷ 0.005 = 2 다. ① 시각 60 의 60초 창에서 나쁜 지표의 시계열은 범위 안 표본이 둘이고 값이 늘지 않았으므로 1단계 INCREASE 는 `0.000000` 을 출력한다. B 는 NONE 이 아니라 0 이고 T 는 600 이므로 소진율은 0 이다. [4.5]의 정의와 [4.6]을 함께 적용해야 지울 수 있다. ② [4.1]에 따라 레이블 쌍 svc=pay 는 나쁜 선택자에도 붙으므로 svc=web 시계열은 B 에 들지 않는다. T 는 900, B 는 4.5 라 소진율은 1 이다. svc=web 시계열의 증가량 135 를 B 에 더하면 31 이 나온다. ④ T 는 450, B 는 4.5 이고 소진율은 2 다. 오류 예산 비율을 100 으로 나누지 않고 0.5 로 쓰면 0.02 가 나온다. ⑤ 창은 시각이 정확히 30 인 표본을 담지 않으므로 전체 지표의 시계열은 범위 안 표본이 하나뿐이다. T 가 NONE 이므로 [4.6]에 따라 `NONE` 이다. 시각 30 의 표본을 넣으면 T 는 300, B 는 0 이 되어 0 이 나온다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nTYPE req_total counter\nTYPE inflight gauge\nSLO api 99.9 req_total req_total\nSLO web 99.95 inflight missing_total\nSLO api 100 req_total missing_total\nALERT api api 3600 300 100000\nALERT api nope 300 300 6\nEVAL 98 105 7",
+      "choices": [
+        "`SLO web 99.95 inflight missing_total` 은 `ERR WRONG_TYPE` 을 출력한다.",
+        "`SLO api 100 req_total missing_total` 은 `ERR EXISTS` 를 출력한다.",
+        "`ALERT api api 3600 300 100000` 은 `ERR BAD_ARGUMENT` 를 출력한다.",
+        "`EVAL 98 105 7` 은 `EVALUATED 2` 만 출력한다.",
+        "`ALERT api nope 300 300 6` 은 `ERR EXISTS` 를 출력한다."
+      ],
+      "answer": 4,
+      "refs": [
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.8",
+        "4.10",
+        "4.11",
+        "5.3"
+      ],
+      "quote": "평가 시각은 시작 이상 끝 이하인 정수 가운데 간격의 배수인 수다.",
+      "explanation": "정답은 ④다. [3.2]에 따라 SLO 이름과 경보 이름은 따로 관리하고 [3.4]에 따라 기준 100000 은 100,000 이하인 기준 인자이므로 `ALERT api api 3600 300 100000` 은 경보 api 를 정한다. [4.11]에 따라 평가 시각은 98 이상 105 이하인 7 의 배수 98 과 105 다. 경보 api 의 SLO 가 고르는 시계열이 없어 소진율이 없으므로 [4.10]에 따라 조건은 거짓이고 상태가 바뀌지 않는다. 그래서 `EVALUATED 2` 만 출력한다. ① [5.3]에 따라 SLO 는 나쁜 지표가 있는지를 전체 지표의 종류보다 먼저 확인하므로 `ERR NO_METRIC` 이다. ② [3.3]에 따라 `100` 은 목표 인자가 아니고 [5.3]에 따라 인자 형식을 이름이 겹치는지보다 먼저 확인하므로 `ERR BAD_ARGUMENT` 다. 두 규칙을 함께 적용해야 지울 수 있다. ③ 기준 인자는 값이 100,000 이하이면 되고 경보 이름 api 는 SLO 이름 api 와 같아도 된다. 아무것도 출력하지 않는다. ⑤ [4.8]에 따라 짧은 창이 긴 창과 같으면 형식에 맞지 않는 인자다. [5.3]에 따라 이 확인을 이름이 겹치는지보다 먼저 하므로 경보 api 가 있어도 `ERR BAD_ARGUMENT` 다. 두 규칙을 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nTYPE req_total counter\nTYPE err_total counter\nSLO s 99 req_total err_total\nADD 0 0 req_total\nADD 60 100 req_total\nADD 120 200 req_total\nADD 180 300 req_total\nADD 0 0 err_total\nADD 60 0 err_total\nADD 120 4 err_total\nADD 180 8 err_total\nALERT fast s 180 120 3\nALERT Page s 180 120 2\nALERT slow s 180 60 1\nEVAL 0 200 60\nEVAL 180 240 60",
+      "choices": [
+        "둘째 EVAL 이 출력하는 첫 줄은 `180 Page FIRING` 이다.",
+        "첫 EVAL 은 `120 Page FIRING` 을 출력한다.",
+        "첫 EVAL 은 시각 180 에 `180 fast FIRING` 을 `180 Page FIRING` 보다 먼저 출력한다.",
+        "첫 EVAL 은 `180 slow FIRING` 을 출력한다.",
+        "첫 EVAL 의 마지막 줄은 `EVALUATED 3` 이다."
+      ],
+      "answer": 1,
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.10",
+        "4.11",
+        "4.13",
+        "4.15"
+      ],
+      "quote": "마지막 평가 시각에 켜져 있던 경보도 다음 EVAL 에서는 꺼진 상태로 시작한다.",
+      "explanation": "정답은 ①이다. 목표 99 의 오류 예산 비율은 0.01 이다. 시각 180 에 180초 창과 120초 창의 소진율은 모두 4 라서 fast 와 Page 의 조건이 참이다. 첫 EVAL 은 두 경보가 켜진 채로 끝나지만 [4.15]에 따라 둘째 EVAL 은 모든 경보가 꺼진 상태로 시작하므로 시각 180 에 두 경보가 다시 켜진다. [4.13]의 바이트 오름차순에서 `P`(0x50)가 `f`(0x66)보다 앞서므로 첫 줄은 `180 Page FIRING` 이다. ② 시각 120 의 180초 창에는 시각 0, 60, 120 의 표본이 들고 소진율은 (6 ÷ 300) ÷ 0.01 = 2 로 기준 2 와 같다. [4.10]에 따라 기준과 같은 소진율은 기준보다 크지 않으므로 Page 는 시각 120 에 켜지지 않는다. ③ 바이트 오름차순에서는 대문자가 소문자보다 앞서므로 Page 를 먼저 출력한다. ④ [4.5]에 따라 창은 1단계 INCREASE 의 범위이므로 시각이 정확히 t − 60 인 표본을 담지 않는다. 60초 창에는 60초마다 읽은 표본이 하나만 들어 T 와 B 가 NONE 이고 [4.6]에 따라 짧은 창 소진율이 없다. [4.10]에 따라 slow 의 조건은 늘 거짓이다. 창의 범위와 [4.10]을 함께 적용해야 지울 수 있다. ⑤ [4.11]에 따라 0 도 간격의 배수이므로 평가 시각은 0, 60, 120, 180 의 넷이고 마지막 줄은 `EVALUATED 4` 다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "TYPE req_total counter",
+        "TYPE err_total counter",
+        "SLO checkout 99.95 req_total err_total svc=api",
+        "ADD 0 0 req_total svc=api pod=a",
+        "ADD 128 1000 req_total svc=api pod=a",
+        "ADD 0 0 err_total svc=api pod=a",
+        "ADD 128 1 err_total svc=api pod=a",
+        "ADD 0 0 err_total svc=web pod=a",
+        "ADD 128 50 err_total svc=web pod=a",
+        "BURN 128 131 checkout"
+      ],
+      "answers": [
+        "2.000001"
+      ],
+      "refs": [
+        "4.1",
+        "4.4",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "전체 증가량 T 는 전체 선택자로 1단계 INCREASE 를 시각 t, 범위 w 로 실행할 때 출력할 값이다.",
+      "explanation": "정답은 `2.000001` 이다. [4.4]에 따라 목표 99.95 의 오류 예산 비율은 0.0005 다. 창은 −3 < s ≤ 128 이라 시각 0 과 128 의 표본이 모두 들고 시작 쪽 간격 3 만큼 늘려 보외 구간은 131 이다. [4.5]에 따라 T 는 1000 × 131 ÷ 128 = 1023.4375 다. [4.1]에 따라 나쁜 선택자에도 svc=api 가 붙으므로 svc=web 시계열은 빠진다. B 는 INCREASE 가 출력할 값이므로 1 × 131 ÷ 128 = 1.0234375 를 반올림한 1.023438 이다. [4.6]에 따라 (1.023438 ÷ 1023.4375) ÷ 0.0005 = 2.00000097… 을 반올림한다. B 를 반올림하기 전의 값으로 계산하면 `2.000000`, svc=web 시계열을 B 에 넣으면 `102.000001` 을 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "TYPE req_total counter",
+        "TYPE err_total counter",
+        "SLO api 99 req_total err_total job=api",
+        "ADD 0 500 req_total job=api pod=a",
+        "ADD 30 800 req_total job=api pod=a",
+        "ADD 60 100 req_total job=api pod=a",
+        "ADD 90 400 req_total job=api pod=a",
+        "ADD 60 0 err_total job=api pod=a",
+        "ADD 90 6 err_total job=api pod=a",
+        "BURN 90 80 api"
+      ],
+      "answers": [
+        "1.687500"
+      ],
+      "refs": [
+        "4.3",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "선택자가 고르는 시계열은 BURN 이나 EVAL 을 처리할 때 정해지므로 SLO 를 정한 뒤에 생긴 시계열도 고른다.",
+      "explanation": "정답은 `1.687500` 이다. [4.3]에 따라 SLO 를 정한 뒤에 생긴 시계열도 고른다. 창은 10 < s ≤ 90 이다. 전체 지표는 시각 30, 60, 90 의 표본을 쓰고 800 에서 100 으로 줄어든 자리는 재시작이라 100 을 더하므로 원시 증가량은 100 + 300 = 400 이다. 평균 간격은 30, 1.1배는 33 이고 시작 쪽 간격 20 을 그대로 늘려 보외 구간은 80 이다. [4.5]에 따라 T 는 400 × 80 ÷ 60 을 반올림한 533.333333 이다. 나쁜 지표는 시각 60 과 90 의 표본만 있고 평균 간격 30 에 견주어 시작 쪽 간격 50 이 33 이상이므로 15 만 늘린다. B 는 6 × 45 ÷ 30 = 9 다. [4.6]에 따라 (9 ÷ 533.333333) ÷ 0.01 = 1.68750000… 을 반올림한다. 재시작한 자리에서 아무것도 더하지 않으면 `2.250000`, 나쁜 지표도 창의 시작까지 늘리면 `3.000000`, 보외하지 않은 원시 증가량끼리 나누면 `1.500000` 을 답하게 된다."
+    }
+  ]
+}

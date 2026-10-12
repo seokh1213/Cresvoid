@@ -1,0 +1,149 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 PROFILE 이 출력하는 merge 줄은?",
+      "context": "<보기> `> ` 로 시작하는 줄은 입력이고 나머지 줄은 바로 위 입력의 출력이다.\n> DATA v 1\n> 0 cat 1\n> 0 a0 2\n> 0 b 3\n> 0 h 4\n> 0 fox 5\n> 0 d 6\n> 0 j 7\n> 0 p 8\n> END\n> DATA w 1\n> 0 NULL 10\n> 0 b 20\n> 0 h 30\n> 0 d 40\n> 0 ant 50\n> END\n> SET broadcastThreshold -1\n> PIPE j = source v | join w 6\n> PROFILE j\njob 0 stages 3 tasks 8 rows 3\nstage 0 tasks 1 source(v) -> shuffle 2\nwrite records 8 bytes 93 spills 0 sizes 13,12,22,13,33,0\nstage 1 tasks 1 source(w) -> shuffle 2\nwrite records 5 bytes 56 spills 0 sizes 10,0,22,0,11,13\nstage 2 tasks 6 join(sortmerge) -> result\n> SET adaptive on\n> SET advisorySize 35\n> SET minPartitionSize 15\n> PROFILE j",
+      "choices": [
+        "`merge 0-1,2-2,3-3,4-5`",
+        "`merge 0-0,1-2,3-5`",
+        "`merge 0-1,2-2,3-5`",
+        "`merge 0-1,2-2,3-4,5-5`",
+        "`merge 0-1,2-3,4-5`"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.7",
+        "4.8",
+        "4.9",
+        "4.12"
+      ],
+      "quote": "묶음이 둘 이상이고 마지막 묶음의 크기가 M 보다 작으면 마지막 묶음을 바로 앞 묶음에 합친다.",
+      "explanation": "정답은 ③이다. 임계값이 −1 이라 조인 전략은 바뀌지 않고 쏠림 임계값이 처음 값이라 쏠린 파티션도 없다. [4.7]에 따라 조인의 두 입력 셔플이 모두 번호로 읽는 셔플이므로 [4.8]에 따라 받는 파티션의 크기는 두 셔플의 크기를 번호끼리 더한 23, 12, 44, 13, 44, 13 이다. [4.9]에 따라 첫 묶음은 23 으로 시작하고 12 를 더해도 35 라 권장 크기 35 보다 크지 않으므로 파티션 1 을 넣는다. 파티션 2 를 더하면 79 가 되므로 파티션 2 로 새 묶음을 시작한다. 파티션 3 도 새 묶음을 시작하지만 그 묶음은 13 이라 최소 크기 15 보다 작으므로 파티션 4 를 받아 57 이 된다. 파티션 5 는 새 묶음을 시작하고 그 마지막 묶음의 크기 13 이 15 보다 작아 앞 묶음에 합쳐진다. 그래서 묶음은 0-1, 2-2, 3-5 다. ① 최소 크기 조건 없이 권장 크기만으로 묶음을 닫은 답이다. ② 권장 크기와 같아질 때도 묶음을 닫은 답이다. ④ 마지막 묶음을 앞 묶음에 합치지 않은 답이다. ⑤ 왼쪽 셔플의 크기 13, 12, 22, 13, 33, 0 만으로 묶은 답이다. 번호로 읽는 셔플의 크기를 모두 더한다는 [4.8]과 묶는 규칙 [4.9]를 함께 적용해야 오답임을 알 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PROFILE j 의 출력에서 stage 2 줄과 그 뒤에 이어지는 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nDATA a 2\n0 k1 1\n0 k1 2\n1 k1 4\n1 k1 5\nEND\nDATA b 2\n0 k1 10\n0 k2 70\n0 k3 80\n1 k1 90\n1 u1 20\nEND\nSET broadcastThreshold 40\nPIPE ra = source a | reduceByKey sum 4\nPIPE fb = source b | filter value > 50\nPIPE j = source ra | join fb 4\nSET adaptive on\nSET advisorySize 20\nSET minPartitionSize 10\nPROFILE j\n\nk1, k2, k3 의 해시값은 차례로 3366, 3367, 3368 이다.",
+      "choices": [
+        "`stage 2 tasks 3 reduceByKey join(sortmerge) -> result` / `merge 0-1,2-2,3-3`",
+        "`stage 2 tasks 3 reduceByKey join(broadcast-left) -> result` / `merge 0-1,2-2,3-3`",
+        "`stage 2 tasks 4 reduceByKey join(broadcast-right) -> result` (뒤에 이어지는 줄 없음)",
+        "`stage 2 tasks 1 reduceByKey join(broadcast-right) -> result` / `merge 0-3`",
+        "`stage 2 tasks 3 reduceByKey join(broadcast-right) -> result` / `merge 0-1,2-2,3-3`"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.7",
+        "4.8",
+        "4.9",
+        "4.12"
+      ],
+      "quote": "좁은 의존인 입력은 빌드 쪽이 되지 않는다.",
+      "explanation": "정답은 ④이다. 3단계 4.6 에 따라 추정 크기는 ra 가 48, fb 가 60 으로 둘 다 임계값 40 을 넘으므로 계획은 정렬 병합 조인이다. ra 는 해시 파티셔너 4 로 나뉘어 있어 좁은 의존이고 fb 는 넓은 의존이다. [4.5]에 따라 fb 의 실제 크기는 셔플 줄의 bytes 인 36 이고 임계값 이하이므로 조인은 fb 를 빌드 쪽으로 하는 `join(broadcast-right)` 로 바뀐다. 좁은 의존인 ra 는 빌드 쪽이 되지 않는다. [4.7]에 따라 빌드 쪽 셔플은 번호로 읽는 셔플이 아니므로 스테이지 2 가 번호로 읽는 셔플은 reduceByKey 의 셔플 하나다. 그 크기는 k1 레코드 둘이 모인 0, 0, 24, 0 이다. [4.9]에 따라 첫 묶음은 크기가 0 이라 최소 크기 10 에 못 미치므로 파티션 1 과 2 를 받아 24 가 된다. 파티션 3 을 더하면 24 가 권장 크기 20 보다 크므로 새 묶음이 시작되지만 그 묶음의 크기 0 이 최소 크기보다 작아 앞 묶음에 합쳐진다. 그래서 묶음은 하나다. [4.12]에 따라 merge 줄은 `merge 0-3` 이고 태스크는 1 이다. ① 추정 크기만 보고 조인을 바꾸지 않은 답이다. ② 좁은 의존인 ra 를 빌드 쪽으로 고른 답이다. 좁은 의존인 입력은 빌드 쪽이 되지 않는다는 [4.5]와 빌드 쪽 셔플은 번호로 읽지 않는다는 [4.7]을 함께 적용해야 오답임을 알 수 있다. ③ 조인이 바뀐 스테이지는 파티션을 묶지 않는다고 본 답이다. ⑤ 빌드 쪽 셔플의 크기 12, 0, 12, 12 까지 더해 묶은 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PROFILE p 가 stage 1 의 셔플 줄로 출력하는 것은?",
+      "context": "<보기>\nDATA ev 1\n0 f 1\n0 a0 2\n0 aa 3\n0 b 4\n0 d 5\n0 e 6\n0 ad 7\n0 k 8\nEND\nPIPE p = source ev | reduceByKey sum 6 | groupByKey 6 | map value sum | coalesce 2 | repartition 3\nSET adaptive on\nSET advisorySize 25\nSET minPartitionSize 15\nPROFILE p\n\nreduceByKey sum 6 의 셔플에서 f 는 받는 파티션 0 으로, a0 은 1 로, aa 와 b 는 2 로, d 는 4 로, ad, e, k 는 5 로 간다.",
+      "choices": [
+        "`write records 8 bytes 91 spills 0 sizes 35,34,22`",
+        "`write records 8 bytes 91 spills 0 sizes 34,34,23`",
+        "`write records 8 bytes 91 spills 0 sizes 33,34,24`",
+        "`write records 8 bytes 91 spills 0 sizes 35,33,23`",
+        "`write records 8 bytes 91 spills 0 sizes 33,36,22`"
+      ],
+      "answer": 1,
+      "refs": [
+        "2.4",
+        "4.9",
+        "4.10",
+        "4.11"
+      ],
+      "quote": "coalesce 는 입력 파티션 수와 인자 가운데 작은 쪽을 파티션 수로 삼고 2단계 4.4 의 구간도 입력 파티션 번호로 정한다.",
+      "explanation": "정답은 ①이다. 첫 셔플의 크기는 11, 12, 23, 0, 11, 34 이고 [4.9]에 따라 묶음은 0-1, 2-3, 4-5 셋이다. [4.10]에 따라 reduceByKey 의 출력 파티션은 묶음 전체에서 키 순서로 놓이므로 묶음 0 은 a0, f, 묶음 1 은 aa, b, 묶음 2 는 ad, d, e, k 차례다. [4.11]에 따라 좁은 의존인 groupByKey 는 인자 6 을 쓰지 않으므로 groupByKey 와 map 은 파티션 셋을 그대로 낸다. coalesce 2 는 입력 파티션 셋에 2단계 4.4 의 구간을 적용해 새 파티션 0 에 묶음 0 을, 새 파티션 1 에 묶음 1 과 2 를 맡긴다. [2.4]에 따라 coalesce 의 출력 파티션 0 과 1 이 repartition 셔플의 맵 태스크 0 과 1 이다. 2단계 4.9 에 따라 맵 태스크 0 은 a0, f 를 받는 파티션 0, 1 로, 맵 태스크 1 은 aa, b, ad, d, e, k 를 1, 2, 0, 1, 2, 0 으로 보낸다. 레코드 크기는 두 글자 키가 12, 한 글자 키가 11 이므로 크기는 35, 34, 22 다. ② groupByKey 가 인자 6 대로 파티션 여섯을 낸다고 보아 coalesce 가 모든 행을 맵 태스크 0 에 맡긴 답이다. ③ 파티션을 묶지 않은 답이다. ④ 맵 태스크마다 받는 파티션 0 부터 보내기 시작한 답이다. ⑤ 묶음 안의 행을 받는 파티션 차례로 이어 붙이기만 하고 키 순서로 놓지 않은 답이다. 묶음 전체에서 키 순서로 놓는다는 [4.10]과 몇째 레코드인지가 받는 파티션을 정한다는 2단계 4.9 를 함께 적용해야 오답임을 알 수 있다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "context": "a, b, c, d, e, f 의 해시값은 차례로 97, 98, 99, 100, 101, 102 이다.",
+      "input": [
+        "DATA ev 2",
+        "0 a 1",
+        "0 b 2",
+        "0 a 3",
+        "0 c 4",
+        "1 d 5",
+        "1 a 6",
+        "1 e 7",
+        "1 f 8",
+        "END",
+        "SET adaptive on",
+        "SET advisorySize 30",
+        "SET minPartitionSize 20",
+        "PIPE p = source ev | reduceByKey sum 8 | groupByKey 8 | map value max | repartition 4 | reduceByKey min 4",
+        "RUN p 0"
+      ],
+      "answers": [
+        "job 0 stages 4 tasks 11 rows 6"
+      ],
+      "refs": [
+        "4.7",
+        "4.8",
+        "4.9",
+        "4.11",
+        "4.13"
+      ],
+      "quote": "셋째, 그 셔플 가운데 repartition 의 셔플이 없다.",
+      "explanation": "정답은 `job 0 stages 4 tasks 11 rows 6` 이다. 스테이지는 source(ev), reduceByKey groupByKey map, repartition, reduceByKey 넷이다. 첫 셔플은 맵 태스크마다 결합하므로 a 의 레코드가 둘이 되고 크기는 0, 22, 11, 11, 11, 11, 11, 0 이다. [4.9]에 따라 묶음은 0-1, 2-3, 4-7 셋이다. 마지막 묶음 6-7 은 크기 11 이 최소 크기 20 보다 작아 앞 묶음에 합쳐진다. [4.11]에 따라 좁은 의존인 groupByKey 와 map 도 파티션 셋을 내므로 스테이지 1 의 태스크는 3 이다. 스테이지 2 는 repartition 의 셔플을 읽으므로 [4.8]의 셋째 조건에 걸려 묶지 않고 태스크 4 를 그대로 쓴다. 스테이지 3 이 읽는 셔플의 크기는 11, 22, 22, 11 이고 묶음은 0-1, 2-3 둘이다. [4.13]에 따라 머리줄의 태스크는 2 + 3 + 4 + 2 = 11 이다. repartition 의 셔플도 묶으면 9 를, 마지막 스테이지를 묶지 않으면 13 을, groupByKey 가 인자 8 대로 파티션을 낸다고 보면 16 을 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "context": "u2, e, k3, f, yak 의 해시값은 차례로 3677, 101, 3368, 102, 119395 이다.",
+      "input": [
+        "DATA f 2",
+        "0 u2 60",
+        "0 u1 1",
+        "0 e 70",
+        "1 a 2",
+        "1 k3 80",
+        "1 b 3",
+        "END",
+        "DATA d 2",
+        "0 f 90",
+        "0 c 4",
+        "1 yak 55",
+        "1 dog 5",
+        "1 e 99",
+        "END",
+        "SET broadcastThreshold 40",
+        "SET adaptive on",
+        "SET advisorySize 20",
+        "SET minPartitionSize 10",
+        "PIPE fd = source d | filter value > 50",
+        "PIPE j = source f | filter value > 50 | join fd 4",
+        "RUN j 0"
+      ],
+      "answers": [
+        "job 0 stages 3 tasks 6 rows 1"
+      ],
+      "refs": [
+        "4.4",
+        "4.5",
+        "4.7",
+        "4.9",
+        "4.13"
+      ],
+      "quote": "두 입력이 모두 그렇다면 실제 크기가 작은 쪽이 빌드 쪽이고 같으면 오른쪽이 빌드 쪽이다.",
+      "explanation": "정답은 `job 0 stages 3 tasks 6 rows 1` 이다. 3단계 4.6 에 따라 추정 크기는 왼쪽이 f 전체의 69, 오른쪽이 d 전체의 59 로 둘 다 임계값 40 을 넘으므로 계획은 두 입력을 모두 셔플하는 정렬 병합 조인이다. 셔플 뒤 실제 크기는 왼쪽이 u2, e, k3 의 35, 오른쪽이 f, yak, e 의 35 다. [4.5]에 따라 둘 다 임계값 이하이고 크기가 같으므로 오른쪽이 빌드 쪽이다. [4.7]에 따라 스트림 쪽인 왼쪽 셔플만 번호로 읽는다. 그 크기는 12, 23, 0, 0 이고 [4.9]에 따라 묶음은 0-0 과 1-3 둘이다. [4.4]에 따라 스테이지는 셋 그대로이고 [4.13]에 따라 태스크는 2 + 2 + 2 = 6 이다. 결과 행은 키 e 의 짝 하나다. 왼쪽을 빌드 쪽으로 고르면 7 을, 조인을 바꾸지 않거나 두 셔플의 크기를 더해 묶으면 8 을 답하게 된다."
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "코드 읽기",
+  "kind": "code",
+  "summary": "실무 모양의 Kotlin 코드를 실행하지 않고 끝까지 읽고 동작을 예측한다.",
+  "stages": [
+    {"dir": "01-price-rules", "title": "가격 규칙 계산", "target_minutes": 20},
+    {"dir": "02-coroutine-order", "title": "코루틴 실행 순서와 디스패처", "target_minutes": 25},
+    {"dir": "03-flow-semantics", "title": "StateFlow 와 SharedFlow 의 의미", "target_minutes": 25}
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 세 줄의 출력을 차례로 나열한 것은?",
+      "context": "<보기>\nBEGIN init\nWRITE init a 0\nWRITE init b 0\nCOMMIT init\nBEGIN s1 SERIALIZABLE\nBEGIN s2 SERIALIZABLE\nBEGIN s3 SERIALIZABLE\nREAD s1 a\nWRITE s2 a 1\nWRITE s3 b 1\nREAD s2 b\nCOMMIT s3\nCOMMIT s1\nCOMMIT s2\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "s3 COMMIT / s1 ABORT SERIALIZATION / s2 COMMIT",
+        "s3 COMMIT / s1 COMMIT / s2 ABORT SERIALIZATION",
+        "s3 ABORT SERIALIZATION / s1 COMMIT / s2 COMMIT",
+        "s3 COMMIT / s1 ABORT SERIALIZATION / s2 ABORT SERIALIZATION",
+        "s3 COMMIT / s1 COMMIT / s2 COMMIT"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.8",
+        "4.9",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "그 가운데 T 가 아닌 트랜잭션 하나라도 이미 커밋한 구조가 있으면 T 는 커밋에 실패한다.",
+      "explanation": "정답은 ①이다. [4.8]에 따라 s1 이 읽은 a 를 s2 가 써서 s1 → s2 가 생기고 s2 가 읽은 b 를 s3 이 써서 s2 → s3 이 생긴다. 읽은 때와 쓴 때의 앞뒤는 상관없으므로 s3 이 b 를 먼저 쓰고 s2 가 나중에 읽었어도 같다. 둘이 이어진 s1 → s2 → s3 이 [4.9]의 위험한 구조다. s3 이 커밋할 때는 s1 과 s2 가 모두 활동 중이므로 [4.12]에 따라 s3 은 커밋한다. s1 이 커밋할 때는 같은 구조의 s3 이 이미 커밋했으므로 [4.11]에 따라 s1 이 실패한다. s1 은 키를 하나도 쓰지 않았지만 구조의 X 자리에 든다. 실패한 s1 은 [4.13]에 따라 rw 의존에서 빠지므로 구조가 없어지고 s2 는 커밋한다. ② 읽기만 한 트랜잭션은 실패하지 않는다고 보거나 가운데 트랜잭션만 실패한다고 본 답이다. ③ 구조에 들기만 하면 실패한다고 본 답이다. ④ 실패한 s1 이 든 구조가 남는다고 본 답이다. 커밋에 실패한 트랜잭션은 rw 의존에 들지 않는다는 [4.8]과 그 트랜잭션이 든 구조가 모두 없어진다는 [4.13]을 함께 적용해야 이 선지를 지울 수 있다. ⑤ 읽기와 쓰기의 앞뒤가 rw 의존을 정한다고 본 답이다. 읽은 뒤에 써야 rw 의존이 생긴다고 보면 s2 → s3 이 빠지고 쓴 뒤에 읽어야 생긴다고 보면 s1 → s2 가 빠지므로 어느 쪽으로 보든 위험한 구조가 생기지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 세 줄을 처리하는 동안 출력되는 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nBEGIN h SERIALIZABLE\nBEGIN m1 SERIALIZABLE\nBEGIN m2 SERIALIZABLE\nWRITE h r10a hold\nSCAN m1 r10 r11\nSCAN m2 r10 r11\nWRITE m1 r10a kim\nWRITE m2 r10b lee\nCOMMIT m2\nROLLBACK h\nCOMMIT m1\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "m2 COMMIT / h ROLLBACK / m1 OK / m1 COMMIT",
+        "m2 ABORT SERIALIZATION / h ROLLBACK / m1 OK / m1 COMMIT",
+        "m2 COMMIT / h ROLLBACK / m1 OK / m1 ABORT SERIALIZATION",
+        "m2 COMMIT / h ROLLBACK / m1 OK / m1 ABORT WRITE_CONFLICT r10a",
+        "m2 ABORT SERIALIZATION / h ROLLBACK / m1 OK / m1 ABORT SERIALIZATION"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.4",
+        "4.6",
+        "4.8",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "A 가 읽은 때와 B 가 쓴 때의 앞뒤는 상관없고 A 가 그 키를 쓴 적이 있어도 상관없다.",
+      "explanation": "정답은 ③이다. [4.4]에 따라 m1 과 m2 는 SCAN 으로 값이 없는 키를 포함해 r10 이상 r11 미만의 모든 키를 읽었다. m1 의 WRITE 는 h 의 X 잠금 때문에 기다리므로 [4.6]에 따라 m1 은 아직 r10a 를 쓰지 않았다. m2 가 r10b 를 써서 m1 → m2 가 생기고 h 가 쓴 r10a 때문에 m1 → h 와 m2 → h 도 생긴다. m2 가 커밋할 때 m2 가 든 구조는 m1 → m2 → h 뿐이고 m1 과 h 가 모두 활동 중이므로 [4.12]에 따라 m2 는 커밋한다. h 가 롤백하면 [4.13]에 따라 h 는 rw 의존에서 빠지고 재개에서 m1 의 WRITE 가 실행되어 `m1 OK` 를 출력한다. 이때 m1 이 쓴 r10a 가 m2 가 읽은 범위에 들어 m2 → m1 이 생긴다. [4.8]에 따라 읽은 때와 쓴 때의 앞뒤는 상관없고 m2 가 이미 커밋했어도 된다. m1 → m2 → m1 구조에서 m2 가 이미 커밋했으므로 m1 은 실패한다. 롤백한 h 는 버전을 만들지 않았으므로 쓰기 충돌은 없다. ① SCAN 이 값이 있는 키만 읽는다고 보거나 이미 커밋한 트랜잭션과는 새 rw 의존이 생기지 않는다고 본 답이다. [4.4]와 [4.8]을 함께 적용해야 이 선지를 지울 수 있다. ② 구조에 들기만 하면 실패한다고 본 답이다. ④ 롤백한 h 의 쓰기를 쓰기 충돌 판정에 넣은 답이다. ⑤ 구조에 들기만 하면 실패한다고 보고 실패한 m2 가 든 구조도 남는다고 본 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 두 줄을 처리하는 동안 출력되는 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nBEGIN init\nWRITE init a 0\nWRITE init b 0\nCOMMIT init\nBEGIN p SERIALIZABLE\nBEGIN q SERIALIZABLE\nREAD p a\nWRITE q a 1\nCOMMIT q\nBEGIN r SERIALIZABLE\nREAD r b\nWRITE p b 1\nWRITE r b 2\nCOMMIT p\nCOMMIT r\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "p COMMIT / r OK / r ABORT WRITE_CONFLICT b",
+        "p ABORT SERIALIZATION / r OK / r COMMIT",
+        "p ABORT SERIALIZATION",
+        "p ABORT SERIALIZATION / r OK / r ABORT SERIALIZATION",
+        "p ABORT SERIALIZATION / r OK / r ABORT WRITE_CONFLICT b"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.7",
+        "4.8",
+        "4.9",
+        "4.11",
+        "4.15"
+      ],
+      "quote": "rw 의존 X → Y 와 Y → Z 가 이어진 것을 위험한 구조라 한다.",
+      "explanation": "정답은 ②이다. p 와 q 는 동시에 실행되었고 [4.8]에 따라 p 가 읽은 a 를 q 가 써서 p → q 가 생긴다. q 가 커밋할 때는 q 가 든 구조가 없으므로 q 는 커밋한다. r 은 q 가 커밋한 뒤에 BEGIN 했으므로 [4.7]에 따라 r 과 q 는 동시에 실행되지 않았다. r 과 p 는 동시에 실행되었고 r 이 읽은 b 를 p 가 써서 r → p 가 생긴다. r 의 WRITE 는 p 의 X 잠금 때문에 기다린다. p 가 커밋할 때 [4.9]의 위험한 구조 r → p → q 가 있다. rw 의존 두 개가 이어지기만 하면 되므로 r 과 q 가 동시에 실행되지 않았어도 위험한 구조다. 이 구조의 q 가 이미 커밋했으므로 [4.11]에 따라 p 가 실패한다. [4.15]에 따라 p 의 잠금이 풀린 뒤 재개에서 r 의 WRITE 가 실행되어 `r OK` 를 출력한다. r 이 커밋할 때 실패한 p 는 rw 의존에서 빠졌고 p 의 쓰기는 버전을 만들지 않았으므로 r 은 커밋한다. ① 구조에 든 세 트랜잭션이 서로 모두 동시에 실행되어야 구조라고 본 답이다. 그러면 p 가 커밋하고 r 은 1단계 4.17 의 쓰기 충돌로 실패한다. 동시 실행을 rw 의존마다 따지는 [4.8]과 rw 의존 두 개가 이어지면 구조라는 [4.9]를 함께 적용해야 이 선지를 지울 수 있다. ③ p 가 실패한 뒤 재개를 하지 않는다고 본 답이다. 그러면 r 은 계속 기다리고 r 의 COMMIT 은 대기열에 들어가 아무것도 출력하지 않는다. ④ 실패한 p 가 든 구조가 남는다고 본 답이다. ⑤ 커밋에 실패한 p 의 쓰기가 쓰기 충돌 판정에 쓰인다고 본 답이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 처리했을 때의 출력은?",
+      "input": [
+        "BEGIN serializable SERIALIZABLE"
+      ],
+      "answers": [
+        "serializable BEGIN"
+      ],
+      "refs": [
+        "4.1",
+        "5.1"
+      ],
+      "quote": "1단계 5.3 의 BEGIN 인자 형식에 트랜잭션 뒤에 `SERIALIZABLE` 한 낱말이 오는 두 개가 더해진다.",
+      "explanation": "정답은 `serializable BEGIN` 이다. [5.1]에 따라 BEGIN 의 인자는 트랜잭션 뒤에 `SERIALIZABLE` 한 낱말이 오는 두 개일 수 있다. 첫째 인자 serializable 은 트랜잭션 자리에 있고 영문 소문자 12글자라서 1단계 3.11 의 트랜잭션 이름 형식에 맞는다. 둘째 인자는 대문자 `SERIALIZABLE` 이므로 [4.1]에 따라 SERIALIZABLE 트랜잭션을 시작하고 `serializable BEGIN` 을 출력한다. [5.1]이 형식에 맞지 않는 예로 든 `BEGIN t1 serializable` 은 격리 수준 자리가 소문자인 줄이다. 두 줄을 헷갈리면 `ERR BAD_ARGUMENT` 로 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 차례로 처리했을 때 `ABORT SERIALIZATION` 을 출력하는 트랜잭션의 이름은? 그런 트랜잭션이 없으면 `없음` 이라고 쓴다.",
+      "context": "<보기>\nBEGIN init\nWRITE init stock 5\nWRITE init price 10\nCOMMIT init\nBEGIN audit SERIALIZABLE\nBEGIN order SERIALIZABLE\nBEGIN reprice SERIALIZABLE\nSCAN audit p t\nWRITE order stock 4\nREAD order price\nWRITE reprice price 12\nCOMMIT audit\nCOMMIT order\nCOMMIT reprice",
+      "answers": [
+        "order"
+      ],
+      "refs": [
+        "2.7",
+        "4.4",
+        "4.9",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "쓰기 충돌이 없으면 T 가 든 위험한 구조를 모두 확인한다.",
+      "explanation": "정답은 `order` 다. [4.4]에 따라 audit 이 SCAN 으로 읽은 키에는 p 이상 t 미만인 price 와 stock 이 든다. [4.8]에 따라 order 가 stock 을 써서 audit → order 가 생기고 reprice 가 price 를 써서 audit → reprice 와 order → reprice 가 생긴다. audit → order 와 order → reprice 가 이어진 audit → order → reprice 가 [4.9]의 위험한 구조이고 order 는 이 구조의 가운데 자리에 든다. audit 이 커밋할 때는 order 와 reprice 가 모두 활동 중이므로 [4.12]에 따라 audit 은 커밋한다. [4.11]에 따라 order 는 자기가 든 구조를 자리와 상관없이 모두 확인하므로 audit 이 이미 커밋한 이 구조 때문에 실패한다. [2.7]에 따라 커밋 순서로 구조를 거르지 않으므로 구조의 끝 트랜잭션 reprice 가 아직 커밋하지 않았어도 같다. 실패한 order 는 [4.13]에 따라 rw 의존에서 빠지므로 구조가 없어지고 reprice 는 커밋한다. 구조의 양 끝 자리만 확인하면 order 가 커밋하고 reprice 가 실패해 `reprice` 로 답하게 된다. 구조에 들기만 하면 실패한다고 보면 `audit` 으로, SCAN 으로 읽은 범위를 rw 의존에 넣지 않거나 구조의 끝 트랜잭션이 먼저 커밋해야 위험하다고 보면 `없음` 으로 답하게 된다."
+    }
+  ]
+}

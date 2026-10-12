@@ -1,0 +1,156 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PLAN t 가 출력하는 줄은?",
+      "context": "<보기>\nDATA orders 3\n0 u1 10\n1 u2 20\n1 u1 5\n2 NULL 7\nEND\nDATA users 2\n0 u1 100\n1 u2 200\nEND\nDATA tiers 1\n0 u1 1\n0 u2 2\n0 NULL 3\nEND\nSET broadcastThreshold 34\nPIPE ou = source orders | filter value > 15 | join users 4 | map value sum\nPIPE t = source tiers | join ou 2\nPLAN t",
+      "choices": [
+        "`stage 2 tasks 2 source(orders) filter join(broadcast-right) map join(broadcast-left) -> result`",
+        "`stage 2 tasks 3 source(orders) filter join(broadcast-left) map join(broadcast-right) -> result`",
+        "`stage 3 tasks 2 join(sortmerge) -> result`",
+        "`stage 2 tasks 2 source(users) join(broadcast-left) map join(broadcast-left) -> result`",
+        "`stage 2 tasks 3 source(orders) filter join(broadcast-right) map join(broadcast-left) -> result`"
+      ],
+      "answer": 5,
+      "refs": [
+        "4.6",
+        "4.8",
+        "4.9",
+        "4.11",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "조인의 출력은 스트림 쪽 입력의 파티션 수와 파티셔너를 그대로 가진다.",
+      "explanation": "정답은 ⑤이다. [4.6]에 따라 추정 크기는 orders 가 46, users 가 24, tiers 가 34 이고 filter 와 map 은 추정 크기를 바꾸지 않는다. ou 의 join 에서는 users 만 임계값 34 이하이므로 [4.8]에 따라 오른쪽이 빌드 쪽이다. ou 의 추정 크기는 46 + 24 = 70 이다. t 의 join 에서는 tiers 의 34 가 임계값 이하이고 ou 의 70 은 임계값을 넘으므로 왼쪽이 빌드 쪽이다. [4.9]에 따라 브로드캐스트 조인의 출력은 스트림 쪽의 파티션 수를 그대로 가지므로 ou 는 orders 의 파티션 수 3 을, t 는 ou 의 파티션 수 3 을 이어받는다. [4.14]에 따라 source(tiers) 가 스테이지 0, source(users) 가 스테이지 1, 나머지가 스테이지 2 다. [4.13]의 후위 순서로 스테이지 2 의 변환은 source(orders), filter, ou 의 join, map, t 의 join 차례다. [4.11]에 따라 ou 의 join 은 `join(broadcast-right)`, t 의 join 은 `join(broadcast-left)` 로 쓴다. ① 브로드캐스트 조인의 출력 파티션 수를 인자 n 으로 본 답이다. ② left 와 right 를 스트림 쪽을 가리키는 말로 읽은 답이다. ③ 임계값과 같은 34 를 임계값 이하로 보지 않아 t 를 정렬 병합 조인으로 고른 답이다. ④ filter 가 남긴 행만으로 orders 의 크기를 12 로 추정한 답이다. filter 는 추정 크기를 바꾸지 않는다는 [4.6]과 두 입력이 모두 임계값 이하이면 작은 쪽이 빌드 쪽이라는 [4.8]을 함께 적용해야 오답임을 알 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PLAN x 가 출력하는 줄은?",
+      "context": "<보기>\nDATA a 2\n0 k1 1\n1 k2 2\nEND\nDATA b 3\n0 k1 5\n1 k2 6\n2 k3 7\nEND\nSET broadcastThreshold -1\nPIPE ra = source a | reduceByKey sum 4\nPIPE rb = source b | groupByKey 4 | map value sum\nPIPE x = source ra | filter value > 0 | join rb 4 | map value max | join ra 4\nPLAN x",
+      "choices": [
+        "`stage 5 tasks 4 reduceByKey join(sortmerge) -> result`",
+        "`stage 3 tasks 4 reduceByKey filter join(sortmerge) map -> shuffle 4`",
+        "`stage 6 tasks 4 join(sortmerge) -> result`",
+        "`stage 4 tasks 4 join(sortmerge) map -> shuffle 6`",
+        "`stage 4 tasks 4 reduceByKey filter join(sortmerge) map -> shuffle 5`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.2",
+        "4.10",
+        "4.12",
+        "4.13",
+        "4.14",
+        "4.15"
+      ],
+      "quote": "따라가다가 어떤 스테이지의 마지막 변환에 이르면 그 스테이지에 아직 쓰지 않은 가장 작은 번호를 준다.",
+      "explanation": "정답은 ①이다. 임계값이 −1 이므로 [4.8]에 따라 두 join 은 모두 정렬 병합 조인이다. 첫 join 의 왼쪽은 filter 가 해시 파티셔너 4 를 이어받으므로 [4.10]에 따라 좁은 의존이고 오른쪽은 map 이 파티셔너를 잃으므로 넓은 의존이다. 둘째 join 의 왼쪽은 map 뒤라 넓은 의존이다. [4.2]에 따라 오른쪽 ra 는 따로 펼쳐 계산하지만 reduceByKey 4 의 출력이라 해시 파티셔너 4 로 나뉘어 있으므로 좁은 의존이다. [4.14]의 후위 순서로 번호를 붙이면 source(a) 가 0, source(b) 가 1, groupByKey map 이 2, reduceByKey filter join(sortmerge) map 이 3, 오른쪽 ra 의 source(a) 가 4, 둘째 join 이 든 스테이지가 5 다. [4.13]에 따라 스테이지 5 의 변환은 오른쪽 입력 쪽의 reduceByKey 다음에 join 이다. ② 스테이지 3 의 보낼 곳을 다음 번호 4 로 쓴 답이다. 오른쪽 입력 쪽의 스테이지가 먼저 번호 4 를 받는다는 [4.14]와 보낼 곳에는 받는 스테이지의 번호를 쓴다는 [4.15]를 함께 적용해야 오답임을 알 수 있다. ③ 둘째 join 의 오른쪽 ra 도 셔플한다고 본 답이다. ④ filter 가 파티셔너를 잃어 첫 join 의 왼쪽도 셔플한다고 본 답이다. ⑤ 오른쪽 입력 쪽부터 번호를 붙인 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 PROFILE j 의 출력에서 stage 2 줄과 그 뒤의 skew 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nDATA clicks 3\n0 NULL 1\n0 NULL 2\n0 u1 5\n1 NULL 3\n1 u2 6\n1 k1 7\n2 NULL 4\n2 NULL 5\n2 u2 8\n2 melon 9\nEND\nDATA items 2\n0 NULL 100\n0 u1 200\n0 u2 300\n1 NULL 400\n1 k1 500\n1 melon 600\nEND\nSET broadcastThreshold -1\nSET skewFactor 2\nSET skewThreshold 20\nSET advisorySize 20\nPIPE j = source clicks | join items 4\nPROFILE j\n\nu1, u2, k1, melon 의 해시값은 차례로 3676, 3677, 3366, 103780019 이다.",
+      "choices": [
+        "`stage 2 tasks 4 join(sortmerge) -> result` (skew 줄 없음)",
+        "`stage 2 tasks 10 join(sortmerge) -> result` / `skew left 0 3` / `skew right 0 2` / `skew left 1 2`",
+        "`stage 2 tasks 4 join(sortmerge) -> result` / `skew left 0 3` / `skew right 0 2`",
+        "`stage 2 tasks 9 join(sortmerge) -> result` / `skew left 0 3` / `skew right 0 2`",
+        "`stage 2 tasks 8 join(sortmerge) -> result` / `skew left 0 3` / `skew right 0 2`"
+      ],
+      "answer": 4,
+      "refs": [
+        "2.2",
+        "4.20",
+        "4.21",
+        "4.22",
+        "4.23",
+        "4.24",
+        "4.26"
+      ],
+      "quote": "곧 bₚ 가 m × F 보다 크고 S 보다도 커야 쏠렸다.",
+      "explanation": "정답은 ④이다. [2.2]에 따라 NULL 키 행도 셔플되어 받는 파티션 0 으로 간다. 받는 파티션 크기는 왼쪽이 62, 24, 12, 15 이고 오른쪽이 32, 12, 12, 15 다. [4.20]에 따라 왼쪽의 중앙값은 15 와 24 의 합을 2 로 나눈 몫 19 이고 기준선은 19 × 2 = 38 과 20 가운데 큰 38 이다. 그래서 파티션 0 만 쏠렸고 24 인 파티션 1 은 20 보다 크지만 38 보다 크지 않아 쏠리지 않았다. 오른쪽 크기를 작은 것부터 늘어놓으면 12, 12, 15, 32 다. 중앙값은 12 와 15 의 합을 2 로 나눈 몫 13 이고 기준선은 13 × 2 = 26 과 20 가운데 큰 26 이므로 오른쪽도 파티션 0 만 쏠렸다. [4.21]에 따라 목표 크기는 권장 크기 20 이 쏠리지 않은 파티션 크기의 평균(왼쪽 17, 오른쪽 13)보다 크므로 양쪽 모두 20 이다. [4.22]에 따라 왼쪽 파티션 0 의 블록 32, 10, 20 은 조각 셋이 되고 오른쪽 파티션 0 의 블록 22, 10 은 조각 둘이 된다. [4.23]에 따라 파티션 0 은 3 × 2 = 6 개, 나머지 파티션은 하나씩의 태스크로 실행하므로 태스크는 9 개다. [4.24]에 따라 스테이지 줄에는 실제로 실행한 태스크 수를 쓰고 [4.26]에 따라 skew 줄은 left 0, right 0 차례다. ① NULL 키 행을 셔플하지 않는다고 본 답이다. NULL 키 행도 셔플되어 파티션 0 으로 간다는 [2.2]와 쏠림 판정 [4.20]을 함께 적용해야 오답임을 알 수 있다. ② 절대 크기 조건만 보고 왼쪽 파티션 1 도 쏠렸다고 본 답이다. ③ 스테이지 줄에 PLAN 의 태스크 수를 쓴 답이다. ⑤ 파티션 0 의 태스크 수를 조각 수의 곱이 아니라 합으로 센 답이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "DATA l 2",
+        "0 k1 1",
+        "0 NULL 2",
+        "1 k1 3",
+        "1 k2 4",
+        "1 NULL 5",
+        "END",
+        "DATA r 3",
+        "0 k1 10",
+        "1 k1 20",
+        "2 NULL 30",
+        "2 k3 40",
+        "END",
+        "SET broadcastThreshold 46",
+        "PIPE rl = source l | reduceByKey sum 3 | filter value > 3",
+        "PIPE j = source rl | join r 4 nullsafe",
+        "RUN j 0"
+      ],
+      "answers": [
+        "job 0 stages 3 tasks 8 rows 3"
+      ],
+      "refs": [
+        "4.4",
+        "4.6",
+        "4.8",
+        "4.9",
+        "4.12",
+        "4.15"
+      ],
+      "quote": "임계값이 −1 이 아니고 두 입력 가운데 추정 크기가 임계값 이하인 쪽이 있으면 브로드캐스트 조인이다.",
+      "explanation": "정답은 `job 0 stages 3 tasks 8 rows 3` 이다. [4.6]에 따라 r 의 추정 크기는 12 + 12 + 10 + 12 = 46 이고 rl 은 l 의 크기 56 을 그대로 쓴다. [4.8]에 따라 r 만 임계값 46 이하이므로 r 이 빌드 쪽인 브로드캐스트 조인이다. [4.9]에 따라 이 조인은 인자 4 를 쓰지 않고 스트림 쪽 rl 의 파티션 수 3 을 가진다. [4.12]와 [4.15]에 따라 스테이지는 source(l)(태스크 2), source(r)(태스크 3), reduceByKey filter join(태스크 3) 셋이고 태스크는 모두 8 이다. rl 의 행은 k1 4, NULL 7, k2 4 이고 모두 filter 를 통과한다. [4.4]에 따라 nullsafe 조인은 NULL 끼리도 짝짓는다. k1 은 오른쪽 두 행과 짝이 되어 두 행을, NULL 은 한 행을 내고 k2 는 짝이 없으므로 결과는 세 행이다. 임계값과 같은 크기를 임계값 이하로 보지 않으면 `stages 4 tasks 12` 를, 출력 파티션 수를 인자 4 로 보면 `tasks 9` 를, NULL 끼리 짝짓지 않거나 키마다 한 행만 내면 `rows 2` 를 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "context": "a, b, c, d 의 해시값은 차례로 97, 98, 99, 100 이다.",
+      "input": [
+        "DATA views 3",
+        "0 a 1",
+        "0 a 2",
+        "1 a 3",
+        "1 a 4",
+        "1 a 5",
+        "2 b 6",
+        "2 c 7",
+        "END",
+        "DATA items 2",
+        "0 a 10",
+        "0 b 20",
+        "1 a 30",
+        "1 d 40",
+        "END",
+        "SET broadcastThreshold -1",
+        "SET skewFactor 2",
+        "SET skewThreshold 20",
+        "SET advisorySize 22",
+        "PIPE hot = source views | join items 4 | map value sum | reduceByKey sum 2",
+        "RUN hot 0"
+      ],
+      "answers": [
+        "job 0 stages 4 tasks 12 rows 2"
+      ],
+      "refs": [
+        "4.19",
+        "4.20",
+        "4.21",
+        "4.22",
+        "4.23",
+        "4.24"
+      ],
+      "quote": "크기가 0 인 블록은 언제나 지금 조각에 들어간다.",
+      "explanation": "정답은 `job 0 stages 4 tasks 12 rows 2` 다. 스테이지는 source(views), source(items), join map, reduceByKey 넷이다. join 은 두 입력을 모두 셔플하고 같은 스테이지에 map 만 있으므로 [4.19]에 따라 쏠림을 처리한다. 왼쪽의 받는 파티션 크기는 0, 55, 11, 11 이고 [4.20]에 따라 중앙값 11 의 2 배인 22 와 20 가운데 큰 22 가 기준선이므로 파티션 1 만 쏠렸다. 오른쪽은 11, 22, 11, 0 이고 기준선이 22 라서 22 인 파티션 1 은 쏠리지 않았다. [4.21]에 따라 목표 크기는 22 와 쏠리지 않은 파티션 크기의 평균 7 가운데 큰 22 다. 왼쪽 파티션 1 의 블록은 맵 태스크 차례로 22, 33, 0 이다. [4.22]에 따라 22 는 첫 조각에 들어간다. 33 은 지금 조각의 22 에 더하면 55 로 목표 크기 22 를 넘으므로 새 조각을 시작한다. 마지막 블록은 크기가 0 이라 언제나 지금 조각에 들어가므로 조각은 둘이다. [4.23]에 따라 조인 스테이지의 태스크는 5 개이고 [4.24]에 따라 머리줄의 태스크는 3 + 2 + 5 + 2 = 12 다. 결과 행은 a 와 b 두 키다. 크기가 0 인 블록도 다른 블록처럼 목표 크기와 견주어 새 조각을 열 수 있다고 보면 조각이 셋이 되어 13 을, 쏠림 처리를 빼면 11 을 답하게 된다."
+    }
+  ]
+}

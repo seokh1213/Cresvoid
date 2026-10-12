@@ -1,0 +1,494 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "phrase-basic",
+      "refs": [
+        "4.9",
+        "4.13",
+        "1.1"
+      ],
+      "quote": "문서의 위치 p, p+1, …, p+m−1 에 t1, …, tm 이 차례로 나오는 p 가 하나라도 있으면 그 문서는 구문에 맞는다.",
+      "input": [
+        "ADD 1 big data platform",
+        "ADD 2 data big",
+        "ADD 3 big old data",
+        "ADD 4 small big data",
+        "QUERY \"big data\"",
+        "QUERY big-data",
+        "QUERY \"data big\"",
+        "QUERY \"big data platform\"",
+        "QUERY \"data platform big\""
+      ],
+      "expected": [
+        "1 4",
+        "1 2 3 4",
+        "2",
+        "1",
+        "(none)"
+      ]
+    },
+    {
+      "name": "phrase-positions",
+      "refs": [
+        "4.10",
+        "2.2",
+        "2.5",
+        "4.9"
+      ],
+      "quote": "글자 번호가 아니라 토큰 번호이므로 구분자와 대소문자는 위치에 영향을 주지 않는다.",
+      "input": [
+        "ADD 1 New-York, NEW york!",
+        "ADD 2 la la land",
+        "ADD 3 la land la la la",
+        "ADD 4 a b a b c",
+        "QUERY \"new york\"",
+        "QUERY \"york new\"",
+        "QUERY \"la la\"",
+        "QUERY \"la la la\"",
+        "QUERY \"la land\"",
+        "QUERY \"a b c\"",
+        "QUERY \"b a b\"",
+        "QUERY \"a b a b a\""
+      ],
+      "expected": [
+        "1",
+        "1",
+        "2 3",
+        "3",
+        "2 3",
+        "4",
+        "4",
+        "(none)"
+      ]
+    },
+    {
+      "name": "near-distance",
+      "refs": [
+        "4.14",
+        "4.15",
+        "2.6",
+        "2.7"
+      ],
+      "quote": "x 가 나온 위치 i 와 y 가 나온 위치 j 가운데 i ≠ j 이고 |i − j| ≤ k 인 쌍이 하나라도 있는 문서에 맞는다.",
+      "input": [
+        "ADD 1 alpha beta gamma delta",
+        "ADD 2 delta gamma beta alpha",
+        "ADD 3 alpha x x x x beta",
+        "ADD 4 alpha",
+        "ADD 5 beta x alpha x x beta",
+        "QUERY alpha NEAR/1 beta",
+        "QUERY beta NEAR/1 alpha",
+        "QUERY alpha NEAR/2 delta",
+        "QUERY alpha NEAR/3 delta",
+        "QUERY alpha NEAR/2 beta",
+        "QUERY alpha NEAR/4 beta",
+        "QUERY alpha NEAR/5 beta",
+        "QUERY alpha NEAR/50 beta"
+      ],
+      "expected": [
+        "1 2",
+        "1 2",
+        "(none)",
+        "1 2",
+        "1 2 5",
+        "1 2 5",
+        "1 2 3 5",
+        "1 2 3 5"
+      ]
+    },
+    {
+      "name": "near-same-token",
+      "refs": [
+        "4.16",
+        "4.14"
+      ],
+      "quote": "x 와 y 가 같은 토큰이면 서로 다른 두 출현이 필요하다.",
+      "input": [
+        "ADD 1 echo",
+        "ADD 2 echo echo",
+        "ADD 3 echo x x echo",
+        "ADD 4 echo x x x x x x echo",
+        "QUERY echo NEAR/1 echo",
+        "QUERY echo NEAR/3 echo",
+        "QUERY echo NEAR/50 echo",
+        "QUERY \"echo\" NEAR/2 echo"
+      ],
+      "expected": [
+        "2",
+        "2 3",
+        "2 3 4",
+        "2"
+      ]
+    },
+    {
+      "name": "korean-particles-take-positions",
+      "refs": [
+        "2.8",
+        "4.10",
+        "4.9"
+      ],
+      "quote": "이 트랙은 조사를 떼어 내지 않으므로 한국어 문서에서는 조사도 토큰이 되어 위치를 차지한다.",
+      "input": [
+        "ADD 1 Kotlin은 JVM 언어다",
+        "ADD 2 자바와 Kotlin 그리고 JVM",
+        "ADD 3 JVM은 Kotlin을 돌린다",
+        "QUERY \"kotlin jvm\"",
+        "QUERY \"kotlin은 jvm\"",
+        "QUERY kotlin NEAR/2 jvm",
+        "QUERY kotlin NEAR/1 jvm",
+        "QUERY \"jvm은 kotlin을\"",
+        "QUERY 은 NEAR/1 jvm",
+        "QUERY \"kotlin 그리고\""
+      ],
+      "expected": [
+        "(none)",
+        "1",
+        "1 2 3",
+        "(none)",
+        "3",
+        "1 3",
+        "2"
+      ]
+    },
+    {
+      "name": "near-precedence",
+      "refs": [
+        "4.19",
+        "4.21",
+        "4.18",
+        "4.8"
+      ],
+      "quote": "NEAR 는 NOT 보다 강하게 묶는다.",
+      "input": [
+        "ADD 1 red apple pie",
+        "ADD 2 apple red",
+        "ADD 3 red green apple",
+        "ADD 4 green pie",
+        "QUERY NOT red NEAR/1 apple",
+        "QUERY pie red NEAR/1 apple",
+        "QUERY red NEAR/1 apple pie",
+        "QUERY red NEAR/1 apple OR green",
+        "QUERY pie OR red NEAR/1 apple",
+        "QUERY red NEAR/2 apple green NEAR/1 apple",
+        "QUERY (red NEAR/2 apple) AND NOT pie",
+        "QUERY NOT NOT red NEAR/1 apple"
+      ],
+      "expected": [
+        "3 4",
+        "1",
+        "1",
+        "1 2 3 4",
+        "1 2 4",
+        "3",
+        "2 3",
+        "1 2"
+      ]
+    },
+    {
+      "name": "phrase-lexing",
+      "refs": [
+        "4.4",
+        "4.3",
+        "4.5",
+        "4.2",
+        "4.1"
+      ],
+      "quote": "큰따옴표는 낱말을 끊는다.",
+      "input": [
+        "ADD 1 new york city",
+        "ADD 2 york city new",
+        "ADD 3 not new and york",
+        "ADD 4 near 3 york",
+        "QUERY new\"york city\"",
+        "QUERY \"york city\"new",
+        "QUERY \"new york\"city",
+        "QUERY NOT\"new york\"",
+        "QUERY ( \"york )\" new )",
+        "QUERY \"(new) york\"",
+        "QUERY \"not new AND york\"",
+        "QUERY \"NEAR/3 york\"",
+        "QUERY \"OR\""
+      ],
+      "expected": [
+        "1 2",
+        "1 2",
+        "1",
+        "2 3 4",
+        "1 2 3",
+        "1",
+        "3",
+        "4",
+        "(none)"
+      ]
+    },
+    {
+      "name": "zero-and-one-token-phrases",
+      "refs": [
+        "4.11",
+        "4.12",
+        "4.22"
+      ],
+      "quote": "m 이 0 인 구문은 파싱 전에 지운다.",
+      "input": [
+        "ADD 1 kotlin coroutines",
+        "ADD 2 java streams",
+        "ADD 3 kotlin",
+        "QUERY \"kotlin\"",
+        "QUERY \"KOTLIN!\" coroutines",
+        "QUERY \"\" java",
+        "QUERY \"!!!\" OR java",
+        "QUERY \"\"",
+        "QUERY \"ㅋㅋ\" \"!!!\"",
+        "QUERY java OR \"\"",
+        "QUERY NOT \"kotlin\"",
+        "QUERY NOT \"\""
+      ],
+      "expected": [
+        "1 3",
+        "1",
+        "2",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "2",
+        "ERR SYNTAX"
+      ]
+    },
+    {
+      "name": "near-operator-format",
+      "refs": [
+        "4.7",
+        "4.6",
+        "5.2",
+        "3.1"
+      ],
+      "quote": "NEAR 연산자 낱말 전체는 `^NEAR/[1-9][0-9]?$` 에 맞아야 하고 `/` 뒤의 수 k 는 50 이하여야 한다.",
+      "input": [
+        "ADD 1 near 3 alpha beta",
+        "ADD 2 alpha beta",
+        "QUERY alpha NEAR/1 beta",
+        "QUERY alpha NEAR/50 beta",
+        "QUERY alpha NEAR/0 beta",
+        "QUERY alpha NEAR/05 beta",
+        "QUERY alpha NEAR/51 beta",
+        "QUERY alpha NEAR/99 beta",
+        "QUERY alpha NEAR/3a beta",
+        "QUERY alpha NEAR/ beta",
+        "QUERY alpha NEAR/1/ beta",
+        "QUERY alpha near/3 beta",
+        "QUERY alpha Near/3 beta",
+        "QUERY alpha !NEAR/3 beta",
+        "QUERY alpha NEAR beta",
+        "QUERY alpha\tNEAR/3\tbeta",
+        "QUERY NEAR/3"
+      ],
+      "expected": [
+        "1 2",
+        "1 2",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "1",
+        "1",
+        "1",
+        "1",
+        "1",
+        "ERR SYNTAX"
+      ]
+    },
+    {
+      "name": "near-operands",
+      "refs": [
+        "4.17",
+        "5.3"
+      ],
+      "quote": "NEAR 의 두 피연산자는 각각 토큰이 정확히 1개인 검색어 낱말이거나 토큰이 정확히 1개인 구문이어야 한다.",
+      "input": [
+        "ADD 1 new york city",
+        "ADD 2 york new",
+        "ADD 3 new-york",
+        "QUERY york! NEAR/1 city",
+        "QUERY \"york\" NEAR/1 \"city\"",
+        "QUERY \"(york)\" NEAR/1 city",
+        "QUERY new-york NEAR/1 city",
+        "QUERY \"new york\" NEAR/1 city",
+        "QUERY \"york york\" NEAR/1 city",
+        "QUERY york-york NEAR/1 city",
+        "QUERY (york) NEAR/1 city",
+        "QUERY york NEAR/1 (city)",
+        "QUERY NOT york NEAR/1 city",
+        "QUERY york NEAR/1 NOT city"
+      ],
+      "expected": [
+        "1",
+        "1",
+        "1",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "2 3",
+        "ERR SYNTAX"
+      ]
+    },
+    {
+      "name": "near-chain-and-missing-operand",
+      "refs": [
+        "4.20",
+        "4.22",
+        "5.4"
+      ],
+      "quote": "near_expr 하나에는 NEAR 연산자가 많아야 하나 온다.",
+      "input": [
+        "ADD 1 a b c",
+        "ADD 2 c x b a",
+        "QUERY a NEAR/1 b NEAR/1 c",
+        "QUERY NEAR/1 a",
+        "QUERY a NEAR/1",
+        "QUERY a NEAR/1 NEAR/1 b",
+        "QUERY a NEAR/1 OR b",
+        "QUERY a !!! NEAR/1 b",
+        "QUERY a NEAR/1 \"\" b",
+        "QUERY a NEAR/1 b c NEAR/1 b",
+        "QUERY (a NEAR/1 b) NEAR/1 c",
+        "QUERY a NEAR/1 b AND NEAR/1 c"
+      ],
+      "expected": [
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "1 2",
+        "1 2",
+        "1",
+        "ERR SYNTAX",
+        "ERR SYNTAX"
+      ]
+    },
+    {
+      "name": "quote-syntax-errors",
+      "refs": [
+        "5.1",
+        "5.5",
+        "4.3"
+      ],
+      "quote": "닫히지 않은 큰따옴표가 있으면 `ERR SYNTAX` 를 출력한다.",
+      "input": [
+        "ADD 1 new york city",
+        "ADD 2 city new york",
+        "QUERY \"new york",
+        "QUERY new \"york\" \"city",
+        "QUERY \"new\"\" york",
+        "QUERY \"new york\" )",
+        "QUERY ( \"new york\"",
+        "QUERY \"new york\" OR",
+        "QUERY \"new york\" \"york city\"",
+        "QUERY NOT \"new york\" OR \"city new\"",
+        "QUERY (\"new york\")"
+      ],
+      "expected": [
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "1",
+        "2",
+        "1 2"
+      ]
+    },
+    {
+      "name": "search-and-add-unchanged",
+      "refs": [
+        "4.23",
+        "1.2"
+      ],
+      "quote": "SEARCH 는 바뀌지 않는다.",
+      "input": [
+        "ADD 1 say \"near 3\" twice",
+        "ADD 2 NEAR/3 is a token pair",
+        "ADD 3 \"quoted\" text",
+        "SEARCH 10 \"near",
+        "SEARCH 10 NEAR/3",
+        "QUERY \"near 3\"",
+        "QUERY near-3",
+        "QUERY \"quoted text\""
+      ],
+      "expected": [
+        "1 0.4700",
+        "2 0.3902",
+        "1 0.9400",
+        "2 0.7804",
+        "1 2",
+        "1 2",
+        "3"
+      ]
+    },
+    {
+      "name": "random-phrase-near",
+      "refs": [
+        "4.18",
+        "4.9",
+        "4.14",
+        "4.17"
+      ],
+      "quote": "0토큰 낱말과 0토큰 구문을 지운 어휘의 열은 아래 문법의 or_expr 하나와 정확히 맞아야 한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "80"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "random-churn",
+      "refs": [
+        "4.10",
+        "4.9",
+        "4.14",
+        "4.16"
+      ],
+      "quote": "위치는 문서 토큰 목록의 번호다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10",
+        "--queries",
+        "150"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "large-scale",
+      "refs": [
+        "7.3",
+        "2.3"
+      ],
+      "quote": "대규모 테스트는 문서 20,000개와 구문·NEAR 를 포함한 QUERY 6,000개로 이뤄진다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "20000",
+        "--queries",
+        "6000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

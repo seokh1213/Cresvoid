@@ -1,0 +1,10 @@
+{
+  "title": "비문학 독해",
+  "kind": "reading",
+  "summary": "경제·법·철학 지문을 읽고 수능·LEET 형식 문항을 푼다.",
+  "stages": [
+    { "dir": "01-auction", "title": "경매의 설계", "target_minutes": 10 },
+    { "dir": "02-agency", "title": "대리와 표현대리", "target_minutes": 13 },
+    { "dir": "03-grue", "title": "귀납의 새로운 수수께끼", "target_minutes": 15 }
+  ]
+}

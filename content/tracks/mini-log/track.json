@@ -1,0 +1,11 @@
+{
+  "title": "파티션 로그",
+  "kind": "build",
+  "summary": "시각이 입력으로 움직이는 시뮬레이터에서 파티션 로그와 보관, 멱등 프로듀서, 컨슈머 그룹 재조정, 로그 압축을 표준 입출력 명령 처리기로 구현한다.",
+  "stages": [
+    { "dir": "01-partitions", "title": "파티션과 보관" },
+    { "dir": "02-idempotence", "title": "멱등 프로듀서" },
+    { "dir": "03-groups", "title": "컨슈머 그룹과 재조정" },
+    { "dir": "04-compaction", "title": "로그 압축" }
+  ]
+}

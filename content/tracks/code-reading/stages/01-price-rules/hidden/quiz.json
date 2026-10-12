@@ -1,0 +1,122 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "PRODUCT CHIPS 1990",
+        "PRODUCT GUM 990",
+        "PRODUCT COOKIE 2900",
+        "PRODUCT JELLY 1290",
+        "GRADE GOLD",
+        "COUPON RATE 10 5000 3000",
+        "ADD CHIPS 1",
+        "ADD GUM 1",
+        "ADD COOKIE 1",
+        "ADD JELLY 1",
+        "TOTAL"
+      ],
+      "answers": [
+        "list=7170 discount=1040 pay=6130"
+      ],
+      "refs": [
+        "DiscountRules.kt:33-37",
+        "Checkout.kt:26-30",
+        "DiscountRules.kt:47-53",
+        "Money.kt:9-11"
+      ],
+      "quote": "fun BigDecimal.roundToWon(): BigDecimal = setScale(0, RoundingMode.HALF_EVEN)",
+      "explanation": "등급 할인은 항목마다 따로 계산해 원 단위로 맞춘다(DiscountRules.kt:34). GOLD 의 할인율은 0.05 다(DiscountRules.kt:6, 10). 항목별로 CHIPS 1990×0.05=99.5, GUM 49.5, COOKIE 145, JELLY 64.5 이고 roundToWon 은 HALF_EVEN 이라(Money.kt:9) .5 는 가까운 짝수로 간다. 99.5 는 100, 49.5 는 50, 64.5 는 64 가 되어 등급 할인은 100+50+145+64=359 다. rulesFor 가 쿠폰 규칙을 등급 할인 규칙 뒤에 추가하므로(Checkout.kt:26-30) 쿠폰은 등급 할인을 뺀 금액의 합 7170-359=6811 을 기준으로 한 번 계산한다(DiscountRules.kt:48, 51). 6811×0.10=681.1 은 681 이 되고 최소 주문 5000 이상이며 최대 3000 보다 작으므로 쿠폰 할인은 681 이다. 할인 합계는 359+681=1040 이고 결제 금액은 7170-1040=6130 이다. HALF_UP 으로 계산하면 JELLY 가 65 가 되어 pay=6129 다. 내림으로 계산하면 등급 할인이 357 이 되어 pay=6132 다. 등급 할인을 정가 합계 7170 에 한 번만 계산하면 358.5 가 358 이 되어 pay=6131 이다. 쿠폰을 정가 합계에 적용하면 717 이 되어 pay=6094 다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음은 고객 문의와 그 장바구니를 재현한 입력이다. 재현한 출력에도 쿠폰 할인은 없었다. 코드에 비추어 쿠폰 할인이 적용되지 않은 까닭을 바르게 설명한 것은?",
+      "context": "고객 문의: 정가 합계가 30000원인 장바구니에 29000원 이상 주문에서 3000원을 깎아 주는 쿠폰을 썼는데 쿠폰 할인이 적용되지 않았다.\n\n입력:\nPRODUCT JACKET 18000\nPRODUCT TEE 6000 TEES\nBUNDLE TEES 2 5\nCOUPON FIXED 3000 29000\nGRADE SILVER\nADD JACKET 1\nADD TEE 2\nTOTAL",
+      "choices": [
+        "등급 할인과 묶음 할인을 모두 정가를 기준으로 계산해 뺀 금액 28500원을 최소 주문 금액과 비교하기 때문이다.",
+        "묶음 할인을 받은 TEE 를 제외하고 JACKET 의 결제 금액 17460원만 최소 주문 금액과 비교하기 때문이다.",
+        "등급 할인을 뺀 금액을 기준으로 묶음 할인을 계산해 두 할인을 모두 뺀 금액 28518원을 최소 주문 금액과 비교하기 때문이다.",
+        "묶음 할인을 받은 장바구니에는 쿠폰을 함께 쓸 수 없기 때문이다.",
+        "쿠폰을 등록한 시점의 빈 장바구니 금액 0원을 최소 주문 금액과 비교하기 때문이다."
+      ],
+      "answer": 3,
+      "refs": [
+        "Checkout.kt:21-30",
+        "DiscountRules.kt:39-57"
+      ],
+      "quote": "return rulesFor(cart).fold(listPriced) { lines, rule -> rule.applyTo(lines) }",
+      "explanation": "정답은 ③이다. Checkout.kt:23 의 fold 는 listPriced 에서 시작해 rulesFor 가 만든 목록의 순서대로 규칙을 적용한다. 규칙마다 앞 규칙이 반환한 항목을 받는다. rulesFor(Checkout.kt:26-30)는 명령이 들어온 순서와 관계없이 등급 할인, 묶음 할인, 쿠폰 순서로 규칙을 추가한다. SILVER 할인은 JACKET 18000×0.03=540, TEE 12000×0.03=360 이라 결제 금액이 17460 과 11640 이 된다. 묶음 할인은 앞 규칙이 넘긴 항목의 payable 에 할인율을 곱하므로(DiscountRules.kt:43) TEE 는 11640×0.05=582 를 더 할인받아 11058 이 된다. 쿠폰 규칙의 orderAmount(DiscountRules.kt:48)는 17460+11058=28518 이다. 29000 보다 작으므로 applyCoupon 은 49행에서 항목을 그대로 반환한다. ① 묶음 할인을 정가 12000 을 기준으로 계산하면 600 이 되어 28500 이 나온다. 그러나 묶음 규칙이 받는 TEE 의 payable 은 이미 등급 할인을 뺀 11640 이다. 최소 주문 금액을 28510 으로 바꿔 실행하면 쿠폰이 적용된다. 28500 과 비교한다면 적용되지 않았을 것이다. ② applyCoupon 은 모든 항목의 payable 을 더해 orderAmount 를 구하고(48행) 쿠폰 할인액도 모든 항목에 나눈다(55-56행). ④ applyCoupon 이 항목을 그대로 반환하는 경우는 최소 주문 금액에 못 미칠 때(49행)와 할인액이 0 일 때(54행)뿐이다. 최소 주문 금액을 28000 으로 낮춰 실행하면 TEE 항목에 grade=360 bundle=582 coupon=1163 이 함께 기록된다. ⑤ COUPON 명령은 장바구니에 쿠폰을 등록하기만 한다(Main.kt:38). rulesFor 는 가격을 계산할 때마다 그때의 장바구니로 쿠폰 규칙을 만든다(Checkout.kt:29). applyCoupon 도 그때의 항목으로 orderAmount 를 구한다. COUPON 명령을 ADD 뒤로 옮겨도 출력은 같다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "PRODUCT TEE 5000 TEES",
+        "PRODUCT CAP 9000",
+        "PRODUCT SOCKS 3000",
+        "BUNDLE TEES 2 10",
+        "COUPON FIXED 2000 20000",
+        "ADD TEE 1",
+        "ADD CAP 1",
+        "ADD SOCKS 1",
+        "ADD TEE 1",
+        "LINE CAP"
+      ],
+      "answers": [
+        "CAP list=9000 coupon=858 pay=8142"
+      ],
+      "refs": [
+        "Money.kt:13-22",
+        "Main.kt:12-21",
+        "DiscountRules.kt:39-45"
+      ],
+      "quote": ".sortedBy { weights[it] }",
+      "explanation": "두 번째 ADD TEE 는 Main.kt:18-19 에서 기존 TEE 항목의 자리를 수량을 더한 항목으로 교체하므로 장바구니 순서는 TEE(2개), CAP, SOCKS 다. TEES 그룹 수량이 2 라 TEE 에 묶음 할인 10000×0.10=1000 이 적용된다(DiscountRules.kt:40-43). 쿠폰 직전 금액은 TEE 9000, CAP 9000, SOCKS 3000 이고 합 21000 이 최소 주문 20000 이상이라 정액 2000원을 나눈다. prorate(Money.kt:13-22)는 항목마다 2000×금액÷21000 을 내림해 TEE 857, CAP 857, SOCKS 285 를 정한다. 남는 1원은 금액 오름차순으로 정렬한 목록의 맨 뒤 항목에 더한다. sortedBy 는 안정 정렬이라 금액이 같은 TEE 와 CAP 은 장바구니 순서대로 TEE, CAP 으로 놓이고 takeLast(1) 은 CAP 을 고른다. CAP 의 쿠폰 몫은 858 이고 결제 금액은 9000-858=8142 다. 금액이 같으면 앞 항목이 1원을 받는다고 가정하거나 두 번째 ADD TEE 가 TEE 를 맨 뒤로 옮긴다고 가정하면 CAP 은 857 을 받아 pay=8143 이 된다. 끝전을 나눗셈 나머지가 가장 큰 항목에 준다고 보아도 1원은 SOCKS(2000×3000÷21000=285.71…)에 가므로 CAP 은 857 이다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "코드 리뷰에서 `signum()` 으로 0 인지 확인하는 두 곳을 `BigDecimal.ZERO` 와 비교하도록 바꾸자는 의견이 나왔다. 두 변경을 따로 적용한다고 할 때 출력 변화를 바르게 설명한 것은?",
+      "context": "(가) Checkout.kt:27 을 아래처럼 바꾼다.\n\n    if (cart.grade.discountRate != BigDecimal.ZERO) add(DiscountRule.GradeDiscount(cart.grade.discountRate))\n\n(나) DiscountRules.kt:54 를 아래처럼 바꾼다.\n\n    if (discount == BigDecimal.ZERO) return lines",
+      "choices": [
+        "(가)와 (나) 모두 출력을 바꾸지 않는다.",
+        "(가)는 등급이 BASIC 인 장바구니의 LINE 에 grade=0 이 나오게 하고 (나)는 출력을 바꾸지 않는다.",
+        "(가)는 등급이 BASIC 인 장바구니의 LINE 에 grade=0.00 이 나오게 하고 (나)는 출력을 바꾸지 않는다.",
+        "(가)는 등급이 BASIC 인 장바구니의 LINE 에 grade=0 이 나오게 하고 (나)는 할인액이 0 인 쿠폰도 항목마다 coupon=0 으로 기록하게 한다.",
+        "(가)는 출력을 바꾸지 않고 (나)는 할인액이 0 인 쿠폰도 항목마다 coupon=0 으로 기록하게 한다."
+      ],
+      "answer": 2,
+      "refs": [
+        "Checkout.kt:26-30",
+        "DiscountRules.kt:3-11",
+        "DiscountRules.kt:47-57",
+        "Money.kt:4-11"
+      ],
+      "quote": "val discountRate: BigDecimal = discountPercent.toBigDecimal().percentToRate()",
+      "explanation": "정답은 ②다. (가) BASIC 의 할인율은 0.toBigDecimal().percentToRate() 다(DiscountRules.kt:4, 10). percentToRate 는 movePointLeft(2) 다(Money.kt:6). JDK 문서에 따르면 movePointLeft(n) 은 n 이 0 이상일 때 scale 에 n 을 더하기만 하므로 BASIC 의 할인율은 0 이지만 scale 이 2 인 0.00 이다. Kotlin 의 `!=` 는 equals 로 비교한다. BigDecimal 의 equals 는 값과 scale 이 모두 같을 때만 true 를 반환하므로 0.00 != BigDecimal.ZERO 는 true 다. 같은 까닭으로 BigDecimal.ZERO 와 0.00 을 HashSet 에 추가하면 원소가 두 개가 된다. 그래서 BASIC 에도 GradeDiscount 가 목록 맨 앞에 추가된다(Checkout.kt:27). 할인액은 결제 금액×0.00 을 roundToWon 이 scale 0 으로 맞춘 0 이다(Money.kt:9, 11). LINE 에는 grade=0 이 나오지만 결제 금액과 TOTAL 은 그대로다. 예를 들어 PRODUCT TEE 12000 TEES, BUNDLE TEES 2 10, ADD TEE 2 다음에 실행한 LINE TEE 의 출력은 TEE list=24000 bundle=2400 pay=21600 에서 TEE list=24000 grade=0 bundle=2400 pay=21600 으로 바뀐다. SILVER 같은 다른 등급은 바꾸기 전과 뒤의 조건이 모두 참이라 출력이 같다. (나) discount 는 when 의 어느 분기에서 정해져도 scale 이 0 이다. 정률 쿠폰의 할인액은 roundToWon 을 거친 값과 parseWon 으로 읽은 최대 할인 금액 가운데 작은 값이다(DiscountRules.kt:51, Money.kt:4, 9). 정액 쿠폰의 할인액은 parseWon 으로 읽은 쿠폰 금액과 orderAmount 가운데 작은 값이다(DiscountRules.kt:52). orderAmount 는 scale 0 인 정가와 할인액을 더하고 뺀 값이라 역시 scale 0 이다. discount == BigDecimal.ZERO 는 discount.signum() == 0 과 늘 같은 결과를 낸다. ① equals 는 scale 까지 비교하므로 (가)는 BASIC 장바구니의 LINE 출력을 바꾼다. ③ discountAt 이 setScale(0, …) 을 거치므로 0.00 으로 출력되지 않는다. ④ 할인액이 0 인 쿠폰은 discount 가 scale 0 인 0 이라 두 코드 모두 54행에서 항목을 그대로 반환한다. COUPON RATE 10 0 0 으로 실행해도 두 코드의 출력에 coupon 항목이 생기지 않는다. ⑤ 는 (가)와 (나)를 모두 반대로 설명했다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "되돌리기 기능을 추가하려고 Main.kt 를 아래처럼 바꿨다. 바꾼 프로그램을 아래 입력으로 실행하면 나오는 출력은?",
+      "context": "바꾼 부분이다. 여기에 보이지 않는 줄은 원래 코드와 같다.\n\n    var cart = Cart()\n    val history = ArrayDeque<Cart>()\n\n    for (command in generateSequence(::readlnOrNull).map(String::trim).filter(String::isNotEmpty)) {\n        val words = command.split(Regex(\"\\\\s+\"))\n        if (words[0] == \"GRADE\" || words[0] == \"COUPON\" || words[0] == \"ADD\") history.addLast(cart.copy())\n        try {\n            when (words[0]) {\n                \"UNDO\" -> cart = history.removeLast()\n                (원래 분기들)\n\n입력:\nPRODUCT JACKET 20000\nPRODUCT SHIRT 10000\nADD JACKET 1\nGRADE GOLD\nADD SHIRT 1\nADD JACKET 1\nUNDO\nUNDO\nUNDO\nTOTAL",
+      "choices": [
+        "list=0 discount=0 pay=0",
+        "list=20000 discount=0 pay=20000",
+        "list=20000 discount=1000 pay=19000",
+        "list=50000 discount=0 pay=50000",
+        "list=50000 discount=2500 pay=47500"
+      ],
+      "answer": 4,
+      "refs": [
+        "Main.kt:7-22",
+        "Main.kt:37-41"
+      ],
+      "quote": "val lines: MutableList<CartLine> = mutableListOf(),",
+      "explanation": "정답은 ④다. data class 의 copy 는 프로퍼티 값을 그대로 옮기는 얕은 복사라 history 에 저장된 Cart 사본은 모두 같은 lines 리스트를 가리킨다(Main.kt:10). ADD 는 그 리스트를 제자리에서 바꾼다(Main.kt:16, 19). JACKET 항목을 existing.copy(…) 로 새로 만들어도 그 항목으로 교체되는 곳은 공유된 리스트다. 반면 GRADE 는 새 Cart 를 만들어 cart 에 대입하므로(Main.kt:37) GRADE 직전에 저장한 사본의 등급은 BASIC 으로 남는다. UNDO 세 번은 차례로 두 번째 ADD JACKET 직전, ADD SHIRT 직전, GRADE 직전의 사본을 꺼낸다. 마지막 사본은 등급이 BASIC 이고 lines 는 JACKET 2개와 SHIRT 1개가 든 지금 리스트라 정가 50000 에 할인 0 이다. ① 은 copy 가 인자로 주지 않은 lines 를 생성자 기본값 mutableListOf() 로 새로 만든다고 보면 나오는 값이다. 그렇게 보면 GRADE 직전 사본의 목록도 비어 있다. 실제로 copy 의 매개변수 기본값은 생성자 기본값이 아니라 지금 프로퍼티 값이다. ② 는 copy 가 목록까지 복사한다고 보면 나오는 값이다. 목록까지 복사했다면 세 번째 UNDO 뒤 장바구니는 BASIC 에 JACKET 1개다. ③ 은 copy 가 목록까지 복사한다고 보면서 history 에 명령을 처리한 뒤의 장바구니가 저장된다고 읽으면 나오는 값이다. 그렇게 읽으면 세 번째 UNDO 가 꺼낸 사본은 GRADE 를 처리한 뒤의 GOLD 에 JACKET 1개다. ⑤ 는 UNDO 가 목록뿐 아니라 등급도 되돌리지 못한다고 보면 나오는 값이다. 두 번째 UNDO 까지는 GOLD 가 남아 이 값이 나오지만 세 번째 UNDO 가 꺼낸 사본은 BASIC 이다."
+    }
+  ]
+}

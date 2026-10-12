@@ -1,0 +1,10 @@
+{
+  "title": "분산 검색 조정 노드",
+  "kind": "build",
+  "summary": "샤드에 나뉜 색인에서 라우팅, 샤드별 점수 합치기, terms 집계의 근사, 깊은 페이지 넘기기를 표준 입출력 명령 처리기로 구현한다.",
+  "stages": [
+    { "dir": "01-routing", "title": "라우팅과 샤드별 점수" },
+    { "dir": "02-terms-agg", "title": "terms 집계와 오차 상한" },
+    { "dir": "03-paging", "title": "페이지 넘기기와 PIT" }
+  ]
+}

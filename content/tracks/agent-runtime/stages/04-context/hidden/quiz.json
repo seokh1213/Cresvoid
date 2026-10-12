@@ -1,0 +1,111 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 내용이 `[cleared]` 로 바뀌는 결과 블록의 id 를 바뀐 순서대로 모두 나열한 것은?",
+      "context": "<보기>\nconfig {\"max_turns\":2,\"clear_trigger\":1,\"clear_keep\":1,\"clear_exclude\":[\"memo\"]}\ntool {\"name\":\"read\"}\ntool {\"name\":\"stock\"}\nfake {\"tool\":\"read\",\"input\":{\"f\":\"a\"},\"output\":\"a.kt 120줄: 주문 합계를 계산한다\"}\nfake {\"tool\":\"stock\",\"input\":{\"s\":\"K1\"},\"output\":\"0\"}\nfake {\"tool\":\"read\",\"input\":{\"f\":\"b\"},\"output\":\"b.kt 45줄: 할인율을 정한다\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"r1\",\"name\":\"read\",\"input\":{\"f\":\"a\"}},{\"type\":\"tool\",\"id\":\"r2\",\"name\":\"read\",\"input\":{\"f\":\"z\"}},{\"type\":\"tool\",\"id\":\"s1\",\"name\":\"stock\",\"input\":{\"s\":\"K1\"}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"m1\",\"name\":\"memo\",\"input\":{\"t\":\"합계\"}},{\"type\":\"tool\",\"id\":\"r3\",\"name\":\"read\",\"input\":{\"f\":\"b\"}}]}\nask {\"text\":\"주문 코드를 읽어 줘\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"r4\",\"name\":\"read\",\"input\":{\"f\":\"b\"}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"할인율은 b.kt 에 있다.\"}]}\nask {\"text\":\"할인율은 어디서 정해?\"}",
+      "choices": [
+        "`r1`, `r2`, `s1`, `r3`",
+        "`r1`, `r2`, `r3`",
+        "`r1`, `r2`",
+        "`r1`, `r2`, `m1`, `r3`",
+        "`r1`"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.8",
+        "4.10",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "이미 지운 블록과 마지막 메시지의 블록도 이 개수에 들어간다.",
+      "explanation": "정답은 ②이다. clear_trigger 가 1 이고 clear_target 이 기본값 0 이므로 [4.8]에 따라 차례마다 지우기를 하고 [4.10]에 따라 지울 수 있는 블록을 모두 지운다. 첫 ask 의 둘째 차례에는 r1, r2, s1 이 모두 마지막 메시지에 있어 [4.11]의 둘째 조건으로 남는다. 첫 ask 는 max_turns 2 에 닿아 m1 과 r3 을 실행하지 않고 끝난다. 그래서 둘째 ask 는 두 블록의 `not executed` 오류 결과와 텍스트를 담은 사용자 메시지를 더한다. 둘째 ask 의 첫 차례에는 결과 블록이 r1, r2, s1, m1, r3 이고 clear_keep 1 개는 마지막 메시지의 r3 이 차지한다. 이 차례에 r1 과 오류 결과 r2 를 지운다. s1 은 내용을 `[cleared]` 로 바꾸면 6 토큰에서 8 토큰이 되므로 [4.11]의 다섯째 조건으로 남는다. 둘째 차례에는 r4 의 결과가 마지막 메시지에 들어가 clear_keep 1 개를 차지한다. [4.12]에 따라 m1 의 도구 이름은 memo 이므로 넷째 조건으로 남는다. read 의 `not executed` 결과인 r3 은 9 토큰에서 8 토큰으로 줄어들므로 지운다. ① [4.11]의 다섯째 조건을 빠뜨리면 s1 도 지운다. ③ clear_keep 을 마지막 메시지 밖의 지우지 않은 블록에서만 센다고 읽은 것이다. 그러면 둘째 차례에 r3 이 clear_keep 에 들어 남는다. [4.11]의 셋째 조건은 이미 지운 블록과 마지막 메시지의 블록도 개수에 넣는다. ④ `not executed` 결과에는 도구 이름이 없다고 읽으면 m1 도 지운다. [4.12]로 m1 의 도구 이름을 정하고 [4.11]의 넷째 조건을 함께 적용해야 지울 수 있다. ⑤ 오류 결과는 지우지 않는다고 읽으면 r1 만 지운다. [4.13]은 오류 결과를 지우면 내용이 `[cleared]` 인 오류 결과가 된다고 정한다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력에 연달아 나오는 세 줄로 옳은 것은?",
+      "context": "<보기>\nconfig {\"clear_trigger\":40,\"clear_target\":35}\ntool {\"name\":\"read\"}\nfake {\"tool\":\"read\",\"input\":{\"f\":\"a\"},\"output\":\"a.kt: 주문 합계를 계산하고 할인을 적용한다\"}\nfake {\"tool\":\"read\",\"input\":{\"f\":\"b\"},\"output\":\"b.kt: 배송비를 정한다\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"a1\",\"name\":\"read\",\"input\":{\"f\":\"a\"}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"b1\",\"name\":\"read\",\"input\":{\"f\":\"b\"}}]}\nreply {\"stop\":\"length\",\"content\":[{\"type\":\"text\",\"text\":\"정리하면\"},{\"type\":\"tool\",\"id\":\"c1\",\"name\":\"read\",\"incomplete\":true}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"두 파일을 정리했다.\"}]}\nask {\"text\":\"두 파일을 정리해 줘\"}",
+      "choices": [
+        "`turn 3 messages=5 limit=1000` → `clear 45 41 a1` → `context 41`",
+        "`discard` → `turn 4 messages=5 limit=2000` → `clear 45 41 a1`",
+        "`turn 3 messages=5 limit=1000` → `model text \"정리하면\"` → `model tool c1 read incomplete`",
+        "`clear 45 41 a1` → `turn 3 messages=5 limit=1000` → `model text \"정리하면\"`",
+        "`discard` → `turn 4 messages=5 limit=2000` → `model text \"두 파일을 정리했다.\"`"
+      ],
+      "answer": 5,
+      "refs": [
+        "4.5",
+        "4.8",
+        "4.11",
+        "4.14",
+        "4.15",
+        "4.16"
+      ],
+      "quote": "지운 블록이 없으면 이 줄을 출력하지 않는다.",
+      "explanation": "정답은 ⑤이다. 셋째 차례의 요청은 read 정의 4 토큰, 사용자 텍스트 6 토큰, 도구 사용 줄 두 개 14 토큰, a1 결과 12 토큰, b1 결과 9 토큰으로 45 토큰이다. [4.8]에서 지우기를 할지는 clear_trigger 로만 정하므로 context_window 가 0 이어도 45 가 40 보다 커서 지우기를 한다. a1 을 지우면 41 이 되고 b1 은 마지막 메시지에 있어 남는다. [4.16]에 따라 turn 줄 다음에 `clear 45 41 a1` 이 나온다. 셋째 응답은 미완성 도구 사용으로 잘려 버려지고 넷째 차례에서 같은 기록으로 다시 요청한다. 넷째 차례의 요청도 41 토큰이라 지우기를 하지만 a1 은 이미 지웠고 b1 은 마지막 메시지에 있다. 지운 블록이 없으므로 [4.15]에 따라 clear 줄이 없고 turn 줄 다음에 바로 모델 텍스트가 나온다. ① [4.5]에 따라 context_window 가 0 이면 context 줄을 출력하지 않는다. ② 다시 보내는 차례가 지우기 전의 기록을 보낸다고 읽으면 같은 clear 줄이 한 번 더 나온다. [4.14]에 따라 지운 내용은 되살리지 않고 [4.11]에 따라 이미 지운 블록은 다시 지우지 않는다. 두 규칙을 함께 적용해야 지울 수 있다. ③ context_window 가 0 이면 지우기도 하지 않는다고 읽은 것이다. [4.8]은 context_window 를 따지지 않는다. ④ [4.16]에서 clear 줄은 turn 줄 다음에 나온다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 순서대로 처리했을 때 reject 줄에 나오는 코드를 출력된 순서로 나열한 것은?",
+      "context": "<보기>\nconfig {\"context_window\":68,\"clear_trigger\":55,\"clear_target\":55}\ntool {\"name\":\"orders\"}\nfake {\"tool\":\"orders\",\"input\":{\"page\":1},\"output\":\"1쪽: 1001 결제 완료, 1002 배송 준비, 1003 취소 요청, 1004 결제 실패, 1005 환불 완료, 1006 배송 중, 1007 결제 완료, 1008 주소 변경, 1009 결제 완료, 1010 배송 준비, 1011 취소 요청, 1012 결제 실패, 1013 환불 완료, 1014 배송 중, 1015 결제 완료, 1016 배송 준비, 1017 취소 요청, 1018 결제 실패\"}\nfake {\"tool\":\"orders\",\"input\":{\"page\":2},\"output\":\"2쪽: 1019 결제 완료, 1020 배송 준비, 1021 취소 요청, 1022 결제 실패, 1023 배송 중, 1024 환불 완료\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g1\",\"name\":\"orders\",\"input\":{\"page\":1}}]}\nask {\"text\":\"주문 목록을 보여 줘\"}\nconfig {\"context_window\":68,\"clear_trigger\":55,\"clear_target\":30}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g2\",\"name\":\"orders\",\"input\":{\"page\":1}}]}\nask {\"text\":\"다시 보여 줘\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g3\",\"name\":\"orders\",\"input\":{\"page\":2}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g3\",\"name\":\"orders\",\"input\":{\"page\":1}}]}\nask {\"text\":\"2쪽부터 보여 줘\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g4\",\"name\":\"orders\",\"input\":{\"page\":2}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"g5\",\"name\":\"orders\",\"input\":{\"page\":2}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"2쪽에는 주문이 여섯 건이다.\"}]}\nask {\"text\":\"2쪽만 두 번 확인해 줘\"}",
+      "choices": [
+        "`script_exhausted`, `context_window`, `duplicate_id`",
+        "`context_window`, `context_window`, `duplicate_id`",
+        "`script_exhausted`, `script_exhausted`, `duplicate_id`",
+        "`script_exhausted`, `context_window`, `context_window`",
+        "`script_exhausted`, `context_window`, `duplicate_id`, `context_window`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.7",
+        "4.17",
+        "4.18",
+        "5.3"
+      ],
+      "quote": "각본에 남은 응답이 있는지는 요청이 일곱 규칙을 모두 지켰을 때만 확인한다.",
+      "explanation": "정답은 ①이다. 첫 config 는 clear_target 55 가 clear_trigger 55 이상이므로 [4.7]과 [5.3]에 따라 오류이고 어떤 필드도 바꾸지 않는다. 그래서 첫 ask 에서 context_window 는 0 이다. 첫 ask 의 둘째 차례에서는 창 크기를 따지지 않고 각본이 비었으므로 모델이 script_exhausted 로 거절한다. 둘째 config 로 창이 68 이 된다. 둘째 ask 의 둘째 차례 요청은 orders 정의 5, 사용자 텍스트 5, 도구 사용 줄 8, 1쪽 결과 59 를 더해 77 토큰이다. 1쪽 결과는 마지막 메시지에 있어 지우지 못한다. 각본도 비었지만 [4.17]에 따라 각본은 일곱 규칙을 모두 지킨 요청에서만 확인하므로 모델은 context_window 로 거절한다. 셋째 ask 의 셋째 차례 요청은 첫 g3 결과를 지운 뒤에도 94 토큰이다. 그러나 같은 id g3 이 두 번 나오고 duplicate_id 는 pairing 보다 먼저 검사하므로 모델은 duplicate_id 로 거절한다. 넷째 ask 의 셋째 차례 요청은 76 토큰이지만 g4 결과를 지워 60 이 된다. [4.18]에 따라 모델은 지운 뒤의 요청을 검사하므로 이 요청은 통과한다. ② 오류를 낸 config 의 context_window 를 적용하면 첫 ask 도 context_window 로 거절된다. clear_target 이 clear_trigger 와 같아도 오류라는 [4.7]과 오류를 낸 config 는 아무 필드도 바꾸지 않는다는 [5.3]을 함께 적용해야 지울 수 있다. ③ 각본이 비었는지를 창 크기보다 먼저 따지면 둘째 ask 의 reject 줄이 script_exhausted 가 된다. ④ context_window 를 다른 규칙보다 먼저 검사하면 셋째 ask 의 reject 줄이 context_window 가 된다. [4.17]은 이 규칙을 pairing 다음에 검사한다. ⑤ 지우기 전의 요청을 검사하면 넷째 ask 도 76 토큰이라 거절된다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 둘째 차례의 context 줄에 나오는 토큰 수는?",
+      "context": "<보기>\nconfig {\"context_window\":3000,\"reply_limit\":2000}\ntool {\"name\":\"lookup\",\"description\":\"상품을 찾는다\"}\ntool {\"name\":\"lookup\", \"description\":\"상품 \\\"재고\\\"를 찾는다 \\/ 최대 5건\"}\nfake {\"tool\":\"lookup\",\"input\":{\"q\":\"키보드🙂\",\"n\":2},\"output\":\"\\\"기계식\\\" 2건\\n저소음 1건\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"L1\",\"name\":\"lookup\",\"input\":{ \"q\" : \"키보드🙂\", \"n\" : 2.0 }}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"모두 3건이다.\"}]}\nask {\"text\":\"키보드 🙂 재고\"}",
+      "answers": [
+        "40",
+        "context 40"
+      ],
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "quote": "도구 정의의 토큰 수는 그 도구를 마지막으로 정의한 tool 명령의 인자 객체를 1단계 3.9, 3.10 의 형식으로 쓴 JSON 의 토큰 수다.",
+      "explanation": "정답은 40 이다. [4.1]에 따라 요청의 토큰 수는 도구 정의와 블록마다 따로 올림한 토큰 수를 더한 값이고 응답 한도 2000 은 들어가지 않는다. [4.3]에 따라 lookup 은 마지막 tool 명령의 인자만 센다. 그 인자를 1단계 3.9, 3.10 형식으로 쓰면 공백이 빠지고 `\\/` 가 `/` 가 되어 `{\"name\":\"lookup\",\"description\":\"상품 \\\"재고\\\"를 찾는다 / 최대 5건\"}` 이다. 이 JSON 은 56 글자라 [3.3]에 따라 14 토큰이다. 사용자 텍스트 줄 `user text \"키보드 🙂 재고\"` 는 [3.2]에 따라 🙂 를 한 글자로 세어 20 글자이고 5 토큰이다. 도구 사용 줄 `model tool L1 lookup {\"q\":\"키보드🙂\",\"n\":2.0}` 은 입력의 공백이 빠지고 `2.0` 은 쓴 대로 남아 41 글자이고 11 토큰이다. 결과 줄은 [4.2]에 따라 `\\\"` 와 `\\n` 을 두 글자로 세어 38 글자이고 10 토큰이다. 합은 40 이다. 첫 정의까지 더하면 51 을, 🙂 를 두 글자로 세거나 입력의 공백을 그대로 세면 41 을, 글자 수를 모두 더한 뒤 한 번만 올림하면 39 를 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 순서대로 처리했을 때 출력에 나오는 clear 줄은?",
+      "context": "<보기>\nconfig {\"clear_trigger\":90,\"clear_target\":85,\"clear_keep\":1}\ntool {\"name\":\"search\",\"description\":\"규정 문서를 찾는다\"}\nfake {\"tool\":\"search\",\"input\":{\"q\":\"환불\"},\"output\":\"환불: 받은 날부터 7일 안에 신청하면 결제한 수단으로 전액을 돌려준다.\"}\nfake {\"tool\":\"search\",\"input\":{\"q\":\"교환\"},\"error\":\"index busy: retry in 5s\"}\nfake {\"tool\":\"search\",\"input\":{\"q\":\"배송\"},\"output\":\"배송: 결제 다음 날 출고한다\"}\nfake {\"tool\":\"search\",\"input\":{\"q\":\"반품\"},\"output\":\"없음\"}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"s01\",\"name\":\"search\",\"input\":{\"q\":\"환불\"}},{\"type\":\"tool\",\"id\":\"s02\",\"name\":\"search\",\"input\":{\"q\":\"교환\"}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"s03\",\"name\":\"search\",\"input\":{\"q\":\"배송\"}}]}\nreply {\"stop\":\"tool\",\"content\":[{\"type\":\"tool\",\"id\":\"s04\",\"name\":\"search\",\"input\":{\"q\":\"반품\"}}]}\nreply {\"stop\":\"end\",\"content\":[{\"type\":\"text\",\"text\":\"반품 규정은 찾지 못했다.\"}]}\nask {\"text\":\"환불, 교환, 배송, 반품 규정을 찾아 줘\"}",
+      "answers": [
+        "clear 96 85 s01 s02"
+      ],
+      "refs": [
+        "4.1",
+        "4.9",
+        "4.10",
+        "4.11",
+        "4.13",
+        "4.15"
+      ],
+      "quote": "실행기는 결과 블록 하나를 살피기 전에 요청의 토큰 수가 clear_target 이하인지 확인한다.",
+      "explanation": "정답은 `clear 96 85 s01 s02` 다. [4.1]에 따라 요청의 토큰 수에는 도구 정의도 들어간다. search 정의는 44 글자라 11 토큰이고 사용자 텍스트 줄은 9 토큰, 도구 사용 줄은 하나에 8 토큰이다. 결과 줄은 s01 이 16, s02 가 12, s03 이 10, s04 가 6 토큰이다. 셋째 차례의 82 는 clear_trigger 90 보다 크지 않아 지우지 않는다. 넷째 차례의 96 은 90 보다 크므로 [4.9]대로 s01 부터 살핀다. s01 을 지우면 8 토큰이 되어 요청은 88 이다. [4.13]에 따라 s02 는 오류 표시가 남은 `user result s02 error \"[cleared]\"` 가 되어 33 글자, 9 토큰이므로 요청은 85 다. [4.10]에 따라 s03 을 살피기 전에 요청이 85 로 clear_target 85 이하이므로 멈춘다. s04 는 마지막 메시지에 있어 [4.11]의 둘째 조건으로도 남는다. [4.15]에 따라 clear 줄에는 지우기 전과 뒤의 토큰 수, 지운 순서대로의 id 를 쓴다. 오류 표시를 빼고 세면 `clear 96 84 s01 s02` 를, clear_target 보다 작아질 때까지 지우면 `clear 96 83 s01 s02 s03` 을 답하게 된다. clear_trigger 이하가 되면 멈춘다고 읽으면 `clear 96 88 s01` 을 답하게 된다. 도구 정의를 빼고 세면 넷째 차례가 85 토큰이라 지우기를 하지 않는다."
+    }
+  ]
+}

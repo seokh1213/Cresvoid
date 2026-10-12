@@ -1,0 +1,254 @@
+{
+  "tests": [
+    {
+      "name": "basic-checkout",
+      "refs": ["3.1", "5.3", "6.7"],
+      "quote": "정해 둔 응답이 남아 있지 않으면 서비스는 평소 응답 시간 뒤에 OK 로 응답한다",
+      "input": [
+        "ORDER A-100 1000",
+        "TRACE A-100"
+      ],
+      "expected": [
+        "A-100 CONFIRMED 110",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-100 OK",
+        "notification#1 100-110 OK"
+      ]
+    },
+    {
+      "name": "late-replies-retried",
+      "refs": ["3.8", "3.9"],
+      "quote": "시도 제한 시각까지 응답이 오지 않으면 처리기는 그 시각에 요청을 취소하고 그 시도는 실패한다",
+      "input": [
+        "REPLY C-300 stock OK 200",
+        "REPLY C-300 payment OK 450",
+        "REPLY C-300 notification OK 100",
+        "ORDER C-300 3000",
+        "TRACE C-300"
+      ],
+      "expected": [
+        "C-300 CONFIRMED 710",
+        "stock#1 0-200 CANCELLED",
+        "stock#2 200-230 OK",
+        "payment#1 230-530 CANCELLED",
+        "payment#2 530-580 OK",
+        "points#1 580-600 OK",
+        "notification#1 600-700 CANCELLED",
+        "notification#2 700-710 OK"
+      ]
+    },
+    {
+      "name": "unavailable-replies-retried",
+      "refs": ["3.7", "3.9", "3.10"],
+      "quote": "남은 시도가 있으면 기다리지 않고 바로 다음 시도를 시작한다",
+      "input": [
+        "REPLY B-200 stock UNAVAILABLE 40",
+        "REPLY B-200 payment UNAVAILABLE 120",
+        "REPLY B-200 payment UNAVAILABLE 60",
+        "ORDER B-200 2000",
+        "REPLY B-201 stock OK 250",
+        "REPLY B-201 stock UNAVAILABLE 80",
+        "ORDER B-201 1000",
+        "TRACE B-200",
+        "TRACE B-201"
+      ],
+      "expected": [
+        "B-200 CONFIRMED 330",
+        "B-201 FAILED 280 stock UNAVAILABLE",
+        "stock#1 0-40 UNAVAILABLE",
+        "stock#2 40-70 OK",
+        "payment#1 70-190 UNAVAILABLE",
+        "payment#2 190-250 UNAVAILABLE",
+        "payment#3 250-300 OK",
+        "points#1 300-320 OK",
+        "notification#1 320-330 OK",
+        "stock#1 0-200 CANCELLED",
+        "stock#2 200-280 UNAVAILABLE"
+      ]
+    },
+    {
+      "name": "rejected-replies-not-retried",
+      "refs": ["3.7", "3.10", "6.4"],
+      "quote": "응답이 REJECTED 면 단계가 거절로 실패하고 남은 시도는 하지 않는다",
+      "input": [
+        "REPLY D-400 points REJECTED 15",
+        "REPLY D-400 notification UNAVAILABLE 5",
+        "REPLY D-400 notification UNAVAILABLE 5",
+        "ORDER D-400 1000",
+        "REPLY D-401 payment UNAVAILABLE 20",
+        "REPLY D-401 payment REJECTED 25",
+        "ORDER D-401 1000",
+        "TRACE D-400",
+        "TRACE D-401"
+      ],
+      "expected": [
+        "D-400 CONFIRMED 105 SKIPPED points notification",
+        "D-401 FAILED 75 payment REJECTED",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-95 REJECTED",
+        "notification#1 95-100 UNAVAILABLE",
+        "notification#2 100-105 UNAVAILABLE",
+        "stock#1 0-30 OK",
+        "payment#1 30-50 UNAVAILABLE",
+        "payment#2 50-75 REJECTED"
+      ]
+    },
+    {
+      "name": "command-errors",
+      "refs": ["7.1", "7.2", "7.3", "7.4", "7.5", "7.6"],
+      "quote": "오류를 낸 명령은 아무것도 바꾸지 않는다",
+      "input": [
+        "HELLO",
+        "order A-1 100",
+        "ORDER A-1",
+        "ORDER A-1 0",
+        "ORDER A-1 100001",
+        "ORDER A_1 100",
+        "REPLY A-1 coupon OK 10",
+        "REPLY A-1 payment SLOW 10",
+        "REPLY A-1 payment OK 0",
+        "TRACE A-1",
+        "REPLY A-1 payment OK 100000",
+        "ORDER A-1 1000",
+        "ORDER A-1 1000",
+        "TRACE A-1 A-2",
+        "TRACE A-1"
+      ],
+      "expected": [
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR UNKNOWN_ORDER",
+        "A-1 CONFIRMED 410",
+        "ERR DUPLICATE_ORDER",
+        "ERR BAD_ARGUMENT",
+        "stock#1 0-30 OK",
+        "payment#1 30-330 CANCELLED",
+        "payment#2 330-380 OK",
+        "points#1 380-400 OK",
+        "notification#1 400-410 OK"
+      ]
+    },
+    {
+      "name": "flash-sale-checkout",
+      "refs": ["4.4"],
+      "quote": "그 뒤로는 그 주문을 위해 어떤 하위 서비스에도 요청을 보내지 않는다",
+      "input": [
+        "REPLY F-600 payment UNAVAILABLE 100",
+        "REPLY F-600 payment OK 400",
+        "ORDER F-600 300",
+        "TRACE F-600"
+      ],
+      "expected": [
+        "F-600 TIMEOUT 300",
+        "stock#1 0-30 OK",
+        "payment#1 30-130 UNAVAILABLE",
+        "payment#2 130-300 CANCELLED"
+      ]
+    },
+    {
+      "name": "weekend-checkout",
+      "refs": ["4.4", "3.10"],
+      "quote": "같은 단계의 남은 시도와 뒤 단계를 모두 시작하지 않는다",
+      "input": [
+        "REPLY G-700 points UNAVAILABLE 30",
+        "REPLY G-700 points OK 400",
+        "ORDER G-700 200",
+        "REPLY G-701 notification UNAVAILABLE 40",
+        "REPLY G-701 notification OK 300",
+        "ORDER G-701 180",
+        "TRACE G-700",
+        "TRACE G-701"
+      ],
+      "expected": [
+        "G-700 TIMEOUT 200",
+        "G-701 TIMEOUT 180",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-110 UNAVAILABLE",
+        "points#2 110-200 CANCELLED",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-100 OK",
+        "notification#1 100-140 UNAVAILABLE",
+        "notification#2 140-180 CANCELLED"
+      ]
+    },
+    {
+      "name": "back-to-back-orders",
+      "refs": ["4.4", "6.7"],
+      "quote": "주문이 시간 초과로 끝나면 처리기는 기다리던 요청을 마감 시각에 취소한다",
+      "input": [
+        "REPLY H-800 stock OK 450",
+        "ORDER H-800 250",
+        "ORDER H-801 1000",
+        "TRACE H-800",
+        "TRACE H-801"
+      ],
+      "expected": [
+        "H-800 TIMEOUT 250",
+        "H-801 CONFIRMED 110",
+        "stock#1 0-200 CANCELLED",
+        "stock#2 200-230 OK",
+        "payment#1 230-250 CANCELLED",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-100 OK",
+        "notification#1 100-110 OK"
+      ]
+    },
+    {
+      "name": "finish-at-deadline",
+      "refs": ["4.2", "4.3"],
+      "quote": "마지막 단계가 마감 시각과 같은 시각에 끝나도 시간 초과다",
+      "input": [
+        "ORDER J-1000 110",
+        "ORDER J-1001 111",
+        "TRACE J-1000",
+        "TRACE J-1001"
+      ],
+      "expected": [
+        "J-1000 TIMEOUT 110",
+        "J-1001 CONFIRMED 110",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-100 OK",
+        "notification#1 100-110 CANCELLED",
+        "stock#1 0-30 OK",
+        "payment#1 30-80 OK",
+        "points#1 80-100 OK",
+        "notification#1 100-110 OK"
+      ]
+    },
+    {
+      "name": "attempt-limit-at-deadline",
+      "refs": ["4.3", "4.4"],
+      "quote": "시도 제한 시각이 마감 시각과 같아도 다음 시도를 시작하지 않는다",
+      "input": [
+        "REPLY J-1003 stock OK 500",
+        "ORDER J-1003 200",
+        "REPLY J-1004 payment UNAVAILABLE 70",
+        "REPLY J-1004 payment OK 500",
+        "ORDER J-1004 400",
+        "TRACE J-1003",
+        "TRACE J-1004"
+      ],
+      "expected": [
+        "J-1003 TIMEOUT 200",
+        "J-1004 TIMEOUT 400",
+        "stock#1 0-200 CANCELLED",
+        "stock#1 0-30 OK",
+        "payment#1 30-100 UNAVAILABLE",
+        "payment#2 100-400 CANCELLED"
+      ]
+    }
+  ]
+}

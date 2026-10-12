@@ -1,0 +1,29 @@
+# Local authoring state and tool settings
+/.claude/
+/CLAUDE.md
+/.codex/
+/docs/log/
+/docs/handoff.md
+/docs/local/
+
+# Learner solutions and progress stay on this machine
+/practice/
+
+# Generated output and local caches
+**/build/
+**/.gradle/
+**/.kotlin/
+**/.idea/
+*.iml
+.DS_Store
+
+# Credentials and machine-specific configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+settings.local.json

@@ -1,0 +1,106 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE u 1 cleanup.policy=compact segment.bytes=10\nPRODUCE u a 1111\nPRODUCE u b 2222\nPRODUCE u c 3333\nTICK 1\nPRODUCE u a 4444\nPRODUCE u d 5555\nPRODUCE u b 6666\nPRODUCE u c 7777\nTICK 1\nFETCH u 0 0 10\nDIRTY u 0\nOFFSETS u 0",
+      "choices": [
+        "`FETCH u 0 0 10` 의 첫 줄은 `3 a 4444` 다.",
+        "`FETCH u 0 0 10` 의 첫 줄은 `0 a 1111` 이다.",
+        "`OFFSETS u 0` 은 `start=2 end=7` 을 출력한다.",
+        "`DIRTY u 0` 은 `first_dirty=6 clean_bytes=20 dirty_bytes=5` 를 출력한다.",
+        "`DIRTY u 0` 은 `first_dirty=6 clean_bytes=20 dirty_bytes=0` 을 출력한다."
+      ],
+      "answer": 5,
+      "refs": [
+        "4.8",
+        "4.10",
+        "4.11",
+        "4.13"
+      ],
+      "quote": "압축이 끝나면 첫 더러운 오프셋은 활성 세그먼트의 기준 오프셋이 된다.",
+      "explanation": "정답은 ⑤다. 레코드는 모두 5바이트라 세그먼트 하나에 둘씩 들어간다. 첫 TICK 에서는 오프셋 0, 1 의 닫힌 세그먼트가 더러운 세그먼트라 압축하지만 지울 레코드가 없다. 첫 더러운 오프셋은 2 가 된다. 둘째 TICK 에서는 C 가 10, D 가 20 이라 100 × 20 = 2000 이 50 × 30 = 1500 보다 커서 압축한다. [4.10]에 따라 기준 오프셋 2 와 4 의 더러운 세그먼트로만 만든 키 맵은 c → 2, a → 3, d → 4, b → 5 다. [4.11]에 따라 깨끗한 세그먼트의 `a 1111` 과 `b 2222` 가 지워진다. 비워진 세그먼트는 기준 오프셋 2 의 세그먼트와 한 묶음이 되어 기준 오프셋 0 의 10바이트 세그먼트가 된다. 기준 오프셋 4 의 세그먼트는 따로 남는다. [4.13]에 따라 첫 더러운 오프셋은 활성 세그먼트의 기준 오프셋 6 이고 닫힌 두 세그먼트는 모두 깨끗한 세그먼트라 C 는 20, D 는 0 이다. ① 활성 세그먼트의 `c 7777` 을 키 맵에 두면 `c 3333` 이 지워져 이렇게 답하게 된다. [4.10]의 마지막 문장에 따라 `c 3333` 은 남는다. ② 깨끗한 세그먼트를 다시 압축하지 않는다고 보면 `a 1111` 이 남는다. 키 맵을 더러운 세그먼트에서 만드는 [4.10]과 깨끗한 세그먼트도 대상으로 삼는 [4.11]을 함께 적용해야 지울 수 있다. ③ [4.13]에 따라 압축은 로그 시작 오프셋을 바꾸지 않으므로 `start=0 end=7` 이다. ④ [4.8]에 따라 활성 세그먼트는 깨끗한 세그먼트도 더러운 세그먼트도 아니므로 D 에 들어가지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력할 때 압축이 일어나는 TICK 을 모두 고른 것은?",
+      "context": "<보기>\nCREATE k 1 cleanup.policy=compact segment.bytes=4 min.cleanable.dirty.ratio=0.6\nPRODUCE k a 111\nPRODUCE k b 222\nPRODUCE k c 333\nTICK 1\nPRODUCE k a 444\nTICK 1\nPRODUCE k b 555\nTICK 1\nPRODUCE k d 666\nTICK 1\nPRODUCE k e 777\nTICK 1",
+      "choices": [
+        "첫째와 넷째 TICK",
+        "첫째 TICK 만",
+        "첫째와 다섯째 TICK",
+        "첫째, 셋째, 다섯째 TICK",
+        "다섯 TICK 모두"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.2",
+        "4.8",
+        "4.9"
+      ],
+      "quote": "압축 정책 토픽의 파티션마다 C + D 가 0 보다 크고 100 × D 가 R × (C + D) 보다 크면 그 파티션을 지금 시각에 한 번 압축한다(4.10~4.13).",
+      "explanation": "정답은 ③이다. [4.2]에 따라 `0.6` 의 R 은 60 이다. 레코드는 모두 4바이트라 레코드마다 롤한다. 마지막 레코드는 늘 활성 세그먼트에 있어 C 와 D 에 들어가지 않는다. 첫째 TICK 에서는 C = 0, D = 8 이라 [4.9]의 800 > 480 을 만족해 압축한다. 지울 레코드는 없고 첫 더러운 오프셋은 2 가 된다. 그 뒤 C 는 8 로 머물고 D 는 TICK 마다 4 씩 늘어난다. 100 × D 와 R × (C + D) 를 비교하면 둘째는 400 과 720, 셋째는 800 과 960, 넷째는 1200 과 1200 이라 압축하지 않는다. 다섯째에서는 1600 이 1440 보다 커서 압축한다. ① 100 × D 가 R × (C + D) 와 같을 때도 압축하면 넷째에서 압축한다. 활성 세그먼트를 D 에 더해도 같은 답이 나온다. ② 분모에 활성 세그먼트를 더하면 첫째 뒤로는 조건을 넘지 못한다. [4.8]에 따라 활성 세그먼트는 C 에도 D 에도 들어가지 않는다. ④ 더러운 비율을 D ÷ C 로 계산하면 셋째와 다섯째에서 압축한다. ⑤ R 을 6 으로 읽으면 더러운 세그먼트가 있을 때마다 압축한다. [4.2]의 변환 규칙과 [4.9]의 비교를 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE acct 1 cleanup.policy=compact segment.bytes=6 delete.retention.ms=100 min.cleanable.dirty.ratio=0\nPRODUCE acct x 11111\nTOMBSTONE acct x\nTICK 50\nPRODUCE acct y 22222\nTICK 10\nPRODUCE acct z 33333\nTICK 95\nFETCH acct 0 0 1\nPRODUCE acct w 44444\nTICK 5\nFETCH acct 0 0 1\nSEGMENTS acct 0",
+      "choices": [
+        "첫 `FETCH acct 0 0 1` 은 `0 x 11111` 을 출력한다.",
+        "`SEGMENTS acct 0` 의 첫 줄은 `base=0 records=1 bytes=6 max_time=50` 이다.",
+        "첫 `FETCH acct 0 0 1` 은 `2 y 22222` 를 출력한다.",
+        "둘째 `FETCH acct 0 0 1` 은 `1 x (null)` 을 출력한다.",
+        "`SEGMENTS acct 0` 의 첫 줄은 `base=2 records=1 bytes=6 max_time=50` 이다."
+      ],
+      "answer": 2,
+      "refs": [
+        "4.10",
+        "4.11",
+        "4.12"
+      ],
+      "quote": "삭제 시각이 있으면 지금 시각이 삭제 시각 이상일 때 지우고 아니면 남긴다.",
+      "explanation": "정답은 ②다. R 이 0 이라 더러운 세그먼트가 있으면 TICK 마다 압축한다. 툼스톤은 1바이트지만 6바이트 레코드 뒤라 롤해 새 세그먼트에 들어간다. 시각 50 의 압축에서 툼스톤은 활성 세그먼트에 있어 키 맵에 들어가지 않으므로 `x 11111` 이 남는다. 시각 60 의 압축에서는 [4.10]에 따라 키 맵이 x → 1 이 되어 깨끗한 세그먼트의 `x 11111` 이 지워진다. [4.11]에 따라 툼스톤은 삭제 시각 60 + 100 = 160 을 받는다. 시각 155 의 압축에서는 삭제 시각 전이라 툼스톤이 남으므로 첫 FETCH 는 `1 x (null)` 을 출력한다. 시각 160 의 압축에서는 지금 시각이 삭제 시각 이상이라 툼스톤이 지워진다. [4.12]에 따라 비워진 기준 오프셋 0 의 세그먼트와 y 의 6바이트 세그먼트가 한 묶음이 되어 기준 오프셋 0 의 세그먼트가 된다. 최대 시각은 y 를 쓴 시각 50 이다. ① 깨끗한 세그먼트를 다시 압축하지 않는다고 보면 `x 11111` 이 남는다. 키 맵을 더러운 세그먼트로 만드는 [4.10]과 깨끗한 세그먼트도 대상으로 삼는 [4.11]을 함께 적용해야 지울 수 있다. ③ 삭제 시각을 툼스톤을 쓴 시각 0 이나 툼스톤이 활성 세그먼트에 있던 시각 50 부터 재면 시각 155 에 툼스톤이 지워진다. [4.11]에 따라 삭제 시각은 닫힌 세그먼트에 있는 툼스톤을 처음 남길 때 정한다. ④ 지금 시각이 삭제 시각보다 커야 지운다고 보면 시각 160 에 툼스톤이 남는다. ⑤ 묶음의 기준 오프셋을 남은 첫 레코드의 오프셋으로 보면 이렇게 답하게 된다. [4.12]에 따라 기준 오프셋은 묶음의 첫 세그먼트의 것이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE c 1 cleanup.policy=compact segment.bytes=3 min.cleanable.dirty.ratio=0.05 retention.bytes=0",
+        "PRODUCE c - abcd"
+      ],
+      "answers": [
+        "ERR KEY_REQUIRED"
+      ],
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.7"
+      ],
+      "quote": "이 확인은 `ERR UNKNOWN_TOPIC` 확인 뒤, `ERR RECORD_TOO_LARGE` 확인 앞에 한다.",
+      "explanation": "정답은 `ERR KEY_REQUIRED` 다. [4.2]에 따라 `0.05` 는 형식에 맞는 값이다. [4.3]에 따라 압축 정책 토픽에 준 retention.bytes 는 쓰이지 않을 뿐 형식에 맞으므로 CREATE 는 아무것도 출력하지 않는다. PRODUCE 의 레코드는 4바이트로 segment.bytes 3 보다 크지만 [4.7]에 따라 키가 없는지를 크기보다 먼저 확인한다. 크기를 먼저 확인하면 `ERR RECORD_TOO_LARGE` 를 답하게 된다. `0.05` 나 압축 정책 토픽의 보관 설정을 형식 오류로 보면 토픽이 만들어지지 않아 `ERR UNKNOWN_TOPIC` 을 떠올리게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE d 2 segment.bytes=7 min.cleanable.dirty.ratio=1",
+        "TOMBSTONE d order-7"
+      ],
+      "answers": [
+        "partition=1 offset=0"
+      ],
+      "refs": [
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "quote": "삭제 정책 토픽에도 툼스톤을 쓸 수 있고 그 툼스톤은 보통 레코드처럼 보관 규칙을 따른다.",
+      "explanation": "정답은 `partition=1 offset=0` 이다. d 는 cleanup.policy 를 주지 않아 [4.3]에 따라 삭제 정책 토픽이고 `min.cleanable.dirty.ratio=1` 은 쓰이지 않을 뿐 형식에 맞는 설정이다. [4.5]에 따라 삭제 정책 토픽에도 툼스톤을 쓸 수 있다. [4.4]에 따라 툼스톤의 크기는 키 `order-7` 의 7바이트이고 segment.bytes 7 보다 크지 않다. 파티션은 키로 고르므로 1단계 4.10 의 해시값 629130235 를 2 로 나눈 나머지 1 이다. 툼스톤의 크기에 값 자리의 `(null)` 을 더하거나 크기가 segment.bytes 와 같을 때도 너무 크다고 보면 `ERR RECORD_TOO_LARGE` 를, 툼스톤을 압축 정책 토픽에만 쓸 수 있다고 보면 `ERR NOT_COMPACTED` 를 답하게 된다."
+    }
+  ]
+}

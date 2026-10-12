@@ -1,0 +1,157 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "PRODUCT P-1 15000",
+        "OPEN S1 P-1",
+        "WAIT 10",
+        "PRICE P-1 13500",
+        "WAIT 10",
+        "PRICE P-1 12900",
+        "PRICE P-1 13500",
+        "WAIT 40",
+        "PRICE P-1 12900",
+        "PRICE P-1 13500",
+        "WAIT 70",
+        "PRICE P-1 11900",
+        "WAIT 30",
+        "SCREEN S1"
+      ],
+      "answers": [
+        "S1 15000@0 13500@50 11900@130"
+      ],
+      "refs": [
+        "ProductScreen.kt:14-21",
+        "PriceStore.kt:9",
+        "PriceStore.kt:34-43",
+        "Main.kt:26-31"
+      ],
+      "quote": "delay(SCREEN_REFRESH_MILLIS)",
+      "explanation": "OPEN S1 P-1 은 Main.kt:26-31 에서 ProductScreen.open 을 호출한다. open 은 수집 코루틴을 UNDISPATCHED 로 시작하므로(ProductScreen.kt:15) 수집은 OPEN 을 처리하는 자리에서 바로 시작된다. StateFlow 를 수집하기 시작한 수집자는 현재 값부터 받는다. 그래서 S1 은 0ms 에 15000 을 기록하고 50ms 를 기다린다(ProductScreen.kt:16-19). 기다리는 동안 10ms 에 13500, 20ms 에 12900 과 13500 이 들어온다. StateFlow 는 들어온 값을 쌓아 두지 않고 마지막 값 하나만 들고 있다. 50ms 에 수집을 이어 가면 S1 은 그때의 값 13500 을 읽는다. 마지막으로 받은 15000 과 다르므로 13500 을 받아 50ms 에 기록하고 100ms 까지 기다린다. 60ms 에 12900, 13500 이 차례로 들어오지만 100ms 에 S1 이 읽는 값은 13500 이다. StateFlow 는 새 값을 그 수집자가 마지막으로 받은 값과 equals 로 비교해 같으면 넘기지 않는다. PriceTag 는 data class 라(PriceStore.kt:9) 상품ID, 정가, 판매가가 같으면 equals 가 참이다. 그래서 100ms 에는 기록이 없고 S1 은 새 값을 기다린다. 130ms 에 11900 이 들어오면 기다리던 S1 이 바로 받아 130ms 에 기록한다. 50ms 는 고정 주기가 아니라 한 번 보낸 뒤에 기다리는 시간이다. 160ms 의 SCREEN 은 S1 15000@0 13500@50 11900@130 을 출력한다. 화면이 50ms 마다 고정 주기로 값을 확인한다고 보면 11900 을 150ms 에 보내 S1 15000@0 13500@50 11900@150 이 된다. 값이 들어온 적만 있으면 같은 값도 다시 보낸다고 보면 100ms 에 13500 을 한 번 더 보내고 11900 은 150ms 에 보내 S1 15000@0 13500@50 13500@100 11900@150 이 된다. StateFlow 가 들어온 값을 모두 차례로 넘겨준다고 보면 S1 15000@0 13500@50 12900@100 13500@150 이 된다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "PRODUCT P-1 15000",
+        "PRODUCT P-2 30000",
+        "PRODUCT P-3 9000",
+        "ALERT push 30",
+        "PRICE P-1 13500",
+        "WAIT 10",
+        "PRICE P-2 27000",
+        "PRICE P-1 14000",
+        "PRICE P-3 8000",
+        "PRICE P-2 29000",
+        "PRICE P-1 12900",
+        "WAIT 200",
+        "SENT push"
+      ],
+      "answers": [
+        "push P-1:13500@30 P-3:8000@60 P-1:12900@90"
+      ],
+      "refs": [
+        "PriceStore.kt:18-22",
+        "PriceAlertHandler.kt:21-29",
+        "PriceAlertHandler.kt:13-16",
+        "PriceStore.kt:34-43"
+      ],
+      "quote": "onBufferOverflow = BufferOverflow.DROP_OLDEST,",
+      "explanation": "ALERT push 30 은 push 처리기를 UNDISPATCHED 로 시작해(PriceAlertHandler.kt:23) 그 자리에서 store.changes 를 구독한다. 아직 변경이 없어 처리기는 기다린다. 0ms 의 PRICE P-1 13500 은 인하 변경 e1 을 내보낸다(PriceStore.kt:38-41). WAIT 10 에서 명령 처리가 멈추면 처리기가 0ms 에 e1 을 받아 30ms 까지 발송한다(PriceAlertHandler.kt:13-16, 26). 10ms 에 변경 다섯 개가 한꺼번에 들어온다. e2(P-2 30000→27000 인하), e3(P-1 13500→14000 인상), e4(P-3 9000→8000 인하), e5(P-2 27000→29000 인상), e6(P-1 14000→12900 인하)이다. 처리기는 발송 중이라 하나도 받지 못한다. changes 의 버퍼는 replay 1 과 extraBufferCapacity 2 를 더한 3칸이다(PriceStore.kt:18-22). 버퍼는 처리기가 아직 받지 않은 값을 3개까지 들고 있다. 넘치면 DROP_OLDEST 에 따라 가장 오래된 값을 버린다. e2, e3, e4 로 3칸이 찬다. e5 가 들어오면 e2 를 버리고 e6 이 들어오면 e3 을 버린다. 버퍼에는 e4, e5, e6 이 남는다. filter 는 처리기가 받은 값에 적용되므로(PriceAlertHandler.kt:24-26) 인상 변경도 버퍼의 칸을 차지한다. 30ms 에 e1 발송을 마친 처리기는 e4 를 받아 60ms 에 보낸다. 인상인 e5 는 거르고 e6 을 받아 90ms 에 보낸다. 출력은 push P-1:13500@30 P-3:8000@60 P-1:12900@90 이다. 버퍼를 extraBufferCapacity 의 2칸으로만 보면 e5, e6 만 남아 push P-1:13500@30 P-1:12900@60 이 된다. 인하만 버퍼에 들어간다고 보면 e2, e4, e6 이 모두 남아 push P-1:13500@30 P-2:27000@60 P-3:8000@90 P-1:12900@120 이 된다. 넘칠 때 새 값을 버린다고 보면 e2, e3, e4 가 남아 push P-1:13500@30 P-2:27000@60 P-3:8000@90 이 된다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "리뷰에서 공급사 동기화가 가격표 한 줄을 반영할 때마다 PriceTag 를 새로 만들지 말자는 의견이 나왔다. 개발자는 PriceTag 의 salePrice 를 var 로 바꾸고 PriceStore 에 applySupplierPrice 를 더한 뒤 SupplierSync.kt:73 이 changePrice 대신 이 함수를 호출하게 했다. PRICE 명령은 원래 changePrice 를 그대로 쓴다. 바꾼 프로그램에 아래 입력을 주면 SCREEN S1 이 출력하는 줄은?",
+      "context": "바꾼 부분이다. 여기에 보이지 않는 줄은 원래 코드와 같다.\n\nPriceStore.kt\ndata class PriceTag(val productId: String, val listPrice: Long, var salePrice: Long)\n\n    fun applySupplierPrice(productId: String, salePrice: Long): Boolean {\n        val state = stateOf(productId)\n        val current = state.value\n        require(salePrice in 1..current.listPrice) { \"sale price $salePrice out of range for $productId\" }\n        val before = current.salePrice\n        if (before == salePrice) return false\n        current.salePrice = salePrice\n        state.value = current\n        changeEvents.tryEmit(PriceChange(productId, before = before, after = salePrice))\n        return true\n    }\n\nSupplierSync.kt:73\n                if (store.applySupplierPrice(price.productId, price.salePrice)) changed += 1 else unchanged += 1\n\n입력:\nPRODUCT P-1 15000\nSUPPLY S-1 P-1:13900\nOPEN S1 P-1\nWAIT 60\nSYNC S-1\nPRICE P-1 13900\nWAIT 10\nPRICE P-1 12900\nWAIT 30\nPRICE P-1 13900\nWAIT 100\nSCREEN S1",
+      "choices": [
+        "S1 15000@0 13900@100 12900@150 13900@200",
+        "S1 15000@0 13900@115",
+        "S1 15000@0 12900@125 13900@175",
+        "S1 15000@0 13900@115 12900@165 13900@215",
+        "S1 15000@0 12900@150 13900@200"
+      ],
+      "answer": 3,
+      "refs": [
+        "PriceStore.kt:34-43",
+        "ProductScreen.kt:14-21",
+        "SupplierSync.kt:72-75"
+      ],
+      "quote": "if (updated == current) return false",
+      "explanation": "정답은 ③이다. 바꾼 applySupplierPrice 는 StateFlow 가 들고 있는 가격표 객체의 판매가를 그 자리에서 고친 뒤 같은 객체를 다시 value 에 대입한다. MutableStateFlow 는 새 값을 들고 있던 값과 equals 로 비교해 같으면 수집자에게 알리지 않는다. 같은 객체는 자기 자신과 같으므로 동기화가 바꾼 판매가는 화면에 알려지지 않는다. 그래도 StateFlow 가 들고 있는 객체의 판매가는 이미 바뀌어 있다. 0ms 의 OPEN S1 P-1 에서 S1 은 15000 을 기록하고 50ms 까지 기다린다(ProductScreen.kt:14-19). 60ms 에 시작한 SYNC S-1 은 100ms 에 P-1:13900 을 받아 그 객체의 판매가를 13900 으로 고치고 115ms 에 끝난다(SupplierSync.kt:72-75). S1 은 이 변경을 받지 못한다. 115ms 의 PRICE P-1 13900 에서 changePrice 가 읽은 가격표는 이미 13900 이다. copy 로 만든 값이 그 가격표와 같으므로 false 를 돌려주고 아무것도 알리지 않는다(PriceStore.kt:38-39). 125ms 의 PRICE P-1 12900 은 copy 로 만든 새 가격표를 대입한다. S1 은 50ms 부터 새 값을 기다리고 있었으므로 125ms 에 12900 을 기록하고 175ms 까지 기다린다. 155ms 의 PRICE P-1 13900 도 새 가격표를 대입한다. S1 은 175ms 에 그 값을 읽고 마지막으로 보낸 12900 과 다르므로 13900 을 기록한다. 50ms 는 고정 주기가 아니라 한 번 보낸 뒤 기다리는 시간이다. 255ms 의 SCREEN 은 S1 15000@0 12900@125 13900@175 를 출력한다. ①은 같은 객체를 다시 대입해도 화면에 알린다고 본 답이다. 원래 코드로 같은 입력을 실행하면 이 줄이 나온다. ②는 판매가를 그 자리에서 고쳐도 StateFlow 의 판매가는 15000 그대로라고 본 답이다. 그러면 115ms 의 PRICE P-1 13900 이 변경이 되어 S1 이 13900 을 기록하고 165ms 까지 기다린다. 그사이 12900 과 13900 이 차례로 들어오지만 165ms 에 읽는 값은 13900 이고 마지막으로 보낸 값과 같아 기록하지 않는다. ④는 ②의 오해에 더해 StateFlow 가 들어온 값을 하나도 빼지 않고 차례로 넘긴다고 본 답이다. ⑤는 화면이 50ms 마다 고정 주기로 값을 확인한다고 본 답이다. 100ms 에 확인할 때는 같은 객체라 기록하지 않고 12900 과 13900 을 150ms, 200ms 에 보낸다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "PRODUCT P-1 15000",
+        "PRODUCT P-2 30000",
+        "PRODUCT P-3 9000",
+        "SUPPLY S-1 P-1:13900 P-2:27500 P-3:8900",
+        "DROP S-1 2",
+        "SYNC S-1"
+      ],
+      "answers": [
+        "S-1 requests=2 changed=3 unchanged=2 255ms"
+      ],
+      "refs": [
+        "SupplierSync.kt:60-84",
+        "SupplierSync.kt:41-51",
+        "PriceStore.kt:34-43",
+        "Main.kt:11-16"
+      ],
+      "quote": ".retry(1) { it is SupplierDisconnectedException }",
+      "explanation": "SYNC S-1 은 SupplierSync.sync 를 호출한다(Main.kt:40). sync 가 만드는 가격표 흐름(SupplierSync.kt:66-75)은 collect 를 호출해야 실행되는 콜드 Flow 다. SupplierSync.kt:70 의 flowOn(ioDispatcher)는 그 위의 priceList, onStart, map, retry 를 Main.kt:14 에서 만든 supplier-io 디스패처에서 실행한다. 이 디스패처는 runTest 가 쓰는 디스패처와 다른 StandardTestDispatcher 객체다. flowOn 은 디스패처 객체가 다르면 디스패처가 바뀐 것으로 보고 위쪽을 별도 코루틴에서 실행하며 두 코루틴 사이에 버퍼를 둔다. 두 디스패처가 같은 testScheduler 의 가상 시각을 쓰는지는 상관없다. 그래서 공급사에서 다음 줄을 받는 일과 저장소에 반영하고 기다리는 일(SupplierSync.kt:72-75)이 함께 진행된다. 첫 요청에서 onStart 가 requests 를 1 로 만든다. priceList 의 flow 블록(SupplierSync.kt:43-50)은 DROP 이 pendingDisconnects 에 남긴 값 2 를 꺼내면서 지운다(SupplierSync.kt:44). 40ms 에 P-1:13900, 80ms 에 P-2:27500 이 도착한다. 반영 쪽은 40ms 에 P-1 을 바꾸고 55ms 까지 기다린다. 80ms 에는 P-2 를 바꾸고 95ms 까지 기다린다. 세 번째 줄을 받던 120ms 에 연결이 끊긴다(SupplierSync.kt:46-47). SupplierSync.kt:69 의 retry(1) 은 위쪽 흐름을 처음부터 다시 수집한다. 다시 수집할 때 onStart 가 한 번 더 실행되어 requests 가 2 가 되고 flow 블록도 처음부터 실행된다. 끊김 설정은 첫 요청이 꺼내면서 지웠으므로 두 번째 요청은 끊기지 않고 가격표를 첫 줄부터 다시 보낸다. 160ms 에 P-1:13900, 200ms 에 P-2:27500 이 다시 오지만 이미 같은 판매가라 changePrice 가 false 를 돌려준다(PriceStore.kt:38-39). 그대로인 수가 2 가 되고 반영 쪽은 각각 175ms, 215ms 까지 기다린다. 240ms 에 P-3:8900 을 바꾸고 255ms 까지 기다린 뒤 위쪽이 끝났으므로 동기화를 마친다. 출력은 S-1 requests=2 changed=3 unchanged=2 255ms 다. retry 가 끊긴 줄부터 이어 받는다고 보면 S-1 requests=2 changed=3 unchanged=0 175ms 가 된다. flowOn 이 디스패처만 바꾸고 받기와 반영은 번갈아 진행된다고 보면 S-1 requests=2 changed=3 unchanged=2 315ms 가 된다. ioDispatcher 로 runTest 자신의 디스패처를 넘기면 flowOn 이 버퍼를 두지 않아 실제로 이 값이 나온다. onStart 가 동기화마다 한 번만 실행된다고 보면 requests=1 이 된다. 끊김 설정이 두 번째 요청에도 남는다고 보면 두 번째 요청도 세 번째 줄에서 끊기고 retry 를 다 써서 S-1 requests=2 changed=2 unchanged=2 240ms stopped: S-1 disconnected 가 된다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "운영자가 kakao 채널을 활성화하자마자 그 전에 내린 P-1 의 가격 인하 알림이 kakao 로 나갔다고 문의했다. 활성화하기 전에 나온 변경은 kakao 로 보내지 않고 push 의 알림은 그대로 두려 한다. 아래 고침을 하나씩 따로 적용할 때 재현 입력에서 SENT kakao 는 kakao P-2:26000@150 을 출력하고 SENT push 는 원래 코드와 같은 줄을 출력하게 만드는 고침은?",
+      "context": "재현 입력:\nPRODUCT P-1 15000\nPRODUCT P-2 30000\nPRODUCT P-3 9000\nALERT push 30\nPRICE P-1 13500\nWAIT 10\nPRICE P-2 27000\nPRICE P-3 8000\nPRICE P-1 12900\nWAIT 100\nALERT kakao 10\nWAIT 30\nPRICE P-2 26000\nWAIT 100\nSENT push\nSENT kakao\n\n원래 코드로 실행한 SENT kakao 의 출력:\nkakao P-1:12900@120 P-2:26000@150",
+      "choices": [
+        "PriceStore.kt:19 의 replay = 1 을 replay = 0 으로 바꾼다.",
+        "PriceStore.kt:19-20 을 replay = 0, extraBufferCapacity = 3 으로 바꾼다.",
+        "PriceStore.kt:20 의 extraBufferCapacity = 2 를 extraBufferCapacity = 0 으로 바꾼다.",
+        "PriceAlertHandler.kt:24 의 changes 를 changes.drop(1) 로 바꾼다.",
+        "PriceStore.kt:19-20 을 replay = 0, extraBufferCapacity = 3 으로 바꾸고 PriceAlertHandler.kt:23 의 scope.launch(start = CoroutineStart.UNDISPATCHED) 를 scope.launch 로 바꾼다."
+      ],
+      "answer": 2,
+      "refs": [
+        "PriceStore.kt:18-22",
+        "PriceAlertHandler.kt:21-28",
+        "Main.kt:32-37",
+        "Main.kt:41"
+      ],
+      "quote": "replay = 1,",
+      "explanation": "정답은 ②다. 원래 코드부터 따라간다. ALERT push 30 은 push 처리기를 UNDISPATCHED 로 시작해(PriceAlertHandler.kt:23) 변경이 하나도 나오기 전에 changes 를 구독한다. 0ms 의 인하 e1(P-1 13500)을 받아 30ms 까지 보낸다. 10ms 에 인하 e2(P-2 27000), e3(P-3 8000), e4(P-1 12900)가 들어온다. push 가 아직 받지 않은 값은 셋이고 버퍼는 replay 1칸과 extraBufferCapacity 2칸을 더한 3칸이라(PriceStore.kt:18-22) 버려지는 값이 없다. push 는 e2, e3, e4 를 받아 60ms, 90ms, 120ms 에 보낸다. 110ms 에 ALERT kakao 10 이 kakao 처리기를 시작하면(Main.kt:32-37) 새 구독자는 replay 캐시에 남은 마지막 변경 e4 부터 받는다. push 가 90ms 에 이미 받아 간 값이어도 캐시에서 빠지지 않는다. 그래서 kakao 는 120ms 에 P-1:12900 을 보낸다. 140ms 의 인하 e5(P-2 26000)는 kakao 가 150ms 에 보내고 push 가 170ms 에 보낸다. 원래 push 의 줄은 push P-1:13500@30 P-2:27000@60 P-3:8000@90 P-1:12900@120 P-2:26000@170 이다. ②는 replay 를 0 으로 바꿔 kakao 가 구독 전 변경을 받지 않게 하고 extraBufferCapacity 를 3 으로 늘려 버퍼를 3칸으로 유지한다. 실행하면 push 의 줄은 원래와 같고 kakao 의 줄은 kakao P-2:26000@150 이다. ①은 replay 만 0 으로 바꾼다. kakao 의 줄은 kakao P-2:26000@150 이 되지만 replay 칸도 느린 구독자를 위한 버퍼였으므로 버퍼가 2칸으로 줄어든다. 10ms 에 세 번째 변경 e4 가 들어올 때 DROP_OLDEST 가 e2 를 버려 push 의 줄은 push P-1:13500@30 P-3:8000@60 P-1:12900@90 P-2:26000@170 이 된다. ③은 extraBufferCapacity 만 0 으로 바꾼다. 새 구독자에게 다시 보내는 값의 개수는 replay 가 정하므로 kakao 의 줄은 원래와 같다. 버퍼는 1칸이 되어 push 의 줄도 push P-1:13500@30 P-1:12900@60 P-2:26000@170 으로 바뀐다. ④는 처리기마다 처음 받은 값을 버린다. kakao 는 replay 캐시에서 받은 e4 를 버리므로 kakao 의 줄은 kakao P-2:26000@150 이 된다. push 는 변경이 나오기 전에 구독해 캐시에서 받은 값이 없으므로 e1 을 버린다. push 의 줄은 push P-2:27000@40 P-3:8000@70 P-1:12900@100 P-2:26000@170 이 된다. ⑤는 ②에 더해 처리기를 UNDISPATCHED 없이 시작한다. 그러면 push 처리기는 ALERT push 30 을 처리할 때가 아니라 명령을 처리하던 코루틴이 WAIT 10 의 delay 에서 멈출 때(Main.kt:41) 구독을 시작한다. 그 전에 나온 e1 은 구독자가 없고 replay 도 0 이라 사라진다. push 의 줄은 ④와 같다. 원래 설정에서 UNDISPATCHED 만 지우면 push 는 replay 캐시에서 e1 을 받고 kakao 도 e4 를 받아 두 줄 모두 원래와 같다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "아래 두 입력을 따로 실행했을 때의 출력은?",
+      "context": "(가)\nPRODUCT P-1 15000\nPRODUCT P-2 30000\nPRODUCT P-3 9000\nSUPPLY S-2 P-1:13900 P-2:27,500 P-3:8900\nSYNC S-2\n\n(나)\nPRODUCT P-1 15000\nPRODUCT P-2 30000\nPRODUCT P-3 9000\nSUPPLY S-3 P-1:13900 P-2:31000 P-3:8900\nSYNC S-3",
+      "choices": [
+        "(가) S-2 requests=1 changed=1 unchanged=0 95ms stopped: malformed price line P-2:27,500 / (나) ERROR sale price 31000 out of range for P-2",
+        "(가) S-2 requests=1 changed=1 unchanged=0 80ms stopped: malformed price line P-2:27,500 / (나) S-3 requests=1 changed=1 unchanged=0 80ms stopped: sale price 31000 out of range for P-2",
+        "(가) S-2 requests=1 changed=2 unchanged=0 135ms stopped: malformed price line P-2:27,500 / (나) ERROR sale price 31000 out of range for P-2",
+        "(가) S-2 requests=1 changed=1 unchanged=0 95ms stopped: malformed price line P-2:27,500 / (나) S-3 requests=1 changed=1 unchanged=0 95ms stopped: sale price 31000 out of range for P-2",
+        "(가) S-2 requests=1 changed=1 unchanged=0 80ms stopped: malformed price line P-2:27,500 / (나) ERROR sale price 31000 out of range for P-2"
+      ],
+      "answer": 5,
+      "refs": [
+        "SupplierSync.kt:66-75",
+        "SupplierSync.kt:87-92",
+        "Main.kt:11-16",
+        "PriceStore.kt:37",
+        "Main.kt:52-53"
+      ],
+      "quote": ".catch { failure -> stopReason = failure.message }",
+      "explanation": "정답은 ⑤다. (가)에서 동기화는 P-1:13900 을 40ms 에 받아 바로 반영하고 55ms 까지 기다린다. Main.kt:14 의 supplier-io 는 runTest 가 쓰는 디스패처와 다른 디스패처 객체라 flowOn 이 위쪽을 별도 코루틴에서 실행한다. 그래서 받기와 반영이 함께 진행되고 다음 줄 P-2:27,500 은 80ms 에 도착한다. 위쪽의 map 에서 parseSupplierPrice 가 이 줄의 판매가를 숫자로 읽지 못해 MalformedPriceLineException 을 던진다(SupplierSync.kt:68, 87-92). retry 는 SupplierDisconnectedException 만 다시 시도하므로(SupplierSync.kt:69) 예외는 flowOn 을 지나 SupplierSync.kt:71 의 catch 에 닿는다. catch 는 예외를 받으면 사유를 남기고 흐름을 끝낸다. 실패한 줄을 건너뛰고 다음 줄을 이어 받지는 않는다. 그래서 P-3 은 반영되지 않고 80ms 에 보고가 나온다. (나)에서 P-2:31000 은 형식이 맞아 위쪽을 그대로 지나 collect 블록(SupplierSync.kt:72-75)에 닿는다. changePrice 의 require 가 정가 30000 을 넘는 판매가를 거절해 IllegalArgumentException 을 던진다(PriceStore.kt:37). catch 는 자기보다 위쪽에서 난 예외만 처리하고 아래쪽 collect 블록에서 난 예외는 그대로 내보낸다. 예외는 sync 밖으로 나가고 Main.kt:52-53 이 ERROR 줄을 출력한다. 보고는 출력되지 않는다. 이미 반영한 P-1 의 판매가 13900 은 그대로 남는다. ①은 flowOn 이 있어도 받기와 반영이 번갈아 진행된다고 본 답이다. 그러면 P-2 를 받는 시각이 반영 대기가 끝난 55ms 에서 40ms 뒤인 95ms 가 된다. 디스패처 객체가 같으면 flowOn 은 채널을 두지 않고 위쪽과 아래쪽을 차례로 실행한다. ioDispatcher 로 runTest 자신의 디스패처를 넘기면 실제로 이 값이 나온다. 두 디스패처가 같은 testScheduler 의 가상 시각을 쓰는지는 상관없다. ②는 catch 가 collect 블록의 예외까지 처리한다고 본 답이다. ④는 ①과 ②의 오해를 함께 한 답이다. ③은 catch 가 형식이 틀린 줄만 건너뛰고 나머지 줄을 계속 받는다고 본 답이다. 그러면 P-3 을 120ms 에 받아 반영하고 135ms 에 끝난다."
+    }
+  ]
+}

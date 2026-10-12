@@ -1,0 +1,131 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE b 3\nCREATE a 2\nCREATE c 1\nGROUP g roundrobin c,b,a\nGROUP h range b,c,a\nJOIN g w9\nJOIN g w10\nJOIN g w2\nJOIN h x3\nJOIN h x20\nPARTITIONS a 4\nASSIGNMENT g\nASSIGNMENT h",
+      "choices": [
+        "`ASSIGNMENT g` 의 첫 줄은 `generation=3` 이다.",
+        "`ASSIGNMENT g` 에서 w10 의 줄은 `w10 alive a-2,b-1` 이다.",
+        "`ASSIGNMENT g` 에서 w9 의 줄은 `w9 alive a-1,b-1` 이다.",
+        "`ASSIGNMENT g` 에서 w2 의 줄은 `w2 alive a-1,b-0,c-0` 이다.",
+        "`ASSIGNMENT h` 에서 x3 의 줄은 `x3 alive a-0,a-1,b-0,b-1,c-0` 이다."
+      ],
+      "answer": 4,
+      "refs": [
+        "3.4",
+        "4.3",
+        "4.8",
+        "4.9",
+        "4.23"
+      ],
+      "quote": "순환 배정(`roundrobin`)은 그룹의 파티션을 4.3 의 순서로 늘어놓고 0 부터 센 k 번째 파티션을 멤버 목록에서 k 를 C 로 나눈 나머지 번째 멤버에게 준다.",
+      "explanation": "정답은 ④다. [4.23]에 따라 PARTITIONS 는 a 를 구독하고 멤버가 있는 g 와 h 를 모두 재조정하므로 g 의 세대는 JOIN 세 번과 합쳐 4 다. [3.4]의 코드 포인트 순서로 g 의 멤버 목록은 w10, w2, w9 다. [4.3]에 따라 그룹의 파티션은 토픽 이름 순서인 a-0, a-1, a-2, a-3, b-0, b-1, b-2, c-0 이다. [4.9]에 따라 이 파티션을 세 멤버에게 차례로 주면 w10 은 a-0, a-3, b-2 를, w2 는 a-1, b-0, c-0 을, w9 는 a-2, b-1 을 받는다. ① PARTITIONS 가 재조정을 일으키지 않는다고 보면 이렇게 답하게 된다. ② 이름을 숫자 크기로 정렬해 w2, w9, w10 순서로 늘어놓으면 w10 이 a-2, b-1 을 받는다. ③ 토픽 목록에 적은 c, b, a 순서로 파티션을 늘어놓으면 w9 가 b-1, a-1 을 받는다. [4.3]의 순서와 [4.9]를 함께 적용해야 지울 수 있다. ⑤ h 의 멤버 목록도 코드 포인트 순서라서 x20 이 x3 보다 앞선다. [4.8]에 따라 앞 멤버 x20 이 a-0, a-1, b-0, b-1, c-0 을 받고 x3 은 a-2, a-3, b-2 를 받는다. 멤버를 x3, x20 순서로 늘어놓으면 이렇게 답하게 된다. [3.4]와 [4.8]을 함께 적용해야 지울 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE t 2\nPRODUCE t k2 old\nGROUP g range t\nJOIN g c1\nPOLL c1 10\nPRODUCE t k2 m1\nPRODUCE t k1 m2\nPRODUCE t k3 m3\nPOLL c1 2\nCOMMIT c1\nPOLL c1 2\nJOIN g c2\nCOMMIT c1\nPOLL c2 5\nPOLL c1 5\nCOMMITTED g\n\n키가 k2 인 레코드는 파티션 0 에, k1 이나 k3 인 레코드는 파티션 1 에 덧붙는다.",
+      "choices": [
+        "`POLL c1 10` 은 `t 0 0 k2 old` 를 출력한다.",
+        "첫 `POLL c1 2` 는 `t 0 1 k2 m1` 과 `t 1 0 k1 m2` 를 출력한다.",
+        "둘째 `COMMIT c1` 은 `ERR UNKNOWN_MEMBER` 를 출력한다.",
+        "`POLL c2 5` 는 `(empty)` 를 출력한다.",
+        "`COMMITTED g` 의 둘째 줄은 `t 1 committed=2 end=2` 다."
+      ],
+      "answer": 2,
+      "refs": [
+        "4.14",
+        "4.15",
+        "4.16",
+        "4.18"
+      ],
+      "quote": "위치가 없으면 그룹의 커밋 오프셋을 위치로 삼고 커밋 오프셋이 없으면 `auto.offset.reset` 으로 정한다.",
+      "explanation": "정답은 ②다. g 는 auto.offset.reset 을 주지 않아 `latest` 를 쓴다. `POLL c1 10` 은 [4.15]에 따라 커밋 오프셋이 없는 두 파티션의 위치를 로그 끝 오프셋인 t-0 의 1 과 t-1 의 0 으로 정하고 `(empty)` 를 출력한다. 첫 `POLL c1 2` 는 [4.16]에 따라 t-0 에서 m1 을 받은 뒤 t-1 에서 m2 를 받아 최대 개수 2 에 이른다. 첫 COMMIT 은 t-0 에 2, t-1 에 1 을 커밋한다. 둘째 `POLL c1 2` 는 m3 을 받아 t-1 의 위치를 2 로 만든다. c2 가 들어오면 세대가 2 가 되고 범위 배정에 따라 c1 은 t-0, c2 는 t-1 을 맡는다. ① 기본값을 `earliest` 로 보면 이렇게 답하게 된다. ③ c1 은 아직 그룹의 실행 중인 멤버이고 아는 세대 1 이 그룹의 세대 2 와 다르므로 [4.18]에 따라 `ERR ILLEGAL_GENERATION` 이다. ④ c2 는 위치가 없으므로 [4.15]에 따라 t-1 의 커밋 오프셋 1 부터 받아 `t 1 1 k3 m3` 을 출력한다. 첫 COMMIT 이 커밋한 값과 [4.15]를 함께 적용해야 지울 수 있다. ⑤ 둘째 COMMIT 은 거절되어 상태를 바꾸지 않으므로 t-1 의 커밋 오프셋은 1 로 남는다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 입력했을 때 TICK 이 출력하는 줄을 입력 순서대로 모두 나열한 것은?",
+      "context": "<보기>\nCREATE t 2\nGROUP g range t max.poll.interval.ms=1000 session.timeout.ms=300\nJOIN g a\nTICK 100\nJOIN g b\nCRASH a\nTICK 250\nPOLL b 1\nTICK 1000",
+      "choices": [
+        "`400 g a session`, `1350 g b poll`",
+        "`300 g a session`, `1350 g b poll`",
+        "`1000 g a session`, `1350 g b poll`",
+        "`400 g a session`, `1100 g b poll`",
+        "`400 g a session`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.14",
+        "4.19",
+        "4.20"
+      ],
+      "quote": "멈춘 멤버의 마감 시각은 CRASH 한 시각에 `session.timeout.ms` 를 더한 시각이다.",
+      "explanation": "정답은 ①이다. [4.19]에 따라 a 의 마감 시각은 JOIN 한 시각 0 에 1000 을 더한 1000 이었다가 시각 100 의 CRASH 로 100 + 300 = 400 이 된다. b 의 마감 시각은 JOIN 한 시각 100 에 1000 을 더한 1100 이다. [4.14]에 따라 시각 350 의 POLL 은 가입 상태가 그대로여도 마감 시각을 350 + 1000 = 1350 으로 새로 정한다. 둘째 TICK 은 시각을 100 에서 350 으로 움직이므로 [4.20]에 따라 어떤 멤버도 빼지 않는다. 셋째 TICK 은 시각을 350 에서 1350 으로 움직이며 마감 시각 순서로 a 와 b 를 뺀다. a 를 뺄 때의 재조정은 b 의 마감 시각을 바꾸지 않는다. ② 멈춘 멤버의 마감 시각을 JOIN 한 시각부터 재면 300 이 되어 둘째 TICK 에서 a 가 빠진다. ③ CRASH 가 마감 시각을 바꾸지 않는다고 보면 a 가 시각 1000 에 빠진다. [4.19]의 둘째 문장과 [4.20]을 함께 적용해야 지울 수 있다. ④ 가입 상태가 그대로인 POLL 은 마감 시각을 새로 정하지 않는다고 보면 b 가 시각 1100 에 빠진다. [4.14]의 마지막 문장과 [4.19]를 함께 적용해야 지울 수 있다. ⑤ a 를 뺀 재조정이 b 의 마감 시각을 늦춘다고 보거나 마감 시각이 t′ 과 같은 멤버를 빼지 않으면 이렇게 답하게 된다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE t 1",
+        "GROUP g range t max.poll.interval.ms=500 session.timeout.ms=800",
+        "JOIN g a",
+        "TICK 300",
+        "JOIN g b",
+        "CRASH a",
+        "TICK 400",
+        "PARTITIONS t 2",
+        "TICK 200"
+      ],
+      "answers": [
+        "800 g b poll"
+      ],
+      "refs": [
+        "4.19",
+        "4.20",
+        "4.23"
+      ],
+      "quote": "재조정은 마감 시각을 바꾸지 않는다.",
+      "explanation": "정답은 `800 g b poll` 이다. [4.19]에 따라 a 의 마감 시각은 JOIN 으로 500 이었다가 시각 300 의 CRASH 로 300 + 800 = 1100 이 된다. b 의 마감 시각은 300 + 500 = 800 이다. 시각 700 의 PARTITIONS 는 [4.23]에 따라 g 를 재조정하지만 재조정은 마감 시각을 바꾸지 않는다. 마지막 TICK 은 시각을 700 에서 900 으로 움직이므로 [4.20]에 따라 b 만 빠진 컨슈머가 되고 한 줄이 나온다. CRASH 뒤에도 a 의 마감 시각을 500 으로 보면 `500 g a session` 이 먼저 나온다고 답하게 된다. PARTITIONS 의 재조정이 마감 시각을 다시 정한다고 보면 아무것도 출력하지 않는다고 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE a 2",
+        "CREATE b 1",
+        "GROUP g range a,b",
+        "GROUP h roundrobin b",
+        "JOIN g c1",
+        "JOIN h c2",
+        "CRASH c2",
+        "PARTITIONS b 2",
+        "JOIN g c3",
+        "LEAVE c1",
+        "LEAVE c3",
+        "PARTITIONS a 3",
+        "JOIN g c1",
+        "COMMIT c1",
+        "LEAVE c1",
+        "ASSIGNMENT g"
+      ],
+      "answers": [
+        "generation=7"
+      ],
+      "refs": [
+        "4.5",
+        "4.7",
+        "4.11",
+        "4.21",
+        "4.23"
+      ],
+      "quote": "PARTITIONS 가 성공하면 그 토픽을 구독하고 멤버가 하나 이상인 그룹을 모두 재조정한다.",
+      "explanation": "정답은 `generation=7` 이다. [4.7]에 따라 재조정마다 세대가 1 늘어난다. g 의 세대는 JOIN c1 로 1, b 를 늘린 PARTITIONS 로 2, JOIN c3 으로 3 이 된다. [4.11]에 따라 실행 중인 멤버 c1 과 c3 이 LEAVE 하면 4 와 5 가 된다. a 를 늘린 PARTITIONS 때는 g 에 멤버가 없으므로 [4.23]에 따라 재조정하지 않는다. [4.5]에 따라 사라진 c1 은 다시 JOIN 할 수 있으므로 세대가 6 이 된다. COMMIT 은 재조정을 일으키지 않으므로 마지막 LEAVE 로 7 이 된다. 멤버가 없으므로 [4.21]의 ASSIGNMENT 는 세대 한 줄만 출력한다. c2 의 CRASH 와 h 의 재조정은 g 의 세대와 상관없다. 멤버가 없는 그룹도 PARTITIONS 로 재조정한다고 보면 `generation=8` 을, b 를 늘린 PARTITIONS 를 세지 않으면 `generation=6` 을 답하게 된다."
+    }
+  ]
+}

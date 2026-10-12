@@ -1,0 +1,19 @@
+{
+  "title": "기술 지문 독해",
+  "kind": "reading",
+  "summary": "AI 에이전트, 분산 저장, 검색 같은 실무 도메인의 원리를 다룬 기술 지문을 읽고 수능·LEET 형식 문항을 푼다.",
+  "stages": [
+    { "dir": "01-agent-loop", "title": "에이전트 루프와 도구 호출", "target_minutes": 15 },
+    { "dir": "02-hdfs-write-path", "title": "HDFS 의 쓰기 경로와 복제", "target_minutes": 15 },
+    { "dir": "03-columnar-execution", "title": "열 저장과 분석 질의", "target_minutes": 15 },
+    { "dir": "04-near-real-time-search", "title": "거의 실시간 검색과 내구성", "target_minutes": 15 },
+    { "dir": "05-spark-stages", "title": "Spark 의 실행 계획과 셔플", "target_minutes": 15 },
+    { "dir": "06-coroutines", "title": "코루틴과 구조적 동시성", "target_minutes": 15 },
+    { "dir": "07-capacity-estimation", "title": "규모 추정", "target_minutes": 13 },
+    { "dir": "08-mvcc-isolation", "title": "MVCC 와 격리 수준", "target_minutes": 15 },
+    { "dir": "09-raft", "title": "Raft 의 선출과 커밋", "target_minutes": 15 },
+    { "dir": "10-table-format", "title": "테이블 포맷과 원자적 커밋", "target_minutes": 15 },
+    { "dir": "11-kafka-replication", "title": "Kafka 의 복제와 전달 보장", "target_minutes": 15 },
+    { "dir": "12-percentiles-and-slo", "title": "백분위수와 오류 예산", "target_minutes": 15 }
+  ]
+}

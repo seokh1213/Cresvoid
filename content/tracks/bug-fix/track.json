@@ -1,0 +1,9 @@
+{
+  "title": "버그 수정",
+  "kind": "fix",
+  "summary": "버그 신고를 재현하고 원인을 찾아 필요한 줄만 고친다.",
+  "stages": [
+    {"dir": "01-cursor-pagination", "title": "커서 페이지네이션"},
+    {"dir": "02-order-deadline", "title": "주문 확정 제한 시간"}
+  ]
+}

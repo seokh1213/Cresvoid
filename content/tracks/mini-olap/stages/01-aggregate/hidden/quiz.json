@@ -1,0 +1,112 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 SELECT 가 출력하는 결과 행은?",
+      "context": "<보기>\nCREATE TABLE t (k STRING, a INT, b INT)\nINSERT INTO t VALUES ('p', 1, NULL), ('q', NULL, NULL), ('r', 3, 2), ('', NULL, 5), (NULL, 2, 2), (NULL, NULL, 2), ('', 3, 2)\nSELECT COUNT(*), COUNT(k), SUM(b), MIN(k) FROM t WHERE NOT (a > 1 AND b = 2) OR k IS NULL",
+      "choices": [
+        "`5|3|9|''`",
+        "`2|0|4|NULL`",
+        "`4|2|9|''`",
+        "`3|2|7|''`",
+        "`5|1|11|'p'`"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.21",
+        "2.3",
+        "4.23",
+        "4.24",
+        "4.25",
+        "4.28"
+      ],
+      "quote": "NOT 은 참을 거짓으로, 거짓을 참으로 바꾸고 알 수 없음은 그대로 둔다.",
+      "explanation": "정답은 ③이다. [4.21]에 따라 조건은 `(NOT (a > 1 AND b = 2)) OR k IS NULL` 로 묶인다. ('p', 1, NULL) 은 `a > 1` 이 거짓이므로 [4.24]에 따라 AND 가 거짓이고 NOT 을 거쳐 참이 된다. ('', NULL, 5) 도 `b = 2` 가 거짓이라 같은 이유로 남는다. (NULL, 2, 2) 와 (NULL, NULL, 2) 는 `k IS NULL` 이 참이라 OR 가 참이다. ('q', NULL, NULL) 은 AND 가 알 수 없음이고 NOT 을 거쳐도 알 수 없음이라 [4.25]에 따라 버려진다. ('r', 3, 2) 와 ('', 3, 2) 는 조건이 거짓이라 버려진다. 남은 네 행에서 [2.3]에 따라 빈 문자열은 NULL 이 아니므로 COUNT(k) 는 'p' 와 '' 를 세어 2 다. SUM(b) 는 NULL 을 건너뛴 5 + 2 + 2 = 9 다. MIN(k) 는 [4.9]에 따라 가장 앞서는 빈 문자열이다. ① NOT 이 알 수 없음을 참으로 바꾼다고 보면 ('q', NULL, NULL) 이 남는다. ② AND 의 한쪽이 알 수 없음이면 다른 쪽이 거짓이어도 알 수 없음이 된다고 보면 ('p', 1, NULL) 과 ('', NULL, 5) 가 버려진다. ④ OR 의 한쪽이 알 수 없음이면 다른 쪽이 참이어도 알 수 없음이 된다고 보면 (NULL, NULL, 2) 가 버려진다. ⑤ 빈 문자열을 NULL 로 보면 ('', 3, 2) 의 `k IS NULL` 이 참이 되어 그 행이 남고 COUNT(k) 와 MIN(k) 도 빈 문자열을 건너뛴다. [2.3]의 빈 문자열 규칙을 [4.23]의 IS NULL 과 [4.28]의 COUNT 에 함께 적용해야 오답임을 알 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 SELECT 가 출력하는 결과 행을 차례로 나열한 것은?",
+      "context": "<보기>\nCREATE TABLE s (g STRING, h STRING, v INT)\nINSERT INTO s VALUES ('b', 'x', 1), ('b', 'x', 4), ('a', 'y', 5), (NULL, 'y', 5), ('a', 'x', NULL), ('B', 'y', 5), ('', 'x', 2), ('', 'x', 3), ('c', 'x', 5)\nSELECT g, h, AVG(v) FROM s GROUP BY h, g ORDER BY AVG(v) DESC LIMIT 4",
+      "choices": [
+        "`'a'|'x'|NULL`, `'B'|'y'|5.00`, `'a'|'y'|5.00`, `'c'|'x'|5.00`",
+        "`'c'|'x'|5.00`, `'B'|'y'|5.00`, `'a'|'y'|5.00`, `NULL|'y'|5.00`",
+        "`'a'|'x'|NULL`, `'c'|'x'|5.00`, `NULL|'y'|5.00`, `'B'|'y'|5.00`",
+        "`'a'|'x'|NULL`, `'c'|'x'|5.00`, `'a'|'y'|5.00`, `'B'|'y'|5.00`",
+        "`'a'|'x'|NULL`, `'c'|'x'|5.00`, `'B'|'y'|5.00`, `'a'|'y'|5.00`"
+      ],
+      "answer": 5,
+      "refs": [
+        "4.9",
+        "4.33",
+        "4.34",
+        "4.35",
+        "4.36"
+      ],
+      "quote": "기본 순서는 두 행의 그룹 열 값을 GROUP BY 에 쓴 열 순서대로 비교해 처음 다른 열에서 정한다.",
+      "explanation": "정답은 ⑤이다. g 가 'a' 이고 h 가 'x' 인 그룹은 v 가 NULL 뿐이라 AVG 가 NULL 이다. [4.35]에 따라 DESC 에서는 NULL 이 맨 앞에 온다. AVG 가 5.00 인 그룹은 g 가 'c', 'a', NULL, 'B' 인 넷이다. [4.34]에 따라 이 넷은 기본 순서를 따르고 [4.33]의 기본 순서는 GROUP BY 에 쓴 순서대로 h 를 먼저 비교한다. h 가 'x' 인 'c' 그룹이 먼저 오고 h 가 'y' 인 셋은 g 로 갈린다. [4.9]에 따라 'B' 가 'a' 보다 앞서고 [4.33]에 따라 NULL 은 값 뒤에 온다. g 가 NULL 인 그룹은 다섯째라 [4.36]의 LIMIT 4 에 들지 못한다. ① 동점인 그룹을 SELECT 목록 순서대로 g 부터 비교한 답이다. 동점은 기본 순서를 따른다는 [4.34]와 기본 순서는 GROUP BY 에 쓴 열 순서로 비교한다는 [4.33]을 함께 적용해야 오답임을 알 수 있다. ② DESC 에서도 NULL 을 뒤에 둔 답이다. ③ 기본 순서에서 NULL 을 값보다 앞에 둔 답이다. ④ 소문자 'a' 를 대문자 'B' 보다 앞에 둔 답이다. 코드 포인트로는 'B'(U+0042)가 'a'(U+0061)보다 앞선다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "1단계 프로그램의 동작을 바르게 설명한 것은?",
+      "choices": [
+        "테이블 s 가 `(region STRING, qty INT)` 일 때 `SELECT region, COUNT(*) FROM s WHERE region = NULL GROUP BY region` 은 region 이 NULL 인 행이 있으면 NULL 그룹의 결과 행 하나를 출력한다.",
+        "NULL 이 아닌 name 값이 `'Zoe'`, `'adam'`, `'가람'`, `''` 넷인 그룹에서 MIN(name) 은 `''` 이고 MAX(name) 은 `'가람'` 이다.",
+        "AVG(v) 의 정확한 값이 1.004 인 그룹과 1 인 그룹이 있으면 `ORDER BY AVG(v)` 에서 언제나 1 인 그룹이 앞에 온다.",
+        "합이 −1 이고 NULL 이 아닌 값이 300 개인 그룹의 AVG 는 `-0.00` 으로 쓴다.",
+        "테이블 s 가 `(region STRING, qty INT)` 일 때 `INSERT INTO s VALUES ('a', 'NULL'), ('b')` 는 둘째 행의 값이 하나뿐이므로 `ERR VALUE_COUNT` 를 출력한다."
+      ],
+      "answer": 2,
+      "refs": [
+        "4.9",
+        "4.30",
+        "4.27",
+        "4.32",
+        "4.40",
+        "4.13"
+      ],
+      "quote": "그래서 빈 문자열이 가장 앞서고 `'B'` 는 `'a'` 보다, `'z'` 는 `'가'` 보다 앞선다.",
+      "explanation": "정답은 ②이다. [4.9]에 따라 STRING 값은 코드 포인트로 비교하므로 빈 문자열이 가장 앞서고 'Z'(U+005A), 'a'(U+0061), '가'(U+AC00) 순서다. [4.30]에 따라 MIN 은 '' 이고 MAX 는 '가람' 이다. ① `region = NULL` 은 [4.23]에 따라 모든 행에서 알 수 없음이라 통과한 행이 없다. [4.27]에 따라 GROUP BY 가 있으면 결과 행도 없으므로 머리줄만 나온다. 두 규칙을 함께 적용해야 오답임을 알 수 있다. ③ [4.32]에 따라 정렬에도 반올림한 값을 쓰므로 두 그룹의 키는 모두 1.00 으로 같다. 그러면 [4.34]에 따라 그룹 열의 기본 순서가 앞뒤를 정하므로 1 인 그룹이 언제나 앞에 오지는 않는다. ④ −1/300 을 소수 둘째 자리까지 반올림하면 0 이고 [4.40]에 따라 `-` 없이 `0.00` 으로 쓴다. ⑤ [4.13]에 따라 행을 앞에서부터 확인한다. 첫 행의 `'NULL'` 은 NULL 이 아니라 문자열이라 INT 열에 맞지 않으므로 둘째 행을 확인하기 전에 `ERR TYPE` 이 나온다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE TABLE s (region STRING, qty INT)",
+        "SELECT region, SUM(region) FROM s WHERE qty>-5 AND town = 'x' GROUP BY area"
+      ],
+      "answers": [
+        "ERR NO_COLUMN town"
+      ],
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.19",
+        "5.5"
+      ],
+      "quote": "둘째, 줄에 나온 열 이름을 앞에서부터 보아 테이블에 없는 것이 있으면 `ERR NO_COLUMN c` 다.",
+      "explanation": "정답은 `ERR NO_COLUMN town` 이다. [4.1]에 따라 기호 앞뒤에는 공백이 없어도 되고 토큰은 가장 길게 끊으므로 `qty>-5` 는 `qty`, `>`, `-5` 세 토큰이다. [4.3]에 따라 `-` 바로 뒤에 숫자가 오면 정수가 시작되므로 `-5` 는 올바른 정수다. 문법 오류가 없으므로 [5.5]에 따라 [4.19]의 확인으로 넘어간다. [4.19]의 둘째 확인은 줄에 나온 열 이름을 앞에서부터 보는데 WHERE 의 town 이 GROUP BY 의 area 보다 앞에 있어 town 으로 오류가 난다. SUM(region) 의 자료형 오류는 셋째 확인에서 다루므로 둘째 확인보다 늦다. `-5` 를 토큰으로 나눌 수 없다고 보면 `ERR SYNTAX` 를, 자료형을 먼저 확인하면 `ERR TYPE` 을, GROUP BY 의 열을 먼저 보면 `ERR NO_COLUMN area` 를 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE TABLE s (region STRING, item STRING, qty INT)",
+        "SELECT MAX(region), item, qty, COUNT(*) FROM s WHERE region <> NULL GROUP BY item ORDER BY AVG(qty)"
+      ],
+      "answers": [
+        "ERR NOT_GROUPED qty"
+      ],
+      "refs": [
+        "4.19",
+        "4.22"
+      ],
+      "quote": "넷째, SELECT 목록의 열 이름 항목을 앞에서부터 보아 그룹 열이 아닌 것이 있으면 `ERR NOT_GROUPED c` 다.",
+      "explanation": "정답은 `ERR NOT_GROUPED qty` 다. 줄에 나온 열 이름은 모두 테이블에 있다. [4.22]에 따라 STRING 열과 비교하는 값에는 문자열이나 NULL 이 올 수 있으므로 `region <> NULL` 은 자료형 오류가 아니다. ORDER BY 의 AVG(qty) 도 INT 열이라 [4.19]의 셋째 확인을 통과한다. 넷째 확인은 SELECT 목록의 열 이름 항목만 앞에서부터 본다. MAX(region) 은 집계라 대상이 아니고 item 은 그룹 열이므로 그룹 열이 아닌 첫 항목은 qty 다. ORDER BY 의 AVG(qty) 가 SELECT 목록에 없다는 오류는 다섯째 확인에서 다루므로 넷째 확인보다 늦다. `<> NULL` 을 자료형 오류로 보면 `ERR TYPE` 을, 집계 안의 열도 그룹 열이어야 한다고 보면 `ERR NOT_GROUPED region` 을, 다섯째 확인을 먼저 하면 `ERR NOT_SELECTED` 를 답하게 된다."
+    }
+  ]
+}

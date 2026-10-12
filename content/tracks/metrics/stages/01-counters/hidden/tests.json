@@ -1,0 +1,678 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "first-increase",
+      "refs": [
+        "1.2",
+        "4.4",
+        "4.17",
+        "4.18",
+        "4.19"
+      ],
+      "quote": "`INCREASE <시각> <범위> <선택자>` 는 선택된 시계열 가운데 n 이 2 이상인 시계열의 증가량을 모두 더해 출력한다.",
+      "input": [
+        "TYPE requests_total counter",
+        "ADD 10 0 requests_total",
+        "ADD 20 5 requests_total",
+        "ADD 30 10 requests_total",
+        "ADD 40 15 requests_total",
+        "INCREASE 45 40 requests_total",
+        "RATE 45 40 requests_total"
+      ],
+      "expected": [
+        "20.000000",
+        "0.500000"
+      ]
+    },
+    {
+      "name": "label-selectors",
+      "refs": [
+        "4.3",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "그 지표에 속하고 선택자의 레이블 쌍을 모두 가진 시계열이 선택된다.",
+      "input": [
+        "TYPE http_requests_total counter",
+        "TYPE http_errors_total counter",
+        "ADD 10 100 http_requests_total job=api instance=a",
+        "ADD 20 110 http_requests_total instance=a job=api",
+        "ADD 15 105 http_requests_total job=api instance=a",
+        "ADD 10 0 http_requests_total job=api",
+        "ADD 20 4 http_requests_total job=api",
+        "ADD 10 7 http_requests_total",
+        "ADD 20 8 http_requests_total",
+        "ADD 10 50 http_requests_total job=API instance=b",
+        "ADD 20 70 http_requests_total job=API instance=b",
+        "ADD 10 0 http_errors_total job=api",
+        "ADD 20 9 http_errors_total job=api",
+        "INCREASE 20 15 http_requests_total job=api",
+        "INCREASE 20 15 http_requests_total",
+        "INCREASE 20 15 http_requests_total instance=a job=api",
+        "INCREASE 20 15 http_requests_total job=API",
+        "INCREASE 20 15 http_requests_total Job=api",
+        "INCREASE 20 15 http_requests_total instance=b",
+        "INCREASE 20 15 http_requests_total job=api instance=b",
+        "INCREASE 20 15 http_requests_total instance=c",
+        "ADD 10 0 http_requests_total job=api instance=c",
+        "ADD 20 2 http_requests_total instance=c job=api",
+        "INCREASE 20 15 http_requests_total instance=c",
+        "INCREASE 20 15 http_requests_total job=api",
+        "INCREASE 20 15 http_errors_total"
+      ],
+      "expected": [
+        "ERR OUT_OF_ORDER",
+        "21.000000",
+        "52.500000",
+        "15.000000",
+        "30.000000",
+        "NONE",
+        "30.000000",
+        "NONE",
+        "NONE",
+        "3.000000",
+        "24.000000",
+        "13.500000"
+      ]
+    },
+    {
+      "name": "gauge-delta",
+      "refs": [
+        "2.6",
+        "4.10",
+        "4.12",
+        "4.20",
+        "4.21"
+      ],
+      "quote": "gauge 시계열 하나의 변화량은 (q − p) × E ÷ S 를 반올림한 값이다.",
+      "input": [
+        "TYPE queue_depth gauge",
+        "ADD 0 30 queue_depth queue=mail",
+        "ADD 64 10 queue_depth queue=mail",
+        "ADD 128 25 queue_depth queue=mail",
+        "DELTA 128 129 queue_depth queue=mail",
+        "DELTA 128 64 queue_depth queue=mail",
+        "DELTA 128 65 queue_depth queue=mail",
+        "ADD 0 -100 queue_depth queue=sms",
+        "ADD 128 -40 queue_depth queue=sms",
+        "DELTA 128 129 queue_depth queue=sms",
+        "DELTA 128 129 queue_depth",
+        "TYPE temperature_c gauge",
+        "ADD 10 -3 temperature_c room=a floor=1",
+        "ADD 20 -1 temperature_c room=a floor=1",
+        "ADD 10 4 temperature_c room=b floor=1",
+        "ADD 20 2 temperature_c room=b floor=1",
+        "ADD 12 7 temperature_c room=d floor=2",
+        "ADD 20 5 temperature_c room=d floor=2",
+        "ADD 10 0 temperature_c room=e floor=2",
+        "ADD 20 2 temperature_c room=e floor=2",
+        "DELTA 20 15 temperature_c floor=1",
+        "DELTA 20 15 temperature_c floor=2",
+        "DELTA 20 15 temperature_c room=d",
+        "DELTA 20 15 temperature_c"
+      ],
+      "expected": [
+        "-5.039063",
+        "NONE",
+        "15.234375",
+        "60.468750",
+        "55.429687",
+        "0.000000",
+        "-0.750000",
+        "-3.750000",
+        "-0.750000"
+      ]
+    },
+    {
+      "name": "range-ends",
+      "refs": [
+        "2.4",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "시각이 정확히 t − r 인 표본은 범위에 들지 않고 시각이 t 인 표본은 범위에 든다.",
+      "input": [
+        "TYPE jobs_done_total counter",
+        "ADD 0 3 jobs_done_total",
+        "ADD 20 7 jobs_done_total",
+        "ADD 40 12 jobs_done_total",
+        "ADD 60 20 jobs_done_total",
+        "INCREASE 60 40 jobs_done_total",
+        "INCREASE 59 40 jobs_done_total",
+        "INCREASE 40 40 jobs_done_total",
+        "INCREASE 10 30 jobs_done_total",
+        "INCREASE 20 30 jobs_done_total",
+        "INCREASE 1000 100 jobs_done_total",
+        "ADD 70 25 jobs_done_total",
+        "INCREASE 70 30 jobs_done_total"
+      ],
+      "expected": [
+        "16.000000",
+        "10.000000",
+        "10.000000",
+        "NONE",
+        "6.000000",
+        "NONE",
+        "7.500000"
+      ]
+    },
+    {
+      "name": "counter-restarts",
+      "refs": [
+        "2.3",
+        "4.16"
+      ],
+      "quote": "범위 밖의 표본과 범위 안 첫 표본은 이웃한 두 표본으로 치지 않는다.",
+      "input": [
+        "TYPE worker_tasks_total counter",
+        "ADD 0 50 worker_tasks_total",
+        "ADD 10 80 worker_tasks_total",
+        "ADD 20 80 worker_tasks_total",
+        "ADD 30 3 worker_tasks_total",
+        "ADD 40 0 worker_tasks_total",
+        "ADD 50 4 worker_tasks_total",
+        "ADD 60 4 worker_tasks_total",
+        "ADD 70 2 worker_tasks_total",
+        "ADD 80 10 worker_tasks_total",
+        "ADD 90 10 worker_tasks_total",
+        "INCREASE 90 95 worker_tasks_total",
+        "INCREASE 90 60 worker_tasks_total",
+        "INCREASE 60 30 worker_tasks_total",
+        "INCREASE 40 15 worker_tasks_total",
+        "INCREASE 50 25 worker_tasks_total",
+        "INCREASE 30 25 worker_tasks_total"
+      ],
+      "expected": [
+        "49.611111",
+        "16.800000",
+        "6.000000",
+        "0.000000",
+        "5.000000",
+        "3.750000"
+      ]
+    },
+    {
+      "name": "extrapolation-threshold",
+      "refs": [
+        "2.5",
+        "4.9",
+        "4.15"
+      ],
+      "quote": "그쪽 간격이 평균 간격의 1.1배보다 작으면 그 간격만큼 늘리고 1.1배 이상이면 평균 간격의 절반만큼 늘린다.",
+      "input": [
+        "TYPE checkout_total counter",
+        "ADD 1000 0 checkout_total shop=a",
+        "ADD 1050 10 checkout_total shop=a",
+        "ADD 1100 30 checkout_total shop=a",
+        "INCREASE 1154 209 checkout_total shop=a",
+        "INCREASE 1155 210 checkout_total shop=a",
+        "INCREASE 1154 208 checkout_total shop=a",
+        "ADD 2000 5 checkout_total shop=b",
+        "ADD 2100 25 checkout_total shop=b",
+        "INCREASE 2210 300 checkout_total shop=b",
+        "INCREASE 2209 300 checkout_total shop=b",
+        "ADD 100 0 checkout_total shop=c",
+        "ADD 103 2 checkout_total shop=c",
+        "ADD 107 9 checkout_total shop=c",
+        "INCREASE 111 14 checkout_total shop=c",
+        "ADD 50 1 checkout_total shop=d",
+        "ADD 60 11 checkout_total shop=d",
+        "INCREASE 60 20 checkout_total shop=d"
+      ],
+      "expected": [
+        "53.700000",
+        "45.000000",
+        "62.400000",
+        "48.000000",
+        "60.000000",
+        "15.107143",
+        "20.000000"
+      ]
+    },
+    {
+      "name": "rate-per-second",
+      "refs": [
+        "2.6",
+        "4.19"
+      ],
+      "quote": "`RATE <시각> <범위> <선택자>` 는 같은 인자의 INCREASE 가 더한 합을 r 로 나눈 정확한 값을 반올림해 출력한다.",
+      "input": [
+        "TYPE uploads_total counter",
+        "ADD 101 10 uploads_total bucket=media",
+        "ADD 107 14 uploads_total bucket=media",
+        "INCREASE 114 14 uploads_total bucket=media",
+        "RATE 114 14 uploads_total bucket=media",
+        "RATE 120 20 uploads_total bucket=media",
+        "ADD 101 0 uploads_total bucket=docs",
+        "ADD 107 4 uploads_total bucket=docs",
+        "INCREASE 114 14 uploads_total",
+        "RATE 114 14 uploads_total",
+        "RATE 107 1 uploads_total",
+        "RATE 1000000000 1000000000 uploads_total"
+      ],
+      "expected": [
+        "6.666667",
+        "0.476191",
+        "0.333333",
+        "13.333334",
+        "0.952381",
+        "NONE",
+        "0.000000"
+      ]
+    },
+    {
+      "name": "rounded-sum",
+      "refs": [
+        "2.7",
+        "4.10",
+        "4.11",
+        "4.18"
+      ],
+      "quote": "시계열 여러 개의 값을 더할 때는 시계열마다 반올림한 값을 더하고 그 합은 다시 반올림하지 않는다.",
+      "input": [
+        "TYPE sessions_total counter",
+        "ADD 7 10 sessions_total instance=a",
+        "ADD 10 11 sessions_total instance=a",
+        "ADD 7 20 sessions_total instance=b",
+        "ADD 10 21 sessions_total instance=b",
+        "ADD 7 30 sessions_total instance=c",
+        "ADD 10 31 sessions_total instance=c",
+        "INCREASE 10 4 sessions_total",
+        "RATE 10 4 sessions_total",
+        "ADD 7 0 sessions_total instance=d",
+        "ADD 10 2 sessions_total instance=d",
+        "ADD 9 100 sessions_total instance=e",
+        "INCREASE 10 4 sessions_total",
+        "RATE 10 4 sessions_total",
+        "INCREASE 10 4 sessions_total instance=e"
+      ],
+      "expected": [
+        "3.999999",
+        "1.000000",
+        "6.666666",
+        "1.666667",
+        "NONE"
+      ]
+    },
+    {
+      "name": "out-of-order-samples",
+      "refs": [
+        "4.6",
+        "5.1"
+      ],
+      "quote": "같거나 작으면 `ERR OUT_OF_ORDER` 를 출력하고 표본을 적재하지 않는다.",
+      "input": [
+        "TYPE orders_total counter",
+        "ADD 100 10 orders_total region=eu",
+        "ADD 110 20 orders_total region=eu",
+        "ADD 110 25 orders_total region=eu",
+        "ADD 105 15 orders_total region=eu",
+        "ADD 105 15 orders_total region=us",
+        "ADD 100 15 orders_total",
+        "ADD 120 30 orders_total region=eu",
+        "ADD 115 99 orders_total region=eu",
+        "INCREASE 120 30 orders_total region=eu",
+        "ADD 130 -1 orders_total region=eu",
+        "ADD 125 40 orders_total region=eu",
+        "INCREASE 125 30 orders_total region=eu",
+        "INCREASE 125 30 orders_total region=us",
+        "TYPE refunds_total Counter",
+        "ADD 10 1 refunds_total",
+        "TYPE refunds_total counter",
+        "ADD 10 1 refunds_total"
+      ],
+      "expected": [
+        "ERR OUT_OF_ORDER",
+        "ERR OUT_OF_ORDER",
+        "ERR OUT_OF_ORDER",
+        "30.000000",
+        "ERR BAD_ARGUMENT",
+        "36.000000",
+        "NONE",
+        "ERR BAD_ARGUMENT",
+        "ERR NO_METRIC"
+      ]
+    },
+    {
+      "name": "type-errors",
+      "refs": [
+        "3.9",
+        "3.13",
+        "4.1",
+        "4.2",
+        "5.3",
+        "5.4"
+      ],
+      "quote": "이미 정한 지표 이름으로 TYPE 을 실행하면 종류가 같든 다르든 `ERR EXISTS` 를 출력한다.",
+      "input": [
+        "TYPE cpu_seconds_total counter",
+        "TYPE cpu_seconds_total counter",
+        "TYPE cpu_seconds_total gauge",
+        "TYPE cpu_seconds_total Gauge",
+        "TYPE cpu_seconds_total",
+        "TYPE cpu_seconds_total gauge extra",
+        "TYPE",
+        "TYPE 1st_metric counter",
+        "TYPE cpu-seconds counter",
+        "TYPE :ratio:rate5m gauge",
+        "TYPE _ counter",
+        "TYPE aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa counter",
+        "TYPE aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa counter",
+        "TYPE Cpu_seconds_total gauge",
+        "TYPE memory_bytes summary",
+        "TYPE memory_bytes gauge",
+        "ADD 10 -5 memory_bytes",
+        "ADD 10 -5 cpu_seconds_total",
+        "ADD 10 5 Cpu_seconds_total",
+        "INCREASE 10 5 Cpu_seconds_total",
+        "DELTA 10 5 Cpu_seconds_total",
+        "ADD 1 1 :ratio:rate5m",
+        "ADD 2 3 :ratio:rate5m",
+        "DELTA 2 2 :ratio:rate5m",
+        "ADD 1 1 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ADD 2 2 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "INCREASE 2 2 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "INCREASE 2 2 _"
+      ],
+      "expected": [
+        "ERR EXISTS",
+        "ERR EXISTS",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR WRONG_TYPE",
+        "NONE",
+        "4.000000",
+        "2.000000",
+        "NONE"
+      ]
+    },
+    {
+      "name": "add-errors",
+      "refs": [
+        "3.10",
+        "3.11",
+        "3.14",
+        "3.15",
+        "4.5",
+        "5.4"
+      ],
+      "quote": "인자 형식은 왼쪽 인자부터 확인하고 ADD 의 값은 이때 확인하지 않는다.",
+      "input": [
+        "TYPE bytes_total counter",
+        "TYPE disk_free gauge",
+        "ADD 10 5",
+        "ADD 10 5 missing_metric",
+        "ADD 10 -5 missing_metric",
+        "ADD 01 5 missing_metric",
+        "ADD 10 5 missing_metric job",
+        "ADD 10 5 bad-name",
+        "ADD -1 5 bytes_total",
+        "ADD 1000000001 5 bytes_total",
+        "ADD 99999999999999999999 5 bytes_total",
+        "ADD 1000000000 5 bytes_total",
+        "ADD 0 1000000000000 bytes_total host=a",
+        "ADD 1 1000000000001 bytes_total host=a",
+        "ADD 1 +5 bytes_total host=a",
+        "ADD 1 007 bytes_total host=a",
+        "ADD 1 99999999999999999999 bytes_total host=a",
+        "ADD 1 0 bytes_total host=a",
+        "ADD 0 -1000000000000 disk_free host=a",
+        "ADD 1 -1000000000001 disk_free host=a",
+        "ADD 1 -0 disk_free host=a",
+        "ADD 1 1.5 disk_free host=a",
+        "ADD 1 -007 disk_free host=a",
+        "ADD 1 0 disk_free host=a",
+        "ADD 2 5 bytes_total host=a host=a",
+        "ADD 2 5 bytes_total host=a=b",
+        "ADD 2 5 bytes_total =a",
+        "ADD 2 5 bytes_total host=",
+        "ADD 2 5 bytes_total 9host=a",
+        "ADD 2 5 bytes_total host=a,b",
+        "ADD 2 5 bytes_total host:name=a",
+        "ADD 2 5 bytes_total path=/v1/users:get",
+        "ADD 2 5 bytes_total host=10.0.0.1:8080",
+        "ADD 2 5 bytes_total host=vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+        "ADD 2 5 bytes_total host=vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv",
+        "ADD 2 5 bytes_total lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll=x",
+        "ADD 2 5 bytes_total llllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll=x",
+        "ADD 1 abc bytes_total host=a",
+        "ADD 1 5 bytes_total host=a",
+        "DELTA 1 2 disk_free host=a",
+        "INCREASE 1 2 bytes_total host=a"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR NO_METRIC",
+        "ERR NO_METRIC",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR OUT_OF_ORDER",
+        "2000000000000.000000",
+        "0.000000"
+      ]
+    },
+    {
+      "name": "query-errors",
+      "refs": [
+        "3.12",
+        "4.7",
+        "4.21",
+        "5.3",
+        "5.4"
+      ],
+      "quote": "INCREASE, RATE, DELTA 는 지표가 있는지와 지표의 종류를 차례로 확인한다.",
+      "input": [
+        "TYPE api_calls_total counter",
+        "TYPE pool_size gauge",
+        "INCREASE 10 5 api_calls_total",
+        "INCREASE 10 5",
+        "RATE 10 5",
+        "DELTA 10",
+        "INCREASE 10 0 api_calls_total",
+        "INCREASE 10 1000000001 api_calls_total",
+        "INCREASE 1000000001 5 api_calls_total",
+        "INCREASE 10 99999999999999999999 api_calls_total",
+        "INCREASE 10 5 missing_total",
+        "INCREASE 10 0 missing_total",
+        "INCREASE 10 5 missing_total job=a=b",
+        "INCREASE 10 5 pool_size",
+        "RATE 10 5 pool_size",
+        "DELTA 10 5 api_calls_total",
+        "DELTA 10 5 pool_size",
+        "DELTA 10 5 missing_gauge",
+        "INCREASE 10 5 api_calls_total job=a job=b",
+        "RATE 10 5 api_calls_total job=a job=a",
+        "RATE 10 5 api_calls_total job",
+        "DELTA 10 -5 pool_size",
+        "INCREASE 1000000000 1000000000 api_calls_total",
+        "RATE 0 1 api_calls_total"
+      ],
+      "expected": [
+        "NONE",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NO_METRIC",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR WRONG_TYPE",
+        "ERR WRONG_TYPE",
+        "ERR WRONG_TYPE",
+        "NONE",
+        "ERR NO_METRIC",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "NONE",
+        "NONE"
+      ]
+    },
+    {
+      "name": "line-format",
+      "refs": [
+        "3.3",
+        "3.4",
+        "3.5",
+        "3.6",
+        "3.7",
+        "5.2"
+      ],
+      "quote": "탭(U+0009)과 CR(U+000D)은 공백이 아니다.",
+      "input": [
+        "",
+        "   ",
+        "  TYPE   net_bytes_total   counter  ",
+        "ADD 10 0 net_bytes_total  iface=eth0",
+        " ADD   20   6   net_bytes_total   iface=eth0 ",
+        "ADD\t30 9 net_bytes_total iface=eth0",
+        "ADD 30 9 net_bytes_total\tiface=eth0",
+        "\t",
+        "INCREASE 20 15 net_bytes_total\r",
+        "TYPE net_drops_total counter\r",
+        "add 30 9 net_bytes_total iface=eth0",
+        "Increase 20 15 net_bytes_total",
+        "INCREASES 20 15 net_bytes_total",
+        "QUERY 20 15 net_bytes_total",
+        "INCREASE",
+        "   INCREASE   20   15   net_bytes_total   ",
+        "\r",
+        "ADD 30 9 net_drops_total",
+        "INCREASE 30 25 net_bytes_total iface=eth0"
+      ],
+      "expected": [
+        "ERR UNKNOWN_COMMAND",
+        "ERR BAD_ARGUMENT",
+        "ERR UNKNOWN_COMMAND",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR BAD_ARGUMENT",
+        "9.000000",
+        "ERR UNKNOWN_COMMAND",
+        "ERR NO_METRIC",
+        "15.000000"
+      ]
+    },
+    {
+      "name": "exact-arithmetic",
+      "refs": [
+        "2.8",
+        "4.9",
+        "4.12"
+      ],
+      "quote": "계산 중간의 수는 64비트 정수의 범위를 넘을 수 있다.",
+      "input": [
+        "TYPE ingest_bytes_total counter",
+        "ADD 1 0 ingest_bytes_total",
+        "ADD 999999999 1000000000000 ingest_bytes_total",
+        "INCREASE 1000000000 1000000000 ingest_bytes_total",
+        "RATE 1000000000 1000000000 ingest_bytes_total",
+        "TYPE restarts_total counter",
+        "ADD 0 1000000000000 restarts_total",
+        "ADD 333333333 999999999999 restarts_total",
+        "ADD 666666666 999999999998 restarts_total",
+        "ADD 999999999 999999999997 restarts_total",
+        "INCREASE 1000000000 1000000000 restarts_total",
+        "RATE 1000000000 1000000000 restarts_total",
+        "TYPE balance gauge",
+        "ADD 0 1000000000000 balance",
+        "ADD 2 -1000000000000 balance",
+        "DELTA 3 4 balance"
+      ],
+      "expected": [
+        "1000000002000.000004",
+        "1000.000002",
+        "3000000002992.500003",
+        "3000.000003",
+        "-4000000000000.000000"
+      ]
+    },
+    {
+      "name": "random-mixed-commands",
+      "refs": [
+        "4.13",
+        "4.15",
+        "4.16",
+        "5.4"
+      ],
+      "quote": "그쪽 간격이 평균 간격의 1.1배보다 작으면 그 간격만큼 늘리고 1.1배 이상이면 평균 간격의 절반만큼 늘린다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--lines",
+        "400"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "random-long-session",
+      "refs": [
+        "4.10",
+        "4.11",
+        "4.16",
+        "4.19"
+      ],
+      "quote": "가장 가까운 수가 둘이면 0 에서 먼 쪽을 고른다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--lines",
+        "3000"
+      ],
+      "repeat": 2
+    },
+    {
+      "name": "large-scale",
+      "refs": [
+        "7.6"
+      ],
+      "quote": "질의마다 지표의 시계열을 모두 훑어 선택자와 견주는 풀이와 범위 안의 표본을 하나씩 훑는 풀이는 이 제한 시간을 넘기도록 규모를 정했다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--mode",
+        "large"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄의 출력은?",
+      "context": "<보기>\nBEGIN c\nBEGIN a\nBEGIN f\nBEGIN d\nBEGIN b\nBEGIN e\nREAD d m FOR SHARE\nSCAN b k m FOR SHARE\nREAD c ka FOR SHARE\nWRITE f ka 1\nSCAN a l n FOR SHARE\nSCAN e ka m FOR UPDATE",
+      "choices": [
+        "e WAIT c a f b",
+        "e WAIT c a d b",
+        "e WAIT b c a",
+        "e (none)",
+        "e WAIT c a b"
+      ],
+      "answer": 5,
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.5",
+        "4.8",
+        "4.9"
+      ],
+      "quote": "WAIT 뒤에는 요청한 잠금과 충돌하는 잠금을 건 트랜잭션을 모두 시작 순서대로 공백 하나씩 띄워 쓴다.",
+      "explanation": "정답은 ⑤이다. e 는 ka 이상 m 미만의 범위에 X 를 요청한다. [4.2]에 따라 X 는 대상이 겹치는 다른 트랜잭션의 잠금과 모두 충돌한다. c 가 S 를 건 ka 는 범위의 시작 키라서 범위에 든다. b 가 잠근 k 이상 m 미만의 범위에는 ka 가, a 가 잠근 l 이상 n 미만의 범위에는 l 이 e 의 범위와 함께 든다. [4.1]에 따라 범위 잠금의 대상에는 값이 없는 키도 들므로 값이 있는 키가 하나도 없어도 대상이 겹친다. d 가 S 를 건 m 은 끝 키라서 범위에 들지 않는다. f 는 ka 의 X 를 기다리며 요청하고 있을 뿐이므로 [4.5]에 따라 상관없다. [4.8]과 [4.9]에 따라 충돌하는 c, a, b 를 BEGIN 한 순서대로 쓴다. ① 기다리는 f 의 요청까지 센 답이다. 기다리며 요청하는 잠금은 상관없다는 [4.5]와 WAIT 줄에는 충돌하는 잠금을 건 트랜잭션을 쓴다는 [4.9]를 함께 적용해야 이 선지를 지울 수 있다. ② 끝 키 m 을 범위에 넣어 d 를 센 답이다. ③ 잠금을 얻은 순서로 쓴 답이다. ④ 범위 잠금이 값이 있는 키만 막는다고 보면 충돌하는 잠금이 없어 SCAN 이 바로 실행된다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄을 처리하는 동안 출력되는 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nBEGIN a\nBEGIN b\nBEGIN c\nBEGIN d\nWRITE a x 1\nWRITE b y 1\nWRITE c z 1\nWRITE b x 2\nWRITE d z 4\nWRITE c y 3\nREAD c x\nCOMMIT c\nWRITE a z 5\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "a WAIT c / a ABORT DEADLOCK / b OK",
+        "a WAIT c / c ABORT DEADLOCK / c ERR ENDED / c ERR ENDED / d OK",
+        "a WAIT c / c ABORT DEADLOCK / c ERR ENDED / c ERR ENDED / a OK",
+        "a WAIT c / c ABORT DEADLOCK / d OK",
+        "a WAIT c / d ABORT DEADLOCK / c ABORT DEADLOCK / c ERR ENDED / c ERR ENDED / a OK"
+      ],
+      "answer": 2,
+      "refs": [
+        "4.12",
+        "4.14",
+        "4.16",
+        "4.17",
+        "4.18"
+      ],
+      "quote": "교착이면 고리 위에 있는 트랜잭션 가운데 시작 순서가 가장 늦은 트랜잭션을 희생자로 고른다.",
+      "explanation": "정답은 ②이다. 마지막 줄 전에 b 는 a 를, d 는 c 를, c 는 b 를 기다리고 c 의 READ 와 COMMIT 은 c 의 대기열에 있다. a 가 c 를 기다리기 시작하면 [4.14]의 대기 그래프에 a 에서 c, c 에서 b, b 에서 a 로 가는 고리가 생긴다. d 에서 c 로 가는 화살표는 있지만 d 로 돌아오는 화살표가 없으므로 d 는 고리 위에 있지 않다. [4.16]에 따라 고리 위의 a, b, c 가운데 시작 순서가 가장 늦은 c 가 희생자다. [4.17]에 따라 `c ABORT DEADLOCK` 을 출력하고 c 의 대기열에 있던 READ 와 COMMIT 이 저마다 `c ERR ENDED` 를 출력한다. [4.18]에 따라 교착 처리가 끝난 뒤의 재개에서 d 와 a 가 모두 z 의 X 를 얻을 수 있다. [4.12]에 따라 먼저 기다리기 시작한 d 가 잠금을 얻어 `d OK` 를 출력한다. ① 방금 기다리기 시작한 a 를 희생자로 고른 답이다. ③ 재개에서 시작 순서가 앞선 a 를 먼저 고르거나 교착을 일으킨 a 가 희생자의 잠금을 곧바로 얻는다고 본 답이다. 희생자의 잠금은 교착 처리가 끝난 뒤의 재개에서 다른 트랜잭션이 얻는다는 [4.18]과 재개는 기다리기 시작한 때로 고른다는 [4.12]를 함께 적용해야 이 선지를 지울 수 있다. ④ 희생자의 대기열을 출력 없이 버린 답이다. ⑤ 고리 위에 있지 않은 d 까지 놓고 희생자를 고른 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄을 처리하는 동안 출력되는 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nBEGIN init\nWRITE init k 1\nCOMMIT init\nBEGIN a\nBEGIN c\nBEGIN b\nWRITE a k 2\nREAD b k FOR UPDATE\nROLLBACK b\nREAD b k\nWRITE c k 4\nCOMMIT a\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "a COMMIT / c OK",
+        "a COMMIT / b k=1 / b ROLLBACK / b ERR ENDED / c OK",
+        "a COMMIT / b k=2 / b ROLLBACK / b ERR ENDED",
+        "a COMMIT / b k=2 / b ROLLBACK / b ERR ENDED / c OK",
+        "a COMMIT / b k=2 / c WAIT b / b ROLLBACK / b ERR ENDED / c OK"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.6",
+        "4.9",
+        "4.10",
+        "4.11",
+        "4.12"
+      ],
+      "quote": "COMMIT 과 ROLLBACK 도 대기열에 넣는다.",
+      "explanation": "정답은 ④이다. b 는 a 의 X 잠금 때문에 k 를 기다리므로 [4.10]에 따라 뒤이은 ROLLBACK 과 READ 는 실행되지 않고 b 의 대기열에 들어간다. c 도 a 를 기다린다. a 가 커밋해 잠금을 풀면 b 와 c 가 모두 k 의 X 를 얻을 수 있다. [4.12]에 따라 시작 순서가 아니라 먼저 기다리기 시작한 b 를 고른다. b 는 READ COMMITTED 라서 [4.6]에 따라 잠금을 얻은 뒤 실행하는 순간의 스냅숏으로 읽고 a 가 커밋한 2 를 출력한다. [4.11]에 따라 대기열의 ROLLBACK 이 이어서 실행되어 b 가 끝나고 잠금이 풀린다. 그다음 READ 는 끝난 트랜잭션의 명령이라 `b ERR ENDED` 를 출력한다. 재개는 처음부터 다시 고르므로 c 가 잠금을 얻어 `c OK` 를 출력한다. ① ROLLBACK 이 들어온 즉시 실행된다고 보거나 재개에서 시작 순서가 앞선 c 를 먼저 고른 답이다. 대기열 규칙 [4.10]과 재개 순서 규칙 [4.12]를 함께 적용해야 이 선지를 지울 수 있다. ② READ 줄이 들어온 때의 스냅숏으로 읽은 답이다. ③ 재개가 트랜잭션 하나를 실행하고 끝난다고 본 답이다. ⑤ c 가 기다리는 상대가 a 에서 b 로 바뀔 때 WAIT 줄을 다시 출력한 답이다. [4.9]에 따라 WAIT 줄은 기다리기 시작할 때 한 번만 출력한다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 차례로 처리했을 때 `ABORT DEADLOCK` 을 출력하는 트랜잭션의 이름을 그 줄이 나온 차례대로 공백 하나씩 띄워 쓰면?",
+      "context": "<보기>\nBEGIN dan\nBEGIN bob\nBEGIN amy\nBEGIN cal\nREAD dan k FOR SHARE\nREAD amy k FOR SHARE\nWRITE bob x 1\nWRITE cal y 1\nREAD dan x FOR SHARE\nREAD amy y FOR SHARE\nREAD cal x FOR SHARE\nWRITE bob k 1",
+      "answers": [
+        "cal bob"
+      ],
+      "refs": [
+        "4.8",
+        "4.14",
+        "4.16",
+        "4.18"
+      ],
+      "quote": "고리가 여럿이면 고리 가운데 하나에라도 든 트랜잭션을 모두 놓고 고른다.",
+      "explanation": "정답은 `cal bob` 이다. [4.8]에 따라 시작 순서는 BEGIN 을 실행한 순서인 dan, bob, amy, cal 이다. 마지막 줄 전에 dan 과 cal 은 bob 의 X 잠금이 걸린 x 를 기다리고 amy 는 cal 의 X 잠금이 걸린 y 를 기다린다. bob 이 dan 과 amy 의 S 잠금이 걸린 k 를 기다리기 시작하면 [4.14]의 대기 그래프에 bob → dan → bob 과 bob → amy → cal → bob 의 두 고리가 생긴다. [4.16]에 따라 두 고리에 든 bob, dan, amy, cal 을 모두 놓고 시작 순서가 가장 늦은 cal 을 희생자로 고른다. [4.18]에 따라 cal 을 되돌린 뒤 다시 확인하면 cal 이 든 고리는 없어졌지만 bob → dan → bob 은 남아 있다. 그래서 bob 과 dan 가운데 시작 순서가 늦은 bob 을 한 번 더 되돌린다. 트랜잭션 두 개짜리 고리만 찾거나 방금 기다리기 시작한 트랜잭션을 희생자로 고르면 `bob` 으로 답하게 된다. 이름 순서를 시작 순서로 보면 `dan cal` 로, 희생자를 되돌린 뒤 다시 확인하지 않으면 `cal` 로 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 처리했을 때의 출력은?",
+      "input": [
+        "READ t1 for FOR UPDATE"
+      ],
+      "answers": [
+        "t1 ERR NO_TX"
+      ],
+      "refs": [
+        "5.1",
+        "5.3"
+      ],
+      "quote": "FOR 절이 붙은 READ 의 인자는 트랜잭션, 키, `FOR`, `SHARE` 나 `UPDATE` 의 네 개다.",
+      "explanation": "정답은 `t1 ERR NO_TX` 다. [5.1]에 따라 FOR 절이 붙은 READ 의 인자는 차례로 트랜잭션, 키, `FOR`, `SHARE` 나 `UPDATE` 다. 둘째 인자 for 는 키 자리에 있고 1단계 3.12 의 키 형식에 맞는 영문 소문자 문자열이다. 셋째와 넷째 인자가 `FOR UPDATE` 이므로 이 줄은 형식에 맞는다. [5.3]에 따라 상태 오류는 명령을 실행할 때 확인하고 t1 은 시작한 적이 없으므로 `t1 ERR NO_TX` 를 출력한다. 소문자 for 를 잘못 쓴 FOR 절로 보면 `ERR BAD_ARGUMENT` 로 답하게 된다."
+    }
+  ]
+}

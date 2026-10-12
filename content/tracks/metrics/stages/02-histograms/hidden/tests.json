@@ -1,0 +1,591 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "first-histogram",
+      "refs": [
+        "1.1",
+        "4.1",
+        "4.2",
+        "4.7",
+        "4.11",
+        "4.12",
+        "4.14"
+      ],
+      "quote": "버킷마다 `<상한>:<합친 개수>` 를 버킷 순서대로 쓰고 사이에 공백을 하나씩 둔다.",
+      "input": [
+        "TYPE request_latency_ms histogram 100 250 500",
+        "ADD 10 0,0,0,0 request_latency_ms",
+        "ADD 20 4,7,9,10 request_latency_ms",
+        "ADD 30 8,14,18,20 request_latency_ms",
+        "BUCKETS 35 30 request_latency_ms",
+        "QUANTILE 35 30 0.5 request_latency_ms"
+      ],
+      "expected": [
+        "100:12.000000 250:21.000000 500:27.000000 +Inf:30.000000",
+        "150.000000"
+      ]
+    },
+    {
+      "name": "bucket-increases",
+      "refs": [
+        "4.4",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "범위 안 표본 수, 재시작 판정, 보외, 반올림을 버킷 시계열마다 따로 적용한다.",
+      "input": [
+        "TYPE db_query_ms histogram 5 20 80",
+        "ADD 0 1,2,3,3 db_query_ms db=orders replica=r1",
+        "ADD 30 2,5,8,9 db_query_ms db=orders replica=r1",
+        "ADD 60 3,7,12,14 db_query_ms db=orders replica=r1",
+        "ADD 0 0,0,0,0 db_query_ms db=orders replica=r2",
+        "ADD 45 1,1,2,2 db_query_ms db=orders replica=r2",
+        "ADD 0 5,5,9,9 db_query_ms db=orders replica=r3",
+        "ADD 30 1,2,3,3 db_query_ms db=orders replica=r3",
+        "ADD 60 2,4,5,6 db_query_ms db=orders replica=r3",
+        "ADD 50 0,1,1,1 db_query_ms db=users replica=r1",
+        "ADD 55 0,1,2,3 db_query_ms db=users replica=r1",
+        "BUCKETS 60 60 db_query_ms db=orders replica=r3",
+        "BUCKETS 60 60 db_query_ms db=orders",
+        "BUCKETS 60 61 db_query_ms db=orders",
+        "QUANTILE 60 61 0.5 db_query_ms db=orders",
+        "BUCKETS 60 60 db_query_ms",
+        "BUCKETS 60 60 db_query_ms replica=r9",
+        "BUCKETS 30 20 db_query_ms"
+      ],
+      "expected": [
+        "5:2.000000 20:4.000000 80:4.000000 +Inf:6.000000",
+        "5:4.000000 20:8.000000 80:12.000000 +Inf:16.000000",
+        "5:5.422222 20:10.505556 80:16.944444 +Inf:19.994444",
+        "18.499998",
+        "5:4.000000 20:8.000000 80:14.500000 +Inf:21.000000",
+        "NONE",
+        "NONE"
+      ]
+    },
+    {
+      "name": "merged-series",
+      "refs": [
+        "2.4",
+        "4.6",
+        "4.14"
+      ],
+      "quote": "j 번째 합친 개수는 선택된 히스토그램 시계열 가운데 범위 안 표본이 2개 이상인 시계열의 j 번째 버킷 증가량을 모두 더한 값이다.",
+      "input": [
+        "TYPE checkout_ms histogram 50 100 200 400",
+        "ADD 0 0,0,0,0,0 checkout_ms pod=a",
+        "ADD 15 2,3,5,6,6 checkout_ms pod=a",
+        "ADD 30 4,7,10,12,12 checkout_ms pod=a",
+        "ADD 5 0,0,0,0,0 checkout_ms pod=b",
+        "ADD 25 0,1,1,8,9 checkout_ms pod=b",
+        "ADD 10 0,0,0,0,0 checkout_ms pod=c zone=z2",
+        "ADD 31 1,1,1,1,1 checkout_ms zone=z2 pod=c",
+        "BUCKETS 30 30 checkout_ms",
+        "QUANTILE 30 30 0.9 checkout_ms",
+        "QUANTILE 30 30 0.9 checkout_ms pod=a",
+        "QUANTILE 30 30 0.9 checkout_ms pod=b",
+        "BUCKETS 31 31 checkout_ms",
+        "QUANTILE 31 31 0.5 checkout_ms zone=z2",
+        "QUANTILE 31 31 0.5 checkout_ms"
+      ],
+      "expected": [
+        "50:4.000000 100:9.500000 200:11.500000 400:24.000000 +Inf:25.500000",
+        "383.200000",
+        "280.000000",
+        "400.000000",
+        "50:5.609523 100:11.292857 200:13.359523 400:26.276190 +Inf:27.826190",
+        "25.000000",
+        "208.571437"
+      ]
+    },
+    {
+      "name": "quantile-interpolation",
+      "refs": [
+        "2.5",
+        "4.11",
+        "4.14",
+        "4.15"
+      ],
+      "quote": "U 를 m 번째 버킷의 상한이라 하면 추정값은 L + (U − L) × (ρ − D) ÷ (c_m − D) 다.",
+      "input": [
+        "TYPE upload_size_kb histogram 64 256 1024 4096",
+        "ADD 100 0,0,0,0,0 upload_size_kb",
+        "ADD 160 3,10,17,21,22 upload_size_kb",
+        "BUCKETS 160 120 upload_size_kb",
+        "QUANTILE 160 120 0.5 upload_size_kb",
+        "QUANTILE 160 120 0.9 upload_size_kb",
+        "QUANTILE 160 120 0.123 upload_size_kb",
+        "QUANTILE 160 120 0.333 upload_size_kb",
+        "QUANTILE 160 120 0.75 upload_size_kb",
+        "QUANTILE 160 120 0.95 upload_size_kb",
+        "QUANTILE 160 120 0.99 upload_size_kb"
+      ],
+      "expected": [
+        "64:6.000000 256:20.000000 1024:34.000000 4096:42.000000 +Inf:44.000000",
+        "365.714286",
+        "3174.400000",
+        "57.728000",
+        "182.656000",
+        "969.142857",
+        "4019.200000",
+        "4096.000000"
+      ]
+    },
+    {
+      "name": "bucket-selection",
+      "refs": [
+        "2.6",
+        "4.12",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "c_j 가 ρ 와 같은 버킷도 c_j ≥ ρ 를 만족한다.",
+      "input": [
+        "TYPE render_ms histogram 10 20 40 80",
+        "ADD 10 0,0,0,0,0 render_ms page=home",
+        "ADD 20 1,4,4,4,5 render_ms page=home",
+        "QUANTILE 20 20 0.8 render_ms page=home",
+        "QUANTILE 20 20 0.801 render_ms page=home",
+        "QUANTILE 20 20 0.2 render_ms page=home",
+        "QUANTILE 20 20 0.5 render_ms page=home",
+        "QUANTILE 20 20 0.1 render_ms page=home",
+        "QUANTILE 20 20 1 render_ms page=home",
+        "ADD 10 0,0,0,0,0 render_ms page=cart",
+        "ADD 20 0,3,5,5,5 render_ms page=cart",
+        "QUANTILE 20 20 1 render_ms page=cart",
+        "QUANTILE 20 20 0.6 render_ms page=cart",
+        "QUANTILE 20 20 0.3 render_ms page=cart",
+        "QUANTILE 20 20 0.9 render_ms"
+      ],
+      "expected": [
+        "20.000000",
+        "80.000000",
+        "10.000000",
+        "15.000000",
+        "5.000000",
+        "80.000000",
+        "40.000000",
+        "20.000000",
+        "15.000000",
+        "40.000000"
+      ]
+    },
+    {
+      "name": "monotonic-correction",
+      "refs": [
+        "2.7",
+        "4.7",
+        "4.9",
+        "4.10"
+      ],
+      "quote": "2 번째 버킷부터 마지막 버킷까지 차례로 보면서 합친 개수가 바로 아래 버킷의 보정한 개수보다 작으면 바로 아래 버킷의 보정한 개수를 쓰고 작지 않으면 합친 개수를 그대로 쓴다.",
+      "input": [
+        "TYPE job_runtime_s histogram 1 5 30 120",
+        "ADD 30 10,12,20,25,30 job_runtime_s",
+        "ADD 60 9,15,25,40,46 job_runtime_s",
+        "BUCKETS 60 60 job_runtime_s",
+        "QUANTILE 60 60 0.5 job_runtime_s",
+        "QUANTILE 60 60 0.75 job_runtime_s",
+        "QUANTILE 60 60 0.6 job_runtime_s",
+        "TYPE queue_wait_s histogram 1 2 4",
+        "ADD 0 10,20,25,30 queue_wait_s",
+        "ADD 30 8,25,34,34 queue_wait_s",
+        "BUCKETS 30 31 queue_wait_s",
+        "QUANTILE 30 31 0.95 queue_wait_s",
+        "QUANTILE 30 31 1 queue_wait_s"
+      ],
+      "expected": [
+        "1:18.000000 5:6.000000 30:10.000000 120:30.000000 +Inf:32.000000",
+        "0.888889",
+        "75.000000",
+        "39.000000",
+        "1:8.266667 2:5.166667 4:9.300000 +Inf:4.133333",
+        "3.100000",
+        "4.000000"
+      ]
+    },
+    {
+      "name": "no-observations",
+      "refs": [
+        "2.8",
+        "4.6",
+        "4.8",
+        "4.10"
+      ],
+      "quote": "N 이 0 이면 `NONE` 을 출력한다.",
+      "input": [
+        "TYPE login_ms histogram 50 200",
+        "QUANTILE 100 60 0.5 login_ms",
+        "BUCKETS 100 60 login_ms",
+        "ADD 50 4,6,9 login_ms region=eu",
+        "QUANTILE 100 60 0.5 login_ms",
+        "BUCKETS 100 60 login_ms",
+        "ADD 80 4,6,9 login_ms region=eu",
+        "BUCKETS 100 60 login_ms",
+        "QUANTILE 100 60 0.5 login_ms",
+        "QUANTILE 100 60 1 login_ms",
+        "ADD 50 5,5,5 login_ms region=ap",
+        "ADD 80 0,0,0 login_ms region=ap",
+        "QUANTILE 100 60 0.99 login_ms region=ap",
+        "ADD 50 0,0,1 login_ms region=us",
+        "ADD 80 0,0,3 login_ms region=us",
+        "BUCKETS 100 60 login_ms",
+        "QUANTILE 100 60 0.001 login_ms",
+        "QUANTILE 100 60 0.5 login_ms region=eu",
+        "BUCKETS 100 10 login_ms"
+      ],
+      "expected": [
+        "NONE",
+        "NONE",
+        "NONE",
+        "NONE",
+        "50:0.000000 200:0.000000 +Inf:0.000000",
+        "NONE",
+        "NONE",
+        "NONE",
+        "50:0.000000 200:0.000000 +Inf:4.000000",
+        "200.000000",
+        "NONE",
+        "NONE"
+      ]
+    },
+    {
+      "name": "histogram-type-errors",
+      "refs": [
+        "3.2",
+        "4.1",
+        "5.2",
+        "5.4"
+      ],
+      "quote": "둘째 인자가 `histogram` 인 TYPE 은 인자 수, 지표 이름, 상한 인자 하나하나의 형식, 상한이 차례로 커지는지, 이름이 겹치는지를 차례로 확인한다.",
+      "input": [
+        "TYPE api_latency_ms histogram 100",
+        "TYPE api_latency_ms histogram 200",
+        "TYPE api_latency_ms histogram",
+        "TYPE api_latency_ms histogram 0",
+        "TYPE api_latency_ms histogram 300 200",
+        "TYPE api_latency_ms counter",
+        "TYPE api_latency_ms counter 100",
+        "TYPE size_bytes histogram 1 1000000000",
+        "TYPE size_a histogram 1000000001",
+        "TYPE size_b histogram 5 5",
+        "TYPE size_c histogram 10 05",
+        "TYPE size_d histogram -5 10",
+        "TYPE size_e histogram 1.5",
+        "TYPE size_f Histogram 10",
+        "TYPE 9size histogram 10",
+        "TYPE size_g histogram 10 20 abc",
+        "TYPE size_h gauge 10",
+        "ADD 10 0,0,0 size_bytes",
+        "ADD 20 1,2,3 size_bytes",
+        "BUCKETS 20 20 size_bytes",
+        "ADD 10 1,2 api_latency_ms",
+        "ADD 20 3,5 api_latency_ms",
+        "BUCKETS 20 20 api_latency_ms",
+        "QUANTILE 20 20 0.5 api_latency_ms",
+        "ADD 10 0,0,0 size_b",
+        "ADD 10 0,0 size_a"
+      ],
+      "expected": [
+        "ERR EXISTS",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR EXISTS",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "1:2.000000 1000000000:4.000000 +Inf:6.000000",
+        "100:4.000000 +Inf:6.000000",
+        "75.000000",
+        "ERR NO_METRIC",
+        "ERR NO_METRIC"
+      ]
+    },
+    {
+      "name": "histogram-add-errors",
+      "refs": [
+        "3.4",
+        "4.2",
+        "4.3",
+        "5.4"
+      ],
+      "quote": "개수 목록은 개수가 정확히 K + 1 개이고 왼쪽부터 줄지 않아야 한다.",
+      "input": [
+        "TYPE payload_kb histogram 1 10",
+        "TYPE events_total counter",
+        "ADD 10 1,2,3 payload_kb",
+        "ADD 10 1,2,3 payload_kb",
+        "ADD 10 1,2,3 payload_kb host=b",
+        "ADD 20 1,2 payload_kb",
+        "ADD 20 1,2,3,4 payload_kb",
+        "ADD 20 3,2,3 payload_kb",
+        "ADD 20 1,,3 payload_kb",
+        "ADD 20 1,2,3, payload_kb",
+        "ADD 20 ,1,2,3 payload_kb",
+        "ADD 20 1,02,3 payload_kb",
+        "ADD 20 1,-2,3 payload_kb",
+        "ADD 20 1,2,1000000000001 payload_kb",
+        "ADD 20 1,2,1000000000000 payload_kb",
+        "ADD 20 5,6,7 payload_kb",
+        "ADD 15 3,2,1 payload_kb",
+        "ADD 30 7 payload_kb",
+        "ADD 30 1,2,3 missing_hist",
+        "ADD 30 a,b,c missing_hist",
+        "ADD 30 1,2 events_total",
+        "ADD 30 5 events_total",
+        "ADD 30 1,2,3 payload_kb job=a job=b",
+        "ADD 30 2,2,2 payload_kb",
+        "BUCKETS 30 30 payload_kb",
+        "QUANTILE 30 30 0.5 payload_kb"
+      ],
+      "expected": [
+        "ERR OUT_OF_ORDER",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR OUT_OF_ORDER",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NO_METRIC",
+        "ERR NO_METRIC",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "1:1.500000 10:0.000000 +Inf:1499999999998.500000",
+        "10.000000"
+      ]
+    },
+    {
+      "name": "histogram-query-errors",
+      "refs": [
+        "3.3",
+        "4.16",
+        "5.1",
+        "5.3",
+        "5.4"
+      ],
+      "quote": "BUCKETS 와 QUANTILE 은 지표의 종류가 histogram 이 아니면 `ERR WRONG_TYPE` 을 출력한다.",
+      "input": [
+        "TYPE ttfb_ms histogram 100 300",
+        "TYPE hits_total counter",
+        "TYPE active_users gauge",
+        "ADD 0 0,0,0 ttfb_ms",
+        "ADD 10 1,3,4 ttfb_ms",
+        "QUANTILE 10 20 0.10 ttfb_ms",
+        "QUANTILE 10 20 0.100 ttfb_ms",
+        "QUANTILE 10 20 0.000 ttfb_ms",
+        "QUANTILE 10 20 0.0 ttfb_ms",
+        "QUANTILE 10 20 0 ttfb_ms",
+        "QUANTILE 10 20 1.0 ttfb_ms",
+        "QUANTILE 10 20 0.9999 ttfb_ms",
+        "QUANTILE 10 20 .5 ttfb_ms",
+        "QUANTILE 10 20 00.5 ttfb_ms",
+        "QUANTILE 10 20 1 ttfb_ms",
+        "QUANTILE 10 20 0.5",
+        "QUANTILE 10 20 0.5 missing_ms",
+        "QUANTILE 10 20 1.5 missing_ms",
+        "QUANTILE 10 0 0.5 ttfb_ms",
+        "QUANTILE 10 20 0.5 hits_total",
+        "QUANTILE 10 20 0.5 ttfb_ms le=100 le=300",
+        "QUANTILE 10 20 0.5 ttfb_ms job=web",
+        "BUCKETS 10 20",
+        "BUCKETS 10 20 active_users",
+        "BUCKETS 10 20 hits_total",
+        "BUCKETS 10 20 missing_ms",
+        "BUCKETS 10 20 ttfb_ms extra",
+        "INCREASE 10 20 ttfb_ms",
+        "RATE 10 20 ttfb_ms",
+        "DELTA 10 20 ttfb_ms",
+        "buckets 10 20 ttfb_ms",
+        "Quantile 10 20 0.5 ttfb_ms",
+        "BUCKETS 10 20 ttfb_ms"
+      ],
+      "expected": [
+        "40.000000",
+        "40.000000",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "300.000000",
+        "ERR BAD_ARGUMENT",
+        "ERR NO_METRIC",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR WRONG_TYPE",
+        "ERR BAD_ARGUMENT",
+        "NONE",
+        "ERR BAD_ARGUMENT",
+        "ERR WRONG_TYPE",
+        "ERR WRONG_TYPE",
+        "ERR NO_METRIC",
+        "ERR BAD_ARGUMENT",
+        "ERR WRONG_TYPE",
+        "ERR WRONG_TYPE",
+        "ERR WRONG_TYPE",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "100:2.000000 300:6.000000 +Inf:8.000000"
+      ]
+    },
+    {
+      "name": "exact-estimates",
+      "refs": [
+        "4.11",
+        "4.15"
+      ],
+      "quote": "추정값은 정확한 값을 1단계 4.10 대로 반올림하고 1단계 4.12 의 형식으로 쓴다.",
+      "input": [
+        "TYPE object_size_bytes histogram 1 999999999 1000000000",
+        "ADD 0 0,0,0,0 object_size_bytes",
+        "ADD 3 1,999999999999,1000000000000,1000000000000 object_size_bytes",
+        "BUCKETS 3 4 object_size_bytes",
+        "QUANTILE 3 4 0.5 object_size_bytes",
+        "QUANTILE 3 4 0.001 object_size_bytes",
+        "QUANTILE 3 4 1 object_size_bytes"
+      ],
+      "expected": [
+        "1:1.333333 999999999:1333333333332.000000 1000000000:1333333333333.333333 +Inf:1333333333333.333333",
+        "500000000.000000",
+        "1000000.997002",
+        "1000000000.000000"
+      ]
+    },
+    {
+      "name": "unrounded-rank",
+      "refs": [
+        "4.11",
+        "4.12",
+        "4.14"
+      ],
+      "quote": "순위는 반올림하지 않은 정확한 값이다.",
+      "input": [
+        "TYPE upload_kb histogram 10 50",
+        "TYPE body_bytes histogram 1000 1000000",
+        "ADD 0 0,0,0 upload_kb",
+        "ADD 128 2,4,5 upload_kb",
+        "ADD 0 0,0,0 body_bytes",
+        "ADD 128 1,3,3 body_bytes",
+        "QUANTILE 128 133 0.4 upload_kb",
+        "QUANTILE 128 133 0.5 upload_kb",
+        "QUANTILE 128 129 0.4 body_bytes",
+        "QUANTILE 128 256 0.4 upload_kb"
+      ],
+      "expected": [
+        "10.000004",
+        "20.000005",
+        "100899.851312",
+        "10.000000"
+      ]
+    },
+    {
+      "name": "latency-dashboard",
+      "refs": [
+        "2.3",
+        "2.4",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "이 트랙의 ADD 는 히스토그램 하나의 버킷 개수를 모두 한 줄에 적재하지만 증가량은 1단계의 카운터 시계열처럼 버킷마다 따로 계산한다.",
+      "input": [
+        "TYPE api_latency_ms histogram 25 50 100 250 500 1000",
+        "ADD 0 0,0,0,0,0,0,0 api_latency_ms pod=a",
+        "ADD 15 40,70,85,95,98,99,100 api_latency_ms pod=a",
+        "ADD 30 80,140,170,190,196,198,200 api_latency_ms pod=a",
+        "ADD 45 120,210,255,285,294,297,300 api_latency_ms pod=a",
+        "ADD 60 160,280,340,380,392,396,400 api_latency_ms pod=a",
+        "ADD 75 200,350,425,475,490,495,500 api_latency_ms pod=a",
+        "ADD 90 240,420,510,570,588,594,600 api_latency_ms pod=a",
+        "ADD 5 0,0,0,0,0,0,0 api_latency_ms pod=b",
+        "ADD 20 10,30,60,80,90,95,100 api_latency_ms pod=b",
+        "ADD 35 20,60,120,160,180,190,200 api_latency_ms pod=b",
+        "ADD 50 30,90,180,240,270,285,300 api_latency_ms pod=b",
+        "ADD 65 2,8,15,25,28,30,31 api_latency_ms pod=b",
+        "ADD 80 12,38,75,105,118,125,131 api_latency_ms pod=b",
+        "ADD 95 22,68,135,185,208,220,231 api_latency_ms pod=b",
+        "QUANTILE 60 60 0.5 api_latency_ms",
+        "QUANTILE 60 60 0.95 api_latency_ms",
+        "QUANTILE 60 60 0.99 api_latency_ms",
+        "BUCKETS 90 60 api_latency_ms pod=b",
+        "QUANTILE 90 60 0.95 api_latency_ms pod=b",
+        "QUANTILE 90 60 0.99 api_latency_ms",
+        "QUANTILE 95 30 0.5 api_latency_ms"
+      ],
+      "expected": [
+        "50.000000",
+        "666.666667",
+        "1000.000000",
+        "25:29.333333 50:90.666667 100:180.000000 250:246.666667 500:277.333333 1000:293.333333 +Inf:308.000000",
+        "977.083344",
+        "1000.000000",
+        "50.000000"
+      ]
+    },
+    {
+      "name": "random-histograms",
+      "refs": [
+        "4.5",
+        "4.9",
+        "4.12",
+        "4.14"
+      ],
+      "quote": "1 이상 K 이하인 j 가운데 c_j ≥ ρ 인 가장 작은 j 를 m 이라 하고 순위가 m 번째 버킷에 든다고 한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--lines",
+        "400"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "random-long-histograms",
+      "refs": [
+        "4.2",
+        "4.6",
+        "4.13",
+        "5.4"
+      ],
+      "quote": "j 번째 합친 개수는 선택된 히스토그램 시계열 가운데 범위 안 표본이 2개 이상인 시계열의 j 번째 버킷 증가량을 모두 더한 값이다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--lines",
+        "3000"
+      ],
+      "repeat": 2
+    },
+    {
+      "name": "large-scale",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "질의마다 범위 안의 표본을 하나씩 훑는 풀이는 이 제한 시간을 넘기도록 규모를 정했다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--mode",
+        "large"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

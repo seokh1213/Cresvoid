@@ -1,0 +1,74 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "3단계 스펙에 따른 설명으로 옳은 것은?",
+      "choices": [
+        "트랜잭션이 COMPACT 로 쓴 새 파일을 같은 트랜잭션에서 POSDEL 의 대상으로 삼아 커밋하면 그 위치 삭제 파일은 커밋한 뒤의 SCAN 에서 새 파일에 적용된다.",
+        "한 트랜잭션이 데이터 파일 하나를 APPEND 로 쓰고 그 파일과 파티션 값이 같은 동등 삭제 파일을 EQDEL 로 쓴 뒤 COMMIT 이 RETRY 를 거쳐 커밋되면 동등 삭제 파일은 그 데이터 파일에서 값이 같은 행을 지운다.",
+        "같은 트랜잭션이 COMPACT 앞에 EQDEL 로 적은 동등 삭제 파일은 새 파일의 행을 고를 때 사용하지 않았으므로 파티션 값이 새 파일과 같아도 커밋한 뒤의 SCAN 에서 새 파일에 적용되지 않는다.",
+        "데이터 파일을 REMOVE 한 커밋은 그 파일을 가리키는 위치 삭제 파일도 함께 지우므로 커밋 전의 스냅숏을 AT 으로 읽어도 위치 삭제 파일이 데이터 파일에 적용되지 않는다.",
+        "위치 삭제 파일들이 데이터 파일의 행을 모두 지우면 조건 없는 SCAN 은 그 데이터 파일을 계획한 파일로 세지 않는다."
+      ],
+      "answer": 1,
+      "refs": ["4.6", "4.12", "4.13", "4.17", "4.18", "4.21", "4.22"],
+      "quote": "D 의 대상 데이터 파일이 F 이고 f 가 d 보다 크지 않으면 S 에서 D 는 F 에 적용된다.",
+      "explanation": "정답은 ①이다. [4.6]에 따라 트랜잭션은 자기가 COMPACT 로 쓴 새 파일을 POSDEL 의 대상으로 삼을 수 있다. 2단계 4.15 에 따라 새 파일은 시작 스냅숏의 순서 번호를 직접 적고 [4.12]에 따라 위치 삭제 파일은 커밋한 스냅숏의 순서 번호를 이어받는다. 커밋한 스냅숏의 순서 번호가 시작 스냅숏의 순서 번호보다 크므로 [4.17]에 따라 위치 삭제 파일이 새 파일에 적용된다. ② 2단계 4.5 에 따라 두 번째 시도는 첫 시도의 새 데이터 매니페스트를 두 번째 시도의 순서 번호로 적고 APPEND 로 쓴 파일의 항목은 이 번호를 이어받는다. [4.12]에 따라 새 삭제 매니페스트도 두 번째 시도의 순서 번호로 적히므로 두 파일의 순서 번호가 같고 [4.18]에 따라 동등 삭제 파일은 적용되지 않는다. 재시도의 순서 번호 규칙과 [4.18]을 함께 적용해야 지울 수 있다. ③ [4.22]는 COMPACT 가 옮길 행을 고를 때의 규칙이다. 커밋한 뒤 동등 삭제 파일의 순서 번호는 커밋한 스냅숏의 순서 번호이고 새 파일의 순서 번호는 그보다 작은 시작 스냅숏의 순서 번호이므로 [4.18]에 따라 동등 삭제 파일이 새 파일에 적용된다. [4.22]와 [4.18]을 구별해야 지울 수 있다. ④ [4.13]에 따라 위치 삭제 파일은 REMOVE 를 커밋한 새 스냅숏에서 데이터 파일과 함께 지워진다. 그 전의 스냅숏에는 두 파일이 모두 살아 있으므로 [4.17]에 따라 그 스냅숏을 읽으면 위치 삭제 파일이 적용된다. [4.13]이 바꾸는 스냅숏과 [4.17]이 적용을 정하는 스냅숏 S 를 함께 봐야 지울 수 있다. ⑤ [4.21]에 따라 열의 하한과 상한은 삭제를 반영하지 않으므로 행이 모두 삭제된 파일도 계획한 파일이 되어 `rows=0` 으로 나온다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE id:long kind:string PARTITION bucket[2](id)\nBEGIN a\nAPPEND a f1 1,x 3,y 5,z\nAPPEND a f2 2,x\nCOMMIT a\nBEGIN b\nEQDEL b x1 id 3\nAPPEND b f3 3,w 7,v\nCOMMIT b\nBEGIN c\nPOSDEL c x2 f2 0\nEQDEL c x3 id 7\nCOMPACT c g1 f1 f3\nREMOVE c f2\nPOSDEL c x1 f1 0\nPOSDEL c x4 f3 2\nEQDEL c x5 kind x",
+      "choices": [
+        "`COMPACT c g1 f1 f3` 는 `c COMPACT g1 {id_bucket=1} rows=3` 을 출력한다.",
+        "`REMOVE c f2` 는 `c REMOVE f2` 를 출력한다.",
+        "`POSDEL c x1 f1 0` 은 f1 이 c 가 바꿀 파일이므로 `c ERR NOT_LIVE f1` 을 출력한다.",
+        "`POSDEL c x4 f3 2` 는 `c ERR NOT_LIVE f3` 을 출력한다.",
+        "`EQDEL c x5 kind x` 는 열 목록에 파티션 필드의 원본 열이 없으므로 `c ERR MIXED_PARTITION` 을 출력한다."
+      ],
+      "answer": 4,
+      "refs": ["4.6", "4.8", "4.9", "4.18", "4.22", "5.2", "5.3", "5.4"],
+      "quote": "하나는 그 트랜잭션의 시작 스냅숏에 살아 있고 그 트랜잭션이 지울 파일로 적지 않은 데이터 파일이다.",
+      "explanation": "정답은 ④이다. 2단계 4.11 에 따라 COMPACT 의 바꿀 파일 f3 은 c 가 지울 파일이 된다. [4.6]에서 대상 데이터 파일은 시작 스냅숏에 살아 있고 그 트랜잭션이 지울 파일로 적지 않은 파일이거나 그 트랜잭션이 APPEND 나 COMPACT 로 쓴 파일이어야 한다. f3 은 둘 다 아니므로 [5.3]에 따라 위치를 확인하기 전에 `c ERR NOT_LIVE f3` 을 출력한다. ① 시작 스냅숏 b 에서 f1 의 순서 번호 1 은 x1 의 2 보다 작으므로 [4.18]에 따라 f1 의 id 3 인 행은 삭제되어 있다. f3 은 x1 과 같은 커밋에서 더해져 순서 번호가 같으므로 x1 이 적용되지 않는다. [4.22]에 따라 c 가 COMPACT 앞에 쓴 x3 은 옮길 행을 고를 때 사용하지 않으므로 옮기는 행은 넷이다. x1 을 f3 에 적용하거나 x3 을 사용하면 3 이 나오므로 [4.18]과 [4.22]를 모두 알아야 지울 수 있다. ② c 가 이미 f2 를 POSDEL 의 대상으로 삼았으므로 [4.8]과 [5.4]에 따라 `c ERR NOT_LIVE f2` 다. ③ [5.3]에 따라 삭제 파일 이름을 대상 데이터 파일보다 먼저 확인한다. x1 은 b 가 쓴 동등 삭제 파일의 이름이므로 `c ERR FILE_EXISTS x1` 이다. ⑤ [4.9]에서 열 목록에는 모든 파티션 필드의 원본 열이 있어야 하고 [5.2]에 따라 이를 어기면 `ERR BAD_ARGUMENT` 다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄의 출력을 바르게 설명한 것은?",
+      "context": "<보기>\nCREATE id:long kind:string PARTITION bucket[2](id)\nBEGIN a\nAPPEND a f1 1,x 3,y\nAPPEND a f2 2,x 4,y\nCOMMIT a\nBEGIN b\nPOSDEL b x1 f1 0\nPOSDEL b x2 f2 1\nEQDEL b x3 id 3\nCOMMIT b\nBEGIN c\nAPPEND c f3 5,z\nEQDEL c x4 id 4\nREMOVE c f1\nCOMMIT c\nMANIFESTS c",
+      "choices": [
+        "c-m2 는 c 가 f1 과 함께 지운 위치 삭제 파일 x1 을 DELETED 로 담은 매니페스트다.",
+        "c-m4 의 줄은 `c-m4 deletes seq=3 added=0 existing=2 deleted=1 id_bucket=0..1` 이다.",
+        "동등 삭제 파일 x3 은 f1 과 파티션 값이 같으므로 c 의 커밋에서 f1 과 함께 지워진다.",
+        "매니페스트 줄은 c-m1, c-m2, c-m3, c-m4 순서로 나온다.",
+        "c-m3 의 줄은 살아 있는 f2 의 파티션 값으로만 범위를 정하므로 `id_bucket=0..0` 으로 끝난다."
+      ],
+      "answer": 2,
+      "refs": ["4.12", "4.13", "4.14", "4.23"],
+      "quote": "커밋 시도에서 지울 파일에는 트랜잭션이 지울 파일로 적은 데이터 파일 말고도 그 시도의 부모 스냅숏에 살아 있는 위치 삭제 파일 가운데 대상 데이터 파일이 그 데이터 파일들 가운데 하나인 파일이 들어간다.",
+      "explanation": "정답은 ②이다. [4.13]에 따라 c 가 지울 파일에는 f1 과 f1 을 가리키는 위치 삭제 파일 x1 이 들어간다. [4.14]의 쓰는 순서에 따라 새 데이터 매니페스트 c-m1(f3), 새 삭제 매니페스트 c-m2(x4), a-m1 을 다시 쓴 c-m3, b-m1 을 다시 쓴 c-m4 가 차례로 이름을 받는다. c-m4 는 x1 을 DELETED 로, x2 와 x3 을 EXISTING 으로 담는다. [4.23]에 따라 범위에는 DELETED 인 x1 도 들어가므로 x1, x3 의 결과 1 과 x2 의 결과 0 으로 0..1 이다. ① c-m2 는 c 가 더한 x4 를 담은 새 삭제 매니페스트다. ③ [4.13]에 따라 함께 지우는 파일은 지운 데이터 파일을 가리키는 위치 삭제 파일뿐이다. ④ [4.14]에 따라 목록은 데이터 매니페스트 부분 뒤에 삭제 매니페스트 부분을 두므로 c-m1, c-m3, c-m2, c-m4 순서다. 이름을 정하는 쓰는 순서와 목록의 순서를 함께 적용해야 지울 수 있다. ⑤ 1단계 4.17 에 따라 DELETED 항목이 가리키는 f1 의 결과 1 도 범위에 들어가므로 `id_bucket=0..1` 이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄이 출력하는 줄 가운데 g1 의 줄은?",
+      "context": "<보기>\nCREATE id:long kind:string PARTITION bucket[2](id)\nBEGIN a\nAPPEND a f1 1,x 3,y 5,z 7,w\nAPPEND a f2 2,x 4,y\nCOMMIT a\nBEGIN b\nPOSDEL b x1 f1 0\nEQDEL b x2 id 5\nCOMMIT b\nBEGIN c\nCOMPACT c g1 f1\nEQDEL c x3 id 7\nEQDEL c x4 id,kind 2,x\nCOMMIT c\nBEGIN d\nEQDEL d x5 id 9\nCOMMIT d\nSCAN",
+      "answers": ["g1 rows=1 deletes=2"],
+      "refs": ["4.18", "4.19", "4.21", "4.22"],
+      "quote": "적용되는 삭제 파일은 4.17 과 4.18 로만 정하므로 그 파일의 행을 하나도 지우지 않는 삭제 파일도 `deletes=` 에 센다.",
+      "explanation": "정답은 `g1 rows=1 deletes=2` 다. [4.22]에 따라 g1 에는 시작 스냅숏 b 에서 삭제되지 않은 f1 의 행만 옮긴다. b 에서 x1 은 위치 0 을, x2 는 id 5 인 행을 지우므로 g1 의 행은 id 가 3 과 7 인 두 행이다. g1 의 순서 번호는 시작 스냅숏 b 의 순서 번호 2 다. x2 의 순서 번호도 2 이므로 [4.18]에 따라 g1 에 적용되지 않는다. c 가 함께 커밋한 x3 은 순서 번호 3 이라 적용되어 id 7 인 행을 지운다. x4 는 파티션 값이 `{id_bucket=0}` 이라 적용되지 않는다. d 의 x5 는 순서 번호 4 로 적용되지만 지우는 행이 없다. [4.21]에 따라 x5 도 `deletes=` 에 센다. 같은 순서 번호의 x2 까지 적용하면 `deletes=3` 이 된다. 행을 지우지 않는 x5 를 세지 않으면 `deletes=1` 이 된다. 같은 트랜잭션이 커밋한 x3 을 g1 에 적용하지 않으면 `g1 rows=2 deletes=1` 이 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄이 출력하는 둘째 줄은?",
+      "context": "<보기>\nCREATE id:long kind:string\nBEGIN a\nAPPEND a f1 1,x 2,y\nAPPEND a f3 3,x 4,y\nAPPEND a f4 5,x\nAPPEND a f5 6,x 7,y\nCOMMIT a\nBEGIN p\nBEGIN q\nREMOVE p f1\nCOMPACT p g1 f3 f4\nAPPEND p f2 8,z\nPOSDEL p x1 f2 0\nPOSDEL p x2 f5 1\nPOSDEL q y1 f1 0\nEQDEL q y2 id 3\nREMOVE q f5\nCOMMIT q\nCOMMIT p",
+      "answers": ["p CONFLICT f5"],
+      "refs": ["4.15", "4.16"],
+      "quote": "첫째로 POSDEL 의 대상 데이터 파일 가운데 시작 스냅숏에 살아 있던 파일이 판정에 사용하는 스냅숏에 살아 있지 않으면 그 데이터 파일이 충돌을 일으킨 파일이다.",
+      "explanation": "정답은 `p CONFLICT f5` 다. q 가 먼저 커밋하므로 p 의 첫 시도는 교체에 실패해 RETRY 줄을 먼저 출력하고 현재 스냅숏 q 로 충돌을 판정한다. p 가 지울 f1, f3, f4 는 q 에 모두 살아 있다. [4.15]의 첫째 경우에서 POSDEL 의 대상 f5 는 시작 스냅숏 a 에 살아 있었지만 q 가 지웠으므로 충돌을 일으킨다. f2 는 p 가 APPEND 로 쓴 파일이라 시작 스냅숏에 없으므로 이 경우에 들지 않는다. 둘째 경우는 시작 스냅숏보다 순서 번호가 큰 위치 삭제 파일이 COMPACT 의 바꿀 파일을 가리킬 때다. q 의 y1 은 바꿀 파일이 아니라 REMOVE 한 f1 을 가리키므로 충돌이 아니다. [4.16]에 따라 동등 삭제 파일 y2 는 충돌을 일으키지 않는다. 충돌을 일으킨 파일은 f5 하나다. REMOVE 한 파일에 더해진 위치 삭제도 충돌로 보면 `p CONFLICT f1`, 동등 삭제를 충돌로 보면 `p CONFLICT f3`, p 가 쓴 f2 를 충돌로 보면 `p CONFLICT f2` 를 답하게 된다."
+    }
+  ]
+}

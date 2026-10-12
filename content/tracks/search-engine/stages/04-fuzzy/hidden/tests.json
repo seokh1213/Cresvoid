@@ -1,0 +1,403 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "fuzzy-basic",
+      "refs": [
+        "1.1",
+        "4.1",
+        "4.10",
+        "4.12",
+        "4.17"
+      ],
+      "quote": "후보 하나는 `<토큰>:<거리>:<문서 빈도>` 꼴로 쓴다.",
+      "input": [
+        "ADD 1 search engine",
+        "ADD 2 searches and serch",
+        "ADD 3 research",
+        "FUZZY 10 search",
+        "FUZZY 10 engine",
+        "FUZZY 1 search"
+      ],
+      "expected": [
+        "search:0:1 serch:1:1 research:2:1 searches:2:1",
+        "engine:0:1",
+        "search:0:1"
+      ]
+    },
+    {
+      "name": "levenshtein-edits",
+      "refs": [
+        "4.6",
+        "4.7",
+        "2.2",
+        "2.3",
+        "2.4"
+      ],
+      "quote": "이웃한 두 글자를 맞바꾸는 편집은 없다.",
+      "input": [
+        "ADD 1 kotlin",
+        "ADD 2 kotln kotlinn kotlim kotiln",
+        "ADD 3 ab ba",
+        "FUZZY 10 kotlin",
+        "FUZZY 10 ab",
+        "FUZZY 10 ba",
+        "FUZZY 10 kotiln"
+      ],
+      "expected": [
+        "kotlin:0:1 kotlim:1:1 kotlinn:1:1 kotln:1:1 kotiln:2:1",
+        "ab:0:1 ba:2:1",
+        "ba:0:1 ab:2:1",
+        "kotiln:0:1 kotln:1:1 kotlin:2:1 kotlinn:2:1"
+      ]
+    },
+    {
+      "name": "candidate-sort-keys",
+      "refs": [
+        "4.15",
+        "4.14"
+      ],
+      "quote": "거리가 같으면 문서 빈도의 내림차순으로, 문서 빈도도 같으면 4.16 의 토큰 순서로 정렬한다.",
+      "input": [
+        "ADD 1 bat bats tab",
+        "ADD 2 bats cat tab",
+        "ADD 3 bats cat hat tab",
+        "ADD 4 bit tab",
+        "FUZZY 10 bat",
+        "FUZZY 3 bat",
+        "FUZZY 10 tab"
+      ],
+      "expected": [
+        "bat:0:1 bats:1:3 cat:1:2 bit:1:1 hat:1:1 tab:2:4",
+        "bat:0:1 bats:1:3 cat:1:2",
+        "tab:0:4 cat:2:2 bat:2:1 hat:2:1"
+      ]
+    },
+    {
+      "name": "token-order",
+      "refs": [
+        "4.16",
+        "4.15"
+      ],
+      "quote": "한 토큰이 다른 토큰의 앞부분과 같으면 짧은 토큰이 앞에 온다.",
+      "input": [
+        "ADD 1 9 10 100 1000",
+        "ADD 2 a 가 x1",
+        "ADD 3 abc abcde abd",
+        "FUZZY 10 1",
+        "FUZZY 10 abcd"
+      ],
+      "expected": [
+        "10:1:1 9:1:1 a:1:1 x1:1:1 가:1:1 100:2:1",
+        "abc:1:1 abcde:1:1 abd:1:1"
+      ]
+    },
+    {
+      "name": "hangul-syllables",
+      "refs": [
+        "4.8",
+        "4.9",
+        "3.2"
+      ],
+      "quote": "영문·숫자 토큰과 한글 토큰 사이에는 같은 글자가 하나도 없으므로 두 토큰의 거리는 두 길이 가운데 큰 값이다.",
+      "input": [
+        "ADD 1 검색 엔진",
+        "ADD 2 검색어 겸색 검",
+        "ADD 3 go 고 kotlin 코틀린 코틀",
+        "FUZZY 10 검색",
+        "FUZZY 10 코틀린",
+        "FUZZY 10 KO",
+        "FUZZY 10 kotlin"
+      ],
+      "expected": [
+        "검색:0:1 검:1:1 검색어:1:1 겸색:1:1 go:2:1 고:2:1 엔진:2:1 코틀:2:1",
+        "코틀린:0:1 코틀:1:1",
+        "go:1:1 검:2:1 검색:2:1 겸색:2:1 고:2:1 엔진:2:1 코틀:2:1",
+        "kotlin:0:1"
+      ]
+    },
+    {
+      "name": "index-follows-changes",
+      "refs": [
+        "4.11",
+        "4.19",
+        "4.14"
+      ],
+      "quote": "같은 id 로 ADD 해 문서를 대체하면 이전 본문의 토큰 가운데 새 본문에도 다른 문서에도 없는 토큰은 색인에서 빠진다.",
+      "input": [
+        "ADD 1 stream streams",
+        "ADD 2 stream",
+        "ADD 3 strem",
+        "FUZZY 10 stream",
+        "DEL 2",
+        "FUZZY 10 stream",
+        "ADD 1 steam",
+        "FUZZY 10 stream",
+        "STATS",
+        "ADD 2 stream",
+        "FUZZY 10 stream",
+        "DEL 3",
+        "DEL 1",
+        "FUZZY 10 stream",
+        "STATS"
+      ],
+      "expected": [
+        "stream:0:2 streams:1:1 strem:1:1",
+        "stream:0:1 streams:1:1 strem:1:1",
+        "steam:1:1 strem:1:1",
+        "2 2",
+        "stream:0:1 steam:1:1 strem:1:1",
+        "stream:0:1",
+        "1 1"
+      ]
+    },
+    {
+      "name": "exact-commands-unchanged",
+      "refs": [
+        "1.2",
+        "4.13",
+        "4.18",
+        "2.1"
+      ],
+      "quote": "QUERY 와 SEARCH 는 여전히 토큰이 정확히 같은 문서만 찾는다.",
+      "input": [
+        "ADD 1 kotlin coroutines",
+        "ADD 2 java streams",
+        "FUZZY 10 kotiln",
+        "QUERY kotiln",
+        "SEARCH 10 kotiln",
+        "FUZZY 10 python",
+        "FUZZY 10 jav",
+        "QUERY jav OR kotlin",
+        "STATS"
+      ],
+      "expected": [
+        "kotlin:2:1",
+        "(none)",
+        "(none)",
+        "(none)",
+        "java:1:1",
+        "1",
+        "2 4"
+      ]
+    },
+    {
+      "name": "word-normalization",
+      "refs": [
+        "4.4",
+        "4.5",
+        "5.4"
+      ],
+      "quote": "FUZZY 의 낱말에서는 괄호, 큰따옴표, AND·OR·NOT, `NEAR/`, `+`, `-` 에 특별한 뜻이 없다.",
+      "input": [
+        "ADD 1 kotlin and not",
+        "ADD 2 java nor",
+        "FUZZY 5 (KOTLIN)",
+        "FUZZY 5 \"kotlin\"",
+        "FUZZY 5 +Kotlin",
+        "FUZZY 5 -java",
+        "FUZZY 5 NOT",
+        "FUZZY 5 AND",
+        "FUZZY 5 NEAR/3",
+        "FUZZY 5 kotlin!!!",
+        "FUZZY 5 é-java",
+        "FUZZY 5 NEAR/"
+      ],
+      "expected": [
+        "kotlin:0:1",
+        "kotlin:0:1",
+        "kotlin:0:1",
+        "java:0:1",
+        "not:0:1 nor:1:1",
+        "and:0:1",
+        "ERR BAD_ARGUMENT",
+        "kotlin:0:1",
+        "java:0:1",
+        "nor:2:1"
+      ]
+    },
+    {
+      "name": "argument-errors",
+      "refs": [
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "4.2",
+        "4.3"
+      ],
+      "quote": "5.2~5.4 가운데 여러 조건에 해당해도 `ERR BAD_ARGUMENT` 한 줄만 출력한다.",
+      "input": [
+        "ADD 1 data base",
+        "FUZZY",
+        "FUZZY 5",
+        "FUZZY 5 data base",
+        "FUZZY 5\tdata",
+        "FUZZY 0 data",
+        "FUZZY 05 data",
+        "FUZZY 1001 data",
+        "FUZZY -1 data",
+        "FUZZY +5 data",
+        "FUZZY 5.0 data",
+        "FUZZY ５ data",
+        "FUZZY 9999 data",
+        "FUZZY 5 \"data base\"",
+        "FUZZY 0 !!!",
+        "FUZZY 5 ㅋㅋ",
+        "FUZZY 5 Kotlin은",
+        "FUZZY 1000 data",
+        "FUZZY 1 data",
+        "FUZZY 5 data\t",
+        "FUZZY  5   data  ",
+        "STATS"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "data:0:1",
+        "data:0:1",
+        "data:0:1",
+        "data:0:1",
+        "1 2"
+      ]
+    },
+    {
+      "name": "unknown-commands",
+      "refs": [
+        "5.1"
+      ],
+      "quote": "명령어는 대소문자를 구분하므로 `fuzzy` 와 `Fuzzy` 는 여전히 모르는 명령어다.",
+      "input": [
+        "ADD 1 data",
+        "fuzzy 5 data",
+        "Fuzzy 5 data",
+        "FUZZY5 data",
+        "FUZZY\t5 data",
+        "ＦＵＺＺＹ 5 data",
+        "FUZZYS 5 data",
+        "FUZZY 5 data"
+      ],
+      "expected": [
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "ERR UNKNOWN_COMMAND",
+        "data:0:1"
+      ]
+    },
+    {
+      "name": "distance-limit",
+      "refs": [
+        "4.10",
+        "2.7",
+        "4.12"
+      ],
+      "quote": "후보는 색인에 있는 토큰 가운데 질의 토큰과의 거리가 2 이하인 토큰이다.",
+      "input": [
+        "ADD 1 abcdef abcd abc abcdefgh abcdefghi",
+        "ADD 2 xbcdex xxcdef xxxdef",
+        "FUZZY 10 abcdef",
+        "FUZZY 10 abcdefg"
+      ],
+      "expected": [
+        "abcdef:0:1 abcd:2:1 abcdefgh:2:1 xbcdex:2:1 xxcdef:2:1",
+        "abcdef:1:1 abcdefgh:1:1 abcdefghi:2:1"
+      ]
+    },
+    {
+      "name": "document-frequency",
+      "refs": [
+        "4.14",
+        "4.15"
+      ],
+      "quote": "토큰의 문서 빈도는 그 토큰을 포함한 현재 문서의 수다.",
+      "input": [
+        "ADD 1 rust rust rust",
+        "ADD 2 rust trust",
+        "ADD 3",
+        "ADD 4 rusty",
+        "FUZZY 10 rust",
+        "ADD 2 must",
+        "FUZZY 10 rust",
+        "FUZZY 10 RUSTS"
+      ],
+      "expected": [
+        "rust:0:2 rusty:1:1 trust:1:1",
+        "rust:0:1 must:1:1 rusty:1:1",
+        "rust:1:1 rusty:1:1 must:2:1"
+      ]
+    },
+    {
+      "name": "random-fuzzy",
+      "refs": [
+        "4.10",
+        "4.15",
+        "4.17",
+        "5.5"
+      ],
+      "quote": "후보는 거리의 오름차순으로 정렬한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "80"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "random-churn",
+      "refs": [
+        "4.11",
+        "4.14",
+        "4.12"
+      ],
+      "quote": "DEL 과 ADD 의 결과는 다음 명령부터 바로 반영한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10",
+        "--queries",
+        "150"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "large-scale",
+      "refs": [
+        "7.3",
+        "2.6",
+        "2.9"
+      ],
+      "quote": "대규모 테스트는 서로 다른 토큰이 200,000개 안팎인 색인과 FUZZY 5,000개로 이뤄진다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "14000",
+        "--queries",
+        "5000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

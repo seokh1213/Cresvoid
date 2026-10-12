@@ -1,0 +1,21 @@
+#!/bin/sh
+script="$0"
+while [ -L "$script" ]; do
+  link="$(readlink "$script")"
+  case "$link" in
+    /*) script="$link" ;;
+    *) script="$(dirname "$script")/$link" ;;
+  esac
+done
+root="$(cd "$(dirname "$script")/../.." && pwd -P)"
+engine="$root/engine"
+jar="$engine/build/libs/cresvoid.jar"
+jdk_home="$(/usr/libexec/java_home -v 21 2>/dev/null)" || jdk_home="${JAVA_HOME:-}"
+
+if [ ! -f "$jar" ] || [ -n "$(find "$engine/src/main" "$engine/build.gradle.kts" "$engine/settings.gradle.kts" -newer "$jar" | head -n 1)" ]; then
+  echo "cresvoid: 엔진을 빌드합니다…" >&2
+  (cd "$engine" && JAVA_HOME="$jdk_home" ./gradlew -q jar) || exit $?
+  touch "$jar"
+fi
+
+CRESVOID_ROOT="$root" exec "${jdk_home:+$jdk_home/bin/}java" -jar "$jar" "$@"

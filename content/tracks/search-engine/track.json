@@ -1,0 +1,13 @@
+{
+  "title": "나만의 검색 엔진",
+  "kind": "build",
+  "summary": "역색인, 불리언 질의, BM25 랭킹, 구문·근접 검색, 오타 허용 검색, 자동 완성, 검색 결과 발췌를 표준 입출력 명령 처리기로 구현한다.",
+  "stages": [
+    { "dir": "01-boolean", "title": "색인과 불리언 검색" },
+    { "dir": "02-ranking", "title": "BM25 랭킹" },
+    { "dir": "03-phrase", "title": "구문 검색과 근접 검색" },
+    { "dir": "04-fuzzy", "title": "오타 허용 검색" },
+    { "dir": "05-suggest", "title": "자동 완성" },
+    { "dir": "06-snippet", "title": "검색 결과 발췌" }
+  ]
+}

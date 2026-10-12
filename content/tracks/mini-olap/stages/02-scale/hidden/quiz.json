@@ -1,0 +1,121 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>에서 ⇥ 는 탭 한 글자를, ␣ 는 공백 한 글자를 나타낸다. <보기>를 차례로 처리했을 때 마지막 SELECT 가 출력하는 결과 행은?",
+      "context": "<보기>\nCREATE TABLE v (user STRING, page STRING, ms INT)\nCOPY v FROM STDIN\nu1⇥/a⇥10\nu1⇥⇥10\nu2⇥NULL⇥\\N\n␣u1⇥/a⇥20\n\\N⇥\\N⇥30\nu2⇥/b⇥10\n\\.\nCOPY v FROM STDIN\nu3⇥/c⇥40\nu4⇥/d⇥NULL\n\\.\nSELECT COUNT(*), COUNT(DISTINCT user), COUNT(DISTINCT page), COUNT(DISTINCT ms) FROM v",
+      "choices": [
+        "`6|3|4|3`",
+        "`7|4|5|4`",
+        "`8|5|6|4`",
+        "`6|2|4|3`",
+        "`6|3|3|3`"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.4",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "오류가 나면 한 행도 넣지 않는다.",
+      "explanation": "정답은 ①이다. 첫 COPY 는 오류 없이 여섯 행을 넣는다. [4.4]에 따라 둘째 데이터 줄의 page 는 빈 문자열이다. 셋째 데이터 줄은 page 가 네 글자짜리 문자열 'NULL' 이고 ms 가 NULL 이다. 넷째 데이터 줄의 user 는 공백으로 시작하는 ' u1' 이다. 둘째 COPY 는 [4.4]에 따라 INT 열의 `NULL` 칸이 정수가 아니므로 `ERR TYPE 2` 를 내고 [4.6]에 따라 한 행도 넣지 않는다. 그래서 COUNT(*) 는 6 이다. [4.8]에 따라 NULL 은 세지 않고 빈 문자열은 센다. user 는 'u1', 'u2', ' u1' 의 3, page 는 '/a', '', 'NULL', '/b' 의 4, ms 는 10, 20, 30 의 3 이다. ② 둘째 COPY 의 첫 데이터 줄이 들어간다고 본 답이다. 그 COPY 가 둘째 데이터 줄에서 실패한다는 [4.4]와 실패한 COPY 는 한 행도 넣지 않는다는 [4.6]을 함께 적용해야 오답임을 알 수 있다. ③ INT 열의 `NULL` 칸을 NULL 로 보아 둘째 COPY 가 성공한다고 본 답이다. ④ 칸 앞의 공백을 지워 ' u1' 을 'u1' 과 같은 값으로 본 답이다. ⑤ 빈 문자열이나 문자열 'NULL' 을 NULL 처럼 세지 않은 답이다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>에서 ⇥ 는 탭 한 글자를, ␣ 는 공백 한 글자를, [빈 줄] 은 아무 글자도 없는 줄을 나타낸다. <보기>를 차례로 처리했을 때 출력되는 줄 가운데 머리줄을 뺀 나머지를 차례로 나열한 것은?",
+      "context": "<보기>\nCREATE TABLE w (name STRING, n INT)\nCOPY w FROM STDIN\na⇥1\n␣\\.\nSELECT COUNT(*) FROM w\n\\.\nCOPY w FROM STDIN\n[빈 줄]\nb⇥NULL\n\\.\nCOPY nope FROM STDIN\nc⇥x⇥y\n\\.\nCOPY w FROM STDIN\nNULL⇥\\N\n\\N⇥-7\n\\.\nSELECT COUNT(*), COUNT(name) FROM w",
+      "choices": [
+        "`ERR VALUE_COUNT 2`, `ERR TYPE 1`, `ERR NO_TABLE`, `2|1`",
+        "`1`, `ERR UNKNOWN_COMMAND`, `ERR VALUE_COUNT 1`, `ERR NO_TABLE`, `3|2`",
+        "`ERR VALUE_COUNT 2`, `ERR VALUE_COUNT 1`, `ERR NO_TABLE`, `3|2`",
+        "`ERR VALUE_COUNT 2`, `ERR VALUE_COUNT 1`, `ERR NO_TABLE`, `2|1`",
+        "`ERR VALUE_COUNT 2`, `ERR VALUE_COUNT 1`, `ERR NO_TABLE`, `2|0`"
+      ],
+      "answer": 4,
+      "refs": [
+        "3.1",
+        "4.2",
+        "4.3",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "앞뒤에 공백이 붙은 `\\.` 은 끝 줄이 아니라 데이터 줄이다.",
+      "explanation": "정답은 ④이다. 첫 COPY 에서 [4.2]에 따라 앞에 공백이 붙은 `\\.` 은 끝 줄이 아니라 데이터 줄이다. 탭이 없어 칸이 하나뿐이므로 [4.5]에 따라 `ERR VALUE_COUNT 2` 다. 그 뒤의 SELECT 줄도 데이터 줄이고 다음 `\\.` 줄에서 COPY 가 끝난다. 둘째 COPY 의 빈 줄은 [3.1]과 [4.3]에 따라 빈 칸 하나로 된 데이터 줄이라 `ERR VALUE_COUNT 1` 이다. 셋째 COPY 는 [4.5]에 따라 테이블이 없으면 데이터 줄을 확인하지 않으므로 `ERR NO_TABLE` 이다. 넷째 COPY 는 ('NULL', NULL) 과 (NULL, -7) 을 넣는다. [4.6]에 따라 실패한 COPY 는 한 행도 넣지 않으므로 마지막 SELECT 의 결과 행은 `2|1` 이다. 문자열 'NULL' 은 NULL 이 아니므로 COUNT(name) 에 들어간다. ① 빈 줄을 건너뛰어 둘째 COPY 의 첫 데이터 줄을 `b⇥NULL` 로 본 답이다. ② 공백이 붙은 `\\.` 을 끝 줄로 보아 첫 COPY 가 성공하고 그 뒤의 SELECT 줄과 `\\.` 줄을 명령으로 처리한 답이다. ③ 첫 COPY 에서 오류 앞의 `a⇥1` 이 들어간다고 본 답이다. 첫 COPY 가 둘째 데이터 줄에서 실패한다는 [4.2]와 실패한 COPY 는 한 행도 넣지 않는다는 [4.6]을 함께 적용해야 오답임을 알 수 있다. ⑤ 문자열 'NULL' 을 NULL 로 보아 COUNT(name) 을 0 으로 센 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "2단계 스펙에 비추어 옳은 설명은?",
+      "choices": [
+        "값이 처음 나온 순서로 번호를 붙여 사전 부호화한 열에서는 번호가 가장 작은 값이 그 열의 MIN 이다.",
+        "엔진은 대규모 테스트를 최대 힙 256MB 로 실행해 메모리 상한을 검사한다.",
+        "열이 `(user STRING)` 하나뿐인 테이블에 데이터 줄로 빈 줄 하나만 넣는 COPY 는 성공하고 user 가 빈 문자열인 행 하나를 넣는다.",
+        "6.2 의 visits 테이블에서 `SELECT user, COUNT(DISTINCT ms) FROM visits GROUP BY user ORDER BY COUNT(ms)` 는 COUNT(DISTINCT ms) 의 값으로 결과 행을 정렬한다.",
+        "`COPY visits FROM stdin` 은 `ERR SYNTAX` 를 출력하고 바로 다음 줄부터 명령으로 처리한다."
+      ],
+      "answer": 3,
+      "refs": [
+        "2.6",
+        "3.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.9",
+        "7.5"
+      ],
+      "quote": "그래서 빈 데이터 줄은 빈 칸 하나이고 탭으로 끝나는 줄의 마지막 칸은 빈 칸이다.",
+      "explanation": "정답은 ③이다. [3.1]에 따라 빈 줄도 데이터 줄이고 [4.3]에 따라 빈 데이터 줄은 빈 칸 하나다. 열이 하나뿐이므로 칸 수가 맞고 [4.4]에 따라 STRING 열의 빈 칸은 빈 문자열이다. ① [2.6]에 따라 번호를 값이 처음 나온 순서로 붙이면 번호의 순서는 값의 순서와 다를 수 있다. MIN 에는 값의 순서가 필요하다. ② [7.5]에 따라 엔진은 JVM 의 힙 크기를 정하지 않으므로 이 상한을 검사하지 않는다. ④ [4.9]에 따라 `COUNT(DISTINCT ms)` 와 `COUNT(ms)` 는 다른 항목이다. ORDER BY 의 키가 SELECT 목록의 어느 항목과도 같지 않으므로 1단계 4.19 의 다섯째 확인에서 `ERR NOT_SELECTED` 가 나온다. 두 규칙을 함께 적용해야 오답임을 알 수 있다. ⑤ `stdin` 은 키워드가 아니므로 [4.1]에 따라 `ERR SYNTAX` 가 맞다. 그러나 [4.2]에 따라 COPY 줄에 오류가 있어도 `\\.` 줄 앞까지는 데이터 줄이므로 다음 줄을 명령으로 처리하지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "입력의 넷째 줄은 아무 글자도 없는 빈 줄이다. 다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE TABLE tags (tag STRING)",
+        "COPY tags FROM STDIN",
+        "red",
+        "",
+        "NULL",
+        "\\N",
+        "SELECT COUNT(*) FROM tags",
+        "don't",
+        "\\."
+      ],
+      "answers": [
+        "ERR TYPE 6"
+      ],
+      "refs": [
+        "3.1",
+        "4.2",
+        "4.4",
+        "4.5"
+      ],
+      "quote": "데이터 줄은 앞뒤의 공백을 지우지 않고 빈 줄과 공백만 있는 줄도 데이터 줄이다.",
+      "explanation": "정답은 `ERR TYPE 6` 이다. [4.2]에 따라 COPY 줄 다음부터 `\\.` 줄 앞까지가 데이터 줄이고 명령처럼 보이는 SELECT 줄도 데이터 줄이다. [3.1]에 따라 빈 줄도 데이터 줄이라 둘째 데이터 줄이 된다. 열이 STRING 하나뿐이므로 빈 줄은 빈 문자열이고 `NULL` 은 네 글자짜리 문자열이다. [4.4]에 따라 `\\N` 은 역슬래시가 들어 있어도 NULL 이다. SELECT 줄은 쓸 수 있는 글자로만 되어 있어 문자열이 된다. 여섯째 데이터 줄 `don't` 에는 1단계 4.5 가 금지한 작은따옴표가 있으므로 [4.5]에 따라 `ERR TYPE 6` 이다. 빈 줄을 건너뛰고 세면 `ERR TYPE 5` 를, `\\N` 을 역슬래시가 든 두 글자짜리 값으로 보면 `ERR TYPE 4` 를 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력을 차례로 처리했을 때의 출력은?",
+      "input": [
+        "CREATE TABLE m (ms INT)",
+        "COPY m FROM STDIN",
+        "10",
+        "\\N",
+        "\\.",
+        "INSERT INTO m VALUES (5), ('NULL', 1), ('x')"
+      ],
+      "answers": [
+        "ERR VALUE_COUNT"
+      ],
+      "refs": [
+        "1.2",
+        "5.1"
+      ],
+      "quote": "INSERT 의 오류 줄은 1단계대로 번호 없는 `ERR VALUE_COUNT` 와 `ERR TYPE` 이다.",
+      "explanation": "정답은 `ERR VALUE_COUNT` 다. COPY 는 10 과 NULL 두 행을 넣고 아무것도 출력하지 않는다. [1.2]에 따라 INSERT 는 1단계 그대로다. 1단계 4.13 대로 행을 앞에서부터 확인하고 한 행 안에서는 값의 개수를 자료형보다 먼저 확인한다. 둘째 행 `('NULL', 1)` 은 값이 둘이라 열 수 1 과 다르다. 문자열 'NULL' 이 INT 열에 맞지 않는지는 개수가 맞을 때만 확인한다. [5.1]에 따라 INSERT 의 오류 줄에는 COPY 와 달리 번호를 붙이지 않는다. 번호를 붙이면 `ERR VALUE_COUNT 2` 를, 자료형을 먼저 보면 `ERR TYPE` 을 답하게 된다."
+    }
+  ]
+}

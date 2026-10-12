@@ -1,0 +1,110 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 줄의 출력은?",
+      "context": "<보기>\nBEGIN e\nWRITE e p1 1\nCOMMIT e\nBEGIN f\nWRITE f pa 1\nBEGIN t REPEATABLE READ\nCOMMIT f\nBEGIN r\nWRITE r p0 1\nROLLBACK r\nBEGIN g REPEATABLE READ\nWRITE g pb 1\nCOMMIT g\nWRITE t p0 1\nWRITE t p1 1\nWRITE t pa 1\nWRITE t pb 1\nCOMMIT t",
+      "choices": [
+        "t COMMIT",
+        "t ABORT WRITE_CONFLICT p0",
+        "t ABORT WRITE_CONFLICT p1",
+        "t ABORT WRITE_CONFLICT pa",
+        "t ABORT WRITE_CONFLICT pb"
+      ],
+      "answer": 4,
+      "refs": [
+        "4.7",
+        "4.17",
+        "4.19",
+        "4.22"
+      ],
+      "quote": "다른 트랜잭션이 그 키를 T 가 BEGIN 하기 전에 썼어도 같다.",
+      "explanation": "정답은 ④이다. [4.7]에 따라 t 는 BEGIN 을 실행한 순간의 스냅숏을 쓰고 이 스냅숏에는 그때까지 커밋한 e 만 든다. [4.17]에 따라 t 가 쓴 키 가운데 t 의 스냅숏에 들지 않은 트랜잭션이 만든 버전이 있는 키가 충돌한 키다. f 는 t 가 BEGIN 하기 전에 pa 를 썼지만 t 가 BEGIN 한 뒤에 커밋했으므로 pa 는 충돌한 키다. f 가 READ COMMITTED 인 것은 [4.19]에 따라 상관없다. g 가 만든 pb 의 버전도 t 의 스냅숏에 들지 않으므로 pb 도 충돌한 키다. t 가 쓴 값이 f 와 g 가 쓴 값과 같아도 충돌이다. 롤백한 r 은 [4.22]에 따라 p0 의 버전을 만들지 않았고 e 가 만든 p1 의 버전은 t 의 스냅숏에 든다. 충돌한 키 pa 와 pb 가운데 키 순서로 앞선 pa 를 출력한다. ① 쓴 값이 같으면 충돌이 아니라고 보거나 PostgreSQL 처럼 첫 문장을 실행할 때 스냅숏을 만든다고 본 답이다. ② 롤백한 r 의 쓰기를 판정에 넣은 답이다. 키 순서로 가장 앞선 p0 이 나온다. ③ t 의 스냅숏에 든 e 의 버전까지 충돌로 센 답이다. ⑤ t 가 BEGIN 하기 전에 쓴 f 의 쓰기나 READ COMMITTED 인 f 의 버전을 판정에서 빼면 pb 만 남는다. [4.17]의 셋째 문장과 [4.19]를 함께 적용해야 이 선지를 지울 수 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 마지막 두 줄의 출력은?",
+      "context": "<보기>\nBEGIN init\nWRITE init c 1\nWRITE init c0 1\nWRITE init cb 1\nCOMMIT init\nBEGIN s\nBEGIN o REPEATABLE READ\nWRITE o c9 5\nWRITE o cb 6\nBEGIN u\nWRITE u c0 7\nWRITE u cb0 7\nCOMMIT u\nWRITE s ca 2\nSCAN o c0 cb\nSCAN s c0 cb\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "o c0=1 c9=5 / s c0=7 ca=2",
+        "o c0=7 c9=5 / s c0=7 ca=2",
+        "o c0=1 c9=5 / s c0=1 ca=2",
+        "o c0=1 c9=5 cb=6 / s c0=7 ca=2 cb=1",
+        "o c0=1 / s c0=7"
+      ],
+      "answer": 1,
+      "refs": [
+        "4.4",
+        "4.7",
+        "4.8",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "READ COMMITTED 트랜잭션은 READ 와 SCAN 을 실행할 때마다 그 순간의 스냅숏을 새로 만들어 쓴다.",
+      "explanation": "정답은 ①이다. o 는 REPEATABLE READ 라서 [4.7]에 따라 BEGIN 한 순간의 스냅숏으로 읽는다. 그 스냅숏에는 init 만 들어 있어 c0 의 값이 1 이다. [4.8]과 [4.14]에 따라 o 가 쓴 c9 와 cb 는 o 에게 보이지만 [4.13]에 따라 끝 키 cb 는 범위에 들지 않는다. c 는 c0 보다 앞이라 범위 밖이다. s 는 격리 수준을 적지 않았으므로 [4.4]에 따라 READ COMMITTED 이고 [4.7]에 따라 SCAN 을 실행하는 순간의 스냅숏을 새로 만든다. 그래서 u 가 커밋한 c0=7 이 보인다. o 가 커밋하지 않은 c9 와 cb 는 s 에게 보이지 않고 s 가 쓴 ca 는 보인다. cb 는 끝 키이고 cb0 은 끝 키보다 뒤라서 둘 다 범위 밖이다. ② o 가 첫 읽기를 할 때 스냅숏을 만든다고 보거나 SCAN 마다 스냅숏을 새로 만든다고 본 답이다. ③ s 가 BEGIN 한 순간의 스냅숏을 쓴다고 본 답이다. 격리 수준을 적지 않으면 READ COMMITTED 라는 [4.4]와 READ COMMITTED 는 SCAN 마다 스냅숏을 새로 만든다는 [4.7]을 함께 적용해야 이 선지를 지울 수 있다. ④ 끝 키 cb 를 범위에 넣은 답이다. ⑤ 커밋하지 않은 자기 쓰기를 SCAN 에서 뺀 답이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "<보기>를 차례로 처리했을 때 READ 가 출력하는 네 줄을 차례로 나열한 것은?",
+      "context": "<보기>\nBEGIN init\nWRITE init v 0\nCOMMIT init\nBEGIN r1 REPEATABLE READ\nBEGIN w1\nWRITE w1 v 1\nBEGIN r2 REPEATABLE READ\nCOMMIT w1\nBEGIN x REPEATABLE READ\nBEGIN w2\nWRITE w2 v 2\nWRITE w2 v 3\nCOMMIT w2\nWRITE x v 4\nREAD x v\nCOMMIT x\nREAD r1 v\nREAD r2 v\nBEGIN r3 REPEATABLE READ\nREAD r3 v\n\n선지의 / 는 줄바꿈을 나타낸다.",
+      "choices": [
+        "x v=4 / r1 v=0 / r2 v=1 / r3 v=3",
+        "x v=4 / r1 v=4 / r2 v=4 / r3 v=4",
+        "x v=4 / r1 v=0 / r2 v=0 / r3 v=3",
+        "x v=1 / r1 v=0 / r2 v=0 / r3 v=3",
+        "x v=4 / r1 v=0 / r2 v=0 / r3 v=4"
+      ],
+      "answer": 3,
+      "refs": [
+        "4.5",
+        "4.7",
+        "4.8",
+        "4.17",
+        "4.22"
+      ],
+      "quote": "키의 버전은 트랜잭션이 커밋할 때 생긴다.",
+      "explanation": "정답은 ③이다. [4.5]에 따라 버전은 커밋할 때 생기므로 v 의 버전은 차례로 init 의 0, w1 의 1, w2 의 3 이다. w2 는 v 에 두 번 썼으므로 마지막 값 3 으로 버전 하나만 만든다. x 는 [4.8]에 따라 자기가 쓴 4 를 읽는다. x 가 BEGIN 한 뒤에 커밋한 w2 가 v 를 썼으므로 x 의 COMMIT 은 [4.17]의 쓰기 충돌로 실패하고 [4.22]에 따라 버전을 만들지 않는다. [4.7]에 따라 r1 과 r2 는 BEGIN 한 순간의 스냅숏으로 읽는다. 두 스냅숏에는 init 만 들어 있다. r2 는 w1 이 v 를 쓴 뒤에 BEGIN 했지만 그때 w1 은 커밋하지 않았다. r3 의 스냅숏에는 w2 까지 들어 있어 r3 은 3 을 읽는다. ① 쓰기를 실행할 때 버전이 생긴다고 보면 r2 가 1 을 읽는다. ② 첫 문장을 실행할 때 스냅숏을 만든다고 본 답이다. x 의 첫 문장은 w2 가 커밋한 뒤에 실행되므로 x 가 커밋하고 r1, r2, r3 이 모두 4 를 읽게 된다. ④ x 가 자기가 쓴 값을 보지 못하고 스냅숏의 1 을 읽는다고 본 답이다. ⑤ x 가 커밋한다고 보거나 커밋에 실패한 x 의 쓰기가 버전을 만든다고 본 답이다. x 가 쓰기 충돌로 실패한다는 [4.17]과 실패한 트랜잭션은 버전을 만들지 않는다는 [4.22]를 함께 적용해야 이 선지를 지울 수 있다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력을 처리했을 때의 출력은?",
+      "input": [
+        "SCAN t1 k10 k9"
+      ],
+      "answers": [
+        "t1 ERR NO_TX"
+      ],
+      "refs": [
+        "3.13",
+        "5.3",
+        "5.5"
+      ],
+      "quote": "두 키를 앞 글자부터 차례로 비교해 처음으로 다른 글자가 나온 자리에서 그 글자의 ASCII 코드가 작은 키가 앞이다.",
+      "explanation": "정답은 `t1 ERR NO_TX` 다. [3.13]에 따라 k10 과 k9 는 둘째 글자에서 처음 갈리고 1 의 ASCII 코드가 9 보다 작으므로 k10 이 k9 보다 앞이다. 시작 키가 끝 키보다 앞이므로 이 줄은 [5.3]의 형식에 맞는다. [5.5]에 따라 그다음 트랜잭션의 상태를 확인하는데 t1 은 시작한 적이 없으므로 `t1 ERR NO_TX` 를 출력한다. 키를 수처럼 비교해 k10 이 k9 보다 뒤라고 보면 `ERR BAD_ARGUMENT` 로 답하게 된다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력 줄의 끝에는 탭(U+0009) 한 글자가 붙어 있다. 이 줄을 처리했을 때의 출력은?",
+      "input": [
+        "READ t1 k\t"
+      ],
+      "answers": [
+        "ERR BAD_ARGUMENT"
+      ],
+      "refs": [
+        "3.4",
+        "3.5",
+        "3.12",
+        "5.3",
+        "5.5"
+      ],
+      "quote": "탭(U+0009)과 CR(U+000D)은 공백이 아니다.",
+      "explanation": "정답은 `ERR BAD_ARGUMENT` 다. [3.4]에 따라 탭은 공백이 아니므로 [3.5]가 무시하는 줄 끝의 공백에 들지 않는다. 그래서 둘째 인자는 k 뒤에 탭이 붙은 두 글자이고 [3.12]의 키 형식에 맞지 않는다. [5.5]에 따라 인자 형식을 트랜잭션의 상태보다 먼저 확인하므로 [5.3]의 `ERR BAD_ARGUMENT` 를 출력한다. 탭을 공백처럼 지우면 t1 이 없다는 `t1 ERR NO_TX` 로 답하게 된다."
+    }
+  ]
+}
