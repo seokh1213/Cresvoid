@@ -10,8 +10,23 @@ fun Validation.validate() {
         TrackKind.Reading -> validateReading()
         TrackKind.Code -> validateCode()
         TrackKind.Fix -> validateFix()
+        TrackKind.Lab -> validateLab()
     }
     report()
+}
+
+private fun Validation.validateLab() {
+    val contents = loadStages { stage -> listOf(stage.starterDir, stage.solutionDir) }
+    checkDocuments(contents)
+    checkQuizzes(contents)
+    val lab = LabValidation(track, runner, console)
+    lab.checkContent(contents).forEach(::recordIssue)
+    if (loadFailed || lab.hasContentProblems) {
+        skipProgramChecks()
+        return
+    }
+    checkShortAnswers(contents, ::referenceProgram)
+    lab.checkPrograms().forEach(::recordIssue)
 }
 
 private fun Validation.validateBuild() {

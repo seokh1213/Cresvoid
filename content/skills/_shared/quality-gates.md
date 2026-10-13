@@ -49,6 +49,13 @@
 - 버그 신고에 원인과 위치가 드러나지 않는다.
 - antislop Delivery Gate 가 모두 PASS 다.
 
+### lab
+
+- 참조 풀이가 각 실험을 3회 통과하고 시작 코드와 `must_fail` 변형이 3회 모두 불변식에서 실패한다.
+- 실험 스크립트 오류와 시간 초과를 의도한 실패로 세지 않는다.
+- 공개 스펙과 시작 코드만 본 블라인드 구현이 같은 실험을 통과한다.
+- 화면에 보이는 지표와 스펙의 계산 방식·임계값이 일치한다.
+
 ## antislop 적용
 
 code·fix 트랙 코드와 모든 참조 풀이는 FORMAT.md 11.8 절을 따른다. 기준 원문은 `antislop-code` 스킬과 `antislop` 스킬의 C-1~C-5, R-31, R-35, R-36, R-38, Delivery Gate 다. 워크플로우 agent 는 Delivery Gate 를 PASS/FAIL 과 증거로 돌려준다.

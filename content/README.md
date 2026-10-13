@@ -27,7 +27,8 @@
 | `mini-log` | build | 4 |
 | `metrics` | build | 3 |
 | `coroutine-patterns` | build | 6 |
-| `coroutine-runtime` | build | 6 |
+| `coroutine-runtime` | build | 7 |
+| `coroutine-lab` | lab | 1 |
 | `reading` | reading | 3 |
 | `tech-reading` | reading | 12 |
 | `code-reading` | code | 3 |
@@ -35,7 +36,7 @@
 
 ## 채점용 파일
 
-단계의 `hidden/` 에는 숨은 테스트(`tests.json`), 입력 생성기, 문항 정답(`quiz.json`), 참조 풀이(`solution/`)가 있다. 학습자는 `hidden/` 을 열지 않는다. 참조 풀이는 `cresvoid solution` 으로 본다.
+단계의 `hidden/` 에는 숨은 테스트(`tests.json` 또는 `lab.json`과 실험 스크립트), 입력 생성기, 문항 정답(`quiz.json`), 참조 풀이(`solution/`)가 있다. 학습자는 `hidden/` 을 열지 않는다. 참조 풀이는 `cresvoid solution` 으로 본다.
 
 ## 컨텐츠 만들기
 

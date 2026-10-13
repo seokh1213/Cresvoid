@@ -9,6 +9,7 @@ cresvoid 컨텐츠를 만드는 절차를 스킬로 모았다. 지금 있는 트
 | [cresvoid-build-track](cresvoid-build-track/SKILL.md) | build 단계. 스펙, Kotlin 참조 풀이, 생성기, 테스트, 문항 | `workflow.js` |
 | [cresvoid-code-track](cresvoid-code-track/SKILL.md) | code 단계. 안내 문서, 읽을 Kotlin 코드, 문항 | `workflow.js` |
 | [cresvoid-fix-track](cresvoid-fix-track/SKILL.md) | fix 단계. 스펙과 버그 신고, 참조 풀이, 버그를 심은 시작 코드, 테스트 | `workflow.js` |
+| [cresvoid-lab-track](cresvoid-lab-track/SKILL.md) | lab 단계. HTTP 실험, 불변식, 블라인드 구현 검증 | `workflow.js` |
 
 `_shared/` 에는 모든 스킬이 쓰는 파일이 있다.
 
@@ -33,5 +34,5 @@ workflow.js 와 mock-workflow.mjs 는 JavaScript 다. Claude Code 의 Workflow �
 
 - 같은 종류의 단계를 더 만들 때는 카탈로그에 카드를 더하고 스킬을 그대로 쓴다.
 - 새 트랙 종류는 엔진과 `content/FORMAT.md` 를 먼저 고친 뒤 스킬을 만든다. 절차는 cresvoid-content 의 "새 종류를 만들 때" 에 있다.
-- 다음 후보는 lab 종류다. 설계는 `content/ideas/backend/lab.md` 에 있다.
+- lab 종류의 현재 계약은 `content/FORMAT.md` 5.1절에 있다. 다른 외부 서비스가 필요한 lab 확장 아이디어는 `content/ideas/backend/lab.md`에 남긴다.
 - workflow.js 를 고치면 모의 실행으로 확인한다. 방법은 cresvoid-content 의 "워크플로우 고치기" 에 있다.

@@ -74,8 +74,8 @@ class Validation(
     private val project: Project,
     private val library: ContentLibrary,
     val track: Track,
-    private val runner: ProcessRunner,
-    private val console: Console,
+    internal val runner: ProcessRunner,
+    internal val console: Console,
 ) {
     private val harness = Harness(runner)
     private val problems = mutableListOf<String>()
@@ -107,7 +107,7 @@ class Validation(
         if (track.kind.quizRules == null && stage.quizPath.exists()) {
             fail("${project.rel(stage.quizPath)}: ${track.kind.id} 트랙 단계에는 quiz.json 을 두지 않습니다")
         }
-        val suite = if (track.kind.testScope != null) loadOrFail { loadTestSuite(stage) } else null
+        val suite = if (track.kind.testScope != null && track.kind != TrackKind.Lab) loadOrFail { loadTestSuite(stage) } else null
         for (program in programs(stage)) {
             val runScript = program.resolve("run.sh")
             if (!runScript.isExecutableFile()) failLoading("${project.rel(runScript)} 가 없거나 실행 권한이 없습니다")
@@ -307,7 +307,7 @@ class Validation(
     }
 
     private fun checkGradingFilesHidden(stage: Stage) {
-        val gradingNames = listOf(stage.quizPath, stage.testsPath, stage.solutionDir, stage.apiCheckPath).map { it.name }
+        val gradingNames = listOf(stage.quizPath, stage.testsPath, stage.labPath, stage.experimentPath, stage.solutionDir, stage.apiCheckPath).map { it.name }
         val entries = loadOrFail { stage.path.listDirectoryEntries() } ?: return
         entries.filter { it.name in gradingNames || it.name.endsWith(".main.kts") }
             .sortedBy { it.name }
@@ -497,4 +497,6 @@ class Validation(
     private fun fail(problem: String) {
         problems += problem
     }
+
+    internal fun recordIssue(problem: String) = fail(problem)
 }

@@ -13,25 +13,28 @@ content/tracks/<트랙 id>/
 ├── track.json
 ├── starters/<언어>/          build 트랙의 시작 코드
 └── stages/<단계 디렉터리>/
-    ├── spec.md               build·fix 트랙 문서
+    ├── spec.md               build·fix·lab 트랙 문서
     ├── passage.md            reading 트랙 문서
     ├── guide.md              code 트랙 안내 문서
     ├── code/                 code 트랙에서 읽을 Kotlin 프로젝트
-    ├── starter/              fix 트랙. 버그가 있는 Kotlin 프로젝트
+    ├── starter/              fix·lab 트랙의 시작 Kotlin 프로젝트
     └── hidden/               채점용 파일
-        ├── quiz.json         build·reading·code 트랙
+        ├── quiz.json         build·reading·code·lab 트랙
         ├── tests.json        build·fix 트랙
+        ├── lab.json          lab 트랙의 실험 시나리오
+        ├── experiment.main.kts lab 트랙의 실험 실행기
         ├── allowed-edits.txt 선택. fix 트랙에서 수정 가능한 파일 목록
         ├── gen.main.kts      선택. 무작위 입력 생성기
         ├── api-check.main.kts 선택. build 트랙의 공개 API 동작 검사
         ├── ApiProbe.kt       선택. API 검사가 컴파일할 Kotlin 코드
-        └── solution/         build·fix 트랙. 참조 풀이 Kotlin 프로젝트
+        ├── solution/         build·fix·lab 트랙의 참조 풀이 Kotlin 프로젝트
+        └── variants/        lab 트랙의 의도적으로 실패하는 Kotlin 프로젝트
 ```
 
 - 학습자가 보는 문서와 코드는 단계 디렉터리에 둔다. 채점용 파일은 단계의 `hidden/` 에 두고 학습자는 열지 않는다.
 - 트랙 id 는 트랙 디렉터리 이름이다. `progress` 는 트랙 id 로 쓰지 않는다. 작업 공간 기본 경로가 진행 기록 디렉터리 `practice/progress/` 와 겹친다. 엔진은 id 가 `progress` 인 트랙을 읽지 않는다.
 - 단계 디렉터리 이름은 `두 자리 번호-영문 slug` 형식이다. 예: `01-boolean`.
-- 트랙 종류는 네 가지다.
+- 트랙 종류는 다섯 가지다.
 
 | 종류 | 이름 | 학습자가 하는 일 |
 |---|---|---|
@@ -39,6 +42,7 @@ content/tracks/<트랙 id>/
 | `reading` | 독해 | 비문학 지문을 읽고 문항을 푼다 |
 | `code` | 코드 읽기 | Kotlin 코드와 안내 문서를 읽고 실행 결과와 동작을 묻는 문항을 푼다 |
 | `fix` | 버그 수정 | 단계마다 버그가 있는 Kotlin 프로그램을 받아 스펙대로 동작하게 고친다 |
+| `lab` | 실험 | 시작 코드에 부하를 보내 지표를 관찰한 뒤 불변식을 만족하도록 고친다 |
 
 ## 2. track.json
 
@@ -57,7 +61,7 @@ content/tracks/<트랙 id>/
 | 필드 | 필수 | 뜻 |
 |---|---|---|
 | title | 예 | 트랙 제목 |
-| kind | 예 | `build`, `reading`, `code`, `fix` 가운데 하나 |
+| kind | 예 | `build`, `reading`, `code`, `fix`, `lab` 가운데 하나 |
 | summary | 예 | 한 줄 소개 |
 | stages[].dir | 예 | 단계 디렉터리 이름. 배열 순서가 단계 순서다 |
 | stages[].title | 예 | 단계 제목 |
@@ -67,7 +71,7 @@ content/tracks/<트랙 id>/
 
 ## 3. 문서
 
-build·fix 트랙 단계는 `spec.md` 를, reading 트랙 단계는 `passage.md` 를, code 트랙 단계는 `guide.md` 를 둔다. 모두 마크다운이다.
+build·fix·lab 트랙 단계는 `spec.md` 를, reading 트랙 단계는 `passage.md` 를, code 트랙 단계는 `guide.md` 를 둔다. 모두 마크다운이다.
 
 문단 번호 규칙은 다음과 같다.
 
@@ -86,7 +90,7 @@ code 트랙 문항은 코드 위치도 가리킬 수 있다.
 
 ## 4. quiz.json
 
-build·reading·code 트랙 단계의 `hidden/quiz.json` 이다.
+build·reading·code·lab 트랙 단계의 `hidden/quiz.json` 이다.
 
 ```json
 {
@@ -138,9 +142,10 @@ build·reading·code 트랙 단계의 `hidden/quiz.json` 이다.
 | reading | 5 | 쓰지 않는다 |
 | code | 2~5 | 쓸 수 있다. input 이 반드시 있어야 한다 |
 | fix | quiz.json 을 두지 않는다 | |
+| lab | 2~5 | 쓸 수 있다. input 은 선택이다 |
 
 - short 답은 앞뒤 공백을 지우고 연속 공백을 하나로 줄인 뒤 비교한다. 대소문자는 구분한다.
-- input 이 있는 short 문항은 실행으로 정답을 확인한다. build 트랙은 그 단계 참조 풀이에, code 트랙은 그 단계 `code/` 프로그램에 input 을 표준 입력으로 준다. 정확히 한 줄이 나와야 하고 그 줄이 `answers[0]` 과 같아야 한다.
+- input 이 있는 short 문항은 실행으로 정답을 확인한다. build·lab 트랙은 그 단계 참조 풀이에, code 트랙은 그 단계 `code/` 프로그램에 input 을 표준 입력으로 준다. 정확히 한 줄이 나와야 하고 그 줄이 `answers[0]` 과 같아야 한다. 서버형 lab은 input 없는 short 문항을 쓴다.
 
 ## 5. tests.json
 
@@ -182,6 +187,32 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 
 `expected` 가 없으면 그 단계 참조 풀이의 출력이 기대값이다.
 
+## 5.1 lab.json과 실험 스크립트
+
+lab 단계는 `tests.json` 대신 `hidden/lab.json`을 둔다.
+
+```json
+{
+  "scenarios": [
+    {
+      "name": "mixed-arrivals",
+      "refs": ["5", "6"],
+      "quote": "모든 요청이 HTTP 200으로 완료되어야 하며",
+      "timeout_sec": 20,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/io-no-semaphore"]
+}
+```
+
+- `scenarios`는 하나 이상이다. `name`은 단계 안에서 고유한 영문 kebab-case이며, 화면에 보이므로 숨은 조건이나 답을 담지 않는다. `refs`는 하나 이상의 `spec.md` 번호 문단, `quote`는 그중 하나에 들어 있는 문장이다.
+- `timeout_sec`는 실험 한 번의 제한 시간으로 양수이며 기본 60이다. `repeat`는 `cresvoid test`에서 해당 시나리오를 반복할 횟수로 양수이며 기본 1이다.
+- `must_fail`은 `hidden/variants/<slug>/` 전체 Kotlin 프로젝트의 상대 경로 목록이다. 참조 풀이와 시작 코드, 변형 모두 빌드되어야 한다.
+- `hidden/experiment.main.kts`는 각 시나리오를 실행하는 Kotlin 스크립트다. 엔진이 프로젝트를 빌드한 뒤 `hidden/`을 작업 디렉터리로 삼아 `kotlin experiment.main.kts <프로젝트 절대 경로> <시나리오 이름>`으로 호출한다. 스크립트가 서비스를 시작하고 준비 상태를 확인하며 부하와 통계를 처리하고 종료한다. 종료하거나 중단될 때 자식 프로세스도 정리해야 한다.
+- 실험 스크립트의 표준 출력에는 고유한 이름의 `METRIC <이름> <유한한 숫자>` 행을 1~10개만 쓴다. 이름은 영문자로 시작하며 영문자·숫자·밑줄·마침표·하이픈을 쓴다. 종료 코드 0은 불변식 통과, 1은 불변식 실패, 다른 코드는 실험 오류다. 엔진은 원시 출력을 숨기고 파싱한 지표만 보여 준다.
+- 실험의 부하 모델, 측정 방법, 통과 조건은 `spec.md`의 번호 문단에 공개한다. `hidden/`에는 측정 구현과 오답 변형을 둔다. 현재 기본 실행 환경은 JDK 21과 승인된 Kotlin 라이브러리이며, 다른 도구가 필요한 실험은 별도 환경을 정한다.
+
 ## 6. 무작위 입력 생성기
 
 - 생성기는 단계 `hidden/` 의 Kotlin 스크립트(`*.main.kts`)다. `gen` 명령은 `["kotlin", "gen.main.kts", 인자...]` 처럼 스크립트 파일 이름으로 쓴다.
@@ -192,7 +223,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 
 ## 7. Kotlin 프로젝트
 
-참조 풀이(`hidden/solution/`), build 트랙 시작 코드(`starters/<언어>/`), fix 트랙 시작 코드(`starter/`), code 트랙 코드(`code/`)는 모두 같은 모양의 Kotlin 프로젝트다.
+참조 풀이(`hidden/solution/`), build 트랙 시작 코드(`starters/<언어>/`), fix·lab 트랙 시작 코드(`starter/`), code 트랙 코드(`code/`), lab 오답 변형(`hidden/variants/<slug>/`)은 모두 같은 모양의 Kotlin 프로젝트다.
 
 ```
 <프로젝트>/
@@ -224,6 +255,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 
 - build 트랙: `cresvoid start` 가 `starters/<언어>/` 를 트랙 작업 공간으로 복사한다. 시작 코드는 빌드와 실행은 되지만 1단계 테스트는 통과하지 못해야 한다.
 - fix 트랙: `cresvoid start` 가 단계의 `starter/` 를 그 단계 작업 공간으로 복사한다. 시작 코드는 빌드되고 그 단계 테스트 가운데 하나 이상에서 실패해야 한다. 참조 풀이와의 차이는 버그를 고치는 데 필요한 줄뿐이다.
+- lab 트랙: `cresvoid start`가 단계의 `starter/`를 작업 공간으로 복사한다. 시작 코드는 빌드되고 실행되지만 실험 불변식 가운데 하나 이상에서 실패해야 한다. 학습자는 먼저 예측 문항을 풀고 시작 코드를 실험한 뒤 개선한다.
 - fix 단계가 `hidden/allowed-edits.txt` 를 두면 각 줄에 `starter/` 기준으로 수정 가능한 `src/main/kotlin/*.kt` 경로 하나를 적는다. `cresvoid test` 는 빌드 전에 이 파일 외의 시작 코드와 제출 작업 공간을 비교한다. `build/`, `.gradle/`, `.kotlin/`, `.idea/`, `.DS_Store` 는 비교하지 않는다. 허용하지 않은 소스의 추가·삭제와 실행 스크립트 수정도 거절한다. `cresvoid validate` 는 참조 풀이에도 같은 범위를 검사한다.
 - 복사할 때 `build/` 디렉터리와 `.DS_Store` 는 빼고 실행 권한은 유지한다.
 
@@ -240,6 +272,8 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 6. 표준 출력을 기대 출력과 비교한다. 각 줄 끝의 공백·탭·CR 을 지우고 끝의 빈 줄을 지운 뒤 줄 수와 각 줄을 글자 그대로 비교한다.
 7. 첫 실패에서 멈춘다.
 8. 테스트 도중 Ctrl-C 로 엔진을 멈추면 실행 중인 프로세스와 자손 프로세스를 모두 종료한다.
+
+lab 트랙은 대상 단계의 `lab.json` 시나리오만 실행한다. 풀이를 한 번 빌드한 뒤 각 시나리오를 `repeat` 횟수만큼 실행한다. 첫 실패에서 멈추며, 성공한 실행과 실패한 실행 모두 집계 지표를 보여 준다. 실패 화면에는 시나리오 이름, 실패 종류, `spec.md`의 `refs`와 `quote`, 참조 풀이 명령을 표시한다. 실험 스크립트의 원시 출력과 오류 출력은 보여 주거나 저장하지 않는다.
 
 ### 9.2 테스트 실패 출력
 
@@ -267,7 +301,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 4. 문항을 풀기 시작할 때 읽은 기록이 없거나 마지막으로 읽은 지 한 시간이 지났으면 시간을 기록하지 않는다.
 5. 첫 시도에서 답을 하나도 하지 않고 입력이 끝나면(Ctrl-C, Ctrl-D) 그 시도는 저장하지 않는다. 하나 이상 답한 뒤 입력이 끝나면 답한 문항을 채점하고 답하지 않은 문항은 오답으로 센다. 두 번째 시도부터는 그만두면 아무것도 저장하지 않는다.
 6. 모든 문항이 닫히면 해설을 모두 보여 준다.
-7. build 트랙은 1단계부터 대상 단계까지 문항을 모두 닫아야 대상 단계 테스트가 열린다. fix 트랙은 테스트를 여는 조건이 없다. reading·code 트랙은 문항을 모두 닫으면 그 단계를 마친다.
+7. build 트랙은 1단계부터 대상 단계까지, lab 트랙은 대상 단계의 문항을 모두 닫아야 테스트가 열린다. fix 트랙은 테스트를 여는 조건이 없다. reading·code 트랙은 문항을 모두 닫으면 그 단계를 마친다.
 
 문항 오답 횟수는 문항마다 따로 센다.
 
@@ -285,7 +319,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 ### 9.5 작업 공간과 복습
 
 - build 트랙은 트랙마다 작업 공간 하나를 쓴다. 기본 경로는 `practice/<트랙>/` 다.
-- fix 트랙은 단계마다 작업 공간을 쓴다. 기본 경로는 `practice/<트랙>/<단계 디렉터리>/` 다.
+- fix·lab 트랙은 단계마다 작업 공간을 쓴다. 기본 경로는 `practice/<트랙>/<단계 디렉터리>/` 다.
 - `cresvoid start` 에 `-dir` 로 다른 경로를 줄 수 있다. `-lang` 은 build 트랙 시작 코드의 언어를 고른다.
 - `cresvoid start` 에 준 경로에 실행할 수 있는 `run.sh` 가 있으면 복사하지 않고 그 작업 공간을 고른다.
 - 복습은 처음 통과하고 14일이 지난 뒤 처음과 다른 디렉터리에서 다시 통과했을 때만 기록한다.
@@ -300,7 +334,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 ### 9.7 참조 풀이 보기
 
 - `cresvoid solution <트랙> [-stage N]` 은 통과 여부와 상관없이 참조 풀이를 보여 준다. `-stage` 를 생략하면 아직 마치지 않은 첫 단계를 고르고 모두 마쳤으면 마지막 단계를 고른다.
-- build 트랙은 `hidden/solution/` 의 Kotlin 소스를 파일마다 줄 번호와 함께 보여 준다. fix 트랙은 시작 코드와 참조 풀이의 차이(`diff -ruN -x build -x .DS_Store starter hidden/solution`)를 보여 준다.
+- build·lab 트랙은 `hidden/solution/`의 Kotlin 소스를 파일마다 줄 번호와 함께 보여 준다. fix 트랙은 시작 코드와 참조 풀이의 차이(`diff -ruN -x build -x .DS_Store starter hidden/solution`)를 보여 준다.
 - 참조 풀이 디렉터리 경로도 알려 준다.
 - reading·code 트랙은 참조 풀이가 없다고 알리고 끝낸다.
 
@@ -316,6 +350,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 6. fix 트랙에서 단계마다 참조 풀이는 그 단계 테스트를 모두 제한 시간 안에 통과하고 시작 코드는 하나 이상에서 실패한다. 시작 코드와 참조 풀이 사이에 바뀐 줄 수를 보여 준다.
    `allowed-edits.txt` 가 있으면 참조 풀이의 수정 범위도 검사한다.
 7. code 트랙에서 단계마다 `code/` 가 빌드되고 실행된다.
+8. lab 트랙에서 참조 풀이는 각 시나리오를 3회 연속 통과한다. 시작 코드와 `must_fail`의 각 변형은 빌드된 뒤 3회 모두 불변식 하나 이상에서 실패한다. 스크립트 실행 오류나 시간 초과는 의도한 실패로 세지 않는다.
 
 ## 11. 작성 기준
 
@@ -382,3 +417,10 @@ code·fix 트랙 코드와 모든 참조 풀이에 적용한다. 기준은 `anti
 - 코드 동작에 대한 주장은 모두 실행으로 확인한다. 문항 정답, 해설, 버그 증상, 스펙 예시가 여기에 해당한다.
 - 없는 API, 지어낸 라이브러리 동작, 출처 없는 수치를 쓰지 않는다.
 - 전달하기 전에 PASS/FAIL 점검표를 증거와 함께 남긴다.
+
+### 11.9 lab 트랙
+
+- `spec.md`에 관찰 순서, 부하 모델, 측정 지표와 합격 불변식을 번호 문단으로 적는다. 지표의 계산 방식과 허용 범위는 학습자가 실험 전에 알 수 있어야 한다.
+- 시작 코드의 실패는 실험으로 재현되고 참조 풀이의 통과는 세 번 반복해 확인한다. `must_fail` 변형은 경계 하나를 빠뜨렸을 때 검사가 실제로 잡는지 확인한다.
+- 불변식은 가능한 한 요청 완료 수나 동시 실행 상한처럼 관계로 판정한다. 지연 시간 임계값을 쓰면 실습 기기에서 여유를 두고, 시작 코드와 참조 풀이를 여러 번 실측해 판별력을 확인한다.
+- 별도 블라인드 구현자가 공개 스펙과 시작 코드만 보고 수정한 결과를 실험으로 확인한다. 숨은 실험 스크립트와 참조 풀이는 보여 주지 않는다.

@@ -1,0 +1,73 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "7단계 시퀀스와 6단계 cold Flow의 실행 차이를 바르게 설명한 것은?",
+      "choices": [
+        "시퀀스의 생산자는 독립 Job으로 준비 큐에 등록된다.",
+        "시퀀스 본문에서는 DELAY로 가상 시간을 옮길 수 있다.",
+        "시퀀스는 값을 요청한 작업 안에서 동기적으로 실행되고 YIELD에서만 멈춘다.",
+        "시퀀스 반복자를 버리면 마지막 YIELD 뒤의 본문이 정리를 위해 실행된다.",
+        "Flow와 시퀀스는 모두 값을 요청할 때만 생산자를 재개하므로 실행 방식이 같다."
+      ],
+      "answer": 3,
+      "refs": ["1.2", "2.3"],
+      "quote": "값을 요청한 작업의 현재 continuation 안에서 동기적으로 실행되며, 다른 작업이 중간에 끼어들지 않는다.",
+      "explanation": "시퀀스는 별도 Job이나 준비 큐 없이 요청한 작업 안에서 실행된다. 본문은 YIELD에서 멈추며, 버려진 반복자의 남은 본문은 재개되지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "작업이 ITER values it, HAS_NEXT it, HAS_NEXT it, NEXT it을 차례로 실행한다. 아래 시퀀스에서 이 명령들이 내는 사건의 순서는? 시각과 작업 경로는 생략한다.",
+      "context": "SEQUENCE values\nLOG opening\nYIELD 1\nLOG later\nYIELD 2\nEND",
+      "choices": [
+        "SEQLOG values opening → HAS_NEXT it true → SEQLOG values opening → HAS_NEXT it true → ITEM it 1",
+        "SEQLOG values opening → HAS_NEXT it true → HAS_NEXT it true → SEQLOG values later → ITEM it 1",
+        "HAS_NEXT it true → HAS_NEXT it true → SEQLOG values opening → ITEM it 1",
+        "SEQLOG values opening → HAS_NEXT it true → HAS_NEXT it true → ITEM it 1",
+        "SEQLOG values opening → ITEM it 1 → HAS_NEXT it true → HAS_NEXT it true"
+      ],
+      "answer": 4,
+      "refs": ["2.2", "4.4", "4.5"],
+      "quote": "찾은 값을 보관하므로 연속된 `hasNext()`가 생산자를 거듭 재개하거나 값을 소비해서는 안 된다.",
+      "explanation": "첫 HAS_NEXT가 opening을 기록하고 1을 보관한다. 두 번째 HAS_NEXT는 같은 값을 확인할 뿐이며, NEXT는 보관된 1만 소비하므로 later는 아직 실행되지 않는다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "하나의 pullSequence에서 만든 반복자 a와 b가 있다. a의 본문에서 일반 예외가 났을 때 올바른 설명은?",
+      "choices": [
+        "b는 자신의 위치에서 계속 진행할 수 있고, a의 이후 hasNext()는 false다.",
+        "a의 예외가 b에도 전파되어 b도 끝난다.",
+        "a의 다음 hasNext()가 같은 예외를 다시 던진다.",
+        "a의 다음 next()는 예외 직전에 전달했던 값을 다시 준다.",
+        "a와 b는 본문 내부의 지역 변수를 공유하므로 b도 a가 멈춘 지점에서 재개한다."
+      ],
+      "answer": 1,
+      "refs": ["3.2", "3.3"],
+      "quote": "다른 반복자는 영향을 받지 않는다.",
+      "explanation": "예외는 요청한 반복자 a에서 한 번 그대로 나고 a는 끝난다. 그 뒤 a의 hasNext()는 false, next()는 NoSuchElementException이며 b는 독립적으로 진행한다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 RUN에서 발생하는 유일한 SEQLOG 사건 한 줄을 쓰시오.",
+      "context": "TASK worker LAUNCH\nITER values it\nHAS_NEXT it\nHAS_NEXT it\nNEXT it\nEND\nSEQUENCE values\nLOG opened\nYIELD 7\nLOG after\nEND\nROOT worker r\nRUN",
+      "answers": ["0 r SEQLOG values opened"],
+      "refs": ["2.2", "2.3", "4.5"],
+      "quote": "반복자가 마지막 `yield`에서 멈춘 채 버려지면 그 뒤의 본문은 실행되지 않는다.",
+      "explanation": "첫 HAS_NEXT가 opened를 기록하고 7을 보관한다. 두 번째 HAS_NEXT는 재개하지 않고 NEXT는 7만 소비한다. 다음 요청이 없으므로 after는 실행되지 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 공개 API 사용 코드가 출력하는 한 줄을 쓰시오.",
+      "context": "val values = pullSequence<Int?> {\n    yield(null)\n    yield(5)\n}\nval a = values.iterator()\nval b = values.iterator()\na.next()\nprintln(\"${b.next()} ${a.next()} ${a.hasNext()}\")",
+      "answers": ["null 5 false"],
+      "refs": ["3.2", "3.3"],
+      "quote": "서로 다른 반복자는 본문 위치와 본문 내부의 지역 변수를 따로 갖는다.",
+      "explanation": "a가 먼저 null을 소비해도 b는 처음부터 시작하므로 null을 준다. a의 다음 값은 5이고, 이를 소비한 뒤에는 더 받을 값이 없어 hasNext()가 false다."
+    }
+  ]
+}

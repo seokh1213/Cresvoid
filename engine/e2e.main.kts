@@ -292,6 +292,33 @@ fun runFixTrack(track: String, stages: List<Map<*, *>>, trackDir: File) {
     }
 }
 
+fun runLabTrack(track: String, stages: List<Map<*, *>>, trackDir: File) {
+    val stagesDir = File(trackDir, "stages")
+    stages.forEachIndexed { index, stage ->
+        val number = index + 1
+        val dir = stage["dir"] as String
+        cresvoid("start", track, "-stage", "$number").expectSuccess("작업 공간을 만들었습니다", "$track $dir 작업 공간")
+        val stageRecords = trackProgress(track)?.get("stages") as? Map<*, *>
+        val solutionDir = (stageRecords?.get(dir) as? Map<*, *>)?.get("solution_dir") as? String
+        if (solutionDir == null) {
+            expect(false, "$track $dir 작업 공간이 진행 기록에 없습니다")
+            return@forEachIndexed
+        }
+        solveQuiz(track, stage, number, stagesDir)
+        val before = fileHashesOutsideBuildDirs()
+        val failed = cresvoid("test", track, "-stage", "$number")
+        expect(failed.exitCode == 1 && "불변식을 만족하지 못했습니다" in failed.output, "$track $dir 시작 코드가 실험에서 실패해야 합니다")
+        val metricShown = Regex("(?m)^  · [A-Za-z][A-Za-z0-9_.-]* -?[0-9]").containsMatchIn(failed.output)
+        expect("METRIC" !in failed.output && metricShown, "$track $dir 집계 지표만 보여야 합니다")
+        expect(fileHashesOutsideBuildDirs() == before, "$track $dir 실험 뒤 build/ 밖 파일이 바뀌었습니다")
+        val learner = File(workspace, solutionDir)
+        replaceSources(File(stagesDir, "$dir/hidden/solution"), learner)
+        File(learner, "build/app.jar").delete()
+        cresvoid("test", track, "-stage", "$number").expectSuccess("$dir 테스트를 모두 통과했습니다", "$track $dir 실험")
+        cresvoid("solution", track, "-stage", "$number").expectSuccess("==> ", "$track $dir 참조 풀이 소스")
+    }
+}
+
 fun runReadingTrack(track: String, stages: List<Map<*, *>>, trackDir: File) {
     stages.forEachIndexed { index, stage -> solveQuiz(track, stage, index + 1, File(trackDir, "stages")) }
 }
@@ -349,6 +376,7 @@ for (trackDir in trackDirs) {
         "reading" -> runReadingTrack(track, stages, trackDir)
         "code" -> runCodeTrack(track, stages, trackDir)
         "fix" -> runFixTrack(track, stages, trackDir)
+        "lab" -> runLabTrack(track, stages, trackDir)
         else -> expect(false, "e2e 가 모르는 트랙 종류입니다: $track ($kind)")
     }
 }

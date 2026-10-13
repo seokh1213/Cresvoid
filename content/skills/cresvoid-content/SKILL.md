@@ -13,6 +13,7 @@ description: cresvoid 컨텐츠를 만드는 공통 절차다. 카탈로그에�
 | build | `cresvoid-build-track` | 참조 풀이와 테스트를 따로 만들어 교차 검증한다 |
 | code | `cresvoid-code-track` | 실행 전에 읽기만으로 풀고 실행 뒤 다시 답한다 |
 | fix | `cresvoid-fix-track` | 스펙과 시작 코드만 보고 고친 수정본을 숨은 테스트로 확인한다 |
+| lab | `cresvoid-lab-track` | 스펙과 시작 코드만 보고 실험을 고친 수정본을 숨은 시나리오로 확인한다 |
 
 ## 원칙
 

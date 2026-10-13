@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "mixed-arrivals",
+      "refs": ["4", "5", "6"],
+      "quote": "모든 요청이 HTTP 200으로 완료되어야 하며",
+      "timeout_sec": 20,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/io-no-semaphore"]
+}

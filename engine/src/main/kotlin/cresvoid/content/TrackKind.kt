@@ -71,8 +71,20 @@ sealed interface TrackKind {
         override val readsCode = false
     }
 
+    data object Lab : TrackKind {
+        override val id = "lab"
+        override val label = "실험"
+        override val documentName = "spec.md"
+        override val completion = Completion.TESTS_PASSED
+        override val workspaceScope = WorkspaceScope.STAGE
+        override val quizRules = QuizRules(exactChoiceCount = null, shortQuestions = ShortQuestions.INPUT_OPTIONAL)
+        override val testScope = TestScope.TARGET_STAGE
+        override val solutionView = SolutionView.SOURCE
+        override val readsCode = false
+    }
+
     companion object {
-        val all: List<TrackKind> by lazy { listOf(Build, Reading, Code, Fix) }
+        val all: List<TrackKind> by lazy { listOf(Build, Reading, Code, Fix, Lab) }
 
         fun byId(id: String): TrackKind? = all.firstOrNull { it.id == id }
     }

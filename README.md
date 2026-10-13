@@ -36,6 +36,7 @@ echo 'export PATH="$HOME/personal/cresvoid/engine/bin:$PATH"' >> ~/.zshrc
 | reading | 독해 | read, quiz |
 | code | 코드 읽기 | read, quiz. read 가 코드를 줄 번호와 함께 보여 준다 |
 | fix | 버그 수정 | start, read, test. 작업 공간은 단계마다 따로 만든다 |
+| lab | 실험 | start, read, quiz, test. 지표를 보고 시작 코드를 고친다 |
 
 build 트랙의 한 단계는 다음 순서로 푼다.
 
@@ -48,6 +49,8 @@ build 트랙의 한 단계는 다음 순서로 푼다.
 7. 통과하고 2주가 지나면 빈 작업 공간에서 같은 단계를 다시 구현한다. `cresvoid` 가 복습할 단계를 알려 준다.
 
 fix 트랙은 문항 없이 그 단계 테스트만 통과하면 된다. 작업 공간은 단계마다 `practice/<트랙>/<단계 디렉터리>/` 에 만든다. `cresvoid solution` 은 시작 코드와 참조 풀이의 차이를 보여 준다.
+
+lab 트랙은 단계마다 작업 공간을 만든다. 예측 문항을 푼 뒤 시작 코드를 실험하면 집계 지표가 보인다. 불변식을 만족하도록 코드를 고친 뒤 다시 `cresvoid test`를 실행한다.
 
 `cresvoid` 를 인자 없이 실행하면 트랙마다 진행 상황과 다음에 실행할 명령을 보여 준다. 문항 칸의 `5/5` 는 첫 시도 점수다. `공개 1` 은 정답이 공개되어 닫힌 문항 수다.
 
@@ -95,7 +98,7 @@ cresvoid test search-engine -stage 1
 | 명령 | 하는 일 |
 |---|---|
 | `cresvoid` | 진행 상황과 다음 할 일 |
-| `cresvoid start <트랙> [-stage N] [-lang 언어] [-dir 경로]` | 시작 코드를 복사해 풀이 작업 공간을 만든다. 기본 경로는 build 트랙이 `practice/<트랙>/`, fix 트랙이 `practice/<트랙>/<단계 디렉터리>/` 다. 이미 있는 작업 공간이면 고르기만 한다. `-stage` 는 fix 트랙에만 쓴다 |
+| `cresvoid start <트랙> [-stage N] [-lang 언어] [-dir 경로]` | 시작 코드를 복사해 풀이 작업 공간을 만든다. 기본 경로는 build 트랙이 `practice/<트랙>/`, fix·lab 트랙이 `practice/<트랙>/<단계 디렉터리>/` 다. 이미 있는 작업 공간이면 고르기만 한다. `-stage` 는 fix·lab 트랙에 쓴다 |
 | `cresvoid read <트랙> [-stage N]` | 단계 문서를 보여 준다 |
 | `cresvoid quiz <트랙> [-stage N]` | 확인 문항을 푼다. 틀린 문항만 다시 묻는다 |
 | `cresvoid test <트랙> [-stage N] [-dir 경로] [-seed S]` | 테스트를 실행한다. build 트랙은 1단계부터 대상 단계까지 실행하고 그 범위의 문항을 마쳐야 한다 |
@@ -123,7 +126,8 @@ cresvoid test search-engine -stage 1
 | `mini-log` | 구현 | 시각이 입력으로 움직이는 시뮬레이터에서 파티션 로그와 보관, 멱등 프로듀서, 컨슈머 그룹 재조정, 로그 압축을 표준 입출력 명령 처리기로 만든다 |
 | `metrics` | 구현 | 시계열 지표를 저장하고 범위 증가량과 비율, 히스토그램 분위수 추정, SLO 소진율 경보를 표준 입출력 명령 처리기로 만든다 |
 | `coroutine-patterns` | 구현 | 가상 시간 위에서 kotlinx.coroutines 로 동시 호출과 시간 제한, 동시 실행 상한과 재시도, Channel 파이프라인, Flow 가격 처리, 묶음 저장과 요청 합치기를 구현한다 |
-| `coroutine-runtime` | 구현 | 표준 라이브러리의 Continuation으로 단일 스레드 가상 시간 실행기를 만들고 구조적 동시성, 취소, 예외, Channel·Mutex, cold Flow를 단계별로 구현한다 |
+| `coroutine-runtime` | 구현 | 표준 라이브러리의 Continuation으로 단일 스레드 가상 시간 실행기를 만들고 구조적 동시성, 취소, 예외, Channel·Mutex, cold Flow, pull 시퀀스를 단계별로 구현한다 |
+| `coroutine-lab` | 실험 | Default의 제한된 실행 자리를 블로킹 호출이 차지할 때의 지연을 측정하고 IO 디스패처와 세마포어로 개선한다 |
 | `reading` | 독해 | 경제(경매 이론), 법(무권대리와 표현대리), 철학(귀납의 새로운 수수께끼) 지문을 읽고 수능·LEET 형식 문항을 푼다 |
 | `tech-reading` | 독해 | 실무 도메인의 원리를 다룬 기술 지문 12편(에이전트 루프, HDFS 쓰기 경로, 열 저장, 거의 실시간 검색, Spark 셔플, 코루틴, 규모 추정, MVCC, Raft, 테이블 포맷, Kafka 복제, 백분위수와 오류 예산)을 읽고 수능·LEET 형식 문항을 푼다 |
 | `code-reading` | 코드 읽기 | 남이 쓴 Kotlin 코드를 줄 번호와 함께 읽고 실행 결과와 변경 영향을 예측한다. 1단계는 장바구니 할인 계산, 2단계는 상품 상세 집계 서비스의 코루틴 실행 순서와 취소, 3단계는 가격 상태 저장소의 StateFlow 와 SharedFlow 코드다 |
@@ -151,7 +155,7 @@ cresvoid/
 │   ├── skills/           컨텐츠를 만드는 스킬과 워크플로우
 │   └── templates/        Kotlin 프로젝트 공통 파일의 원본(kotlin/)과 복사 스크립트(sync.main.kts)
 ├── engine/               엔진. Gradle Kotlin DSL 프로젝트이고 실행 코드는 표준 라이브러리와 JDK 만, 테스트는 Kotest 를 쓴다
-│   ├── bin/cresvoid          엔진 실행 스크립트. 소스가 바뀌었으면 엔진을 빌드한 뒤 실행한다
+│   ├── bin/cresvoid      엔진 실행 스크립트. 소스가 바뀌었으면 엔진을 빌드한 뒤 실행한다
 │   └── e2e.main.kts      끝에서 끝까지 확인
 ├── practice/             로컬 풀이 작업 공간. cresvoid start 가 만들며 Git에 올리지 않는다
 │   └── progress/         진행 기록(progress.json)과 초기화 백업. cresvoid 만 쓴다
@@ -164,4 +168,4 @@ cresvoid/
 2. `content/skills/cresvoid-content` 의 절차와 종류별 스킬로 [content/FORMAT.md](content/FORMAT.md) 형식의 `content/tracks/<트랙>/` 을 만든다.
 3. `cresvoid validate <트랙>`, `kotlin content/templates/sync.main.kts --check`, `kotlin engine/e2e.main.kts` 로 확인한다.
 
-build 트랙의 검증은 참조 풀이가 모든 테스트를 통과하는지, 시작 코드가 1단계에서 실패하는지, 앞 단계 참조 풀이가 다음 단계 테스트에서 실패하는지까지 실행으로 확인한다. fix 트랙은 시작 코드가 그 단계 테스트에서 실패하고 참조 풀이와의 차이가 몇 줄인지, code 트랙은 코드가 빌드되고 short 문항의 정답이 실행 결과와 같은지 확인한다.
+build 트랙의 검증은 참조 풀이가 모든 테스트를 통과하는지, 시작 코드가 1단계에서 실패하는지, 앞 단계 참조 풀이가 다음 단계 테스트에서 실패하는지까지 실행으로 확인한다. fix 트랙은 시작 코드가 그 단계 테스트에서 실패하고 참조 풀이와의 차이가 몇 줄인지, code 트랙은 코드가 빌드되고 short 문항의 정답이 실행 결과와 같은지 확인한다. lab 트랙은 참조 풀이와 실패 변형의 실험 결과를 각각 세 번 확인한다.

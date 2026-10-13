@@ -11,7 +11,9 @@ import cresvoid.content.Stage
 import cresvoid.content.TestCase
 import cresvoid.content.TestScope
 import cresvoid.content.Track
+import cresvoid.content.TrackKind
 import cresvoid.content.WorkspaceScope
+import cresvoid.content.loadLabSuite
 import cresvoid.content.loadTestSuite
 import cresvoid.progress.Progress
 import cresvoid.progress.ProgressRepository
@@ -22,6 +24,8 @@ import cresvoid.project.isSameDirectory
 import cresvoid.project.resolveFromWorkingDirectory
 import cresvoid.runner.CaseInput
 import cresvoid.runner.Harness
+import cresvoid.runner.LabHarness
+import cresvoid.runner.LabOutcome
 import cresvoid.runner.ProcessRunner
 import cresvoid.runner.Verdict
 import cresvoid.runner.checkEditScope
@@ -82,6 +86,9 @@ class TestCommand(
         if (!dir.resolve("run.sh").isExecutableFile()) {
             throw CresvoidError("실행할 수 있는 run.sh 가 없습니다: ${project.rel(dir)}")
         }
+        if (state.track.kind == TrackKind.Lab && !dir.resolve("build.sh").isExecutableFile()) {
+            throw CresvoidError("실행할 수 있는 build.sh 가 없습니다: ${project.rel(dir)}")
+        }
         return dir
     }
 
@@ -102,6 +109,7 @@ class TestCommand(
     ) {
         private val track: Track = state.track
         private val harness = Harness(runner)
+        private val labHarness = LabHarness(runner)
         private val stages = track.stagesToRun(target)
         private val preparedReferences = mutableSetOf<Stage>()
 
@@ -115,7 +123,7 @@ class TestCommand(
                 throw FailureShown()
             }
             val started = System.nanoTime()
-            val total = stages.sumOf { runStage(it) }
+            val total = stages.sumOf { if (track.kind == TrackKind.Lab) runLabStage(it) else runStage(it) }
             val now = OffsetDateTime.now(clock)
             val update = progress.updateWith { latest -> recordPass(latest, now) }
             val elapsed = formatElapsed(Duration.ofNanos(System.nanoTime() - started))
@@ -165,6 +173,35 @@ class TestCommand(
                     dim(" (무작위 ${cases.size}회, 최대 ${formatElapsed(slowest)} / 제한 ${formatElapsed(timeout)})")
                 }
                 console.println("  ${green("✓")} ${test.name}$suffix")
+            }
+            return count
+        }
+
+        private fun runLabStage(stage: Stage): Int {
+            val suite = loadLabSuite(stage)
+            console.println("\n${bold(stage.dir)} ${stage.title}")
+            var count = 0
+            for (scenario in suite.scenarios) {
+                repeat(scenario.repeat) { index ->
+                    val run = labHarness.run(stage, solutionDir, scenario)
+                    count++
+                    val label = if (scenario.repeat == 1) scenario.name else "${scenario.name} (${index + 1}/${scenario.repeat})"
+                    run.metrics.forEach { metric -> console.println("  · ${metric.name} ${metric.value}") }
+                    if (run.outcome != LabOutcome.Passed) {
+                        val reason = when (val outcome = run.outcome) {
+                            LabOutcome.InvariantFailed -> "실험의 불변식을 만족하지 못했습니다"
+                            is LabOutcome.Invalid -> outcome.reason
+                            LabOutcome.Passed -> error("unreachable")
+                        }
+                        console.println("  ${red("✗")} $label")
+                        console.println("    $reason")
+                        console.println("    다시 읽을 곳: ${project.rel(stage.documentPath)} 의 ${formatRefs(scenario.refs)} 문단")
+                        console.println("    핵심 문장: ${scenario.quote}")
+                        solutionLine(stage)?.let { console.println("    $it") }
+                        throw FailureShown()
+                    }
+                    console.println("  ${green("✓")} $label")
+                }
             }
             return count
         }

@@ -18,7 +18,7 @@ internal class StatusView(private val state: TrackState, private val now: Offset
     fun workspaceLines(): List<String> {
         val workspace = when (kind) {
             TrackKind.Build -> state.solutionDir
-            TrackKind.Fix -> state.currentStage?.let(state::workspace)
+            TrackKind.Fix, TrackKind.Lab -> state.currentStage?.let(state::workspace)
             TrackKind.Reading, TrackKind.Code -> null
         }
         return listOfNotNull(workspace?.let { "${dim("풀이:")} $it" })
@@ -28,6 +28,7 @@ internal class StatusView(private val state: TrackState, private val now: Offset
         val progress = state.stageProgress(stage)
         return when (kind) {
             TrackKind.Build -> listOf(readMark(progress), quizMark(progress, stage), testMark(progress))
+            TrackKind.Lab -> listOf(readMark(progress), quizMark(progress, stage), testMark(progress))
             TrackKind.Fix -> listOf(readMark(progress), testMark(progress))
             TrackKind.Reading, TrackKind.Code -> listOf(readMark(progress), quizMark(progress, stage))
         }
@@ -36,6 +37,7 @@ internal class StatusView(private val state: TrackState, private val now: Offset
     fun reviewLines(): List<String> = when (kind) {
         TrackKind.Build -> reviewSchedule(redo = "빈 작업 공간에서 다시 구현하고")
         TrackKind.Fix -> reviewSchedule(redo = "새 작업 공간에서 다시 고치고")
+        TrackKind.Lab -> reviewSchedule(redo = "새 작업 공간에서 다시 실험하고")
         TrackKind.Reading, TrackKind.Code -> emptyList()
     }
 

@@ -43,8 +43,8 @@ Kotlin 코루틴의 실행 원리, 구조적 동시성, 취소, 예외 전파, �
 2. B-coroutines-20 `coroutine-patterns` 트랙에서 kotlinx.coroutines 로 동시 호출, 동시 실행 상한, Channel 파이프라인, Flow 처리를 직접 짠다.
 3. C-coroutines-30·C-coroutines-32 코드 읽기와 F-coroutines-31 버그 수정으로 남이 짠 코루틴 코드의 실행 순서와 함정을 만난다.
 4. B-coroutines-35 `coroutine-patterns` 05·06 단계에서 묶음 저장과 요청 합치기를 실험 표시 없는 API 로 직접 설계한다.
-5. B-coroutines-40 `coroutine-runtime` 트랙에서 표준 라이브러리의 기본 요소만으로 작은 실행기를 만들어 앞에서 쓴 의미론을 안쪽부터 확인한다.
-6. L-coroutines-50 실험으로 블로킹 호출이 디스패처를 고갈시키는 과정을 관찰한다.
+5. B-coroutines-40 `coroutine-runtime` 01~07단계에서 표준 라이브러리의 기본 요소로 작은 실행기와 pull 시퀀스를 만들어 앞에서 쓴 의미론을 안쪽부터 확인한다.
+6. L-coroutines-50 `coroutine-lab` 실험에서 블로킹 호출이 빠른 요청을 지연시키는 과정을 측정하고 고친다.
 
 ## 3. 환경
 
@@ -77,7 +77,7 @@ Kotlin 코루틴의 실행 원리, 구조적 동시성, 취소, 예외 전파, �
 
 ## 6. 실행기 구현 영상 조사
 
-B-coroutines-40(`coroutine-runtime`) 제작에 앞서 사용자가 추천한 영상을 2026-10-12 에 확인했다. 아래 '당시 네 단계 기획과 대조'와 '당시 제안과 반영 결과' 절은 네 단계 카드에 대한 조사와 제안을 기록한 것이다. 실제 제작 범위는 여섯 단계이며 [코루틴 현황](../../../../docs/coroutines-roadmap.md)에 정리했다. 영상은 주제만 참고하고 문장과 코드는 옮기지 않는다(D15).
+B-coroutines-40(`coroutine-runtime`) 제작에 앞서 사용자가 추천한 영상을 2026-10-12 에 확인했다. 아래 '당시 네 단계 기획과 대조'와 '당시 제안과 반영 결과' 절은 네 단계 카드에 대한 조사와 제안을 기록한 것이다. 이후 실제 제작 범위는 일곱 단계로 늘었으며 [코루틴 현황](../../../../docs/coroutines-roadmap.md)에 정리했다. 영상은 주제만 참고하고 문장과 코드는 옮기지 않는다(D15).
 
 ### 6.1 확인한 영상
 

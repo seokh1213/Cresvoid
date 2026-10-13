@@ -17,7 +17,10 @@ class TrackKindTest : FunSpec({
         TrackKind.Fix.workspaceScope shouldBe WorkspaceScope.STAGE
         TrackKind.Build.testScope shouldBe TestScope.CUMULATIVE
         TrackKind.Fix.testScope shouldBe TestScope.TARGET_STAGE
-        TrackKind.all.map { it.id } shouldBe listOf("build", "reading", "code", "fix")
+        TrackKind.Lab.workspaceScope shouldBe WorkspaceScope.STAGE
+        TrackKind.Lab.quizRules.shortQuestions shouldBe ShortQuestions.INPUT_OPTIONAL
+        TrackKind.Lab.testScope shouldBe TestScope.TARGET_STAGE
+        TrackKind.all.map { it.id } shouldBe listOf("build", "reading", "code", "fix", "lab")
     }
     test("단계는 번호나 디렉터리 이름으로 고른다") {
         val stages = listOf("01-a", "02-b").mapIndexed { index, dir ->

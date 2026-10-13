@@ -23,7 +23,14 @@ sealed interface NextStep {
 fun TrackState.nextStep(now: OffsetDateTime): NextStep = when (track.kind) {
     TrackKind.Build -> buildStep(now)
     TrackKind.Fix -> fixStep(now)
+    TrackKind.Lab -> labStep(now)
     TrackKind.Reading, TrackKind.Code -> quizStep()
+}
+
+private fun TrackState.labStep(now: OffsetDateTime): NextStep {
+    val stage = currentStage ?: return reviewStep(now)
+    if (workspace(stage) == null) return NextStep.CreateWorkspace(stage)
+    return studyStep(stage, stageProgress(stage)) ?: NextStep.PassTests(stage)
 }
 
 private fun TrackState.buildStep(now: OffsetDateTime): NextStep {

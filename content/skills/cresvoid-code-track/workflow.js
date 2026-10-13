@@ -28,7 +28,7 @@ const COMMON = [
   '프로젝트 밖 기록 시스템은 쓰지 않는다. git 커밋을 하지 않는다. 결과는 최종 출력으로 돌려준다.',
   '작업 전에 ' + ROOT + '/content/FORMAT.md 를 처음부터 끝까지 읽는다. 엔진과 컨텐츠의 계약이다.',
   '프로젝트에 남기는 코드는 모두 Kotlin 이다. /tmp 에서 잠깐 쓰는 검사 도구는 언어를 가리지 않는다.',
-  'Kotlin 코드를 쓰기 전에 세션의 코드 규칙과 설치된 kotlin-core-best-practices 스킬 를 읽고 따른다.',
+  'Kotlin 코드를 쓰기 전에 세션의 코드 규칙과 설치된 kotlin-core-best-practices 스킬을 읽고 따른다.',
   '이 프롬프트가 지정한 파일만 만들거나 고친다. 다른 agent 가 같은 시간에 다른 단계를 만든다. track.json 은 고치지 않는다.',
   '학습자 공간과 진행 기록(' + ROOT + '/practice)을 바꾸지 않는다. cresvoid 로 흐름을 시험할 때는 프로젝트를 /tmp 에 복사해 그 안에서 실행한다. cresvoid validate 는 상태를 바꾸지 않으므로 프로젝트에서 실행해도 된다.',
 ].join('\n')

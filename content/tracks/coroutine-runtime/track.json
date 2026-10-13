@@ -8,6 +8,7 @@
     { "dir": "03-cancellation", "title": "협력적 취소와 정리" },
     { "dir": "04-exceptions", "title": "실패 전파와 감독" },
     { "dir": "05-channels", "title": "채널과 잠금 대기열" },
-    { "dir": "06-flow", "title": "콜드 Flow와 상류 중단" }
+    { "dir": "06-flow", "title": "콜드 Flow와 상류 중단" },
+    { "dir": "07-sequence", "title": "요청할 때 재개되는 시퀀스" }
   ]
 }

@@ -1,0 +1,123 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "case-01",
+      "refs": ["4.2", "4.3"],
+      "quote": "시퀀스를 정의하거나 반복자를 만들 때는 사건을 내지 않는다.",
+      "input": ["TASK worker LAUNCH", "LOG before", "ITER seq i", "LOG after", "END", "SEQUENCE seq", "LOG hidden", "YIELD 1", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r LOG before", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-02",
+      "refs": ["3.2", "4.5"],
+      "quote": "한 반복자에서 `hasNext()`를 여러 번 호출해도 같은 값을 보며, `next()` 뒤의 요청에서만 다음 `yield`까지 실행한다.",
+      "input": ["TASK worker LAUNCH", "ITER numbers i", "HAS_NEXT i", "HAS_NEXT i", "NEXT i", "HAS_NEXT i", "NEXT i", "HAS_NEXT i", "END", "SEQUENCE numbers", "LOG begin", "YIELD -2", "LOG middle", "YIELD 4", "LOG end", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r SEQLOG numbers begin", "0 r HAS_NEXT i true", "0 r HAS_NEXT i true", "0 r ITEM i -2", "0 r SEQLOG numbers middle", "0 r HAS_NEXT i true", "0 r ITEM i 4", "0 r SEQLOG numbers end", "0 r HAS_NEXT i false", "0 r DONE"]
+    },
+    {
+      "name": "case-03",
+      "refs": ["3.2", "4.5"],
+      "quote": "서로 다른 반복자는 본문 위치와 본문 내부의 지역 변수를 따로 갖는다.",
+      "input": ["TASK worker LAUNCH", "ITER values a", "ITER values b", "NEXT a", "HAS_NEXT b", "NEXT a", "NEXT b", "HAS_NEXT a", "HAS_NEXT b", "NEXT b", "END", "SEQUENCE values", "LOG open", "YIELD 1", "LOG between", "YIELD 2", "LOG close", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r SEQLOG values open", "0 r ITEM a 1", "0 r SEQLOG values open", "0 r HAS_NEXT b true", "0 r SEQLOG values between", "0 r ITEM a 2", "0 r ITEM b 1", "0 r SEQLOG values close", "0 r HAS_NEXT a false", "0 r SEQLOG values between", "0 r HAS_NEXT b true", "0 r ITEM b 2", "0 r DONE"]
+    },
+    {
+      "name": "case-04",
+      "refs": ["4.3", "4.6"],
+      "quote": "같은 `TASK` 정의를 여러 번 실행하면 인스턴스마다 새 반복자를 만든다.",
+      "input": ["TASK worker LAUNCH", "ITER seq i", "NEXT i", "DELAY 0", "NEXT i", "END", "SEQUENCE seq", "LOG open", "YIELD 5", "LOG again", "YIELD 6", "END", "ROOT worker a", "ROOT worker b", "RUN"],
+      "expected": ["0 a START", "0 a SEQLOG seq open", "0 a ITEM i 5", "0 b START", "0 b SEQLOG seq open", "0 b ITEM i 5", "0 a SEQLOG seq again", "0 a ITEM i 6", "0 a DONE", "0 b SEQLOG seq again", "0 b ITEM i 6", "0 b DONE"]
+    },
+    {
+      "name": "case-05",
+      "refs": ["4.2", "4.4"],
+      "quote": "다음 값이 없을 때의 `NEXT`는 사건을 내지 않고 `SEQUENCE_END` 코드의 일반 실패를 일으킨다.",
+      "input": ["TASK worker LAUNCH", "ITER empty e", "HAS_NEXT e", "HAS_NEXT e", "ITER one o", "NEXT o", "HAS_NEXT o", "NEXT o", "LOG skipped", "FINALLY", "LOG cleanup", "END", "SEQUENCE empty", "END", "SEQUENCE one", "YIELD 9", "LOG tail", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r HAS_NEXT e false", "0 r HAS_NEXT e false", "0 r ITEM o 9", "0 r SEQLOG one tail", "0 r HAS_NEXT o false", "0 r LOG cleanup", "0 r FAILED SEQUENCE_END", "0 r UNHANDLED SEQUENCE_END"]
+    },
+    {
+      "name": "case-06",
+      "refs": ["4.1", "4.4"],
+      "quote": "시퀀스 이름은 시퀀스 정의 안에서 고유하며 Flow와 같은 이름을 써도 된다.",
+      "input": ["TASK worker LAUNCH", "ITER both i", "COLLECT both", "NEXT i", "END", "FLOW both", "LOG flow", "EMIT 2", "END", "SEQUENCE both", "LOG seq", "YIELD 7", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOWLOG both flow", "0 r FLOW both 2", "0 r SEQLOG both seq", "0 r ITEM i 7", "0 r DONE"]
+    },
+    {
+      "name": "case-07",
+      "refs": ["4.6"],
+      "quote": "이미 취소를 요청받은 작업이 이 명령에 이르면 3단계의 다음 취소 확인 지점에 닿기 전까지는 그대로 실행한다.",
+      "input": ["TASK worker LAUNCH", "ITER seq i", "CANCEL_SELF", "HAS_NEXT i", "NEXT i", "LOG after", "ENSURE", "LOG skipped", "FINALLY", "LOG cleanup", "END", "SEQUENCE seq", "LOG alive", "YIELD 3", "LOG unreachable", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r SEQLOG seq alive", "0 r HAS_NEXT i true", "0 r ITEM i 3", "0 r LOG after", "0 r LOG cleanup", "0 r CANCELLED"]
+    },
+    {
+      "name": "case-08",
+      "refs": ["2.3", "4.6"],
+      "quote": "작업이 종료되면 남은 반복자는 폐기하며 시퀀스 본문을 더 실행하지 않는다.",
+      "input": ["TASK child LAUNCH", "ITER seq i", "NEXT i", "DELAY 5", "NEXT i", "FINALLY", "LOG cleanup", "END", "TASK parent LAUNCH", "SPAWN child c", "DELAY 0", "CANCEL c", "JOIN c", "END", "SEQUENCE seq", "LOG before", "YIELD 1", "LOG after", "YIELD 2", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "0 r.c SEQLOG seq before", "0 r.c ITEM i 1", "0 r.c LOG cleanup", "0 r.c CANCELLED", "0 r DONE"]
+    },
+    {
+      "name": "case-09",
+      "refs": ["5.2"],
+      "quote": "시퀀스 본문의 허용 명령·인자·정수 형식이 틀리면 `FORMAT`이다.",
+      "input": ["TASK worker LAUNCH", "END", "SEQUENCE seq", "LOG ok", "YIELD", "END", "ROOT worker r", "RUN"],
+      "expected": ["ERR 5 FORMAT"]
+    },
+    {
+      "name": "case-10",
+      "refs": ["5.2"],
+      "quote": "인자 없는 작업 명령 `YIELD`를 시퀀스 본문에 쓰거나 인자 있는 시퀀스 명령 `YIELD`를 작업 본문에 쓰면 `FORMAT`이다.",
+      "input": ["TASK worker LAUNCH", "YIELD 1", "END", "ROOT worker r", "RUN"],
+      "expected": ["ERR 2 FORMAT"]
+    },
+    {
+      "name": "case-11",
+      "refs": ["5.1"],
+      "quote": "같은 시퀀스 이름 또는 한 `TASK` 정의 안의 같은 반복자 이름을 두 번 선언하면 뒤 선언 줄의 `DUPLICATE`다.",
+      "input": ["TASK worker LAUNCH", "END", "SEQUENCE seq", "YIELD 1", "END", "SEQUENCE seq", "YIELD 2", "END", "ROOT worker r", "RUN"],
+      "expected": ["ERR 6 DUPLICATE"]
+    },
+    {
+      "name": "case-12",
+      "refs": ["5.1"],
+      "quote": "한 `ITER` 줄에서 이름 중복과 없는 시퀀스 참조가 함께 있으면 `DUPLICATE`를 먼저 낸다.",
+      "input": ["TASK worker LAUNCH", "ITER seq i", "ITER missing i", "END", "SEQUENCE seq", "YIELD 1", "END", "ROOT worker r", "RUN"],
+      "expected": ["ERR 3 DUPLICATE"]
+    },
+    {
+      "name": "case-13",
+      "refs": ["5.1"],
+      "quote": "해당 `TASK` 본문에서 앞선 `ITER`로 만들지 않은 반복자를 `HAS_NEXT`나 `NEXT`에서 참조하면 `REFERENCE`다.",
+      "input": ["TASK worker LAUNCH", "HAS_NEXT missing", "END", "ROOT worker r", "RUN"],
+      "expected": ["ERR 2 REFERENCE"]
+    },
+    {
+      "name": "case-14",
+      "refs": ["5.1"],
+      "quote": "시퀀스 정의가 `TASK` 안이나 자원·`ROOT` 선언 뒤에 있으면 `FORMAT`이다.",
+      "input": ["TASK worker LAUNCH", "END", "ROOT worker r", "SEQUENCE seq", "YIELD 1", "END", "RUN"],
+      "expected": ["ERR 4 FORMAT"]
+    },
+    {
+      "name": "case-15",
+      "refs": ["4.1", "4.3", "4.4", "4.5"],
+      "quote": "정의를 여러 반복자와 여러 작업이 공유할 수 있지만 각 반복자의 실행 상태는 독립한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "12", "--mode", "mixed"],
+      "repeat": 2
+    },
+    {
+      "name": "case-16",
+      "refs": ["5.1", "5.2"],
+      "quote": "앞 단계의 입력 검증 방식과 오류 우선순위를 따른다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "12", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "case-17",
+      "refs": ["7.2"],
+      "quote": "대규모 입력에는 약 10,000개 작업과 30,000개 명령에 여러 반복자의 교차 요청을 섞는다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "10000", "--mode", "mixed"]
+    }
+  ]
+}

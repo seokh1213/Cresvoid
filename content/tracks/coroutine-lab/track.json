@@ -1,0 +1,8 @@
+{
+  "title": "코루틴 운영 실험",
+  "kind": "lab",
+  "summary": "실제 HTTP 부하를 관찰하고 코루틴 서비스의 동시성 불변식을 복구한다",
+  "stages": [
+    { "dir": "01-dispatcher-starvation", "title": "블로킹 호출과 디스패처 고갈" }
+  ]
+}
