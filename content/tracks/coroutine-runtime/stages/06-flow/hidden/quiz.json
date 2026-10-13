@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 두 FLOW 사건의 시각과 FLOWLOG tail의 실행 여부는?",
+      "context": "TASK worker LAUNCH\nCOLLECT f FILTER ODD TAKE 1\nCOLLECT f MAP 1 FILTER ODD TAKE 1\nEND\nFLOW f\nLOG open\nEMIT 2\nDELAY 1\nEMIT 3\nLOG tail\nFINALLY\nLOG close\nEND\nROOT worker r\nRUN",
+      "choices": ["시각 0과 0, tail은 한 번 실행", "시각 1과 1, tail은 실행되지 않음", "시각 1과 2, tail은 실행되지 않음", "시각 1과 1, tail은 첫 수집에서만 실행", "시각 1에 FLOW 사건이 한 번만 나오고 tail은 실행되지 않음"],
+      "answer": 2,
+      "refs": ["4.3", "4.4", "4.5"],
+      "quote": "한 수집이 끝나도 다른 수집의 본문 위치, 타이머, 출력 값은 바뀌지 않는다.",
+      "explanation": "첫 수집은 2를 거르고 시각 1의 3에서 멈춘다. 두 번째 수집은 그 시각에 처음부터 다시 시작하며 2에 MAP 1을 적용한 3을 곧바로 내고 멈춘다. 둘 다 tail 전에 상류를 중지한다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 r의 FLOW 값과 FLOWLOG 사건은 어떤 순서로 나오는가?",
+      "context": "TASK worker LAUNCH\nCOLLECT nums MAP -1 FILTER EVEN TAKE 2\nLOG after\nEND\nFLOW nums\nEMIT -3\nEMIT -2\nEMIT 1\nEMIT 2\nLOG tail\nFINALLY\nLOG close\nEND\nROOT worker r\nRUN",
+      "choices": ["FLOW -3 → FLOW 1 → FLOWLOG close", "FLOW -4 → FLOW 0 → FLOWLOG tail → FLOWLOG close", "FLOW -4 → FLOW 0 → FLOWLOG close", "FLOW -4 → FLOW -2 → FLOWLOG close", "FLOW 0 → FLOW 2 → FLOWLOG close"],
+      "answer": 3,
+      "refs": ["4.3", "4.4"],
+      "quote": "각 `EMIT` 값을 먼저 `MAP` 정수와 더한다.",
+      "explanation": "-3은 -4로 바뀌어 통과하고, -2는 -3이 되어 걸러진다. 1은 0으로 바뀌어 두 번째 값이 되므로 이후 EMIT과 LOG tail을 건너뛰고 정리의 LOG close를 낸다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 r이 c를 취소한 뒤 정리 사건의 순서와 시각은?",
+      "context": "TASK child LAUNCH\nCOLLECT f\nLOG after\nFINALLY\nLOG task_cleanup\nEND\nTASK parent LAUNCH\nSPAWN child c\nDELAY 0\nCANCEL c\nJOIN c\nEND\nFLOW f\nEMIT 1\nDELAY 5\nEMIT 2\nFINALLY\nLOG flow_cleanup\nSHIELD_DELAY 2\nLOG flow_closed\nEND\nROOT parent r\nRUN",
+      "choices": ["시각 0 FLOWLOG flow_cleanup → 시각 2 FLOWLOG flow_closed → 시각 2 LOG task_cleanup → 시각 2 CANCELLED", "시각 0 LOG task_cleanup → 시각 0 FLOWLOG flow_cleanup → 시각 2 CANCELLED", "시각 5 FLOW f 2 → 시각 5 FLOWLOG flow_cleanup → 시각 7 CANCELLED", "시각 0 FLOWLOG flow_cleanup → 시각 0 CANCELLED → 시각 2 FLOWLOG flow_closed", "시각 0 FLOWLOG flow_cleanup → 시각 2 LOG after → 시각 2 DONE"],
+      "answer": 1,
+      "refs": ["4.1", "4.6"],
+      "quote": "이미 Flow 본문에 들어간 수집 작업이 취소되면 다음 확인 지점에서 남은 본문을 건너뛰고 Flow의 `FINALLY`를 한 번 실행한 뒤 작업의 `FINALLY`로 간다.",
+      "explanation": "c는 Flow의 DELAY 5에서 중단된 채 시각 0에 취소된다. Flow 정리의 LOG 뒤 SHIELD_DELAY 2를 기다리고, 시각 2에 나머지 Flow 정리와 작업 정리를 차례로 실행한 뒤 CANCELLED를 낸다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK worker LAUNCH", "COLLECT f TAKE 1 FILTER EVEN", "END", "FLOW f", "EMIT 2", "END", "ROOT worker r", "RUN"],
+      "answers": ["ERR 2 FORMAT"],
+      "refs": ["4.2", "5.1"],
+      "quote": "선택 부분은 적을 때 `MAP`, `FILTER`, `TAKE` 순서여야 하며 각 부분은 한 번만 적는다.",
+      "explanation": "TAKE 뒤에 FILTER를 적어 선택 부분의 순서를 어겼으므로 2행이 FORMAT이다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK worker LAUNCH", "COLLECT f", "END", "FLOW f", "EMIT 1", "FINALLY", "EMIT 2", "END", "ROOT worker r", "RUN"],
+      "answers": ["ERR 7 FORMAT"],
+      "refs": ["4.1", "5.2"],
+      "quote": "`EMIT`은 Flow의 본문에서만 쓸 수 있으며 `TASK`나 Flow 정리 구간에서는 `FORMAT`이다.",
+      "explanation": "첫 EMIT은 Flow 본문에 있어 유효하지만 7행의 EMIT은 FINALLY 정리 구간에 있어 FORMAT이다."
+    }
+  ]
+}

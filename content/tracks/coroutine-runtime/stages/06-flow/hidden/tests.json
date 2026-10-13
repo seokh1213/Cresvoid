@@ -1,0 +1,123 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "case-01",
+      "refs": ["3.2", "4.2", "4.3"],
+      "quote": "값이 필터를 통과하면 수집 작업의 경로로 `FLOW <Flow 이름> <변환된 정수>` 사건을 낸다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq", "END", "FLOW seq", "EMIT 1", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq 1", "0 r DONE"]
+    },
+    {
+      "name": "case-02",
+      "refs": ["2.1", "3.1"],
+      "quote": "cold Flow 정의는 값을 미리 만들거나 작업을 미리 시작하지 않는다.",
+      "input": ["TASK worker LAUNCH", "LOG before", "END", "FLOW seq", "LOG hidden", "EMIT 1", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r LOG before", "0 r DONE"]
+    },
+    {
+      "name": "case-03",
+      "refs": ["2.1", "4.4", "4.5"],
+      "quote": "같은 Flow를 두 번 수집하면 두 실행은 각각 자신의 중단 지점과 정리 구간을 갖는다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq TAKE 1", "COLLECT seq", "END", "FLOW seq", "LOG open", "EMIT 1", "DELAY 2", "EMIT 2", "FINALLY", "LOG close", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOWLOG seq open", "0 r FLOW seq 1", "0 r FLOWLOG seq close", "0 r FLOWLOG seq open", "0 r FLOW seq 1", "2 r FLOW seq 2", "2 r FLOWLOG seq close", "2 r DONE"]
+    },
+    {
+      "name": "case-04",
+      "refs": ["4.3"],
+      "quote": "각 `EMIT` 값을 먼저 `MAP` 정수와 더한다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq MAP 1 FILTER EVEN", "END", "FLOW seq", "EMIT -3", "EMIT -2", "EMIT 1", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq -2", "0 r FLOW seq 2", "0 r DONE"]
+    },
+    {
+      "name": "case-05",
+      "refs": ["4.3", "4.4"],
+      "quote": "`TAKE`는 필터를 통과한 값만 센다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq FILTER ODD TAKE 2", "LOG after", "END", "FLOW seq", "EMIT 2", "EMIT 3", "EMIT 4", "EMIT 5", "LOG skipped", "FINALLY", "LOG clean", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq 3", "0 r FLOW seq 5", "0 r FLOWLOG seq clean", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-06",
+      "refs": ["3.3", "4.2"],
+      "quote": "`TAKE` 개수는 0 이상 1,000,000 이하이며 0은 개수 제한이 없다는 뜻이다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq TAKE 0", "END", "FLOW seq", "EMIT 1", "EMIT 2", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq 1", "0 r FLOW seq 2", "0 r DONE"]
+    },
+    {
+      "name": "case-07",
+      "refs": ["4.4"],
+      "quote": "그래서 이때 Flow 정리의 보통 `DELAY`도 정상적으로 중단하고 재개할 수 있다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq TAKE 1", "LOG after", "END", "FLOW seq", "EMIT 1", "LOG skipped", "FINALLY", "LOG closing", "DELAY 2", "LOG closed", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq 1", "0 r FLOWLOG seq closing", "2 r FLOWLOG seq closed", "2 r LOG after", "2 r DONE"]
+    },
+    {
+      "name": "case-08",
+      "refs": ["4.5"],
+      "quote": "`TAKE` 개수에 못 미친 채 Flow 본문이 끝나면 그때까지의 값만 출력하고 정리 뒤 `COLLECT`를 끝낸다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq TAKE 3", "LOG after", "END", "FLOW seq", "EMIT 1", "EMIT 2", "FINALLY", "LOG close", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq 1", "0 r FLOW seq 2", "0 r FLOWLOG seq close", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-09",
+      "refs": ["2.3", "4.5"],
+      "quote": "여러 작업이 같은 Flow 정의를 수집하더라도 각각 독립해 진행한다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq", "LOG finished", "END", "FLOW seq", "LOG begin", "EMIT 1", "DELAY 1", "EMIT 2", "FINALLY", "LOG close", "END", "ROOT worker a", "ROOT worker b", "RUN"],
+      "expected": ["0 a START", "0 a FLOWLOG seq begin", "0 a FLOW seq 1", "0 b START", "0 b FLOWLOG seq begin", "0 b FLOW seq 1", "1 a FLOW seq 2", "1 a FLOWLOG seq close", "1 a LOG finished", "1 a DONE", "1 b FLOW seq 2", "1 b FLOWLOG seq close", "1 b LOG finished", "1 b DONE"]
+    },
+    {
+      "name": "case-10",
+      "refs": ["4.6"],
+      "quote": "이미 Flow 본문에 들어간 수집 작업이 취소되면 다음 확인 지점에서 남은 본문을 건너뛰고 Flow의 `FINALLY`를 한 번 실행한 뒤 작업의 `FINALLY`로 간다.",
+      "input": ["TASK collector LAUNCH", "COLLECT slow", "LOG late", "FINALLY", "LOG taskclean", "END", "TASK parent LAUNCH", "SPAWN collector c", "DELAY 0", "CANCEL c", "JOIN c", "END", "FLOW slow", "LOG open", "DELAY 5", "EMIT 9", "FINALLY", "LOG flowclean", "SHIELD_DELAY 2", "LOG cleaned", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "0 r.c FLOWLOG slow open", "0 r.c FLOWLOG slow flowclean", "2 r.c FLOWLOG slow cleaned", "2 r.c LOG taskclean", "2 r.c CANCELLED", "2 r DONE"]
+    },
+    {
+      "name": "case-11",
+      "refs": ["4.1", "4.6"],
+      "quote": "Flow의 `FAIL`은 수집 작업의 일반 실패가 된다.",
+      "input": ["TASK worker LAUNCH", "COLLECT boom", "LOG unreachable", "FINALLY", "LOG taskclean", "END", "FLOW boom", "EMIT 4", "FAIL OOPS", "FINALLY", "LOG flowclean", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW boom 4", "0 r FLOWLOG boom flowclean", "0 r LOG taskclean", "0 r FAILED OOPS", "0 r UNHANDLED OOPS"]
+    },
+    {
+      "name": "case-12",
+      "refs": ["5.1"],
+      "quote": "같은 Flow 이름을 두 번 정의하면 `DUPLICATE`이고, 없는 Flow를 `COLLECT`하면 `UNKNOWN`이다.",
+      "input": ["TASK worker LAUNCH", "COLLECT missing", "END", "ROOT worker r", "RUN"],
+      "expected": ["ERR 2 UNKNOWN"]
+    },
+    {
+      "name": "case-13",
+      "refs": ["4.1", "4.6"],
+      "quote": "이미 주된 실패가 있으면 4단계의 `SUPPRESSED` 규칙을 적용한다.",
+      "input": ["TASK worker LAUNCH", "COLLECT seq", "LOG skipped", "END", "FLOW seq", "EMIT 1", "FAIL FIRST", "FINALLY", "FAIL SECOND", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FLOW seq 1", "0 r SUPPRESSED SECOND", "0 r FAILED FIRST", "0 r UNHANDLED FIRST"]
+    },
+    {
+      "name": "case-14",
+      "refs": ["4.6"],
+      "quote": "Flow의 `FAIL`은 수집 작업의 일반 실패가 된다.",
+      "input": ["TASK collector LAUNCH", "COLLECT slow", "LOG skipped", "FINALLY", "LOG taskclean", "END", "TASK parent LAUNCH", "SPAWN collector c", "DELAY 0", "CANCEL c", "JOIN c", "END", "FLOW slow", "DELAY 5", "EMIT 9", "FINALLY", "FAIL CLEAN", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "0 r.c LOG taskclean", "0 r.c FAILED CLEAN", "0 r FAILED CLEAN", "0 r UNHANDLED CLEAN"]
+    },
+    {
+      "name": "case-15",
+      "refs": ["4.2", "4.3", "4.4"],
+      "quote": "각 `EMIT` 값을 먼저 `MAP` 정수와 더한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "12", "--mode", "mixed"],
+      "repeat": 2
+    },
+    {
+      "name": "case-16",
+      "refs": ["5.1", "5.2"],
+      "quote": "앞 단계의 입력 검증 방식과 오류 코드를 따른다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "12", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "case-17",
+      "refs": ["7.2"],
+      "quote": "Flow 정의를 수집마다 복사하거나 앞 수집의 타이머를 뒤 수집과 공유할 필요는 없다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "8000", "--mode", "mixed"]
+    }
+  ]
+}

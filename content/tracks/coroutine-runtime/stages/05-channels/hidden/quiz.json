@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 RECEIVE와 LOG 사건의 순서는?",
+      "context": "TASK sender_one LAUNCH\nSEND ch first\nLOG first_done\nEND\nTASK sender_two LAUNCH\nSEND ch second\nLOG second_done\nEND\nTASK receiver LAUNCH\nRECV ch\nLOG between\nRECV ch\nLOG finished\nEND\nCHANNEL ch 0\nROOT sender_one a\nROOT sender_two b\nROOT receiver r\nRUN",
+      "choices": ["r RECEIVE ch first → a LOG first_done → r LOG between → r RECEIVE ch second → b LOG second_done → r LOG finished", "r RECEIVE ch first → r LOG between → r RECEIVE ch second → r LOG finished → a LOG first_done → b LOG second_done", "r RECEIVE ch second → r LOG between → r RECEIVE ch first → r LOG finished → a LOG first_done → b LOG second_done", "a LOG first_done → b LOG second_done → r RECEIVE ch first → r RECEIVE ch second", "r RECEIVE ch first → r LOG between → a LOG first_done → r RECEIVE ch second → r LOG finished → b LOG second_done"],
+      "answer": 2,
+      "refs": ["4.2", "4.3"],
+      "quote": "송신자가 먼저 기다린 경우 수신자는 같은 continuation에서 값을 출력하고, 송신자는 이후 준비 큐에서 재개한다.",
+      "explanation": "a와 b가 보낸 순서대로 기다린다. r은 두 값을 한 continuation에서 차례로 받고 끝난 뒤, 준비 큐에서 재개된 a와 b가 LOG를 낸다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 CLOSE 이후 RECEIVE와 실패 사건의 순서는?",
+      "context": "TASK sender LAUNCH\nSEND ch red\nSEND ch blue\nLOG sent\nEND\nTASK closer LAUNCH\nCLOSE ch\nEND\nTASK receiver LAUNCH\nRECV ch\nEND\nCHANNEL ch 1\nROOT sender s\nROOT closer c\nROOT receiver r\nRUN",
+      "choices": ["r RECEIVE ch red → s FAILED CHANNEL_CLOSED → s UNHANDLED CHANNEL_CLOSED", "s FAILED CHANNEL_CLOSED → r RECEIVE ch red → s UNHANDLED CHANNEL_CLOSED", "r RECEIVE ch blue → s LOG sent", "r FAILED CHANNEL_CLOSED → s FAILED CHANNEL_CLOSED", "r RECEIVE ch red → s LOG sent → s DONE"],
+      "answer": 1,
+      "refs": ["4.1", "4.4"],
+      "quote": "닫힌 뒤 `SEND`는 즉시 `CHANNEL_CLOSED`로 실패한다. `RECV`는 버퍼의 값을 끝까지 꺼낸 뒤, 빈 상태에서 `CHANNEL_CLOSED`로 실패한다.",
+      "explanation": "red는 버퍼에 들어가지만 blue를 보내려던 s는 대기한다. c가 닫으면 s의 실패 재개가 큐 끝으로 가므로 먼저 준비돼 있던 r이 red를 받은 다음 s가 실패한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 r이 a를 취소한 뒤 두 대기자의 LOG와 최종 사건은?",
+      "context": "TASK holder LAUNCH\nLOCK m\nDELAY 0\nUNLOCK m\nEND\nTASK waiter LAUNCH\nLOCK m\nLOG acquired\nUNLOCK m\nEND\nTASK parent LAUNCH\nSPAWN holder h\nSPAWN waiter a\nSPAWN waiter b\nDELAY 0\nYIELD\nCANCEL a\nJOIN b\nEND\nMUTEX m\nROOT parent r\nRUN",
+      "choices": ["a LOG acquired → a DONE → b LOG acquired → b DONE", "a CANCELLED → b LOG acquired → b DONE", "b LOG acquired → b DONE → a CANCELLED", "b LOG acquired → a CANCELLED → b DONE", "a와 b 모두 LOG 없이 DEADLOCK으로 끝난다"],
+      "answer": 3,
+      "refs": ["5.2", "5.3"],
+      "quote": "따라서 두 작업이 모두 같은 시각에 재개할 수 있으면 새 소유자가 먼저 실행한다.",
+      "explanation": "h가 잠금을 풀어 a에게 소유권을 예약하지만, a의 LOCK 재개 전에 r이 a를 취소한다. 소유권은 b에게 넘어가고 b가 먼저 재개해 LOG와 DONE을 낸 뒤 a가 CANCELLED를 낸다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK worker LAUNCH", "SEND shared red", "END", "MUTEX shared", "ROOT worker r", "RUN"],
+      "answers": ["ERR 2 UNKNOWN"],
+      "refs": ["3.1", "6.1"],
+      "quote": "선언하지 않은 채널이나 잠금을 명령에서 참조하면 그 명령 줄의 `UNKNOWN`이다.",
+      "explanation": "shared라는 Mutex는 선언됐지만 Channel은 선언되지 않았다. SEND의 채널 참조가 있는 2행이 UNKNOWN이다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK worker LAUNCH", "END", "ROOT worker r", "CHANNEL ch 0", "RUN"],
+      "answers": ["ERR 4 FORMAT"],
+      "refs": ["6.2"],
+      "quote": "채널·잠금 선언이 `TASK` 안이나 첫 `ROOT` 뒤에 있으면 `FORMAT`이다.",
+      "explanation": "CHANNEL 선언은 첫 ROOT보다 앞에 있어야 한다. 4행의 선언 위치가 잘못됐다."
+    }
+  ]
+}

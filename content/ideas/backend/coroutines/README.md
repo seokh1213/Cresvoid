@@ -77,7 +77,7 @@ Kotlin 코루틴의 실행 원리, 구조적 동시성, 취소, 예외 전파, �
 
 ## 6. 실행기 구현 영상 조사
 
-B-coroutines-40(`coroutine-runtime`)를 만들 때 참고하려고 사용자가 추천한 영상을 2026-10-12 에 확인했다. 아래 제안을 어디까지 넣을지는 사용자가 정한다. 영상은 주제만 참고하고 문장과 코드는 옮기지 않는다(D15).
+B-coroutines-40(`coroutine-runtime`) 제작에 앞서 사용자가 추천한 영상을 2026-10-12 에 확인했다. 아래 '당시 네 단계 기획과 대조'와 '당시 제안과 반영 결과' 절은 네 단계 카드에 대한 조사와 제안을 기록한 것이다. 실제 제작 범위는 여섯 단계이며 [코루틴 현황](../../../../docs/coroutines-roadmap.md)에 정리했다. 영상은 주제만 참고하고 문장과 코드는 옮기지 않는다(D15).
 
 ### 6.1 확인한 영상
 
@@ -128,12 +128,12 @@ B-coroutines-40(`coroutine-runtime`)를 만들 때 참고하려고 사용자가 
 | #2 | 코루틴 빌더, 컨텍스트, 스코프, Job, 지연 시작, 표준 라이브러리만으로도 코루틴을 실행할 수 있고 kotlinx.coroutines 는 편의 함수라는 설명 | 컨텍스트 136, 스코프 79, continuation 77, Job 31, join·await 30, 취소 27 | 1~2단계 |
 | #3 | 취소(invokeOnCompletion, yield, ensureActive), 예외, 슈퍼바이저, 스코프 함수 | 취소 90, 스코프 86, Job 44, 예외 34, join·await 21, 슈퍼바이저 17 | 3~4단계 |
 | #4 | 디스패처, limitedParallelism, 가상 스레드와의 비교, 공유 상태와 Mutex·Semaphore | 디스패처 63, 컨텍스트 63, Mutex·Semaphore 34, 테스트 3(끝부분) | Mutex 만 관련 |
-| #5 | Channel, 버퍼와 랑데부, produce 가 받은 블록을 코루틴으로 시작하는 구조 | Channel 188, 스코프 16 | 지금 네 단계 밖 |
-| #6 | hot·cold 데이터 소스, Flow 소개, Flow 를 fun interface 로 직접 만드는 설명, Flow 만들기 | Flow 156, Channel 54, Job 33 | 지금 네 단계 밖 |
+| #5 | Channel, 버퍼와 랑데부, produce 가 받은 블록을 코루틴으로 시작하는 구조 | Channel 188, 스코프 16 | 확장된 05단계에 반영 |
+| #6 | hot·cold 데이터 소스, Flow 소개, Flow 를 fun interface 로 직접 만드는 설명, Flow 만들기 | Flow 156, Channel 54, Job 33 | 확장된 06단계에 반영 |
 | #7 | Flow 수명 주기와 처리, SharedFlow·StateFlow, Flow 테스트 | Flow 116 | C-coroutines-32, B-coroutines-20 범위 |
 | #8 | 실전 사례와 권장 방식 | Flow 17, 스코프 13 | 관련 적음 |
 
-### 6.5 지금 기획과 대조
+### 6.5 당시 네 단계 기획과 대조
 
 - B-coroutines-40 카드의 네 단계(01-event-loop, 02-structured, 03-cancellation, 04-exceptions)는 단편이 가는 방향과 맞는다. 단편은 진입점을 만든 다음 Job 과 기다리기로 넘어간다.
 - 시리즈 #2·#3 의 범위(빌더, Job, 취소, 예외, 스코프 함수)와도 겹친다.
@@ -145,9 +145,9 @@ B-coroutines-40(`coroutine-runtime`)를 만들 때 참고하려고 사용자가 
   - cold Flow 직접 만들기(#6)
   - 시퀀스 생성기(#1)
 
-### 6.6 제안
+### 6.6 당시 제안과 반영 결과
 
-사용자가 구현 여부를 정하기 전까지 카드의 단계는 바꾸지 않는다.
+이 제안을 검토한 뒤 05·06을 더해 여섯 단계로 정했다. 시퀀스 생성기는 선택안으로 남겼다.
 
 1. 기존 단계에 더할 것
    - 01-event-loop: 가로채기를 거쳐 작업 큐에 넣는 디스패치. 바로 돌아오는 시작과 루프를 끝까지 돌리는 진입점의 차이.

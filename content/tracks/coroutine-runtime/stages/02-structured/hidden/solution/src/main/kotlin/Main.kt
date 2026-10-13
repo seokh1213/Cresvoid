@@ -1,0 +1,80 @@
+import java.nio.charset.StandardCharsets
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
+
+fun main() {
+    val lines = System.`in`.bufferedReader(StandardCharsets.UTF_8).readLines()
+    when (val parsed = ProgramParser(lines).parse()) {
+        is ParseResult.Invalid -> println("ERR ${parsed.error.line} ${parsed.error.code}")
+        is ParseResult.Valid -> print(ProgramRunner(parsed.program).run())
+    }
+}
+
+class ProgramRunner(private val program: Program) {
+    private val output = StringBuilder()
+    private val runtime = VirtualRuntime { time, path, event ->
+        output.append(time).append(' ').append(path).append(' ').append(event).append('\n')
+    }
+
+    fun run(): String {
+        runtime.run {
+            program.roots.forEach { root ->
+                val task = program.tasks.getValue(root.definition)
+                runtime.launchRoot(root.name, root.options.toContext()) { execute(task) }
+            }
+        }
+        return output.toString()
+    }
+
+    private suspend fun RuntimeScope.execute(task: TaskDefinition): String {
+        val children = mutableMapOf<String, ChildHandle>()
+        for (command in task.commands) when (command) {
+            is Command.Log -> runtime.record(context, "LOG ${command.value}")
+            is Command.Delay -> delay(command.millis)
+            is Command.Spawn -> {
+                val childTask = program.tasks.getValue(command.definition)
+                val path = context[PathElement]!!.path + "." + command.name
+                val start = if (command.options.lazy) StartMode.LAZY else StartMode.EAGER
+                val addition = PathElement(path) + command.options.toContext()
+                if (childTask.async) {
+                    val deferred = async(start, addition) { execute(childTask) }
+                    children[command.name] = ChildHandle(deferred, deferred)
+                } else {
+                    children[command.name] = ChildHandle(launch(start, addition) { execute(childTask) })
+                }
+            }
+            is Command.Await -> {
+                val value = children.getValue(command.name).deferred!!.await()
+                runtime.record(context, "VALUE ${command.name} $value")
+            }
+            is Command.Result -> return command.value
+            is Command.State -> runtime.record(context, "STATE ${command.name} ${children.getValue(command.name).job.state}")
+            is Command.Start -> children.getValue(command.name).job.start()
+            is Command.Join -> children.getValue(command.name).job.join()
+            is Command.Scope -> {
+                val childTask = program.tasks.getValue(command.definition)
+                val path = context[PathElement]!!.path + "." + command.name
+                val child = launch(context = PathElement(path) + command.options.toContext()) { execute(childTask) }
+                children[command.name] = ChildHandle(child)
+                child.join()
+            }
+            is Command.Context -> {
+                val value = when (command.key) {
+                    "tag" -> context[TagElement]?.value
+                    else -> context[TraceElement]?.value
+                } ?: "-"
+                runtime.record(context, "CONTEXT ${command.key} $value")
+            }
+        }
+        return ""
+    }
+}
+
+private data class ChildHandle(val job: RuntimeJob, val deferred: RuntimeDeferred<String>? = null)
+
+private fun ContextOptions.toContext(): CoroutineContext {
+    var context: CoroutineContext = EmptyCoroutineContext
+    tag?.let { context += TagElement(it) }
+    trace?.let { context += TraceElement(it) }
+    return context
+}

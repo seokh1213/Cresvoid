@@ -16,6 +16,7 @@ import cresvoid.content.TestCase
 import cresvoid.content.TestScope
 import cresvoid.content.TestSuite
 import cresvoid.content.Track
+import cresvoid.content.TrackKind
 import cresvoid.content.collapseSpaces
 import cresvoid.content.containsQuote
 import cresvoid.content.isCodeLocation
@@ -57,6 +58,7 @@ import java.nio.file.Path
 import java.time.Duration
 import kotlin.io.path.exists
 import kotlin.io.path.isDirectory
+import kotlin.io.path.isRegularFile
 import kotlin.io.path.listDirectoryEntries
 import kotlin.io.path.name
 
@@ -97,6 +99,9 @@ class Validation(
             return@map StageContent(stage, document = null, quiz = null, suite = null)
         }
         checkGradingFilesHidden(stage)
+        if (track.kind == TrackKind.Build && stage.apiCheckPath.exists() && !stage.apiCheckPath.isRegularFile()) {
+            failLoading("${project.rel(stage.apiCheckPath)} 가 일반 파일이 아닙니다")
+        }
         val document = loadOrFail { loadDocument(stage.documentPath) }
         val quiz = if (track.kind.quizRules != null) loadOrFail { loadQuiz(stage) } else null
         if (track.kind.quizRules == null && stage.quizPath.exists()) {
@@ -197,6 +202,19 @@ class Validation(
         }
     }
 
+    fun checkApiContracts(stages: List<RunnableStage>) {
+        for (current in stages) {
+            for (earlier in track.stagesToRun(current.stage)) {
+                val result = harness.checkApi(earlier, current.stage.solutionDir) ?: continue
+                console.println("· ${current.stage.dir} 참조 풀이의 ${earlier.dir} 공개 API 동작을 검사합니다")
+                if (!result.succeeded || result.truncated) {
+                    val summary = "${current.stage.dir} 참조 풀이가 ${earlier.dir} 공개 API 검사에 실패합니다 (${result.describeExit()})"
+                    fail((listOf(summary) + tailLines(result.stderr, 10)).joinToString("\n"))
+                }
+            }
+        }
+    }
+
     fun checkShortAnswers(contents: List<StageContent>, programOf: (Stage) -> Program) {
         for (content in contents) {
             val quiz = content.quiz ?: continue
@@ -289,7 +307,7 @@ class Validation(
     }
 
     private fun checkGradingFilesHidden(stage: Stage) {
-        val gradingNames = listOf(stage.quizPath, stage.testsPath, stage.solutionDir).map { it.name }
+        val gradingNames = listOf(stage.quizPath, stage.testsPath, stage.solutionDir, stage.apiCheckPath).map { it.name }
         val entries = loadOrFail { stage.path.listDirectoryEntries() } ?: return
         entries.filter { it.name in gradingNames || it.name.endsWith(".main.kts") }
             .sortedBy { it.name }

@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 r이 출력하는 두 STATE 값의 순서는?",
+      "context": "TASK leaf LAUNCH\nDELAY 2\nEND\nTASK branch LAUNCH\nSPAWN leaf l\nEND\nTASK parent LAUNCH\nSPAWN branch b\nSTATE b\nDELAY 0\nSTATE b\nEND\nROOT parent r\nRUN",
+      "choices": ["NEW → ACTIVE", "ACTIVE → ACTIVE", "ACTIVE → COMPLETING", "COMPLETING → COMPLETED", "NEW → COMPLETING"],
+      "answer": 3,
+      "refs": ["4.1", "4.2"],
+      "quote": "준비 큐에만 들어 있고 `START`를 아직 내지 않은 작업도 `ACTIVE`다.",
+      "explanation": "b는 SPAWN 직후 큐에서 시작을 기다리므로 ACTIVE다. r이 DELAY 0으로 양보한 사이 b는 l을 만들고 본문을 마치지만 l이 남아 COMPLETING이 된다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 LOG 사건을 내는 인스턴스 경로의 순서는?",
+      "context": "TASK leaf LAUNCH\nDELAY 1\nLOG leaf\nEND\nTASK branch LAUNCH\nSPAWN leaf l\nLOG branch\nEND\nTASK peer LAUNCH\nLOG peer\nEND\nTASK parent LAUNCH\nSPAWN peer p\nSCOPE branch b\nLOG resumed\nEND\nROOT parent r\nRUN",
+      "choices": ["r.b → r.p → r → r.b.l", "r.p → r.b → r → r.b.l", "r.p → r.b.l → r.b → r", "r.p → r.b → r.b.l → r", "r.b → r.b.l → r.p → r"],
+      "answer": 4,
+      "refs": ["4.4", "4.6"],
+      "quote": "스코프 본문에서 만든 손자도 스코프 Job이 완료하기 전에 끝나야 한다.",
+      "explanation": "p가 b보다 먼저 큐에 있고, b는 l을 만든 뒤 LOG를 낸다. SCOPE는 l까지 끝나 b의 DONE이 나온 다음에야 r을 재개한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 CONTEXT 사건의 값 여섯 개를 출력 순서대로 적은 것은?",
+      "context": "TASK probe LAUNCH\nCONTEXT tag\nCONTEXT trace\nEND\nTASK parent LAUNCH\nSPAWN probe left trace=side\nSPAWN probe right tag=child\nCONTEXT tag\nCONTEXT trace\nEND\nROOT parent r tag=base trace=main\nRUN",
+      "choices": ["base, main, base, side, child, main", "base, main, base, side, child, side", "base, main, child, side, child, main", "base, main, child, main, base, side", "base, side, base, side, child, main"],
+      "answer": 1,
+      "refs": ["3.2", "4.5"],
+      "quote": "어느 작업의 덮어쓰기도 부모나 형제의 문맥을 바꾸지 않는다.",
+      "explanation": "r은 base와 main을 먼저 출력한다. left는 trace만 side로, right는 tag만 child로 덮어쓰므로 나머지 키는 각각 부모 값을 따른다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK leaf LAUNCH", "END", "TASK parent LAUNCH", "SPAWN leaf x LAZY", "STATE x", "END", "ROOT parent r", "RUN"],
+      "answers": ["ERR 4 REFERENCE"],
+      "refs": ["5.2"],
+      "quote": "지연 시작 자식이 부모 본문 끝까지 시작 명령을 만나지 않으면 해당 `SPAWN` 줄의 `REFERENCE`다.",
+      "explanation": "STATE는 NEW를 읽을 뿐 시작 요청이 아니다. x를 시작하지 않고 본문이 끝나므로 오류 위치는 SPAWN이 있는 4행이다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK parent LAUNCH", "SCOPE answer a", "END", "TASK answer ASYNC", "RESULT yes", "END", "ROOT parent r", "RUN"],
+      "answers": ["ERR 2 FORMAT"],
+      "refs": ["5.1"],
+      "quote": "선택 인자의 순서·키·값이 틀리거나 `SCOPE`가 `ASYNC` 정의를 참조하면 `FORMAT`이다.",
+      "explanation": "answer는 뒤에서 정의되므로 없는 정의 오류가 아니다. SCOPE는 LAUNCH 정의만 받을 수 있어 2행이 FORMAT이다."
+    }
+  ]
+}

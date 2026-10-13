@@ -4,6 +4,7 @@ import cresvoid.CresvoidError
 import cresvoid.content.Stage
 import cresvoid.content.TestCase
 import java.nio.file.Path
+import java.nio.file.Files
 import java.security.MessageDigest
 import java.time.Duration
 import java.util.HexFormat
@@ -12,6 +13,7 @@ import kotlin.io.path.isRegularFile
 private val generatorTimeout: Duration = Duration.ofSeconds(60)
 private val referenceTimeout: Duration = Duration.ofSeconds(120)
 private val buildTimeout: Duration = Duration.ofMinutes(5)
+private val apiCheckTimeout: Duration = Duration.ofSeconds(60)
 
 class Program(val dir: Path, val name: String)
 
@@ -61,6 +63,12 @@ class Harness(private val runner: ProcessRunner) {
 
     fun run(dir: Path, input: ByteArray, timeout: Duration): ProcessResult =
         runner.run(dir, listOf(dir.resolve("run.sh").toString()), input, timeout)
+
+    fun checkApi(stage: Stage, programDir: Path): ProcessResult? {
+        val script = stage.apiCheckPath
+        if (!Files.exists(script)) return null
+        return runner.run(stage.hiddenDir, listOf("kotlin", script.toString(), programDir.toAbsolutePath().toString()), ByteArray(0), apiCheckTimeout)
+    }
 
     private fun runBuildScript(dir: Path): String? {
         val script = dir.resolve("build.sh")

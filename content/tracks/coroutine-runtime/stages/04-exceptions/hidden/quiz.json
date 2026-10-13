@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 세 작업의 최종 상태와 루트의 보고를 바르게 설명한 것은?",
+      "context": "TASK broken ASYNC\nFAIL BAD\nRESULT unused\nEND\nTASK sibling LAUNCH\nDELAY 5\nFINALLY\nLOG cleanup\nEND\nTASK parent LAUNCH\nSPAWN broken a\nSPAWN sibling b\nJOIN b\nEND\nROOT parent r\nRUN",
+      "choices": ["r.a는 FAILED BAD, r.b는 CANCELLED, r은 FAILED BAD와 UNHANDLED BAD를 낸다", "r.a는 FAILED BAD지만 AWAIT가 없어 r과 r.b는 DONE으로 끝난다", "r.a와 r은 FAILED BAD, r.b는 DELAY 5 뒤 DONE으로 끝난다", "r.a는 FAILED BAD, r.b는 CANCELLED, r은 CANCELLED로 끝난다", "r.a는 FAILED BAD, r.b는 CANCELLED, r은 DONE으로 끝난다"],
+      "answer": 1,
+      "refs": ["4.2", "4.5"],
+      "quote": "`ASYNC` 자식의 실패도 일반 부모에게 똑같이 전파된다.",
+      "explanation": "a의 실패는 AWAIT 여부와 관계없이 일반 부모 r에 전파되고 형제 b를 취소한다. 일반 루트 r은 정리가 끝난 뒤 FAILED BAD와 UNHANDLED BAD를 낸다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 실패·LOG·CAUGHT 사건의 순서는?",
+      "context": "TASK broken ASYNC\nFAIL BAD\nRESULT unused\nEND\nTASK healthy LAUNCH\nLOG live\nEND\nTASK group LAUNCH\nSPAWN broken a\nSPAWN healthy b\nAWAIT_CATCH a\nJOIN b\nLOG after\nEND\nTASK parent LAUNCH\nSUPERVISOR group s\nEND\nROOT parent r\nRUN",
+      "choices": ["r.s.a FAILED BAD → r.s CAUGHT a FAILED BAD → r.s.b LOG live → r.s LOG after", "r.s.a FAILED BAD → r.s.b LOG live → r.s CAUGHT a FAILED BAD → r.s LOG after", "r.s.a FAILED BAD → r.s.a UNHANDLED BAD → r.s.b LOG live → r.s LOG after", "r.s.a FAILED BAD → r.s.b CANCELLED → r.s CAUGHT a FAILED BAD", "r.s.a FAILED BAD → r.s FAILED BAD → r FAILED BAD"],
+      "answer": 2,
+      "refs": ["4.4", "4.5", "4.7"],
+      "quote": "직계 자식이 실패해도 감독 Job과 다른 자식은 계속한다.",
+      "explanation": "감독 Job s는 a의 실패를 격리한다. b는 이미 준비 큐에 있어 s의 AWAIT_CATCH 재개보다 먼저 LOG를 내고, s는 실패를 CAUGHT로 받은 뒤 계속한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 SUPPRESSED 사건과 루트의 주된 실패 코드를 바르게 짝지은 것은?",
+      "context": "TASK child LAUNCH\nFAIL FIRST\nFINALLY\nFAIL SECOND\nEND\nTASK parent LAUNCH\nSPAWN child c\nJOIN c\nFINALLY\nLOG cleanup\nEND\nROOT parent r\nRUN",
+      "choices": ["r.c SUPPRESSED FIRST, r FAILED SECOND", "r SUPPRESSED SECOND, r FAILED FIRST", "r.c SUPPRESSED SECOND, r FAILED FIRST", "r.c SUPPRESSED SECOND, r FAILED SECOND", "SUPPRESSED는 없고 r FAILED FIRST만 나온다"],
+      "answer": 3,
+      "refs": ["4.2", "4.3"],
+      "quote": "자식의 주된 실패만 부모에게 전파하고, 자식이 낸 `SUPPRESSED` 코드는 조상에게 다시 전파하거나 중복 출력하지 않는다.",
+      "explanation": "c의 FIRST가 주된 실패로 r에 전파된다. c의 정리에서 난 SECOND는 c 경로에서만 SUPPRESSED로 기록되고 r의 주된 코드를 바꾸지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK worker LAUNCH", "END", "TASK parent LAUNCH", "SPAWN worker w", "AWAIT_CATCH w", "END", "ROOT parent r", "RUN"],
+      "answers": ["ERR 5 REFERENCE"],
+      "refs": ["5.1"],
+      "quote": "`AWAIT_CATCH`가 없는 자식이나 `LAUNCH` 자식을 가리키면 `REFERENCE`다.",
+      "explanation": "w는 만들었지만 LAUNCH 작업이다. AWAIT_CATCH는 ASYNC 자식에만 쓸 수 있으므로 5행이 REFERENCE다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄을 적어라.",
+      "input": ["TASK outer LAUNCH", "SUPERVISOR inner i", "END", "TASK inner LAUNCH", "SPAWN outer o", "END", "ROOT outer r", "RUN"],
+      "answers": ["ERR 5 CYCLE"],
+      "refs": ["5.1"],
+      "quote": "순환 검사는 `SPAWN`, `SCOPE`, `TIMEOUT`, `SUPERVISOR` 참조를 한 목록으로 합쳐 1단계 [5.3]의 원본 줄 순서를 적용한다.",
+      "explanation": "2행의 SUPERVISOR 참조 뒤에 5행의 SPAWN 참조를 더하면 outer와 inner 사이의 순환이 처음 닫힌다."
+    }
+  ]
+}

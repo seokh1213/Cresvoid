@@ -1,0 +1,123 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "case-01",
+      "refs": ["4.3"],
+      "quote": "`LAUNCH`와 `ASYNC` 자식 모두 기다릴 수 있고 성공 결과는 출력하지 않는다.",
+      "input": ["TASK leaf LAUNCH", "END", "TASK parent LAUNCH", "SPAWN leaf a", "JOIN a", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.a DONE", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-02",
+      "refs": ["4.1", "4.2", "4.3"],
+      "quote": "준비 큐에만 들어 있고 `START`를 아직 내지 않은 작업도 `ACTIVE`다.",
+      "input": ["TASK child LAUNCH", "DELAY 1", "END", "TASK parent LAUNCH", "SPAWN child c LAZY", "STATE c", "START c", "STATE c", "JOIN c", "STATE c", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r STATE c NEW", "0 r STATE c ACTIVE", "0 r.c START", "1 r.c DONE", "1 r STATE c COMPLETED", "1 r DONE"]
+    },
+    {
+      "name": "case-03",
+      "refs": ["4.2", "4.3"],
+      "quote": "`JOIN <자식 이름>`은 `NEW` 자식을 먼저 시작하고 그 Job이 완료할 때까지 중단한다.",
+      "input": ["TASK child LAUNCH", "LOG work", "END", "TASK parent LAUNCH", "SPAWN child c LAZY", "JOIN c", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "0 r.c LOG work", "0 r.c DONE", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-04",
+      "refs": ["4.2", "4.3"],
+      "quote": "모든 지연 시작 자식은 그 부모 본문의 끝에 도달하기 전에 `START`, `JOIN`, `AWAIT` 중 하나로 시작해야 한다.",
+      "input": ["TASK answer ASYNC", "DELAY 0", "RESULT yes", "END", "TASK parent LAUNCH", "SPAWN answer a LAZY", "AWAIT a", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.a DONE", "0 r VALUE a yes", "0 r DONE"]
+    },
+    {
+      "name": "case-05",
+      "refs": ["4.1", "4.3"],
+      "quote": "이미 완료했으면 중단 없이 돌아온다.",
+      "input": ["TASK child LAUNCH", "END", "TASK parent LAUNCH", "SPAWN child c", "DELAY 0", "STATE c", "JOIN c", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "0 r.c DONE", "0 r STATE c COMPLETED", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-06",
+      "refs": ["4.1", "4.6"],
+      "quote": "`COMPLETING`은 본문은 끝났지만 자식이 남은 상태",
+      "input": ["TASK leaf LAUNCH", "DELAY 3", "END", "TASK branch LAUNCH", "SPAWN leaf g", "END", "TASK parent LAUNCH", "SPAWN branch b", "DELAY 0", "STATE b", "JOIN b", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.b START", "0 r STATE b COMPLETING", "0 r.b.g START", "3 r.b.g DONE", "3 r.b DONE", "3 r LOG after", "3 r DONE"]
+    },
+    {
+      "name": "case-07",
+      "refs": ["4.4"],
+      "quote": "스코프 본문에서 만든 손자도 스코프 Job이 완료하기 전에 끝나야 한다.",
+      "input": ["TASK grand LAUNCH", "DELAY 1", "LOG wake", "END", "TASK branch LAUNCH", "SPAWN grand g", "LOG middle", "END", "TASK parent LAUNCH", "SCOPE branch b", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.b START", "0 r.b LOG middle", "0 r.b.g START", "1 r.b.g LOG wake", "1 r.b.g DONE", "1 r.b DONE", "1 r LOG after", "1 r DONE"]
+    },
+    {
+      "name": "case-08",
+      "refs": ["3.1", "4.5"],
+      "quote": "루트에서 넘기지 않은 값은 `-`다.",
+      "input": ["TASK worker LAUNCH", "CONTEXT tag", "CONTEXT trace", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r CONTEXT tag -", "0 r CONTEXT trace -", "0 r DONE"]
+    },
+    {
+      "name": "case-09",
+      "refs": ["3.1", "3.2", "4.5"],
+      "quote": "어느 작업의 덮어쓰기도 부모나 형제의 문맥을 바꾸지 않는다.",
+      "input": ["TASK leaf LAUNCH", "CONTEXT tag", "CONTEXT trace", "END", "TASK parent LAUNCH", "CONTEXT tag", "CONTEXT trace", "SPAWN leaf a tag=child", "SPAWN leaf b trace=other", "END", "ROOT parent r tag=root trace=span", "RUN"],
+      "expected": ["0 r START", "0 r CONTEXT tag root", "0 r CONTEXT trace span", "0 r.a START", "0 r.a CONTEXT tag child", "0 r.a CONTEXT trace span", "0 r.a DONE", "0 r.b START", "0 r.b CONTEXT tag root", "0 r.b CONTEXT trace other", "0 r.b DONE", "0 r DONE"]
+    },
+    {
+      "name": "case-10",
+      "refs": ["4.4", "4.5"],
+      "quote": "자식이 덮어쓰지 않은 키는 부모의 값을 그대로 읽는다.",
+      "input": ["TASK inner LAUNCH", "CONTEXT tag", "CONTEXT trace", "END", "TASK parent LAUNCH", "SCOPE inner s trace=scoped", "CONTEXT trace", "END", "ROOT parent r tag=root trace=orig", "RUN"],
+      "expected": ["0 r START", "0 r.s START", "0 r.s CONTEXT tag root", "0 r.s CONTEXT trace scoped", "0 r.s DONE", "0 r CONTEXT trace orig", "0 r DONE"]
+    },
+    {
+      "name": "case-11",
+      "refs": ["5.2"],
+      "quote": "지연 시작 자식이 부모 본문 끝까지 시작 명령을 만나지 않으면 해당 `SPAWN` 줄의 `REFERENCE`다.",
+      "input": ["TASK child LAUNCH", "END", "TASK parent LAUNCH", "SPAWN child c LAZY", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 4 REFERENCE"]
+    },
+    {
+      "name": "case-12",
+      "refs": ["3.2", "5.1"],
+      "quote": "선택 인자는 `LAZY`, `tag`, `trace` 순서로 적는다.",
+      "input": ["TASK leaf LAUNCH", "END", "TASK parent LAUNCH", "SPAWN leaf c tag=one LAZY", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 4 FORMAT"]
+    },
+    {
+      "name": "case-13",
+      "refs": ["4.4", "5.1"],
+      "quote": "`SCOPE`에서 자식 이름이 겹치면 `DUPLICATE`다.",
+      "input": ["TASK leaf LAUNCH", "END", "TASK parent LAUNCH", "SPAWN leaf c", "SCOPE leaf c", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 5 DUPLICATE"]
+    },
+    {
+      "name": "case-14",
+      "refs": ["5.1"],
+      "quote": "`SCOPE`가 `ASYNC` 정의를 참조하면 `FORMAT`이다.",
+      "input": ["TASK answer ASYNC", "RESULT yes", "END", "TASK parent LAUNCH", "SCOPE answer a", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 5 FORMAT"]
+    },
+    {
+      "name": "case-15",
+      "refs": ["4.1", "4.5"],
+      "quote": "자식이 덮어쓰지 않은 키는 부모의 값을 그대로 읽는다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "12", "--mode", "mixed"],
+      "repeat": 2
+    },
+    {
+      "name": "case-16",
+      "refs": ["5.1", "5.2"],
+      "quote": "오류를 찾는 줄 번호와 우선순위는 1단계 [5.3]을 따른다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "12", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "case-17",
+      "refs": ["7.2"],
+      "quote": "Job 완료를 확인할 때마다 모든 작업을 훑지 않아야 한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "2000", "--mode", "mixed"]
+    }
+  ]
+}

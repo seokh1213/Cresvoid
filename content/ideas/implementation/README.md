@@ -2,6 +2,8 @@
 
 AI 없이 스펙을 읽고 설계해 끝까지 구현하는 힘(build), 남의 코드를 끝까지 읽고 동작을 예측하는 힘(code), 버그를 재현하고 원인을 찾아 고치는 힘(fix)을 기른다.
 
+Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 문제로 푸는 별도 구상은 [Kotlin 버전별 기능 문제 트랙 계획](kotlin-versions.md)에 있다. 버전별 컴파일 검증 계약을 정한 뒤 카드로 옮긴다.
+
 ## 1. build: 스펙을 읽고 끝까지 구현한다
 
 ### 1.1 주제 선정 기준
@@ -11,7 +13,7 @@ AI 없이 스펙을 읽고 설계해 끝까지 구현하는 힘(build), 남의 �
 - 배워 둘 만한 배경 개념이 있다. 예: 역색인, BM25, 위치 색인, 로그 구조 저장, 질의 계획.
 - 대규모 테스트가 올바른 자료구조 없이는 제한 시간을 넘게 만든다.
 - 단계마다 숙련 개발자에게 1~3시간이 걸린다.
-- 외부 의존성 없이 Kotlin 표준 라이브러리로 풀 수 있다. 예외는 코루틴 트랙이며 kotlinx-coroutines-core 와 kotlinx-coroutines-test 를 쓴다(D16).
+- 외부 의존성 없이 Kotlin 표준 라이브러리로 풀 수 있다. `coroutine-patterns`는 kotlinx-coroutines-core와 kotlinx-coroutines-test를 쓰고, `coroutine-runtime`은 표준 라이브러리와 JDK만 쓴다(D16, D26).
 
 ### 1.2 완료
 

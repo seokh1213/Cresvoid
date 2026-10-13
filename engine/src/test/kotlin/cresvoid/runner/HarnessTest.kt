@@ -111,6 +111,31 @@ class HarnessTest : FunSpec({
             withClue("작업 디렉터리") { String(generated.input) shouldBe "${stage.hiddenDir.toRealPath()}\n" }
         }
     }
+    test("공개 API 검사는 파일이 있을 때만 학습자 작업 공간을 인자로 실행한다") {
+        withTempDir { dir ->
+            val stage = stageIn(dir.resolve("01"), "hidden/api-check.main.kts" to "check(true)")
+            val program = dir.resolve("learner")
+            var received: Triple<java.nio.file.Path, List<String>, Duration>? = null
+            val probeRunner = object : ProcessRunner {
+                override fun run(dir: java.nio.file.Path, command: List<String>, input: ByteArray, timeout: Duration): ProcessResult {
+                    received = Triple(dir, command, timeout)
+                    input.size shouldBe 0
+                    return result()
+                }
+
+                override fun stopOnInterrupt() = Unit
+            }
+            val harness = Harness(probeRunner)
+            harness.checkApi(stage, program)?.succeeded shouldBe true
+            received shouldBe Triple(
+                stage.hiddenDir,
+                listOf("kotlin", stage.apiCheckPath.toString(), program.toAbsolutePath().toString()),
+                Duration.ofSeconds(60),
+            )
+            Files.delete(stage.apiCheckPath)
+            harness.checkApi(stage, program) shouldBe null
+        }
+    }
 })
 
 private fun processExists(argument: String): Boolean =

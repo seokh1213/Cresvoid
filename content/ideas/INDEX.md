@@ -9,7 +9,7 @@
 | [읽기](reading/README.md) | 15 | 12 | 0 | 3 | 0 |
 | [구현](implementation/README.md) | 28 | 22 | 0 | 6 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 3 | 0 | 2 | 0 |
-| [Kotlin 코루틴](backend/coroutines/README.md) | 8 | 2 | 0 | 6 | 0 |
+| [Kotlin 코루틴](backend/coroutines/README.md) | 8 | 1 | 0 | 7 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 6 | 0 | 2 | 0 |
 | [분산 시스템](backend/distributed/README.md) | 5 | 3 | 0 | 2 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
@@ -25,7 +25,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 16 | 14 | 0 | 2 | 0 |
-| 합계 | 153 | 114 | 0 | 37 | 2 |
+| 합계 | 153 | 113 | 0 | 38 | 2 |
 
 ## 다음 후보
 
@@ -55,7 +55,6 @@
 | 3 | [L-load-40](backend/load/cards/L-load-40-penetration-avalanche.md) | 캐시 관통과 동시 만료 | lab | backend-lab | penetration-avalanche | k6, redis |
 | 3 | [L-load-50](backend/load/cards/L-load-50-stale-set.md) | 캐시와 원천의 불일치 | lab | backend-lab | stale-set | k6, redis |
 | 3 | [L-load-60](backend/load/cards/L-load-60-cache-outage.md) | 캐시 장애와 원천 보호 | lab | backend-lab | cache-outage | k6, redis |
-| 4 | [B-coroutines-40](backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md) | 작은 코루틴 실행기 만들기 | build | coroutine-runtime | 01-event-loop, 02-structured, 03-cancellation, 04-exceptions | 없음 |
 | 4 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 없음 |
 | 4 | [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | online-resharding | 없음 |
 | 4 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 없음 |
@@ -166,7 +165,7 @@
 | consistent-hashing | build | 없음 | 04 |  | 01-ring(B-distributed-40 4차), 02-rebalance(B-distributed-40 4차), 03-replication(B-distributed-40 4차) |
 | coroutine-lab | lab | 없음 | 01 |  | dispatcher-starvation(L-coroutines-50 4차) |
 | coroutine-patterns | build | 있음 | 07 | 01-fan-out(B-coroutines-20 완료), 02-limits(B-coroutines-20 완료), 03-channels(B-coroutines-20 완료), 04-flow(B-coroutines-20 완료), 05-batching(B-coroutines-35 완료), 06-single-flight(B-coroutines-35 완료) |  |
-| coroutine-runtime | build | 없음 | 05 |  | 01-event-loop(B-coroutines-40 4차), 02-structured(B-coroutines-40 4차), 03-cancellation(B-coroutines-40 4차), 04-exceptions(B-coroutines-40 4차) |
+| coroutine-runtime | build | 있음 | 07 | 01-event-loop(B-coroutines-40 완료), 02-structured(B-coroutines-40 완료), 03-cancellation(B-coroutines-40 완료), 04-exceptions(B-coroutines-40 완료), 05-channels(B-coroutines-40 완료), 06-flow(B-coroutines-40 완료) |  |
 | crawler | build | 없음 | 04 |  | 01-frontier(B-system-design-60 4차), 02-dedup(B-system-design-60 4차), 03-politeness(B-system-design-60 4차) |
 | crdt | build | 없음 | 04 |  | 01-counters(B-distributed-30 5차), 02-sets-and-registers(B-distributed-30 5차), 03-convergence(B-distributed-30 5차) |
 | dataflow | build | 있음 | 05 | 01-plan(B-spark-20 완료), 02-shuffle(B-spark-20 완료), 03-join(B-spark-20 완료), 04-adaptive(B-spark-20 완료) |  |
@@ -294,7 +293,7 @@
 | [F-coroutines-31](backend/coroutines/cards/F-coroutines-31-order-deadline.md) | 주문 확정 제한 시간 | fix | bug-fix | 02-order-deadline | 완료(2026-10-12) | 3 | kotlinx-coroutines | B-coroutines-20 |
 | [C-coroutines-32](backend/coroutines/cards/C-coroutines-32-flow-semantics.md) | StateFlow 와 SharedFlow 의 의미 | code | code-reading | 03-flow-semantics | 완료(2026-10-12) | 4 | kotlinx-coroutines | C-coroutines-30 |
 | [B-coroutines-35](backend/coroutines/cards/B-coroutines-35-coroutine-patterns-advanced.md) | 코루틴 동시 처리 심화 | build | coroutine-patterns | 05-batching, 06-single-flight | 완료(2026-10-13) | 4 | kotlinx-coroutines | B-coroutines-20 |
-| [B-coroutines-40](backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md) | 작은 코루틴 실행기 만들기 | build | coroutine-runtime | 01-event-loop, 02-structured, 03-cancellation, 04-exceptions | 후보 | 4 | 없음 | B-coroutines-20 |
+| [B-coroutines-40](backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md) | 작은 코루틴 실행기 만들기 | build | coroutine-runtime | 01-event-loop, 02-structured, 03-cancellation, 04-exceptions, 05-channels, 06-flow | 완료(2026-10-13) | 4 | 없음 | B-coroutines-20 |
 | [L-coroutines-50](backend/coroutines/cards/L-coroutines-50-dispatcher-starvation.md) | 블로킹 호출과 디스패처 고갈 | lab | coroutine-lab | dispatcher-starvation | 후보 | 4 | kotlinx-coroutines, k6 | B-coroutines-20 |
 
 ### 데이터베이스

@@ -1,0 +1,123 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "case-01",
+      "refs": ["4.4"],
+      "quote": "빈 `LAUNCH` 본문은 `START` 직후 같은 시각에 `DONE`을 낸다.",
+      "input": ["TASK idle LAUNCH", "END", "ROOT idle r", "RUN"],
+      "expected": ["0 r START", "0 r DONE"]
+    },
+    {
+      "name": "case-02",
+      "refs": ["4.1"],
+      "quote": "`LOG <값>`은 현재 시각의 `LOG` 사건을 낸다.",
+      "input": ["TASK pulse LAUNCH", "LOG begin", "DELAY 3", "LOG end", "END", "ROOT pulse r", "RUN"],
+      "expected": ["0 r START", "0 r LOG begin", "3 r LOG end", "3 r DONE"]
+    },
+    {
+      "name": "case-03",
+      "refs": ["4.1", "4.5"],
+      "quote": "시각이 같은 `DELAY 0`도 현재 continuation을 준비 큐 끝에 보낸 뒤 다음 문장을 실행한다.",
+      "input": ["TASK first LAUNCH", "LOG a", "DELAY 0", "LOG b", "END", "TASK second LAUNCH", "LOG c", "END", "ROOT first x", "ROOT second y", "RUN"],
+      "expected": ["0 x START", "0 x LOG a", "0 y START", "0 y LOG c", "0 y DONE", "0 x LOG b", "0 x DONE"]
+    },
+    {
+      "name": "case-04",
+      "refs": ["4.2", "4.4"],
+      "quote": "부모는 이 명령 뒤를 계속 실행한다.",
+      "input": ["TASK child LAUNCH", "LOG child", "END", "TASK parent LAUNCH", "LOG before", "SPAWN child c", "LOG after", "END", "ROOT parent p", "RUN"],
+      "expected": ["0 p START", "0 p LOG before", "0 p LOG after", "0 p.c START", "0 p.c LOG child", "0 p.c DONE", "0 p DONE"]
+    },
+    {
+      "name": "case-05",
+      "refs": ["4.5"],
+      "quote": "시각이 같은 모든 타이머는 준비 큐에 들어간 순서를 지킨다.",
+      "input": ["TASK worker LAUNCH", "DELAY 2", "LOG woke", "END", "ROOT worker a", "ROOT worker b", "RUN"],
+      "expected": ["0 a START", "0 b START", "2 a LOG woke", "2 a DONE", "2 b LOG woke", "2 b DONE"]
+    },
+    {
+      "name": "case-06",
+      "refs": ["4.3", "4.4"],
+      "quote": "아직 끝나지 않았으면 완료 후 준비 큐에서 재개해 `VALUE <자식 이름> <결과>`를 낸다.",
+      "input": ["TASK answer ASYNC", "DELAY 2", "RESULT yes", "END", "TASK parent LAUNCH", "SPAWN answer a", "AWAIT a", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "2 r.a DONE", "2 r VALUE a yes", "2 r LOG after", "2 r DONE"]
+    },
+    {
+      "name": "case-07",
+      "refs": ["4.3"],
+      "quote": "같은 자식을 여러 번 기다려도 같은 결과를 매번 낸다.",
+      "input": ["TASK answer ASYNC", "DELAY 0", "RESULT yes", "END", "TASK parent LAUNCH", "SPAWN answer a", "DELAY 2", "AWAIT a", "AWAIT a", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.a DONE", "2 r VALUE a yes", "2 r VALUE a yes", "2 r DONE"]
+    },
+    {
+      "name": "case-08",
+      "refs": ["4.5", "4.7"],
+      "quote": "동일 정의를 다른 루트나 서로 다른 부모가 써도 각각 독립한 인스턴스와 결과를 갖는다.",
+      "input": ["TASK worker LAUNCH", "LOG one", "DELAY 1", "LOG two", "END", "ROOT worker alpha", "ROOT worker beta", "RUN"],
+      "expected": ["0 alpha START", "0 alpha LOG one", "0 beta START", "0 beta LOG one", "1 alpha LOG two", "1 alpha DONE", "1 beta LOG two", "1 beta DONE"]
+    },
+    {
+      "name": "case-09",
+      "refs": ["4.2", "4.4"],
+      "quote": "자식의 `DONE`은 부모의 `DONE`보다 앞에 나온다.",
+      "input": ["TASK leaf LAUNCH", "DELAY 1", "END", "TASK branch LAUNCH", "SPAWN leaf inner", "LOG branch", "END", "TASK root LAUNCH", "SPAWN branch b", "LOG root", "END", "ROOT root r", "RUN"],
+      "expected": ["0 r START", "0 r LOG root", "0 r.b START", "0 r.b LOG branch", "0 r.b.inner START", "1 r.b.inner DONE", "1 r.b DONE", "1 r DONE"]
+    },
+    {
+      "name": "case-10",
+      "refs": ["5.3"],
+      "quote": "참조할 정의가 뒤에 나와도 허용하며, 해당 줄에서 참조 오류를 판정한다.",
+      "input": ["TASK parent LAUNCH", "SPAWN child c", "END", "TASK child LAUNCH", "LOG arrived", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "0 r.c LOG arrived", "0 r.c DONE", "0 r DONE"]
+    },
+    {
+      "name": "case-11",
+      "refs": ["5.1", "5.2"],
+      "quote": "없는 정의를 참조하면 `UNKNOWN`이고, 아직 만들지 않은 자식을 `AWAIT`하거나 `LAUNCH` 자식을 기다리면 `REFERENCE`다.",
+      "input": ["TASK parent LAUNCH", "SPAWN missing c", "END", "", "ROOT parent r", "RUN"],
+      "expected": ["ERR 2 UNKNOWN"]
+    },
+    {
+      "name": "case-12",
+      "refs": ["5.2"],
+      "quote": "없는 정의를 참조하면 `UNKNOWN`이고, 아직 만들지 않은 자식을 `AWAIT`하거나 `LAUNCH` 자식을 기다리면 `REFERENCE`다.",
+      "input": ["TASK parent LAUNCH", "AWAIT a", "SPAWN answer a", "END", "TASK answer ASYNC", "RESULT yes", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 2 REFERENCE"]
+    },
+    {
+      "name": "case-13",
+      "refs": ["5.2"],
+      "quote": "같은 정의·루트 이름이나 형제 자식 이름이 두 번 나오면 `DUPLICATE`다.",
+      "input": ["TASK leaf LAUNCH", "END", "TASK parent LAUNCH", "SPAWN leaf c", "SPAWN leaf c", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 5 DUPLICATE"]
+    },
+    {
+      "name": "case-14",
+      "refs": ["5.3"],
+      "quote": "그 참조를 더할 때 처음 순환이 생기면 그 줄을 `CYCLE`로 판정한다.",
+      "input": ["TASK a LAUNCH", "SPAWN b b", "END", "TASK b LAUNCH", "SPAWN a a", "END", "ROOT a r", "RUN"],
+      "expected": ["ERR 5 CYCLE"]
+    },
+    {
+      "name": "case-15",
+      "refs": ["4.3", "4.5"],
+      "quote": "이벤트 루프는 준비 큐 맨 앞의 continuation 하나를 꺼내 그 계산이 중단하거나 끝날 때까지 실행한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "18", "--mode", "mixed"],
+      "repeat": 2
+    },
+    {
+      "name": "case-16",
+      "refs": ["5.1", "5.3"],
+      "quote": "실행 전에 전체 입력을 검증한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "18", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "case-17",
+      "refs": ["7.2"],
+      "quote": "모든 작업을 시각마다 전수 검사하는 구현은 이 규모에서 느려진다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "4000", "--mode", "mixed"]
+    }
+  ]
+}

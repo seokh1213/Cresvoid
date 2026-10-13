@@ -1,0 +1,123 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "case-01",
+      "refs": ["4.1", "4.5"],
+      "quote": "일반 루트가 `FAILED` 사건과 완료 처리기를 모두 낸 뒤 `UNHANDLED <주된 코드>`를 낸다.",
+      "input": ["TASK worker LAUNCH", "FAIL BOOM", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FAILED BOOM", "0 r UNHANDLED BOOM"]
+    },
+    {
+      "name": "case-02",
+      "refs": ["3.2", "4.1", "4.5"],
+      "quote": "3단계의 `ON_COMPLETE` 처리기는 실패한 작업에서 `HANDLER <값> FAILED <코드>`를 출력한다.",
+      "input": ["TASK worker LAUNCH", "ON_COMPLETE report", "FAIL BOOM", "FINALLY", "LOG cleanup", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r LOG cleanup", "0 r FAILED BOOM", "0 r HANDLER report FAILED BOOM", "0 r UNHANDLED BOOM"]
+    },
+    {
+      "name": "case-03",
+      "refs": ["4.1", "4.3"],
+      "quote": "뒤에 그 작업의 `FINALLY`나 다른 자식에서 일반 예외가 나면 발생 순서대로 그 작업 경로에서 `SUPPRESSED <코드>`를 내고 주된 코드는 바꾸지 않는다.",
+      "input": ["TASK worker LAUNCH", "FAIL FIRST", "FINALLY", "FAIL SECOND", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r SUPPRESSED SECOND", "0 r FAILED FIRST", "0 r UNHANDLED FIRST"]
+    },
+    {
+      "name": "case-04",
+      "refs": ["4.1", "4.2"],
+      "quote": "이미 본문을 마친 부모도 자식이 남아 있는 동안에는 실패를 받아들인다.",
+      "input": ["TASK slow LAUNCH", "DELAY 5", "FINALLY", "LOG slow_cleanup", "END", "TASK broken LAUNCH", "FAIL BOOM", "END", "TASK parent LAUNCH", "SPAWN slow a", "SPAWN broken b", "FINALLY", "LOG parent_cleanup", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r LOG parent_cleanup", "0 r.a START", "0 r.b START", "0 r.b FAILED BOOM", "0 r.a LOG slow_cleanup", "0 r.a CANCELLED", "0 r FAILED BOOM", "0 r UNHANDLED BOOM"]
+    },
+    {
+      "name": "case-05",
+      "refs": ["4.2", "4.5"],
+      "quote": "`ASYNC` 자식의 실패도 일반 부모에게 똑같이 전파된다.",
+      "input": ["TASK answer ASYNC", "FAIL ASYNC_ERROR", "RESULT never", "END", "TASK parent LAUNCH", "SPAWN answer a", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.a FAILED ASYNC_ERROR", "0 r FAILED ASYNC_ERROR", "0 r UNHANDLED ASYNC_ERROR"]
+    },
+    {
+      "name": "case-06",
+      "refs": ["4.4", "4.5"],
+      "quote": "직계 자식이 실패해도 감독 Job과 다른 자식은 계속한다.",
+      "input": ["TASK broken LAUNCH", "FAIL BOOM", "END", "TASK healthy LAUNCH", "DELAY 1", "LOG okay", "END", "TASK group LAUNCH", "SPAWN broken a", "SPAWN healthy b", "END", "TASK parent LAUNCH", "SUPERVISOR group s", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.s START", "0 r.s.a START", "0 r.s.a FAILED BOOM", "0 r.s.a UNHANDLED BOOM", "0 r.s.b START", "1 r.s.b LOG okay", "1 r.s.b DONE", "1 r.s DONE", "1 r LOG after", "1 r DONE"]
+    },
+    {
+      "name": "case-07",
+      "refs": ["4.4", "4.5"],
+      "quote": "감독 아래의 실패한 `ASYNC` 자식은 `AWAIT`하지 않으면 감독 Job이 완료한 뒤에도 `UNHANDLED`를 내지 않는다.",
+      "input": ["TASK answer ASYNC", "FAIL BOOM", "RESULT never", "END", "TASK group LAUNCH", "SPAWN answer a", "END", "TASK parent LAUNCH", "SUPERVISOR group s", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.s START", "0 r.s.a START", "0 r.s.a FAILED BOOM", "0 r.s DONE", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-08",
+      "refs": ["4.7"],
+      "quote": "`AWAIT_CATCH <자식 이름>`은 `AWAIT`와 같이 기다리되, 활성 상태의 현재 작업에 자식의 실패 또는 취소가 돌아오면 예외를 잡고 `CAUGHT <자식 이름> FAILED <코드>` 또는 `CAUGHT <자식 이름> CANCELLED -`를 낸 뒤 다음 명령으로 간다.",
+      "input": ["TASK answer ASYNC", "FAIL BOOM", "RESULT never", "END", "TASK group LAUNCH", "SPAWN answer a", "AWAIT_CATCH a", "LOG handled", "END", "TASK parent LAUNCH", "SUPERVISOR group s", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.s START", "0 r.s.a START", "0 r.s.a FAILED BOOM", "0 r.s CAUGHT a FAILED BOOM", "0 r.s LOG handled", "0 r.s DONE", "0 r DONE"]
+    },
+    {
+      "name": "case-09",
+      "refs": ["4.5", "4.6"],
+      "quote": "실패한 `LAUNCH` 자식의 `UNHANDLED`는 `JOIN`의 재개보다 먼저 나온다.",
+      "input": ["TASK broken LAUNCH", "FAIL BOOM", "END", "TASK group LAUNCH", "SPAWN broken a", "JOIN a", "LOG after", "END", "TASK parent LAUNCH", "SUPERVISOR group s", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.s START", "0 r.s.a START", "0 r.s.a FAILED BOOM", "0 r.s.a UNHANDLED BOOM", "0 r.s LOG after", "0 r.s DONE", "0 r DONE"]
+    },
+    {
+      "name": "case-10",
+      "refs": ["4.7"],
+      "quote": "활성 상태의 현재 작업에 자식의 실패 또는 취소가 돌아오면 예외를 잡고 `CAUGHT <자식 이름> FAILED <코드>` 또는 `CAUGHT <자식 이름> CANCELLED -`를 낸 뒤 다음 명령으로 간다.",
+      "input": ["TASK answer ASYNC", "DELAY 5", "RESULT yes", "END", "TASK parent LAUNCH", "SPAWN answer a", "DELAY 0", "CANCEL a", "AWAIT_CATCH a", "LOG after", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.a CANCELLED", "0 r CAUGHT a CANCELLED -", "0 r LOG after", "0 r DONE"]
+    },
+    {
+      "name": "case-11",
+      "refs": ["4.8"],
+      "quote": "잡은 뒤에도 Job이 취소 중이면 `DELAY`, `YIELD`, `ENSURE` 등 다음 취소 확인 지점에서 정리로 간다.",
+      "input": ["TASK worker LAUNCH", "SWALLOW_CANCEL", "CANCEL_SELF", "SWALLOW_CANCEL", "LOG continued", "ENSURE", "LOG skipped", "FINALLY", "LOG cleanup", "END", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r ACTIVE", "0 r CAUGHT_CANCEL", "0 r LOG continued", "0 r LOG cleanup", "0 r CANCELLED"]
+    },
+    {
+      "name": "case-12",
+      "refs": ["4.9"],
+      "quote": "기한으로 시작된 취소 뒤 정리에서 일반 예외가 나면 그 예외가 시간 초과보다 우선해 부모에게 전파되고 `TIMEOUT` 사건은 내지 않는다.",
+      "input": ["TASK child LAUNCH", "DELAY 5", "FINALLY", "FAIL CLEAN", "END", "TASK parent LAUNCH", "TIMEOUT 1 child c", "LOG skipped", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.c START", "1 r.c FAILED CLEAN", "1 r FAILED CLEAN", "1 r UNHANDLED CLEAN"]
+    },
+    {
+      "name": "case-13",
+      "refs": ["5.1"],
+      "quote": "`AWAIT_CATCH`가 없는 자식이나 `LAUNCH` 자식을 가리키면 `REFERENCE`다.",
+      "input": ["TASK worker LAUNCH", "END", "TASK parent LAUNCH", "SPAWN worker w", "AWAIT_CATCH w", "END", "ROOT parent r", "RUN"],
+      "expected": ["ERR 5 REFERENCE"]
+    },
+    {
+      "name": "case-14",
+      "refs": ["4.2", "4.3"],
+      "quote": "뒤에 그 작업의 `FINALLY`나 다른 자식에서 일반 예외가 나면 발생 순서대로 그 작업 경로에서 `SUPPRESSED <코드>`를 내고 주된 코드는 바꾸지 않는다.",
+      "input": ["TASK first LAUNCH", "DELAY 1", "FAIL FIRST", "END", "TASK second LAUNCH", "DELAY 1", "FINALLY", "FAIL SECOND", "END", "TASK parent LAUNCH", "SPAWN first a", "SPAWN second b", "END", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.b START", "1 r.a FAILED FIRST", "1 r SUPPRESSED SECOND", "1 r.b FAILED SECOND", "1 r FAILED FIRST", "1 r UNHANDLED FIRST"]
+    },
+    {
+      "name": "case-15",
+      "refs": ["4.2", "4.4"],
+      "quote": "직계 자식이 실패해도 감독 Job과 다른 자식은 계속한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "15", "--mode", "mixed"],
+      "repeat": 2
+    },
+    {
+      "name": "case-16",
+      "refs": ["5.1", "5.2"],
+      "quote": "앞 단계의 검증 순서와 오류 코드를 따른다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "15", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "case-17",
+      "refs": ["7.2"],
+      "quote": "실패 전파 때 전체 Job 목록을 훑는 구현은 이 규모에서 늦어진다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "4200", "--mode", "mixed"]
+    }
+  ]
+}

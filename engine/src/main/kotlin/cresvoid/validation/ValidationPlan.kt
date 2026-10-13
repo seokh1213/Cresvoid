@@ -25,6 +25,7 @@ private fun Validation.validateBuild() {
     }
     val stages = contents.map { RunnableStage(it.stage, checkNotNull(it.suite)) }
     checkReferences(stages)
+    checkApiContracts(stages)
     checkShortAnswers(contents, ::referenceProgram)
     checkStageProgression(stages)
     checkStarters(stages)

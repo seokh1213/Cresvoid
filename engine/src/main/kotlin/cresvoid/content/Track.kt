@@ -32,6 +32,7 @@ data class Stage(
     val hiddenDir: Path get() = path.resolve("hidden")
     val quizPath: Path get() = hiddenDir.resolve("quiz.json")
     val testsPath: Path get() = hiddenDir.resolve("tests.json")
+    val apiCheckPath: Path get() = hiddenDir.resolve("api-check.main.kts")
     val solutionDir: Path get() = hiddenDir.resolve("solution")
     val starterDir: Path get() = path.resolve("starter")
     val codeDir: Path get() = path.resolve("code")

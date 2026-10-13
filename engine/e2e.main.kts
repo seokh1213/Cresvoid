@@ -104,6 +104,7 @@ val scriptFile: File = ProcessHandle.current().info().arguments().orElse(emptyAr
     ?.let { File(it).absoluteFile }
     ?: __FILE__.absoluteFile
 val projectRoot: File = (args.firstOrNull()?.let(::File) ?: scriptFile.parentFile.parentFile).canonicalFile
+val selectedTrack = args.getOrNull(1)
 val launcher = File(projectRoot, "engine/bin/cresvoid")
 val workspace: File = Files.createTempDirectory("cresvoid-e2e-").toFile()
 val problems = mutableListOf<String>()
@@ -202,7 +203,12 @@ fun checkStarterFailure(track: String, number: Int, stageDir: File) {
     val run = cresvoid("test", track, "-stage", "$number")
     expect(run.exitCode == 1 && "✗" in run.output, "${what}가 테스트에서 실패해야 합니다")
     expect("참조 풀이를 보려면: cresvoid solution $track -stage $number" in run.output, "$what 실패 출력에 참조 풀이 보기 안내가 없습니다")
-    expectHiddenCaseNotShown(what, stageDir, run)
+    if (File(stageDir, "hidden/api-check.main.kts").isFile) {
+        expect("✗ 공개 API 동작 검사" in run.output, "$what 공개 API 검사가 실패해야 합니다")
+        expect("ApiProbe.kt" !in run.output, "$what 실패 출력에 숨은 API 검사 파일이 보입니다")
+    } else {
+        expectHiddenCaseNotShown(what, stageDir, run)
+    }
     val hashesAfter = fileHashesOutsideBuildDirs()
     val changed = (hashesBefore.keys + hashesAfter.keys).filter { hashesBefore[it] != hashesAfter[it] }.sorted()
     expect(changed.isEmpty(), "$what 실패 뒤 build/ 밖에서 생기거나 바뀌거나 사라진 파일이 있습니다: ${changed.joinToString(", ")}")
@@ -226,11 +232,17 @@ fun runBuildTrack(track: String, stages: List<Map<*, *>>, trackDir: File) {
         solveQuiz(track, stage, number, stagesDir)
         if (index == 0) {
             checkStarterFailure(track, number, File(stagesDir, dir))
-            File(referenceSolution, "build.sh").takeIf { it.isFile }?.let { build ->
-                val built = ProcessBuilder(build.path).inheritIO().withoutKotlinRunner().start().waitFor()
-                expect(built == 0, "$track 마지막 단계 참조 풀이 빌드 실패")
+            if (File(stagesDir, "$dir/hidden/api-check.main.kts").isFile) {
+                val learner = File(workspace, solutionDir)
+                replaceSources(referenceSolution, learner)
+                File(learner, "build/app.jar").delete()
+            } else {
+                File(referenceSolution, "build.sh").takeIf { it.isFile }?.let { build ->
+                    val built = ProcessBuilder(build.path).inheritIO().withoutKotlinRunner().start().waitFor()
+                    expect(built == 0, "$track 마지막 단계 참조 풀이 빌드 실패")
+                }
+                File(workspace, "$solutionDir/run.sh").writeText("#!/bin/sh\nexec '${File(referenceSolution, "run.sh").path}'\n")
             }
-            File(workspace, "$solutionDir/run.sh").writeText("#!/bin/sh\nexec '${File(referenceSolution, "run.sh").path}'\n")
         }
         cresvoid("test", track, "-stage", "$number").expectSuccess("$dir 까지 모두 통과했습니다", "$track $dir 테스트")
     }
@@ -320,8 +332,10 @@ log("프로젝트: $projectRoot")
 log("작업 디렉터리: $workspace")
 expect(launcher.canExecute(), "실행할 수 있는 ${launcher.path} 가 없습니다")
 copyContent(File(projectRoot, "content/tracks").toPath(), File(workspace, "content/tracks").toPath())
-val trackDirs = File(workspace, "content/tracks").listFiles { file -> File(file, "track.json").isFile }.orEmpty().sortedBy { it.name }
-expect(trackDirs.isNotEmpty(), "content/tracks 에 트랙이 없습니다")
+val trackDirs = File(workspace, "content/tracks").listFiles { file ->
+    File(file, "track.json").isFile && (selectedTrack == null || file.name == selectedTrack)
+}.orEmpty().sortedBy { it.name }
+expect(trackDirs.isNotEmpty(), "content/tracks 에 선택한 트랙이 없습니다: ${selectedTrack ?: "전체"}")
 
 for (trackDir in trackDirs) {
     val track = trackDir.name

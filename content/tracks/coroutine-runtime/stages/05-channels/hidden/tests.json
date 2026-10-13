@@ -1,0 +1,123 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "case-01",
+      "refs": ["3.2", "4.1", "4.2"],
+      "quote": "성공한 `RECV`는 현재 작업 경로에서 `RECEIVE <채널 이름> <값>` 사건을 낸다.",
+      "input": ["TASK worker LAUNCH", "SEND ch red", "RECV ch", "END", "CHANNEL ch 1", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r RECEIVE ch red", "0 r DONE"]
+    },
+    {
+      "name": "case-02",
+      "refs": ["4.1", "4.2", "4.3"],
+      "quote": "랑데부 채널에는 버퍼를 만들지 않는다.",
+      "input": ["TASK sender LAUNCH", "LOG before", "SEND ch red", "LOG after", "END", "TASK receiver LAUNCH", "DELAY 0", "RECV ch", "LOG seen", "END", "CHANNEL ch 0", "ROOT sender p", "ROOT receiver c", "RUN"],
+      "expected": ["0 p START", "0 p LOG before", "0 c START", "0 c RECEIVE ch red", "0 c LOG seen", "0 c DONE", "0 p LOG after", "0 p DONE"]
+    },
+    {
+      "name": "case-03",
+      "refs": ["4.1", "4.2"],
+      "quote": "대기 중인 수신자가 있으면 가장 먼저 기다린 수신자에게 값을 예약하고 그 continuation을 준비 큐 끝에 넣는다.",
+      "input": ["TASK receiver LAUNCH", "RECV ch", "LOG received", "END", "TASK sender LAUNCH", "SEND ch blue", "LOG sent", "END", "CHANNEL ch 0", "ROOT receiver a", "ROOT sender b", "RUN"],
+      "expected": ["0 a START", "0 b START", "0 b LOG sent", "0 b DONE", "0 a RECEIVE ch blue", "0 a LOG received", "0 a DONE"]
+    },
+    {
+      "name": "case-04",
+      "refs": ["4.1", "4.2", "4.3"],
+      "quote": "버퍼에서 값을 꺼내 자리가 생기면 대기 송신자 가운데 가장 앞의 값을 곧바로 버퍼 끝에 넣고 그 송신자의 continuation을 준비 큐 끝에 넣는다.",
+      "input": ["TASK sender LAUNCH", "SEND box red", "SEND box blue", "LOG sent", "END", "TASK receiver LAUNCH", "DELAY 0", "RECV box", "RECV box", "LOG read", "END", "CHANNEL box 1", "ROOT sender p", "ROOT receiver c", "RUN"],
+      "expected": ["0 p START", "0 c START", "0 c RECEIVE box red", "0 c RECEIVE box blue", "0 c LOG read", "0 c DONE", "0 p LOG sent", "0 p DONE"]
+    },
+    {
+      "name": "case-05",
+      "refs": ["4.1", "4.2", "4.3"],
+      "quote": "두 경우 모두 아니면 보내는 쪽을 보낸 순서대로 대기시킨다.",
+      "input": ["TASK first LAUNCH", "SEND ch red", "LOG after", "END", "TASK second LAUNCH", "SEND ch blue", "LOG after", "END", "TASK receiver LAUNCH", "RECV ch", "RECV ch", "END", "CHANNEL ch 0", "ROOT first a", "ROOT second b", "ROOT receiver c", "RUN"],
+      "expected": ["0 a START", "0 b START", "0 c START", "0 c RECEIVE ch red", "0 c RECEIVE ch blue", "0 c DONE", "0 a LOG after", "0 a DONE", "0 b LOG after", "0 b DONE"]
+    },
+    {
+      "name": "case-06",
+      "refs": ["4.4"],
+      "quote": "`RECV`는 버퍼의 값을 끝까지 꺼낸 뒤, 빈 상태에서 `CHANNEL_CLOSED`로 실패한다.",
+      "input": ["TASK sender LAUNCH", "SEND box red", "SEND box blue", "CLOSE box", "END", "TASK receiver LAUNCH", "DELAY 0", "RECV box", "RECV box", "RECV box", "END", "CHANNEL box 2", "ROOT sender p", "ROOT receiver c", "RUN"],
+      "expected": ["0 p START", "0 p DONE", "0 c START", "0 c RECEIVE box red", "0 c RECEIVE box blue", "0 c FAILED CHANNEL_CLOSED", "0 c UNHANDLED CHANNEL_CLOSED"]
+    },
+    {
+      "name": "case-07",
+      "refs": ["4.4", "5.4"],
+      "quote": "처음 닫을 때 대기 송신자와 값이 예약되지 않은 대기 수신자를 각자 등록 순서대로 실패 재개 대상으로 준비 큐에 넣는다.",
+      "input": ["TASK sender LAUNCH", "SEND ch red", "FINALLY", "LOG cleanup", "END", "TASK closer LAUNCH", "CLOSE ch", "END", "CHANNEL ch 0", "ROOT sender s", "ROOT closer c", "RUN"],
+      "expected": ["0 s START", "0 c START", "0 c DONE", "0 s LOG cleanup", "0 s FAILED CHANNEL_CLOSED", "0 s UNHANDLED CHANNEL_CLOSED"]
+    },
+    {
+      "name": "case-08",
+      "refs": ["3.3"],
+      "quote": "준비 큐와 타이머가 모두 비었는데 완료하지 않은 작업이 남아 있으면 기존 사건 뒤에 `DEADLOCK` 한 줄을 출력하고 실행을 끝낸다.",
+      "input": ["TASK sender LAUNCH", "SEND ch red", "END", "CHANNEL ch 0", "ROOT sender s", "RUN"],
+      "expected": ["0 s START", "DEADLOCK"]
+    },
+    {
+      "name": "case-09",
+      "refs": ["5.1", "5.2"],
+      "quote": "성공하면 가장 먼저 기다린 활성 작업에게 그 시각에 소유권을 넘기고 continuation을 준비 큐 끝에 넣는다.",
+      "input": ["TASK owner LAUNCH", "LOCK m", "LOG held", "DELAY 2", "UNLOCK m", "LOG released", "END", "TASK waiter LAUNCH", "LOCK m", "LOG got", "UNLOCK m", "END", "MUTEX m", "ROOT owner a", "ROOT waiter b", "RUN"],
+      "expected": ["0 a START", "0 a LOG held", "0 b START", "2 a LOG released", "2 a DONE", "2 b LOG got", "2 b DONE"]
+    },
+    {
+      "name": "case-10",
+      "refs": ["3.2", "5.1"],
+      "quote": "소유자가 현재 작업 자신이면 중단하지 않고 `MUTEX_REENTRANT`로 실패한다.",
+      "input": ["TASK worker LAUNCH", "LOCK m", "LOCK m", "END", "MUTEX m", "ROOT worker r", "RUN"],
+      "expected": ["0 r START", "0 r FAILED MUTEX_REENTRANT", "0 r UNHANDLED MUTEX_REENTRANT"]
+    },
+    {
+      "name": "case-11",
+      "refs": ["5.2", "5.3", "5.4"],
+      "quote": "정리 구간에서 `UNLOCK`을 쓸 수 있으며, 취소된 작업도 자신이 가진 잠금을 풀 수 있다.",
+      "input": ["TASK owner LAUNCH", "LOCK m", "DELAY 5", "FINALLY", "UNLOCK m", "LOG released", "END", "TASK waiter LAUNCH", "LOCK m", "LOG got", "UNLOCK m", "END", "TASK parent LAUNCH", "SPAWN owner a", "SPAWN waiter b", "DELAY 0", "CANCEL a", "JOIN a", "JOIN b", "END", "MUTEX m", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.b START", "0 r.a LOG released", "0 r.a CANCELLED", "0 r.b LOG got", "0 r.b DONE", "0 r DONE"]
+    },
+    {
+      "name": "case-12",
+      "refs": ["4.5"],
+      "quote": "아직 상대와 짝지어지지 않은 `SEND`·`RECV` 대기자는 자신의 Job이 취소되면 채널 대기열에서 빠진다.",
+      "input": ["TASK receiver LAUNCH", "RECV ch", "LOG got", "FINALLY", "LOG cleanup", "END", "TASK sender LAUNCH", "SEND ch red", "END", "TASK parent LAUNCH", "SPAWN receiver a", "DELAY 0", "CANCEL a", "SPAWN receiver b", "SPAWN sender s", "JOIN a", "JOIN b", "JOIN s", "END", "CHANNEL ch 0", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.a LOG cleanup", "0 r.a CANCELLED", "0 r.b START", "0 r.s START", "0 r.s DONE", "0 r.b RECEIVE ch red", "0 r.b LOG got", "0 r.b LOG cleanup", "0 r.b DONE", "0 r DONE"]
+    },
+    {
+      "name": "case-13",
+      "refs": ["5.3"],
+      "quote": "`UNLOCK`이 대기자에게 소유권을 넘겼지만 그 대기자의 `LOCK` continuation이 재개되기 전에 취소됐다면, 예약된 소유권을 즉시 거두어 다음 활성 대기자에게 넘기고 그 continuation을 준비 큐 끝에 넣는다.",
+      "input": ["TASK owner LAUNCH", "LOCK m", "DELAY 0", "UNLOCK m", "END", "TASK contender LAUNCH", "LOCK m", "LOG got", "UNLOCK m", "END", "TASK parent LAUNCH", "SPAWN owner o", "SPAWN contender a", "SPAWN contender b", "YIELD", "YIELD", "CANCEL a", "JOIN o", "JOIN a", "JOIN b", "END", "MUTEX m", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.o START", "0 r.a START", "0 r.b START", "0 r.o DONE", "0 r.b LOG got", "0 r.b DONE", "0 r.a CANCELLED", "0 r DONE"]
+    },
+    {
+      "name": "case-14",
+      "refs": ["3.3", "4.1", "4.5"],
+      "quote": "수신자에게 값이 예약된 뒤 그 수신자가 재개 전에 취소되면 값은 버리고, 이미 완료한 송신을 되돌리지 않는다.",
+      "input": ["TASK receiver LAUNCH", "RECV ch", "LOG got", "END", "TASK sender LAUNCH", "SEND ch red", "LOG sent", "END", "TASK parent LAUNCH", "SPAWN receiver a", "YIELD", "SPAWN sender s", "YIELD", "CANCEL a", "SPAWN receiver b", "JOIN a", "JOIN s", "JOIN b", "END", "CHANNEL ch 0", "ROOT parent r", "RUN"],
+      "expected": ["0 r START", "0 r.a START", "0 r.s START", "0 r.s LOG sent", "0 r.s DONE", "0 r.a CANCELLED", "0 r.b START", "DEADLOCK"]
+    },
+    {
+      "name": "case-15",
+      "refs": ["4.5", "5.2"],
+      "quote": "취소된 대기자에게 새 값이나 버퍼 자리를 배정하지 않는다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "10", "--mode", "mixed"],
+      "repeat": 2
+    },
+    {
+      "name": "case-16",
+      "refs": ["6.1", "6.2"],
+      "quote": "중복 `CHANNEL` 또는 중복 `MUTEX` 선언은 뒤 선언 줄의 `DUPLICATE`다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "10", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "case-17",
+      "refs": ["8.2"],
+      "quote": "대기열에서 매번 모든 작업을 찾지 않도록 설계해야 한다.",
+      "gen": ["kotlin", "gen.main.kts", "--roots", "2000", "--mode", "mixed"]
+    }
+  ]
+}

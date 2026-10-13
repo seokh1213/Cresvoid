@@ -23,6 +23,8 @@ content/tracks/<트랙 id>/
         ├── tests.json        build·fix 트랙
         ├── allowed-edits.txt 선택. fix 트랙에서 수정 가능한 파일 목록
         ├── gen.main.kts      선택. 무작위 입력 생성기
+        ├── api-check.main.kts 선택. build 트랙의 공개 API 동작 검사
+        ├── ApiProbe.kt       선택. API 검사가 컴파일할 Kotlin 코드
         └── solution/         build·fix 트랙. 참조 풀이 Kotlin 프로젝트
 ```
 
@@ -209,6 +211,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 - `build.sh` 는 `lib/` 의 jar 를 컴파일 classpath 에 넣고 `build/app.jar` manifest 의 Class-Path 에 적는다. 그래서 `run.sh` 는 `lib/` 가 있어도 `java -jar build/app.jar` 로 실행한다.
 - Kotlin 표준 라이브러리와 JDK 만 쓴다. `lib/` 가 있는 프로젝트는 kotlinx.coroutines 도 쓴다(`docs/decisions.md` D21).
 - 엔진은 `run.sh` 를 실행하기 전에 `build.sh` 가 있으면 그 디렉터리에서 한 번 실행한다.
+- build 단계에서 표준 입력·출력만으로 확인할 수 없는 공개 API가 필수라면 `hidden/api-check.main.kts`를 둘 수 있다. 엔진은 빌드 뒤 이 스크립트를 단계의 `hidden/`에서 실행하고 풀이 프로젝트의 절대 경로를 인자 하나로 넘긴다. 스크립트는 Kotlin 표준 라이브러리와 JDK만 사용하며 60초 안에 종료 코드 0으로 끝나야 한다. 필요하면 같은 `hidden/`의 Kotlin 소스를 풀이의 `build/app.jar`에 대해 컴파일하고 호출한다. 이 검사의 실패 화면에는 숨은 검사 코드와 출력이 나오지 않는다.
 
 참조 풀이 기준은 다음과 같다.
 
@@ -229,6 +232,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 ### 9.1 테스트 실행
 
 1. build 트랙은 1단계부터 대상 단계까지 차례로 테스트를 실행한다. 앞 단계 테스트는 회귀 검사다. fix 트랙은 대상 단계 테스트만 실행한다.
+   build 단계에 공개 API 검사가 있으면 각 단계의 입력 테스트보다 먼저 실행한다.
 2. 테스트마다 풀이의 `run.sh` 를 새 프로세스로 실행한다. 작업 디렉터리는 풀이 디렉터리다.
 3. 입력 줄을 줄바꿈으로 잇고 마지막 줄 뒤에도 줄바꿈을 붙여 표준 입력에 쓴 뒤 닫는다.
 4. 프로세스가 끝나기를 제한 시간까지 기다린다. 제한 시간을 넘기면 프로세스와 그 자손 프로세스를 모두 종료하고 실패로 처리한다. 프로세스가 끝난 뒤 남은 자손 프로세스도 종료한다.
@@ -307,7 +311,7 @@ build·fix 트랙 단계의 `hidden/tests.json` 이다.
 1. 파일이 모두 있고 JSON 에 이 문서에 없는 필드가 없다. JSON 키는 영문 소문자 snake_case 이고 한 객체 안에서 겹치지 않는다. 파일에는 JSON 값이 하나만 있다. track.json 에는 title, kind, summary, stages 가 있고 단계마다 dir 과 title 이 있다. 단계 디렉터리에 quiz.json, tests.json, solution/, `*.main.kts` 가 있으면 `hidden/` 으로 옮기라고 알리고 실패한다.
 2. 문서의 문단 번호가 겹치지 않는다. 모든 refs 가 문서나 코드에 있다. 모든 quote 가 refs 가운데 하나에 들어 있다. 이때 공백은 하나로 줄이고 백틱과 `**` 는 무시한다.
 3. 문항 id 가 겹치지 않고 문항 모양이 4절의 종류별 규칙을 지킨다. input 이 있는 short 문항은 실행 결과가 정답과 같다.
-4. build 트랙에서 단계 N 의 참조 풀이는 1~N 단계 테스트를 모두 제한 시간 안에 통과한다. gen 테스트는 seed 1 과 2 로 실행한다. 기대값은 그 테스트가 속한 단계의 참조 풀이로 만든다. `expected` 가 없는 테스트는 같은 입력으로 두 번 실행해 같은 출력이 나와야 한다.
+4. build 트랙에서 단계 N 의 참조 풀이는 1~N 단계 테스트와 공개 API 검사를 모두 제한 시간 안에 통과한다. gen 테스트는 seed 1 과 2 로 실행한다. 기대값은 그 테스트가 속한 단계의 참조 풀이로 만든다. `expected` 가 없는 테스트는 같은 입력으로 두 번 실행해 같은 출력이 나와야 한다.
 5. build 트랙의 시작 코드는 1단계 테스트에서 실패한다. N 이 2 이상이면 N−1 단계 참조 풀이는 N 단계 테스트 가운데 하나 이상에서 실패한다.
 6. fix 트랙에서 단계마다 참조 풀이는 그 단계 테스트를 모두 제한 시간 안에 통과하고 시작 코드는 하나 이상에서 실패한다. 시작 코드와 참조 풀이 사이에 바뀐 줄 수를 보여 준다.
    `allowed-edits.txt` 가 있으면 참조 풀이의 수정 범위도 검사한다.

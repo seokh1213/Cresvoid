@@ -1,10 +1,10 @@
 # 코루틴 현황과 완성 계획
 
-2026-10-13 기준이다. 기존 콘텐츠 품질을 보강하고 `coroutine-patterns`의 05·06을 제작했다. 실행기 6~7단계와 lab 기반·스킬·디스패처 실험은 후속 계획으로만 보관한다.
+2026-10-13 기준이다. 기존 콘텐츠 품질 보강, `coroutine-patterns`의 05·06, `coroutine-runtime`의 01~06을 제작했다. lab 기반·스킬·디스패처 실험은 후속 계획이다. Kotlin 언어 전체의 버전별 문제 트랙은 [별도 계획](../content/ideas/implementation/kotlin-versions.md)에 둔다.
 
 ## 현재 콘텐츠
 
-코루틴 카드는 8장이다. 완료 카드 6장에 실제 콘텐츠 10단계가 있고, 나머지 2장은 실행기·실험 후보 카드다. 후보가 완료되기 전에는 실제 학습 단계로 세지 않는다.
+코루틴 카드는 8장이다. 완료 카드 7장에 실제 콘텐츠 16단계가 있다. 남은 1장은 lab 실험 후보 카드이며 실제 학습 단계로 세지 않는다.
 
 - [R-coroutines-10](../content/ideas/backend/coroutines/cards/R-coroutines-10-coroutines.md): `tech-reading/06-coroutines`. 중단과 상태 기계, 구조적 동시성, 취소와 예외 전파를 읽는다.
 - [B-coroutines-20](../content/ideas/backend/coroutines/cards/B-coroutines-20-coroutine-patterns.md): `coroutine-patterns/01-fan-out`, `02-limits`, `03-channels`, `04-flow`. 동시 호출·시간 제한, 실행 상한·재시도, Channel 파이프라인, Flow·StateFlow를 구현한다.
@@ -12,6 +12,7 @@
 - [C-coroutines-30](../content/ideas/backend/coroutines/cards/C-coroutines-30-coroutine-order.md): `code-reading/02-coroutine-order`. 실행 순서·구조적 동시성·취소를 코드로 추적한다.
 - [F-coroutines-31](../content/ideas/backend/coroutines/cards/F-coroutines-31-order-deadline.md): `bug-fix/02-order-deadline`. 하위 호출 시간 제한의 버그를 고친다.
 - [C-coroutines-32](../content/ideas/backend/coroutines/cards/C-coroutines-32-flow-semantics.md): `code-reading/03-flow-semantics`. StateFlow·SharedFlow의 전달·수집 의미를 추적한다.
+- [B-coroutines-40](../content/ideas/backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md): `coroutine-runtime/01-event-loop`~`06-flow`. 실제 `suspend`와 `Continuation`으로 작은 실행기를 단계별로 만든다.
 
 ## 완료한 품질 보강
 
@@ -37,22 +38,18 @@ N개 또는 첫 이벤트부터 T시간이 되면 묶음을 닫고 순서대로 
 
 학습자 코드는 kotlinx.coroutines 1.11.0의 안정 API만 사용한다. 05는 고정 테스트 12개와 생성 테스트 2개, 06은 고정 테스트 13개와 생성 테스트 2개를 통과했다. 06의 상품 20,000개·요청 80,000개 생성 입력은 참조 풀이에서 약 1초가 걸렸다(제한 15초).
 
-## 후속 계획: 실행기 6~7단계
+## 제작한 실행기 01~06
 
-[B-coroutines-40](../content/ideas/backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md)는 아직 기본 4단계를 적은 카드다. 확장안을 반영하기 전에 카드·스펙의 최종 범위를 정한다. 이번에는 제작하지 않는다.
+[B-coroutines-40](../content/ideas/backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md)는 표준 라이브러리와 JDK 21만 사용하는 단일 스레드 가상 시간 실행기다. 각 단계는 앞 단계 위에 쌓이며 실제 `suspend`, `startCoroutine`, `suspendCoroutine`, `Continuation`으로 중단과 재개를 구현한다.
 
-기본 단계는 다음과 같다.
+1. `01-event-loop`: 준비 큐, 가상 지연, 자식 시작과 결과 대기.
+2. `02-structured`: 부모·자식 완료, 지연 시작, `join`과 `scope`, 문맥 상속과 상태.
+3. `03-cancellation`: 협력적 취소, `yield`, 정리와 취소 불가 지연, 시간 제한과 완료 처리기.
+4. `04-exceptions`: 실패 전파와 감독, `await` 예외, 루트 처리기.
+5. `05-channels`: 랑데부·버퍼 Channel의 송수신·닫힘과 Mutex 대기 순서.
+6. `06-flow`: 수집할 때마다 새로 실행하는 cold Flow, `map`·`filter`·`take`와 상류 정리.
 
-1. 이벤트 루프: Continuation, suspend/resume, 가상 delay와 준비 큐, async/await.
-2. 구조적 동시성: 부모·자식 완료, join과 scope.
-3. 취소: 협력적 취소, 정리, 취소 불가 구간, timeout.
-4. 예외: 부모·형제 전파, supervisor, await, 루트 처리기.
-
-기존 단계 보강안은 01의 중단 가로채기·dispatch와 루프 진입, 02의 context 상속·교체와 lazy start·Job 상태, 03의 yield와 완료 처리기 시점이다. 이 보강안은 기존 단계에 내용을 더하는 안이다.
-
-추가 05는 rendezvous·buffer Channel과 Mutex 대기 순서, 06은 cold Flow·수집·map/filter/take·상류 취소다. 이 둘을 넣으면 6단계다. 선행 시퀀스 생성기를 별도 단계로 넣으면 총 7단계이며 번호를 다시 정해야 한다.
-
-실제 suspend·Continuation 기반 API를 구현하도록 설계한다. 단일 스레드 가상 시간 모델을 쓰고, 다중 스레드 dispatcher·select·SharedFlow·StateFlow의 내부 구현은 기본 확장 범위에서 제외한다. 활용 단계에서 안정 API를 사용하는 것과는 별개다.
+선행 시퀀스 생성기를 추가하면 일곱 단계가 되지만 현재 트랙에는 넣지 않았다. 실제 스레드 기반 디스패처, `select`, SharedFlow·StateFlow의 내부 구현도 이 트랙 범위가 아니다.
 
 ## 후속 계획: lab 기반과 디스패처 실험
 
@@ -81,6 +78,6 @@ INDEX.md의 '다음 번호 07'은 예정 06 뒤의 빈 번호다. 보관한 keye
 
 ## 범위 계산
 
-현재 카드 기준은 기존 8단계 + 활용 심화 2 + 실행기 기본 4 + lab 1 = 총 15단계다. 실행기를 6단계로 확장하면 총 17, 선택 시퀀스까지 넣으면 18단계다. lab을 두 단계로 나누면 각각 하나 늘어난다. 카드 밖 아이디어는 포함하지 않는다.
+현재 실제 학습 콘텐츠는 기존 8단계 + 활용 심화 2단계 + 실행기 6단계 = 16단계다. lab 후보 1단계를 만들면 17단계, 선택 시퀀스 생성기까지 만들면 18단계다. lab을 두 단계로 나누면 하나 늘어난다. 카드 밖 아이디어는 포함하지 않는다.
 
-다음 제작 범위는 실행기, lab 기반과 실험, 추가 아이디어 순으로 다시 정한다.
+다음 제작 범위는 lab 기반과 실험, 추가 아이디어 순으로 다시 정한다.

@@ -27,6 +27,7 @@
 | `mini-log` | build | 4 |
 | `metrics` | build | 3 |
 | `coroutine-patterns` | build | 6 |
+| `coroutine-runtime` | build | 6 |
 | `reading` | reading | 3 |
 | `tech-reading` | reading | 12 |
 | `code-reading` | code | 3 |

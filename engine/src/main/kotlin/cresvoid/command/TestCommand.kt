@@ -133,6 +133,16 @@ class TestCommand(
         private fun runStage(stage: Stage): Int {
             val suite = loadTestSuite(stage)
             console.println("\n${bold(stage.dir)} ${stage.title}")
+            val apiResult = harness.checkApi(stage, solutionDir)
+            if (apiResult != null) {
+                if (!apiResult.succeeded || apiResult.truncated) {
+                    console.println("  ${red("✗")} 공개 API 동작 검사")
+                    console.println("    다시 읽을 곳: ${project.rel(stage.documentPath)} 의 공개 API 계약")
+                    solutionLine(stage)?.let(console::println)
+                    throw FailureShown()
+                }
+                console.println("  ${green("✓")} 공개 API 동작 검사")
+            }
             var count = 0
             for (test in suite.tests) {
                 if (test.gen != null) console.println(dim("  · ${test.name} 입력 생성 중…"))
