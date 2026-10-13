@@ -126,7 +126,7 @@ cresvoid test search-engine -stage 1
 | `mini-log` | 구현 | 시각이 입력으로 움직이는 시뮬레이터에서 파티션 로그와 보관, 멱등 프로듀서, 컨슈머 그룹 재조정, 로그 압축을 표준 입출력 명령 처리기로 만든다 |
 | `metrics` | 구현 | 시계열 지표를 저장하고 범위 증가량과 비율, 히스토그램 분위수 추정, SLO 소진율 경보를 표준 입출력 명령 처리기로 만든다 |
 | `coroutine-patterns` | 구현 | 가상 시간 위에서 kotlinx.coroutines 로 동시 호출과 시간 제한, 동시 실행 상한과 재시도, Channel 파이프라인, Flow 가격 처리, 묶음 저장과 요청 합치기를 구현한다 |
-| `coroutine-runtime` | 구현 | 표준 라이브러리의 Continuation으로 단일 스레드 가상 시간 실행기를 만들고 구조적 동시성, 취소, 예외, Channel·Mutex, cold Flow, pull 시퀀스를 단계별로 구현한다 |
+| `coroutine-runtime` | 구현 | 표준 라이브러리의 Continuation으로 단일 스레드 가상 시간 실행기를 만들고 구조적 동시성, 취소, 예외, Channel·Mutex, cold Flow, pull 시퀀스와 수동 상태 기계를 단계별로 구현한다 |
 | `coroutine-lab` | 실험 | Default의 제한된 실행 자리를 블로킹 호출이 차지할 때의 지연을 측정하고 IO 디스패처와 세마포어로 개선한다 |
 | `reading` | 독해 | 경제(경매 이론), 법(무권대리와 표현대리), 철학(귀납의 새로운 수수께끼) 지문을 읽고 수능·LEET 형식 문항을 푼다 |
 | `tech-reading` | 독해 | 실무 도메인의 원리를 다룬 기술 지문 12편(에이전트 루프, HDFS 쓰기 경로, 열 저장, 거의 실시간 검색, Spark 셔플, 코루틴, 규모 추정, MVCC, Raft, 테이블 포맷, Kafka 복제, 백분위수와 오류 예산)을 읽고 수능·LEET 형식 문항을 푼다 |

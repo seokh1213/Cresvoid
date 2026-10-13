@@ -164,7 +164,7 @@
 | consistent-hashing | build | 없음 | 04 |  | 01-ring(B-distributed-40 4차), 02-rebalance(B-distributed-40 4차), 03-replication(B-distributed-40 4차) |
 | coroutine-lab | lab | 있음 | 02 | 01-dispatcher-starvation(L-coroutines-50 완료) |  |
 | coroutine-patterns | build | 있음 | 07 | 01-fan-out(B-coroutines-20 완료), 02-limits(B-coroutines-20 완료), 03-channels(B-coroutines-20 완료), 04-flow(B-coroutines-20 완료), 05-batching(B-coroutines-35 완료), 06-single-flight(B-coroutines-35 완료) |  |
-| coroutine-runtime | build | 있음 | 08 | 01-event-loop(B-coroutines-40 완료), 02-structured(B-coroutines-40 완료), 03-cancellation(B-coroutines-40 완료), 04-exceptions(B-coroutines-40 완료), 05-channels(B-coroutines-40 완료), 06-flow(B-coroutines-40 완료), 07-sequence(B-coroutines-40 완료) |  |
+| coroutine-runtime | build | 있음 | 09 | 01-event-loop(B-coroutines-40 완료), 02-structured(B-coroutines-40 완료), 03-cancellation(B-coroutines-40 완료), 04-exceptions(B-coroutines-40 완료), 05-channels(B-coroutines-40 완료), 06-flow(B-coroutines-40 완료), 07-sequence(B-coroutines-40 완료), 08-manual-state-machine(B-coroutines-40 완료) |  |
 | crawler | build | 없음 | 04 |  | 01-frontier(B-system-design-60 4차), 02-dedup(B-system-design-60 4차), 03-politeness(B-system-design-60 4차) |
 | crdt | build | 없음 | 04 |  | 01-counters(B-distributed-30 5차), 02-sets-and-registers(B-distributed-30 5차), 03-convergence(B-distributed-30 5차) |
 | dataflow | build | 있음 | 05 | 01-plan(B-spark-20 완료), 02-shuffle(B-spark-20 완료), 03-join(B-spark-20 완료), 04-adaptive(B-spark-20 완료) |  |
@@ -292,7 +292,7 @@
 | [F-coroutines-31](backend/coroutines/cards/F-coroutines-31-order-deadline.md) | 주문 확정 제한 시간 | fix | bug-fix | 02-order-deadline | 완료(2026-10-12) | 3 | kotlinx-coroutines | B-coroutines-20 |
 | [C-coroutines-32](backend/coroutines/cards/C-coroutines-32-flow-semantics.md) | StateFlow 와 SharedFlow 의 의미 | code | code-reading | 03-flow-semantics | 완료(2026-10-12) | 4 | kotlinx-coroutines | C-coroutines-30 |
 | [B-coroutines-35](backend/coroutines/cards/B-coroutines-35-coroutine-patterns-advanced.md) | 코루틴 동시 처리 심화 | build | coroutine-patterns | 05-batching, 06-single-flight | 완료(2026-10-13) | 4 | kotlinx-coroutines | B-coroutines-20 |
-| [B-coroutines-40](backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md) | 작은 코루틴 실행기 만들기 | build | coroutine-runtime | 01-event-loop, 02-structured, 03-cancellation, 04-exceptions, 05-channels, 06-flow, 07-sequence | 완료(2026-10-13) | 4 | 없음 | B-coroutines-20 |
+| [B-coroutines-40](backend/coroutines/cards/B-coroutines-40-coroutine-runtime.md) | 작은 코루틴 실행기 만들기 | build | coroutine-runtime | 01-event-loop, 02-structured, 03-cancellation, 04-exceptions, 05-channels, 06-flow, 07-sequence, 08-manual-state-machine | 완료(2026-10-14) | 4 | 없음 | B-coroutines-20 |
 | [L-coroutines-50](backend/coroutines/cards/L-coroutines-50-dispatcher-starvation.md) | 블로킹 호출과 디스패처 고갈 | lab | coroutine-lab | 01-dispatcher-starvation | 완료(2026-10-13) | 4 | kotlinx-coroutines | B-coroutines-20 |
 
 ### 데이터베이스

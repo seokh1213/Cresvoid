@@ -1,0 +1,124 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "single-sum",
+      "refs": ["4.1", "4.2"],
+      "quote": "완료 continuation은 같은 시각에 `<시각> <이름> DONE <합>`을 기록한다.",
+      "input": ["MANUAL one 3 4 2 1 OK", "RUN"],
+      "expected": ["0 one START", "2 one FIRST 3", "3 one SECOND 12", "3 one DONE 15"]
+    },
+    {
+      "name": "zero-delay",
+      "refs": ["4.1", "4.2"],
+      "quote": "지연이 0이어도 작업 함수는 즉시 호출하되 continuation의 재개는 준비 큐 끝에 넣어 다음 차례에 실행한다.",
+      "input": ["MANUAL now 0 0 0 0 OK", "RUN"],
+      "expected": ["0 now START", "0 now FIRST 0", "0 now SECOND 0", "0 now DONE 0"]
+    },
+    {
+      "name": "two-timers",
+      "refs": ["4.1", "4.3"],
+      "quote": "비어 있으면 가장 이른 타이머 시각으로 옮겨 그 시각의 타이머를 등록 순서대로 준비 큐에 넣는다.",
+      "input": ["MANUAL left 4 2 3 0 OK", "MANUAL right 9 0 1 4 OK", "RUN"],
+      "expected": ["0 left START", "0 right START", "1 right FIRST 9", "3 left FIRST 4", "3 left SECOND 8", "3 left DONE 12", "5 right SECOND 0", "5 right DONE 9"]
+    },
+    {
+      "name": "queue-order",
+      "refs": ["4.1", "4.3"],
+      "quote": "같은 시각에 새로 예약한 0 지연 작업은 이미 준비된 작업 뒤에 놓는다.",
+      "input": ["MANUAL a 2 3 0 0 OK", "MANUAL b 5 1 0 0 FAIL_SECOND", "MANUAL c 7 2 0 0 OK", "RUN"],
+      "expected": ["0 a START", "0 b START", "0 c START", "0 a FIRST 2", "0 b FIRST 5", "0 c FIRST 7", "0 a SECOND 6", "0 a DONE 8", "0 b FAILED SECOND", "0 c SECOND 14", "0 c DONE 21"]
+    },
+    {
+      "name": "same-time-events",
+      "refs": ["4.1", "4.3"],
+      "quote": "준비 큐는 FIFO다.",
+      "input": ["MANUAL a 1 1 2 0 OK", "MANUAL b 2 1 2 0 OK", "MANUAL c 3 1 2 1 OK", "RUN"],
+      "expected": ["0 a START", "0 b START", "0 c START", "2 a FIRST 1", "2 b FIRST 2", "2 c FIRST 3", "2 a SECOND 1", "2 a DONE 2", "2 b SECOND 2", "2 b DONE 4", "3 c SECOND 3", "3 c DONE 6"]
+    },
+    {
+      "name": "first-failure",
+      "refs": ["4.2"],
+      "quote": "`FAIL_FIRST`는 `START` 뒤 첫지연 시각에 `<시각> <이름> FAILED FIRST`를 기록하며 `FIRST`, `SECOND`, `DONE`을 기록하지 않는다.",
+      "input": ["MANUAL bad 12 4 1 9 FAIL_FIRST", "MANUAL good 5 2 2 0 OK", "RUN"],
+      "expected": ["0 bad START", "0 good START", "1 bad FAILED FIRST", "2 good FIRST 5", "2 good SECOND 10", "2 good DONE 15"]
+    },
+    {
+      "name": "second-failure",
+      "refs": ["4.2"],
+      "quote": "`FAIL_SECOND`는 `START`, `FIRST` 뒤 둘째지연 시각에 `<시각> <이름> FAILED SECOND`를 기록하며 `SECOND`, `DONE`을 기록하지 않는다.",
+      "input": ["MANUAL b 6 7 2 3 FAIL_SECOND", "RUN"],
+      "expected": ["0 b START", "2 b FIRST 6", "5 b FAILED SECOND"]
+    },
+    {
+      "name": "independent-values",
+      "refs": ["2.5", "4.2", "4.3"],
+      "quote": "서로 다른 `ManualSumMachine` 인스턴스는 상태와 보존한 첫 값을 공유하지 않는다.",
+      "input": ["MANUAL alpha 8 2 3 2 OK", "MANUAL beta 3 5 1 6 OK", "MANUAL gamma 10 0 2 1 OK", "RUN"],
+      "expected": ["0 alpha START", "0 beta START", "0 gamma START", "1 beta FIRST 3", "2 gamma FIRST 10", "3 alpha FIRST 8", "3 gamma SECOND 0", "3 gamma DONE 10", "5 alpha SECOND 16", "5 alpha DONE 24", "7 beta SECOND 15", "7 beta DONE 18"]
+    },
+    {
+      "name": "numeric-bounds",
+      "refs": ["3.2", "4.2"],
+      "quote": "첫값은 0~1,000,000, 배수는 0~1,000, 두 지연은 각각 0~1,000,000,000의 앞에 불필요한 0이 없는 10진 정수다.",
+      "input": ["MANUAL edge 1000000 1000 1000000000 1000000000 OK", "RUN"],
+      "expected": ["0 edge START", "1000000000 edge FIRST 1000000", "2000000000 edge SECOND 1000000000", "2000000000 edge DONE 1001000000"]
+    },
+    {
+      "name": "space-trimming",
+      "refs": ["3.3"],
+      "quote": "각 줄의 앞뒤 U+0020 공백을 버리고 빈 줄은 건너뛴다.",
+      "input": ["", "  MANUAL   x  4  0  0  0  OK  ", " ", "  RUN  ", ""],
+      "expected": ["0 x START", "0 x FIRST 4", "0 x SECOND 0", "0 x DONE 4"]
+    },
+    {
+      "name": "numeric-format",
+      "refs": ["3.2", "5.1"],
+      "quote": "인자 개수, 이름 형식, 숫자 범위·표기, 결과종류, 명령 배치가 틀리면 `ERR <원본 줄 번호> FORMAT` 한 줄만 낸다.",
+      "input": ["MANUAL x 01 2 0 0 OK", "RUN"],
+      "expected": ["ERR 1 FORMAT"]
+    },
+    {
+      "name": "repeated-name",
+      "refs": ["5.1"],
+      "quote": "같은 이름을 두 번 선언하면 뒤 선언 줄의 `DUPLICATE`다.",
+      "input": ["MANUAL x 1 1 0 0 OK", "MANUAL x 2 2 0 0 FAIL_SECOND", "RUN"],
+      "expected": ["ERR 2 DUPLICATE"]
+    },
+    {
+      "name": "format-precedence",
+      "refs": ["5.1"],
+      "quote": "오류가 여러 개면 줄 번호가 작은 것을, 같은 줄이면 `FORMAT`을 `DUPLICATE`보다 먼저 낸다.",
+      "input": ["MANUAL x 1 1 0 0 OK", "MANUAL x 01 1 0 0 OK", "RUN"],
+      "expected": ["ERR 2 FORMAT"]
+    },
+    {
+      "name": "command-placement",
+      "refs": ["3.1", "5.1"],
+      "quote": "`RUN` 뒤에는 빈 줄밖에 올 수 없다.",
+      "input": ["MANUAL a 1 2 0 0 OK", "RUN", "TASK rogue"],
+      "expected": ["ERR 3 FORMAT"]
+    },
+    {
+      "name": "random-mixed",
+      "refs": ["7.1"],
+      "quote": "생성 테스트는 여러 기계가 섞인 입력과 오류 입력을 확인하며",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "mixed", "--machines", "30"],
+      "repeat": 3
+    },
+    {
+      "name": "random-errors",
+      "refs": ["7.1"],
+      "quote": "생성 테스트는 여러 기계가 섞인 입력과 오류 입력을 확인하며",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "errors"],
+      "repeat": 3
+    },
+    {
+      "name": "large-run",
+      "refs": ["7.1"],
+      "quote": "대규모 입력은 약 10,000개 기계와 20,000번의 결과 전달을 포함한다.",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "large"],
+      "repeat": 1
+    }
+  ]
+}
