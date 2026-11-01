@@ -82,3 +82,28 @@ Elasticsearch 의 색인과 검색이 분산된 샤드 위에서 어떻게 동�
 - Size your shards: https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/size-shards
 - Tune for indexing speed: https://www.elastic.co/docs/deploy-manage/production-guidance/optimize-performance/indexing-speed
 - nori_tokenizer: https://www.elastic.co/docs/reference/elasticsearch/plugins/analysis-nori-tokenizer
+
+## 6. 검색 뒤의 결과 배치 후보
+
+검색된 후보를 페이지의 칸에 놓을 때 생기는 순서·노출 제약과 재현 가능한 다양성을 다룬다. Elasticsearch의 설정이나 BM25 계산과는 다른 모듈이다. 아래 세 카드는 후보이며 실제 트랙은 아직 만들지 않았다. 표준 라이브러리와 JDK만 쓰는 로컬 모형으로 제작한다.
+
+### 6.1 배울 원리
+
+- 배치의 목적값과 필수 제약을 구분한다. 점수가 높은 배치라도 노출 상한이나 후보 순서, 중복 금지를 어기면 유효한 답이 아니다.
+- 최적화 실패 뒤의 대체 경로도 필수 제약을 지킨다. 최적 점수를 포기하는 규칙과 제약을 완화하는 규칙은 별개로 명세한다.
+- 난수의 시드만 같다고 모든 결과가 같아지지는 않는다. 후보 순회와 난수 호출 순서를 고정하고 같은 세션·페이지·후보 입력에서 재현되는지 확인한다. 다른 시드가 항상 다른 결과를 만든다고 가정하지 않는다.
+
+### 6.2 추가 학습 경로
+
+1. [B-search-60](cards/B-search-60-result-placement.md)에서 순서와 앞부분 사용 규칙을 가진 후보열을 배치하고, 노출 제약과 더 큰 입력의 정확한 탐색으로 확장한다.
+2. [F-search-70](cards/F-search-70-fallback-constraints.md)에서 최적화 실패 때만 노출 상한을 넘는 버그를 고친다.
+3. [C-search-80](cards/C-search-80-stable-diversity.md)에서 품질 하한과 세션·페이지별 시드를 함께 적용하는 코드를 읽는다.
+
+`search-engine`의 관련도 점수 계산과 `es-cluster`의 샤드 결과 병합을 그대로 반복하지 않는다. 후보가 준비된 뒤 서로 다른 제약 안에서 한 페이지를 구성하는 것이 이 묶음의 목표다.
+
+### 6.3 결과 배치 후보의 출처
+
+- [Google OR-Tools, Solving an Assignment Problem](https://developers.google.com/optimization/assignment/assignment_example): 목적값과 배정 제약을 구분하는 배경이다. OR-Tools 의존성을 추가하지 않는다.
+- [Java SE 21 Random](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Random.html): 같은 시드와 같은 메서드 호출 순서의 재현성을 확인한다.
+
+후보열의 prefix, 노출 간격, 품질 하한, 세션 시드 규칙은 과제에서 정한다. 특정 검색 제품의 보편적인 정책으로 설명하지 않는다.

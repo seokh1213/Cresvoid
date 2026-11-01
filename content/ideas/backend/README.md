@@ -15,6 +15,7 @@
 | 데이터 플랫폼 | Spark | [spark](spark/README.md) | 실행 계획, 셔플, 적응 실행, SQL 의미론 |
 | 데이터 플랫폼 | HDFS | [hdfs](hdfs/README.md) | 블록 배치, 쓰기 경로, 장애 회복, 작은 파일 |
 | 데이터 플랫폼 | 레이크하우스 | [lakehouse](lakehouse/README.md) | Parquet, Iceberg, 통계 기반 건너뛰기 |
+| 데이터 플랫폼 | 데이터 파이프라인 | [pipeline](pipeline/README.md) | 이력 정리, 완료 증명, 운영·실험 병합, 복구, 중복 후보 생성 |
 | 데이터 플랫폼 | OLAP | [olap](olap/README.md) | 열 저장, 희소 인덱스, 사전 집계, 근사 집계 |
 | AI | AI 에이전트 | [ai-agent](ai-agent/README.md) | 도구 루프, 컨텍스트, RAG, MCP |
 | 기반 | 분산 시스템 | [distributed](distributed/README.md) | 일관성, Raft, CRDT, 일관 해싱, 시뮬레이션 시험 |

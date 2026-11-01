@@ -2,6 +2,8 @@
 
 cresvoid 가 기르려는 역량, 그 역량을 훈련할 트랙, 앞으로 만들 단계를 모은 지도다. agent 는 카드 한 장과 그 도메인 README 만 보고 컨텐츠를 만들 수 있어야 한다. 카드에 빠진 정보가 있으면 컨텐츠를 만들기 전에 카드를 먼저 채운다.
 
+여러 도메인을 잇는 공부 순서는 [실무 문제 학습 계획](engineering-practice.md)에 따로 둔다. 기존 카드에 이어 추가한 후보 18개와 아직 카드로 만들지 않은 후속 주제를 구분한다. 실제 문제로 완성됐는지는 각 카드의 상태를 확인한다.
+
 ## 1. 구조
 
 ```
@@ -9,6 +11,7 @@ content/ideas/
 ├── README.md          이 문서. 역량 지도, 카드 형식, 차수, 절차
 ├── INDEX.md           모든 카드 목록. index.main.kts 가 만든다
 ├── index.main.kts     카드 검사와 INDEX.md 생성
+├── engineering-practice.md 실무 문제의 학습 경로와 후속 주제
 ├── reading/           읽기 역량. README.md(출제 기준), cards/
 ├── implementation/    구현 역량. README.md(build·code·fix 출제 기준), cards/
 └── backend/           실무 역량. README.md(도메인 지도), lab.md(lab 종류 설계), 도메인 폴더

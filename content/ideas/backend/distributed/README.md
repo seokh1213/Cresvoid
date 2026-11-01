@@ -46,3 +46,28 @@
 - Dropbox, "Testing sync at Dropbox"(2020): https://dropbox.tech/infrastructure/-testing-our-new-sync-engine
 - FoundationDB 문서, "Simulation and Testing": https://apple.github.io/foundationdb/testing.html
 - Zeller, Hildebrandt, "Simplifying and Isolating Failure-Inducing Input", IEEE TSE 2002.
+
+## 6. 잠금 소유권과 저장소 쓰기 후보
+
+기존 합의·복제 학습과 별개로 lease 잠금과 늦은 작업의 경계를 익히는 후보를 더한다. 아래 카드는 아직 문제로 제작하지 않았다. 명령으로 시각과 사건 순서를 주는 메모리 모형이며 실제 잠금 서버는 실행하지 않는다.
+
+### 6.1 배울 원리
+
+- 획득 번호는 클라이언트 이름과 다르다. 같은 클라이언트가 다시 얻은 잠금도 이전 획득과 구별해야 늦은 해제가 새 소유권을 지우지 않는다.
+- lease 만료와 잠금 재획득이 성공해도 이전 작업의 쓰기가 자동으로 사라지는 것은 아니다. 잠금 서비스의 상태와 저장소에 도착한 쓰기는 별도로 다룬다.
+- 펜싱 토큰은 저장소가 관측한 최대 획득 번호와 함께 검사한다. 더 큰 토큰을 받은 뒤에는 옛 토큰의 쓰기를 거절한다. 새 토큰이 아직 저장소에 도착하지 않은 경우까지 즉시 거절한다고 보장하지 않는다.
+
+### 6.2 추가 학습 경로
+
+1. [B-distributed-60](cards/B-distributed-60-lease-lock.md)에서 원자적 획득·해제와 가상 시간의 만료·갱신을 구현한다.
+2. [F-distributed-70](cards/F-distributed-70-late-lock-release.md)에서 늦은 해제가 새 소유권을 지우는 버그를 고친다. 동일 클라이언트의 재획득도 구분한다.
+3. [B-distributed-80](cards/B-distributed-80-fenced-writes.md)에서 저장소의 토큰 검사와 값 갱신을 구현한다. `lease-lock`의 세 번째 단계 후보다.
+
+B-distributed-50이 시험 도구를 만드는 카드라면 이 묶음은 잠금과 저장소의 동작 자체를 만든다. Raft 구현을 선행 조건으로 요구하지 않는다.
+
+### 6.3 잠금 후보의 출처
+
+- [etcd 3.6 concurrency API](https://etcd.io/docs/v3.6/dev-guide/api_concurrency_reference_v3/): lease와 소유권 키의 관계를 확인한다.
+- [Burrows, The Chubby lock service for loosely-coupled distributed systems, OSDI 2006](https://research.google/pubs/the-chubby-lock-service-for-loosely-coupled-distributed-systems/): 획득 세대와 오래된 요청의 서버 측 검사 원리를 확인한다.
+
+과제의 원자적 저장 연산과 가상 시간은 별도로 명세한다. 위 서비스의 API나 파일시스템 동작을 그대로 구현하는 과제는 아니다.
