@@ -7,7 +7,7 @@ stage: stock-reservation
 status: 후보
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-20 재고 예약과 만료

@@ -7,7 +7,7 @@ stage: load-shedding
 status: 후보
 wave: 5
 env: k6
-prereq: 
+prereq:
 ---
 
 # L-load-80 과부하와 load shedding

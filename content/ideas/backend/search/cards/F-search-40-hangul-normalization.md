@@ -7,7 +7,7 @@ stage: hangul-normalization
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-search-40 한글 정규화가 어긋난 상품 검색

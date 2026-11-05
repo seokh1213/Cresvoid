@@ -7,7 +7,7 @@ stage: 01-trie, 02-cached-top-k, 03-filters-and-shards
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-90 검색어 자동완성 만들기

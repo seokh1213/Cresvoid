@@ -7,7 +7,7 @@ stage: option-equality
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-40 장바구니 상품 옵션 비교

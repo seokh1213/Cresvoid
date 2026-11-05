@@ -7,7 +7,7 @@ stage: meta-backbone
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-incidents-40 스스로 사라진 DNS

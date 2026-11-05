@@ -7,7 +7,7 @@ stage: lru-cache
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-40 상품 상세 로컬 캐시

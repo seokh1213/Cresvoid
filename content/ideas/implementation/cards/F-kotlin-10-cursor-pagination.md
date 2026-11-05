@@ -7,7 +7,7 @@ stage: 01-cursor-pagination
 status: 완료(2026-10-08)
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-10 커서 페이지네이션

@@ -7,7 +7,7 @@ stage: notification-queue
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-design-patterns-90 알림 발송 작업 큐

@@ -7,7 +7,7 @@ stage: csv-import
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-80 상품 일괄 등록

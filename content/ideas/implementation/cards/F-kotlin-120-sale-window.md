@@ -7,7 +7,7 @@ stage: sale-window
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-120 타임세일 시작과 끝

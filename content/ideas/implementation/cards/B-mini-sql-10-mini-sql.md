@@ -7,7 +7,7 @@ stage: 01-select, 02-group, 03-join
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-mini-sql-10 작은 SQL 엔진

@@ -7,7 +7,7 @@ stage: double-start
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-design-patterns-100 두 번 시작되는 정산 작업

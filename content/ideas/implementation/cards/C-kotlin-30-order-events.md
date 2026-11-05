@@ -7,7 +7,7 @@ stage: order-events
 status: 후보
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-30 주문 이벤트 처리

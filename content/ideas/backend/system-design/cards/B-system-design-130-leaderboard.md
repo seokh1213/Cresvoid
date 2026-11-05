@@ -7,7 +7,7 @@ stage: 01-sorted-set, 02-range-queries, 03-sharding
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-130 실시간 순위표 만들기

@@ -7,7 +7,7 @@ stage: stock-race
 status: 후보
 wave: 3
 env: k6
-prereq: 
+prereq:
 ---
 
 # L-load-10 재고 차감과 동시 주문

@@ -7,7 +7,7 @@ stage: plate-tectonics
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-science-30 판 구조론

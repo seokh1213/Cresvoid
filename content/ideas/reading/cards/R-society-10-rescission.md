@@ -7,7 +7,7 @@ stage: rescission
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-society-10 계약의 해제와 원상회복

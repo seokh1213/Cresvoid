@@ -7,7 +7,7 @@ stage: source-criticism
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-humanities-20 사료 비판

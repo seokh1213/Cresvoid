@@ -7,7 +7,7 @@ stage: cloudflare-regex
 status: 후보
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-incidents-10 정규식 하나가 멈춘 전 세계 프록시

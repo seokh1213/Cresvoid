@@ -7,7 +7,7 @@ stage: pool-deadlock
 status: 후보
 wave: 4
 env: maven
-prereq: 
+prereq:
 ---
 
 # L-spring-10 REQUIRES_NEW 와 풀 교착

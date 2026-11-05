@@ -7,7 +7,7 @@ stage: locale-format
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-70 가격 문자열 출력

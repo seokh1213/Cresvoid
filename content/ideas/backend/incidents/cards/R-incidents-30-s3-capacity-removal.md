@@ -7,7 +7,7 @@ stage: s3-capacity-removal
 status: 후보
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-incidents-30 잘못 입력한 용량 제거 명령

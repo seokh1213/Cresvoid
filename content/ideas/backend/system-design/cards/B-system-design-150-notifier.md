@@ -7,7 +7,7 @@ stage: 01-dispatch, 02-reliability, 03-throttling
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-150 알림 발송기 만들기

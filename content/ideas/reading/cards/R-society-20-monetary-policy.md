@@ -7,7 +7,7 @@ stage: monetary-policy
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-society-20 통화정책의 전달 경로와 테일러 준칙

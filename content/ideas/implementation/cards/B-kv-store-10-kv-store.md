@@ -7,7 +7,7 @@ stage: 01-basic, 02-log, 03-transactions
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-kv-store-10 키-값 저장소

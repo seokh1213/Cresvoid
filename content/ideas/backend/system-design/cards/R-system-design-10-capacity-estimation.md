@@ -7,7 +7,7 @@ stage: 07-capacity-estimation
 status: 완료(2026-10-10)
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-system-design-10 규모 추정

@@ -7,7 +7,7 @@ stage: container-heap
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # L-jvm-10 메모리 한도와 기본 힙 크기

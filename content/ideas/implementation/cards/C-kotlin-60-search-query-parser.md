@@ -7,7 +7,7 @@ stage: search-query-parser
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-60 검색어 파서

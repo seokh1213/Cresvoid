@@ -7,7 +7,7 @@ stage: falsification
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-interdisciplinary-10 반증주의와 뒤엠-콰인 논제

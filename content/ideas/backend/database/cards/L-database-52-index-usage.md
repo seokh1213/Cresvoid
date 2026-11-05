@@ -7,7 +7,7 @@ stage: index-usage
 status: 후보
 wave: 5
 env: docker, maven
-prereq: 
+prereq:
 ---
 
 # L-database-52 인덱스를 쓰지 못하는 질의

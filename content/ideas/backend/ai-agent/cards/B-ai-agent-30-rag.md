@@ -7,7 +7,7 @@ stage: 01-chunking, 02-retrieval, 03-hybrid, 04-eval
 status: 후보
 wave: 2
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-ai-agent-30 검색 증강 파이프라인 만들기

@@ -7,7 +7,7 @@ stage: 04-near-real-time-search
 status: 완료(2026-10-09)
 wave: 2
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-search-10 거의 실시간 검색과 내구성

@@ -7,7 +7,7 @@ stage: idempotent-consumer
 status: 보류(메시지 브로커 실행 방식 결정 필요)
 wave: 5
 env: docker, k6
-prereq: 
+prereq:
 ---
 
 # L-load-100 멱등 소비자와 순서

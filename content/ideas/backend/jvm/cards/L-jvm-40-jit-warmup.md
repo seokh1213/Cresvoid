@@ -7,7 +7,7 @@ stage: jit-warmup
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # L-jvm-40 JIT 예열과 측정 함정

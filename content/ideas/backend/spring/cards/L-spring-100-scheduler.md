@@ -7,7 +7,7 @@ stage: scheduler
 status: 후보
 wave: 5
 env: maven
-prereq: 
+prereq:
 ---
 
 # L-spring-100 @Scheduled 단일 스레드

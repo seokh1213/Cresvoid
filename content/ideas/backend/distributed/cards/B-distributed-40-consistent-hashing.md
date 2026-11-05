@@ -7,7 +7,7 @@ stage: 01-ring, 02-rebalance, 03-replication
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-distributed-40 일관 해싱 만들기

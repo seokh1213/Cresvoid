@@ -7,7 +7,7 @@ stage: 01-fanout-on-write, 02-fanout-on-read, 03-hybrid
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-70 뉴스 피드 팬아웃 만들기

@@ -7,7 +7,7 @@ stage: 01-windows, 02-late-events, 03-exactly-once
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-110 광고 클릭 집계기 만들기

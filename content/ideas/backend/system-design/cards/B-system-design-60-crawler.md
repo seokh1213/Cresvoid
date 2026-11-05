@@ -7,7 +7,7 @@ stage: 01-frontier, 02-dedup, 03-politeness
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-60 웹 크롤러 만들기

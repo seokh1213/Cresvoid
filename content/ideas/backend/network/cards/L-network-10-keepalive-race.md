@@ -7,7 +7,7 @@ stage: keepalive-race
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # L-network-10 keep-alive 수명의 경합

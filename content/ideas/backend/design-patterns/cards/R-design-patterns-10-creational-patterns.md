@@ -7,7 +7,7 @@ stage: creational-patterns
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-design-patterns-10 객체를 만드는 책임과 생성 패턴

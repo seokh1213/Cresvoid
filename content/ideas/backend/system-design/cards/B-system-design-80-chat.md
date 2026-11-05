@@ -7,7 +7,7 @@ stage: 01-sequencing, 02-sync, 03-presence
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-80 채팅 순서와 동기화 만들기

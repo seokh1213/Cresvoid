@@ -7,7 +7,7 @@ stage: thread-dump
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # L-jvm-30 스레드 덤프로 교착 찾기

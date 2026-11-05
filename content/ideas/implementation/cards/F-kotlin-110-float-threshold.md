@@ -7,7 +7,7 @@ stage: float-threshold
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-110 무료 배송 기준 금액

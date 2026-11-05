@@ -7,7 +7,7 @@ stage: 01-formula, 02-recalc, 03-cycles
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-spreadsheet-10 스프레드시트 계산기

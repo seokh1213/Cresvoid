@@ -7,7 +7,7 @@ stage: daily-limit
 status: 후보
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-30 일일 사용 한도

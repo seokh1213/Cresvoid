@@ -7,7 +7,7 @@ stage: 12-percentiles-and-slo
 status: 완료(2026-10-10)
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-observability-10 백분위수와 오류 예산

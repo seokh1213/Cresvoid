@@ -7,7 +7,7 @@ stage: sublist-view
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-60 페이지 단위 일괄 처리

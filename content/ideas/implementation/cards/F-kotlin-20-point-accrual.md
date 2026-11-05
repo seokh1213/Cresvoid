@@ -7,7 +7,7 @@ stage: point-accrual
 status: 후보
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-20 포인트 적립 계산

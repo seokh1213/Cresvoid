@@ -7,7 +7,7 @@ stage: open-in-view
 status: 후보
 wave: 4
 env: gradle, maven, k6
-prereq: 
+prereq:
 ---
 
 # L-spring-20 OSIV 와 느린 외부 호출

@@ -7,7 +7,7 @@ stage: 01-memtable, 02-compaction, 03-bloom-and-range
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-database-30 LSM 저장소 만들기

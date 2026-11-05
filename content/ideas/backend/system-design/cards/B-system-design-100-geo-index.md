@@ -7,7 +7,7 @@ stage: 01-geohash, 02-radius-search, 03-quadtree
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-100 근처 장소 검색 만들기

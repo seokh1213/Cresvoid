@@ -7,7 +7,7 @@ stage: comparator-contract
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-50 추천 점수 정렬

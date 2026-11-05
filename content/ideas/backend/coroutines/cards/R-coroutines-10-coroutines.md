@@ -7,7 +7,7 @@ stage: 06-coroutines
 status: 완료(2026-10-09)
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-coroutines-10 코루틴과 구조적 동시성

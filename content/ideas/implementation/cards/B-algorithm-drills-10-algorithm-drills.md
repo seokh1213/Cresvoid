@@ -7,7 +7,7 @@ stage: 01-strings, 02-arrays, 03-sort-search, 04-structures, 05-grids-recursion
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-algorithm-drills-10 주제별 알고리즘 문제 묶음

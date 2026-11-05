@@ -7,7 +7,7 @@ stage: 01-versioning, 02-multipart, 03-durability
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-160 객체 저장소 만들기

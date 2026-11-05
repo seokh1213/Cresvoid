@@ -7,7 +7,7 @@ stage: 01-inventory, 02-idempotency, 03-concurrency
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-120 호텔 예약 재고 만들기

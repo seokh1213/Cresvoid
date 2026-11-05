@@ -7,7 +7,7 @@ stage: enzyme
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-science-10 효소 반응 속도와 저해

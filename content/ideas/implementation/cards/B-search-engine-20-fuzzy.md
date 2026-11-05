@@ -7,7 +7,7 @@ stage: 04-fuzzy
 status: 완료(2026-10-09)
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-search-engine-20 오타 허용 검색

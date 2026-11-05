@@ -7,7 +7,7 @@ stage: 08-mvcc-isolation
 status: 완료(2026-10-10)
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-database-10 MVCC 와 격리 수준

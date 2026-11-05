@@ -7,7 +7,7 @@ stage: http-client-pool
 status: 후보
 wave: 4
 env: gradle, maven, k6
-prereq: 
+prereq:
 ---
 
 # L-spring-50 HTTP 클라이언트 커넥션 풀

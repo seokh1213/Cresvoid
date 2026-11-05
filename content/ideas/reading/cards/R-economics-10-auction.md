@@ -7,7 +7,7 @@ stage: 01-auction
 status: 완료(2026-10-07)
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-economics-10 경매의 설계

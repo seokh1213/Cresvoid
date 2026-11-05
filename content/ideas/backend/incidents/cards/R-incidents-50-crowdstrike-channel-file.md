@@ -7,7 +7,7 @@ stage: crowdstrike-channel-file
 status: 후보
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-incidents-50 필드 하나가 모자랐던 콘텐츠 갱신

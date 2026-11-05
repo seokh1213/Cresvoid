@@ -7,7 +7,7 @@ stage: batch-insert
 status: 후보
 wave: 5
 env: maven
-prereq: 
+prereq:
 ---
 
 # L-spring-90 IDENTITY 와 배치 삽입

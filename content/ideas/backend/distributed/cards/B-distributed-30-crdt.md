@@ -7,7 +7,7 @@ stage: 01-counters, 02-sets-and-registers, 03-convergence
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-distributed-30 복제 자료형 만들기

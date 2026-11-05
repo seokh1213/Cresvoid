@@ -7,7 +7,7 @@ stage: github-split-writes
 status: 후보
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-incidents-20 43초 분할이 만든 하루 동안의 장애

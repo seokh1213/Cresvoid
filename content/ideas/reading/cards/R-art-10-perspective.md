@@ -7,7 +7,7 @@ stage: perspective
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-art-10 원근법과 시점

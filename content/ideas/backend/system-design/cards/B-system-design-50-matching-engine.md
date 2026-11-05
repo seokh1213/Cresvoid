@@ -7,7 +7,7 @@ stage: 01-order-book, 02-order-types, 03-replay
 status: 후보
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-50 주문 매칭 엔진 만들기

@@ -7,7 +7,7 @@ stage: stale-set
 status: 후보
 wave: 3
 env: k6, redis
-prereq: 
+prereq:
 ---
 
 # L-load-50 캐시와 원천의 불일치

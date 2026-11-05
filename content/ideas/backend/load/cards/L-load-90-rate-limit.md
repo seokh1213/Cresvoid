@@ -7,7 +7,7 @@ stage: rate-limit
 status: 후보
 wave: 5
 env: k6, redis
-prereq: 
+prereq:
 ---
 
 # L-load-90 속도 제한

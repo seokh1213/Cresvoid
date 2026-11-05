@@ -7,7 +7,7 @@ stage: prospect-theory
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-society-30 전망 이론과 프레이밍

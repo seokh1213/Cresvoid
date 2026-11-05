@@ -7,7 +7,7 @@ stage: 01-boolean, 02-ranking, 03-phrase
 status: 완료(2026-10-07)
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-search-engine-10 나만의 검색 엔진

@@ -7,7 +7,7 @@ stage: max-lifetime
 status: 후보
 wave: 5
 env: maven
-prereq: 
+prereq:
 ---
 
 # L-spring-60 maxLifetime 과 끊긴 연결

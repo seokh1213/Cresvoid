@@ -7,7 +7,7 @@ stage: 02-hdfs-write-path
 status: 완료(2026-10-09)
 wave: 2
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-hdfs-10 HDFS 의 쓰기 경로와 복제

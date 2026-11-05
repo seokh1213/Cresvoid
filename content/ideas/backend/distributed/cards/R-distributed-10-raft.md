@@ -7,7 +7,7 @@ stage: 09-raft
 status: 완료(2026-10-10)
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-distributed-10 Raft 의 선출과 커밋

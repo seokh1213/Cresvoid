@@ -7,7 +7,7 @@ stage: 01-double-entry, 02-psp-idempotency, 03-reconciliation
 status: 후보
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-40 결제 원장 만들기

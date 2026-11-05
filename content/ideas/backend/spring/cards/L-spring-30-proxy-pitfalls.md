@@ -7,7 +7,7 @@ stage: proxy-pitfalls
 status: 후보
 wave: 4
 env: maven
-prereq: 
+prereq:
 ---
 
 # L-spring-30 트랜잭션 프록시의 함정

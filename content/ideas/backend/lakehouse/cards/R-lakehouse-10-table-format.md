@@ -7,7 +7,7 @@ stage: 10-table-format
 status: 완료(2026-10-10)
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-lakehouse-10 테이블 포맷과 원자적 커밋

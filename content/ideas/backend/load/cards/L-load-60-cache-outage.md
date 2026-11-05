@@ -7,7 +7,7 @@ stage: cache-outage
 status: 후보
 wave: 3
 env: k6, redis
-prereq: 
+prereq:
 ---
 
 # L-load-60 캐시 장애와 원천 보호

@@ -7,7 +7,7 @@ stage: idempotency
 status: 후보
 wave: 3
 env: k6
-prereq: 
+prereq:
 ---
 
 # L-load-20 중복 요청과 멱등 키

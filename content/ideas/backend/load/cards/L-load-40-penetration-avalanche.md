@@ -7,7 +7,7 @@ stage: penetration-avalanche
 status: 후보
 wave: 3
 env: k6, redis
-prereq: 
+prereq:
 ---
 
 # L-load-40 캐시 관통과 동시 만료

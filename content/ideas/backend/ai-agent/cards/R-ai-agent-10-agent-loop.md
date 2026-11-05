@@ -7,7 +7,7 @@ stage: 01-agent-loop
 status: 완료(2026-10-09)
 wave: 2
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-ai-agent-10 에이전트 루프와 도구 호출

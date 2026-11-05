@@ -7,7 +7,7 @@ stage: retry-duplicate
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-90 주문 상태 변경 기록

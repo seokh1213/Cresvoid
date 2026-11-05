@@ -7,7 +7,7 @@ stage: threadlocal-leak
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # L-jvm-20 스레드 풀과 ThreadLocal

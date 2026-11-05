@@ -7,7 +7,7 @@ stage: 03-columnar-execution
 status: 완료(2026-10-09)
 wave: 2
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-olap-10 열 저장과 분석 질의

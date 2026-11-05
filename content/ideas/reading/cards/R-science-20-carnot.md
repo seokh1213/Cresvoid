@@ -7,7 +7,7 @@ stage: carnot
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-science-20 카르노 기관과 열역학 제2법칙

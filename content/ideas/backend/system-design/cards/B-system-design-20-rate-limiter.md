@@ -7,7 +7,7 @@ stage: 01-buckets, 02-windows, 03-distributed
 status: 완료(2026-10-10)
 wave: 3
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-system-design-20 처리율 제한기 만들기

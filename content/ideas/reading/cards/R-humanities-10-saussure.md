@@ -7,7 +7,7 @@ stage: saussure
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-humanities-10 소쉬르의 기호 이론

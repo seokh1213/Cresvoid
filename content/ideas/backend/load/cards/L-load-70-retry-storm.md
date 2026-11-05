@@ -7,7 +7,7 @@ stage: retry-storm
 status: 후보
 wave: 5
 env: k6
-prereq: 
+prereq:
 ---
 
 # L-load-70 타임아웃, 재시도, 백오프

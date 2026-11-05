@@ -7,7 +7,7 @@ stage: 01-price-rules
 status: 완료(2026-10-08)
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-10 가격 규칙 계산

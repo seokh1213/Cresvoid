@@ -7,7 +7,7 @@ stage: 01-encode, 02-pruning, 03-nested
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-lakehouse-20 열 지향 파일 만들기

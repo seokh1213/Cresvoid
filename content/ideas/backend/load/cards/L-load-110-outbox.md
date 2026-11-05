@@ -7,7 +7,7 @@ stage: outbox
 status: 보류(L-load-100 과 같은 이유)
 wave: 5
 env: docker, k6
-prereq: 
+prereq:
 ---
 
 # L-load-110 트랜잭셔널 아웃박스

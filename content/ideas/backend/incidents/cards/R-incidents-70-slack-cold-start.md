@@ -7,7 +7,7 @@ stage: slack-cold-start
 status: 후보
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-incidents-70 연휴 뒤 첫 월요일의 급증

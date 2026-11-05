@@ -7,7 +7,7 @@ stage: cache-stampede
 status: 후보
 wave: 3
 env: k6, redis
-prereq: 
+prereq:
 ---
 
 # L-load-30 캐시 스탬피드

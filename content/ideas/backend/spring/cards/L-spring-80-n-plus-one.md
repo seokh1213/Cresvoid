@@ -7,7 +7,7 @@ stage: n-plus-one
 status: 후보
 wave: 5
 env: gradle, maven, k6
-prereq: 
+prereq:
 ---
 
 # L-spring-80 N+1 과 페이징

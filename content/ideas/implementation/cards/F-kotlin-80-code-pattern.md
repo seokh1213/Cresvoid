@@ -7,7 +7,7 @@ stage: code-pattern
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-kotlin-80 상품 코드 검증

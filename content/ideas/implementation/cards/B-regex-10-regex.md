@@ -7,7 +7,7 @@ stage: 01-basic, 02-classes, 03-linear
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # B-regex-10 정규식 엔진

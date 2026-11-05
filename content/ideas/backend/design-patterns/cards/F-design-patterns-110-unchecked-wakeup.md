@@ -7,7 +7,7 @@ stage: unchecked-wakeup
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # F-design-patterns-110 빈 대기열에서 꺼내는 작업자

@@ -7,7 +7,7 @@ stage: 03-grue
 status: 완료(2026-10-07)
 wave: 1
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-philosophy-10 귀납의 새로운 수수께끼

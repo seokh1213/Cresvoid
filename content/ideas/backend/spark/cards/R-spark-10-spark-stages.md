@@ -7,7 +7,7 @@ stage: 05-spark-stages
 status: 완료(2026-10-09)
 wave: 2
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-spark-10 Spark 의 실행 계획과 셔플

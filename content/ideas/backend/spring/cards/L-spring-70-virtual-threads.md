@@ -7,7 +7,7 @@ stage: virtual-threads
 status: 후보
 wave: 5
 env: gradle, maven, k6
-prereq: 
+prereq:
 ---
 
 # L-spring-70 가상 스레드와 풀

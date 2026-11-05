@@ -7,7 +7,7 @@ stage: settlement-batch
 status: 후보
 wave: 5
 env: 없음
-prereq: 
+prereq:
 ---
 
 # C-kotlin-70 정산 배치

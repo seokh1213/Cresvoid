@@ -7,7 +7,7 @@ stage: 11-kafka-replication
 status: 완료(2026-10-10)
 wave: 4
 env: 없음
-prereq: 
+prereq:
 ---
 
 # R-messaging-10 복제와 전달 보장
