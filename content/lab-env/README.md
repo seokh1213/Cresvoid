@@ -9,6 +9,7 @@ lab 단계의 실험 스크립트가 함께 쓰는 도구와 고정 이미지다
 | `load.main.kts` | 개방형 부하(`steady`, `runLoad`), 학습자 프로그램 시작과 준비 확인(`Program`), 빈 포트, 백분위수, METRIC 출력 |
 | `docker.main.kts` | 고정 이미지 목록 `LAB_IMAGES`, Docker 확인(`requireDocker`), compose 실행 단위 `ComposeStack` |
 | `kotlin/RedisClient.kt` | JDK 만으로 만든 RESP2 Redis 클라이언트. 시작 코드와 참조 풀이에 그대로 복사한다 |
+| `images/elasticsearch-nori/` | 고정한 Elasticsearch 위에 한글 분석기 analysis-nori 를 얹는 Dockerfile |
 
 ## 쓰는 법
 
@@ -39,6 +40,47 @@ services:
 
 `ComposeStack(File("compose.yaml"), "<트랙>-<단계>").use { stack -> stack.up(); ... }` 로 띄운다. `stack.port("redis", 6379)` 로 열린 포트를 찾아 학습자 프로그램의 환경 변수로 넘긴다.
 
+### Elasticsearch 와 ClickHouse
+
+둘 다 HTTP 로 다루므로 학습자 코드는 JDK `HttpClient` 만 쓴다. Elasticsearch 는 nori 이미지를 compose 가 처음 한 번 빌드한다.
+
+```yaml
+services:
+  elasticsearch:
+    build:
+      context: ../../../../../lab-env/images/elasticsearch-nori
+      args: { BASE: "${ELASTICSEARCH_IMAGE}" }
+    image: cresvoid-lab/elasticsearch-nori:9.5.5
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    ports: ["127.0.0.1::9200"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs 'localhost:9200/_cluster/health?wait_for_status=yellow&timeout=1s' >/dev/null"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 1536m }
+  clickhouse:
+    image: ${CLICKHOUSE_IMAGE}
+    environment:
+      CLICKHOUSE_SKIP_USER_SETUP: "1"
+    ports: ["127.0.0.1::8123"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- localhost:8123/ping >/dev/null"]
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 1g }
+```
+
+ClickHouse 26 은 기본 사용자에 비밀번호를 요구한다. 127.0.0.1 에만 여는 실습용이라 `CLICKHOUSE_SKIP_USER_SETUP`으로 비밀번호 없이 쓴다. Elasticsearch 는 처음 시작에 20초 안팎 걸리므로 `stack.up(240)`처럼 기다림을 넉넉히 준다.
+
 ## 규칙
 
 - 이미지는 `LAB_IMAGES`에 digest 로 고정한 것만 쓴다. 새 이미지는 버전과 digest 를 정하고 이 파일과 `docker.main.kts`에 함께 더한다.
@@ -53,3 +95,5 @@ services:
 | 변수 | 이미지 | 버전 |
 |---|---|---|
 | `REDIS_IMAGE` | `redis@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537` | 8.10.3 alpine |
+| `ELASTICSEARCH_IMAGE` | `elasticsearch@sha256:764a939891119d97e130b4d5da196c330afb2338382ada9e1b9b7943ce6707df` | 9.5.5. nori 이미지의 기반 |
+| `CLICKHOUSE_IMAGE` | `clickhouse/clickhouse-server@sha256:d426d2f612e1e189c90f9a3f8dcd85a03c6851273833817a296bb327e63aa7a7` | 26.8 LTS |

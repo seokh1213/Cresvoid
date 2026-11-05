@@ -13,6 +13,10 @@ import kotlin.system.exitProcess
 val LAB_IMAGES: Map<String, String> = mapOf(
     // redis 8.10.3, alpine
     "REDIS_IMAGE" to "redis@sha256:21090af93f8324db2f0f0f4f38a7c60369d47d917e000c3423d89d2ae2883537",
+    // elasticsearch 9.5.5. Labs build images/elasticsearch-nori on top of it.
+    "ELASTICSEARCH_IMAGE" to "elasticsearch@sha256:764a939891119d97e130b4d5da196c330afb2338382ada9e1b9b7943ce6707df",
+    // clickhouse-server 26.8 (LTS)
+    "CLICKHOUSE_IMAGE" to "clickhouse/clickhouse-server@sha256:d426d2f612e1e189c90f9a3f8dcd85a03c6851273833817a296bb327e63aa7a7",
 )
 
 /** Exit code the engine reads as an experiment error, not as a failed invariant. */
