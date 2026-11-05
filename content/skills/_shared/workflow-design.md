@@ -34,14 +34,14 @@
 
 ## 실행기를 만들 때
 
-workflow.js 를 그대로 실행하는 실행기는 아직 없다. 2026-10-12 에 사용자는 지금 만들지 말고 Codex 가 직접 쓸 때 만들게 하라고 했다("코덱스용으로 본인이 쓸때만들라고 철학문서를 남겨놓든지. 이거는 왜이렇게 했었다 정도로"). 실행기를 만드는 에이전트는 아래를 따른다.
+Codex 용 실행기는 `codex-workflow.mjs` 다. 사용법은 cresvoid-content 스킬의 '워크플로우 도구 없이 실행하기' 절에 있다. 실행기를 고치거나 다른 도구용 실행기를 만들 때는 아래를 따른다.
 
 - 출발점은 `mock-workflow.mjs` 다. workflow.js 가 기대하는 전역 이름(`args`, `agent`, `parallel`, `pipeline`, `phase`, `log`, `budget`)을 이미 채우고 있다. 가짜 결과를 돌려주는 `agent` 만 실제 에이전트 실행으로 바꾼다.
 - `agent(prompt, opts)` 는 호출마다 새 에이전트를 실행한다. 앞 호출의 대화가 섞이면 블라인드 검증이 깨진다. Codex 라면 호출마다 `codex exec -C <cresvoid> -s workspace-write` 를 새 프로세스로 실행한다. Git 저장소 밖의 사본에서만 `--skip-git-repo-check` 를 붙인다. 프롬프트를 넘기는 방법(인자나 표준 입력)은 만들 때 `codex exec --help` 로 확인한다.
 - `opts.schema` 가 있으면 그 schema 를 파일로 써서 `--output-schema` 로 넘긴다. `-o` 로 받은 마지막 메시지를 JSON 으로 읽어 돌려준다. schema 가 없으면 마지막 메시지 텍스트를 돌려준다.
 - 에이전트가 끝내 실패하면 `null` 을 돌려준다. Workflow 도구도 끝내 실패한 agent 의 결과를 `null` 로 돌려준다. 결과가 schema 에 맞지 않으면 한 번 더 실행한다. 그래도 맞지 않으면 `null` 을 돌려준다. workflow.js 는 출제 agent 의 `null` 결과를 처리한다(모의 실행의 author-null 시나리오).
 - `parallel` 은 모든 항목을 기다리고 실패한 항목은 `null` 로 둔다. `pipeline` 은 항목마다 단계를 차례로 실행하고 실패한 항목은 그 자리에서 `null` 이 된다. 둘 다 전체를 실패시키지 않는다. 모의 실행기와 같은 동작이다.
-- 동시에 실행하는 에이전트는 2개를 넘기지 않는다(D6).
+- 동시에 실행하는 에이전트는 2개를 넘기지 않는다(D6). 사용자가 한도를 바꾸면 따른다.
 - 호출마다 label, 프롬프트, 결과를 실행 디렉터리에 남긴다. 멈췄다가 다시 시작할 때 이 기록으로 남은 호출을 찾는다.
 - `Date.now`, `Math.random` 은 모의 실행기처럼 막는다.
 - 실행기는 `content/skills/_shared/` 에 JavaScript 로 둔다. workflow.js 와 같은 예외이므로 `docs/agents.md` 의 '코드와 컨텐츠' 절에 더한다.

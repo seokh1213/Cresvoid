@@ -65,7 +65,36 @@ Workflow({ scriptPath: "/path/to/cresvoid/content/skills/<스킬>/workflow.js", 
 
 ## 워크플로우 도구 없이 실행하기
 
-workflow.js 는 단계 정의로도 읽을 수 있다. `agent(...)` 호출 하나가 독립 에이전트 하나다. 호출 순서와 조건은 스크립트 코드에 있다. Workflow 도구가 없는 에이전트는 아래 순서로 같은 일을 직접 한다. Codex 로는 아직 실행해 보지 않았다. 처음 실행하는 세션은 막힌 곳과 푼 방법을 이 절에 더한다. 설계 이유와 실행기를 만들 때의 기준은 `content/skills/_shared/workflow-design.md` 에 있다.
+workflow.js 는 단계 정의로도 읽을 수 있다. `agent(...)` 호출 하나가 독립 에이전트 하나다. 호출 순서와 조건은 스크립트 코드에 있다. Workflow 도구가 없는 에이전트는 실행기로 실행하거나 아래 순서로 같은 일을 직접 한다. 설계 이유와 실행기를 고칠 때의 기준은 `content/skills/_shared/workflow-design.md` 에 있다.
+
+### Codex 실행기
+
+Codex 는 `content/skills/_shared/codex-workflow.mjs` 로 workflow.js 를 그대로 실행한다. `agent(...)` 호출마다 새 `codex exec` 프로세스를 띄운다.
+
+```sh
+RUN=docs/log/runs/<날짜>-<트랙>-<묶음>   # args 는 $RUN/input.json 에 둔다
+CODEX_MAX=2 CODEX_EFFORT=high CODEX_NO_MCP=1 \
+  node content/skills/_shared/codex-workflow.mjs run content/skills/<스킬>/workflow.js $RUN/input.json $RUN < /dev/null
+node content/skills/_shared/codex-workflow.mjs status $RUN
+```
+
+- 실행 디렉터리는 `docs/log/runs/` 아래에 둔다. Git 에 들어가지 않는다.
+- 호출마다 `calls/<label>/` 에 prompt.md, 실시간 이벤트 `events-N.jsonl`, agent 가 직접 쓰는 `progress.md`, 중간 산출물 `work/`, `result.json` 이 남는다. 전체 상태는 30초마다 갱신되는 `status.md` 와 `runner.log` 에 있다.
+- 멈춘 실행은 같은 명령으로 다시 시작한다. `result.json` 이 있는 호출은 다시 실행하지 않고 결과를 재사용한다. 멈춘 호출이 반쯤 만든 파일은 다시 시작하기 전에 확인한다.
+- 실행 디렉터리의 `extra.md` 는 모든 프롬프트 끝에 붙는다. Codex 스킬 디렉터리에 없는 스킬(antislop 등)의 위치와 실행 환경을 적는다. 개인 경로가 들어가므로 실행 디렉터리에만 둔다.
+- 환경 변수는 `CODEX_MAX`(동시 실행 수, 기본 2), `CODEX_MODEL`, `CODEX_EFFORT`, `CODEX_SANDBOX`, `CODEX_TIMEOUT_MIN`(호출 하나의 한도, 기본 90분), `CODEX_NO_MCP=1`(켜진 MCP 서버 끄기)이다.
+- `libs` 처럼 워크플로우 전체에 걸리는 인자가 단계마다 다르면 실행을 나눈다. 여러 실행을 함께 돌리면 각 실행의 `CODEX_MAX` 를 더한 값이 동시 실행 수다.
+- `kotlin` 명령과 JDK 21 이 PATH 와 JAVA_HOME 에 있어야 한다. agent 가 sync.main.kts 와 cresvoid 를 실행한다.
+
+2026-11-05 첫 실행(bug-fix 03~05)에서 막힌 곳과 푼 방법이다.
+
+- `codex exec` 는 표준 입력이 열려 있으면 입력이 끝나기를 기다린다. 실행기는 프롬프트를 표준 입력으로 넘기고 바로 닫는다. 손으로 실행할 때는 `< /dev/null` 을 붙인다.
+- 이미 꺼진 MCP 서버까지 `-c mcp_servers.<이름>.enabled=false` 로 덮으면 설정을 읽지 못한다. 실행기는 켜진 서버만 끈다.
+- `-s workspace-write` 로는 실행해 보지 않았다. Gradle 캐시 쓰기와 의존성 내려받기를 막을 수 있어 사용자 전역 설정의 샌드박스를 썼다.
+
+### 손으로 실행하기
+
+실행기를 쓸 수 없으면 아래 순서로 한다.
 
 1. 실행 디렉터리 `/tmp/cresvoid-run/<트랙>-<날짜>/` 를 만들고 args 를 `args.json` 으로 저장한다.
 2. 모의 실행으로 프롬프트와 호출 순서를 뽑는다. `prompts.md` 에 호출마다 `### <label>` 과 그 프롬프트가 차례로 남는다. 출력의 `calls:` 아래 목록이 호출 순서다.

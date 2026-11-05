@@ -30,7 +30,7 @@ Cresvoid의 공통 작업 규칙이다. 도구가 바뀌어도 이 파일과 `AG
 ## 4. 코드와 콘텐츠
 
 - 엔진과 생성기·검사·변환 스크립트는 Kotlin이다. 엔진은 `engine/`의 Gradle 프로젝트이고 스크립트는 `.main.kts`다.
-- 즉시 실행하는 `engine/bin/cresvoid`, `run.sh`, `build.sh`는 셸이다. 제작 워크플로우와 모의 실행기만 JavaScript다(D19).
+- 즉시 실행하는 `engine/bin/cresvoid`, `run.sh`, `build.sh`는 셸이다. 제작 워크플로우, 모의 실행기, Codex 실행기만 JavaScript다(D19, D31).
 - 엔진 실행 코드는 Kotlin 표준 라이브러리와 JDK 21만 쓴다. 승인된 의존성은 엔진 테스트의 Kotest와 코루틴 콘텐츠의 kotlinx-coroutines-core·test다(D16, D18, D21). 새 의존성은 사용자 승인을 받아라.
 - Kotlin 코드를 쓰기 전에 설치된 `kotlin-core-best-practices`와 세션의 코드 규칙을 읽어라.
 - 엔진 패키지는 cli, command, content, progress, study, runner, validation, json, terminal, project다. 저장·프로세스·출력·입력·시각은 인터페이스 뒤에 두고 `Main.kt`에서 조립해라(D18).
@@ -54,6 +54,6 @@ Cresvoid의 공통 작업 규칙이다. 도구가 바뀌어도 이 파일과 `AG
 
 스킬 원본은 `content/skills/`다. `.agents/skills`는 이 디렉터리를 가리킨다. 개인 도구 연결 파일은 로컬에서 따로 구성해라.
 
-Workflow 도구가 있으면 `workflow.js`를 넘겨라. 없으면 `cresvoid-content`의 '워크플로우 도구 없이 실행하기' 절에 따라 호출을 실행해라. Codex에서는 서브에이전트 또는 새 `codex exec -C <프로젝트> -s workspace-write` 프로세스를 사용해라. 결과 schema는 `--output-schema`, 결과 파일은 `-o`로 지정해라. 저장소 밖의 `/tmp` 사본에서 실행할 때만 `--skip-git-repo-check`를 붙여라.
+Workflow 도구가 있으면 `workflow.js`를 넘겨라. 없으면 `cresvoid-content`의 '워크플로우 도구 없이 실행하기' 절에 따라 호출을 실행해라. Codex에서는 `content/skills/_shared/codex-workflow.mjs`로 workflow.js를 실행해라. 호출마다 새 `codex exec` 프로세스를 띄우고 프롬프트, 진행 기록, 결과를 `docs/log/runs/`의 실행 디렉터리에 남긴다. 사용법은 같은 절에 있다.
 
 모의 실행은 `node content/skills/_shared/mock-workflow.mjs`다. 설치된 Node를 사용해라. 실제 제작을 처음 실행하면 막힌 곳과 해결 방법을 이 절 및 `cresvoid-content`에 기록해라. 범용 실행기 설계는 `content/skills/_shared/workflow-design.md`를 참고해라.

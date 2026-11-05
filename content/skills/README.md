@@ -18,8 +18,9 @@ cresvoid 컨텐츠를 만드는 절차를 스킬로 모았다. 지금 있는 트
 | [quality-gates.md](_shared/quality-gates.md) | 단계를 끝내기 전에 확인하는 품질 관문 |
 | [workflow-design.md](_shared/workflow-design.md) | 워크플로우 설계 원칙. 도구가 바뀌어도 지킬 것과 실행기를 만들 때의 기준 |
 | `mock-workflow.mjs` | workflow.js 모의 실행 도구. node 로 실행한다 |
+| `codex-workflow.mjs` | workflow.js 를 Codex 로 실행하는 도구. 호출마다 새 `codex exec` 를 띄우고 기록을 남긴다 |
 
-workflow.js 와 mock-workflow.mjs 는 JavaScript 다. Claude Code 의 Workflow 도구가 JavaScript 만 받기 때문이다. 프로젝트의 다른 코드는 모두 Kotlin 이다. Workflow 도구가 없는 에이전트(Codex 등)는 workflow.js 를 단계 정의로 읽고 같은 순서를 직접 실행한다. 방법은 cresvoid-content 의 '워크플로우 도구 없이 실행하기' 에 있다.
+workflow.js, mock-workflow.mjs, codex-workflow.mjs 는 JavaScript 다. Claude Code 의 Workflow 도구가 JavaScript 만 받기 때문이다. 프로젝트의 다른 코드는 모두 Kotlin 이다. Codex 는 codex-workflow.mjs 로 workflow.js 를 그대로 실행한다. 실행기가 없는 도구는 workflow.js 를 단계 정의로 읽고 같은 순서를 직접 실행한다. 방법은 cresvoid-content 의 '워크플로우 도구 없이 실행하기' 에 있다.
 
 ## 쓰는 법
 
