@@ -4,7 +4,7 @@ title: 타임세일 시작과 끝
 kind: fix
 track: bug-fix
 stage: 24-sale-window
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

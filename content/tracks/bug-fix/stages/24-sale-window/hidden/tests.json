@@ -1,0 +1,288 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-order",
+      "refs": [
+        "4",
+        "7"
+      ],
+      "quote": "해당하는 세일이 없으면 정가를 사용한다.",
+      "input": [
+        "PRODUCT cup 12000",
+        "ORDER a cup 2 2026-11-05T09:00:00Z"
+      ],
+      "expected": [
+        "OK PRODUCT cup",
+        "ORDER a cup 2 12000 24000 -"
+      ]
+    },
+    {
+      "name": "mug-campaign",
+      "refs": [
+        "6",
+        "7"
+      ],
+      "quote": "세일은 시작 시각부터 종료 시각 직전까지 적용한다.",
+      "input": [
+        "PRODUCT mug 12000",
+        "ORDER before mug 1 2026-11-05T09:40:00Z",
+        "SALE morning mug 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 9000",
+        "ORDER a mug 2 2026-11-05T10:00:00Z",
+        "ORDER b mug 1 2026-11-05T10:25:00Z",
+        "RECEIPT a"
+      ],
+      "expected": [
+        "OK PRODUCT mug",
+        "ORDER before mug 1 12000 12000 -",
+        "OK SALE morning",
+        "ORDER a mug 2 9000 18000 morning",
+        "ORDER b mug 1 9000 9000 morning",
+        "ORDER a mug 2 9000 18000 morning"
+      ]
+    },
+    {
+      "name": "filter-promotion",
+      "refs": [
+        "6",
+        "7"
+      ],
+      "quote": "세일은 시작 시각부터 종료 시각 직전까지 적용한다.",
+      "input": [
+        "PRODUCT filter 3000",
+        "SALE stockup filter 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 2200",
+        "ORDER a filter 3 2026-11-05T11:00:00Z",
+        "ORDER b filter 1 2026-11-05T11:00:01Z",
+        "ORDER c filter 2 2026-11-05T10:50:00Z",
+        "SALE delivery filter 2026-11-05T12:00:00Z 2026-11-05T13:00:00Z 2100",
+        "ORDER d filter 2 2026-11-05T12:00:00Z",
+        "ORDER e filter 1 2026-11-05T13:00:00Z",
+        "ORDER f filter 1 2026-11-05T12:30:00Z"
+      ],
+      "expected": [
+        "OK PRODUCT filter",
+        "OK SALE stockup",
+        "ORDER a filter 3 3000 9000 -",
+        "ORDER b filter 1 3000 3000 -",
+        "ORDER c filter 2 2200 4400 stockup",
+        "OK SALE delivery",
+        "ORDER d filter 2 2100 4200 delivery",
+        "ORDER e filter 1 3000 3000 -",
+        "ORDER f filter 1 2100 2100 delivery"
+      ]
+    },
+    {
+      "name": "weekend-orders",
+      "refs": [
+        "3",
+        "6",
+        "7"
+      ],
+      "quote": "세일은 시작 시각부터 종료 시각 직전까지 적용한다.",
+      "input": [
+        "PRODUCT kettle 50000",
+        "SALE late kettle 2026-11-07T12:00:00Z 2026-11-07T14:00:00Z 42000",
+        "SALE early kettle 2026-11-07T10:00:00Z 2026-11-07T12:00:00Z 39000",
+        "ORDER a kettle 1 2026-11-07T12:00:00Z",
+        "ORDER b kettle 2 2026-11-07T13:00:00Z",
+        "ORDER c kettle 1 2026-11-07T11:00:00Z",
+        "ORDER d kettle 1 2026-11-07T14:00:00Z"
+      ],
+      "expected": [
+        "OK PRODUCT kettle",
+        "OK SALE late",
+        "OK SALE early",
+        "ORDER a kettle 1 42000 42000 late",
+        "ORDER b kettle 2 42000 84000 late",
+        "ORDER c kettle 1 39000 39000 early",
+        "ORDER d kettle 1 50000 50000 -"
+      ]
+    },
+    {
+      "name": "tea-dispatch",
+      "refs": [
+        "2",
+        "6"
+      ],
+      "quote": "세일은 시작 시각부터 종료 시각 직전까지 적용한다.",
+      "input": [
+        "PRODUCT tea 10000",
+        "ORDER before tea 1 2026-11-05T09:30:00Z",
+        "SALE tasting tea 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 7000",
+        "ORDER a tea 1 2026-11-05T09:59:59.999999999Z",
+        "ORDER b tea 1 2026-11-05T10:00:00.000000001Z",
+        "ORDER c tea 1 2026-11-05T10:59:59.999999999Z",
+        "ORDER d tea 1 2026-11-05T11:00:00.000000001Z"
+      ],
+      "expected": [
+        "OK PRODUCT tea",
+        "ORDER before tea 1 10000 10000 -",
+        "OK SALE tasting",
+        "ORDER a tea 1 10000 10000 -",
+        "ORDER b tea 1 7000 7000 tasting",
+        "ORDER c tea 1 7000 7000 tasting",
+        "ORDER d tea 1 10000 10000 -"
+      ]
+    },
+    {
+      "name": "catalog-receipts",
+      "refs": [
+        "7",
+        "8"
+      ],
+      "quote": "조회는 주문이나 일정을 변경하지 않는다.",
+      "input": [
+        "PRODUCT jar 4500",
+        "ORDER old jar 2 2026-11-05T10:30:00Z",
+        "SALE gift jar 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 0",
+        "RECEIPT old",
+        "ORDER giftbox jar 3 2026-11-05T10:30:00Z",
+        "SALE label jar 2026-11-05T12:00:00Z 2026-11-05T13:00:00Z 4500",
+        "ORDER labelled jar 1 2026-11-05T12:20:00Z",
+        "RECEIPT giftbox"
+      ],
+      "expected": [
+        "OK PRODUCT jar",
+        "ORDER old jar 2 4500 9000 -",
+        "OK SALE gift",
+        "ORDER old jar 2 4500 9000 -",
+        "ORDER giftbox jar 3 0 0 gift",
+        "OK SALE label",
+        "ORDER labelled jar 1 4500 4500 label",
+        "ORDER giftbox jar 3 0 0 gift"
+      ]
+    },
+    {
+      "name": "campaign-registration",
+      "refs": [
+        "5",
+        "6"
+      ],
+      "quote": "실패한 명령은 상품·일정·영수증을 바꾸거나 식별자를 차지하지 않는다.",
+      "input": [
+        "PRODUCT beans 20000",
+        "SALE early beans 2026-11-05T10:00:00Z 2026-11-05T12:00:00Z 17000",
+        "ORDER before beans 1 2026-11-05T12:15:00Z",
+        "SALE revised beans 2026-11-05T11:00:00Z 2026-11-05T13:00:00Z 16000",
+        "SALE revised beans 2026-11-05T12:00:00Z 2026-11-05T14:00:00Z 16000",
+        "SALE retry beans 2026-11-05T16:00:00Z 2026-11-05T16:00:00Z 15000",
+        "SALE retry beans 2026-11-05T17:00:00Z 2026-11-05T16:00:00Z 15000",
+        "SALE retry beans 2026-11-05T15:00:00Z 2026-11-05T16:00:00Z 15000",
+        "ORDER a beans 2 2026-11-05T13:15:00Z",
+        "ORDER b beans 1 2026-11-05T15:30:00Z"
+      ],
+      "expected": [
+        "OK PRODUCT beans",
+        "OK SALE early",
+        "ORDER before beans 1 20000 20000 -",
+        "ERROR SALE_CONFLICT",
+        "OK SALE revised",
+        "ERROR INVALID_WINDOW",
+        "ERROR INVALID_WINDOW",
+        "OK SALE retry",
+        "ORDER a beans 2 16000 32000 revised",
+        "ORDER b beans 1 15000 15000 retry"
+      ]
+    },
+    {
+      "name": "order-lookup",
+      "refs": [
+        "4",
+        "7",
+        "8"
+      ],
+      "quote": "조회는 주문이나 일정을 변경하지 않는다.",
+      "input": [
+        "RECEIPT missing",
+        "ORDER retry missing 1 2026-11-05T10:30:00Z",
+        "PRODUCT bag 6000",
+        "PRODUCT bag 1000",
+        "ORDER retry bag 2 2026-11-05T10:30:00Z",
+        "ORDER retry absent 1 2026-11-05T09:00:00Z",
+        "RECEIPT retry"
+      ],
+      "expected": [
+        "ERROR MISSING_ORDER",
+        "ERROR MISSING_PRODUCT",
+        "OK PRODUCT bag",
+        "ERROR DUPLICATE_PRODUCT",
+        "ORDER retry bag 2 6000 12000 -",
+        "ERROR DUPLICATE_ORDER",
+        "ORDER retry bag 2 6000 12000 -"
+      ]
+    },
+    {
+      "name": "seasonal-catalog",
+      "refs": [
+        "5",
+        "6",
+        "7"
+      ],
+      "quote": "실패한 명령은 상품·일정·영수증을 바꾸거나 식별자를 차지하지 않는다.",
+      "input": [
+        "PRODUCT plate 8000",
+        "PRODUCT bowl 9000",
+        "ORDER before plate 1 2026-11-05T09:30:00Z",
+        "SALE promo absent 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 7000",
+        "SALE promo plate 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 7000",
+        "SALE promo bowl 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 6000",
+        "SALE serving bowl 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 9500",
+        "SALE serving bowl 2026-11-05T10:00:00Z 2026-11-05T11:00:00Z 6000",
+        "ORDER a plate 1 2026-11-05T10:30:00Z",
+        "ORDER b bowl 2 2026-11-05T10:30:00Z",
+        "SALE matching plate 2026-11-05T12:00:00Z 2026-11-05T13:00:00Z 8000",
+        "ORDER plain plate 1 2026-11-05T11:30:00Z",
+        "SALE gift plate 2026-11-05T11:45:00Z 2026-11-05T12:00:00Z 0",
+        "ORDER c plate 2 2026-11-05T11:50:00Z",
+        "ORDER d plate 1 2026-11-05T12:00:00Z",
+        "RECEIPT plain"
+      ],
+      "expected": [
+        "OK PRODUCT plate",
+        "OK PRODUCT bowl",
+        "ORDER before plate 1 8000 8000 -",
+        "ERROR MISSING_PRODUCT",
+        "OK SALE promo",
+        "ERROR DUPLICATE_SALE",
+        "ERROR INVALID_PRICE",
+        "OK SALE serving",
+        "ORDER a plate 1 7000 7000 promo",
+        "ORDER b bowl 2 6000 12000 serving",
+        "OK SALE matching",
+        "ORDER plain plate 1 8000 8000 -",
+        "OK SALE gift",
+        "ORDER c plate 2 0 0 gift",
+        "ORDER d plate 1 8000 8000 matching",
+        "ORDER plain plate 1 8000 8000 -"
+      ]
+    },
+    {
+      "name": "warehouse-orders",
+      "refs": [
+        "2",
+        "3",
+        "6",
+        "7"
+      ],
+      "quote": "세일은 시작 시각부터 종료 시각 직전까지 적용한다.",
+      "input": [
+        "PRODUCT machine 1000000000",
+        "ORDER before machine 1 2026-11-05T10:00:00Z",
+        "SALE stock machine 2026-11-05T10:00:00.000000001Z 2026-11-05T10:00:00.000000003Z 999999999",
+        "ORDER a machine 1000 2026-11-05T10:00:00.000000001Z",
+        "ORDER b machine 1000 2026-11-05T10:00:00.000000002Z",
+        "ORDER c machine 1000 2026-11-05T10:00:00.000000003Z",
+        "ORDER d machine 1 2026-11-05T10:00:00Z"
+      ],
+      "expected": [
+        "OK PRODUCT machine",
+        "ORDER before machine 1 1000000000 1000000000 -",
+        "OK SALE stock",
+        "ORDER a machine 1000 999999999 999999999000 stock",
+        "ORDER b machine 1000 999999999 999999999000 stock",
+        "ORDER c machine 1000 1000000000 1000000000000 -",
+        "ORDER d machine 1 1000000000 1000000000 -"
+      ]
+    }
+  ]
+}

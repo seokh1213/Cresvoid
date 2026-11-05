@@ -1,0 +1,61 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-thumbnail",
+      "refs": ["6", "8"],
+      "quote": "파일 내용은 지정한 시작 위치부터 요청 길이까지의 원본 바이트와 같아야 한다.",
+      "input": ["SOURCE image 0102FE 16", "FETCH thumb image 0 3", "SHOW thumb"],
+      "expected": ["SOURCE image 3", "STORED thumb 3", "PART thumb 3 0102fe"]
+    },
+    {
+      "name": "catalog-banner",
+      "refs": ["4", "5", "6"],
+      "quote": "요청한 길이만큼 바이트를 모두 받으면 구간 파일을 저장하고 `STORED <구간> <길이>`를 출력한다.",
+      "input": ["SOURCE image 000102030405060708090a0b 2,1,3", "FETCH banner image 2 7", "SHOW banner"],
+      "expected": ["SOURCE image 12", "STORED banner 7", "PART banner 7 02030405060708"]
+    },
+    {
+      "name": "supplier-swatch",
+      "refs": ["5", "6", "8"],
+      "quote": "응답 상한은 전송원 전체의 길이를 바꾸지 않는다.",
+      "input": ["SOURCE swatches A0B0C0D0E0F0 1", "FETCH swatch swatches 1 4", "SHOW swatch", "FETCH sample swatches 2 1", "SHOW sample"],
+      "expected": ["SOURCE swatches 6", "STORED swatch 4", "PART swatch 4 b0c0d0e0", "STORED sample 1", "PART sample 1 c0"]
+    },
+    {
+      "name": "catalog-placeholder",
+      "refs": ["6", "7", "8"],
+      "quote": "길이가 0이면 원본 끝에서도 빈 파일을 저장하는 데 성공한다.",
+      "input": ["SHOW absent", "SOURCE empty - 3", "FETCH blank empty 0 0", "SHOW blank", "FETCH absent empty 0 1", "SHOW absent", "SOURCE icon 0102 1", "FETCH tail icon 2 0", "SHOW tail"],
+      "expected": ["MISSING absent", "SOURCE empty 0", "STORED blank 0", "PART blank 0 -", "FAILED absent EOF", "MISSING absent", "SOURCE icon 2", "STORED tail 0", "PART tail 0 -"]
+    },
+    {
+      "name": "image-trailer",
+      "refs": ["4", "5", "6"],
+      "quote": "원본의 마지막 바이트까지 정확히 받는 것도 성공이다.",
+      "input": ["SOURCE image ff0080fe7f 3,1", "FETCH trailer image 1 4", "SHOW trailer", "FETCH badge image 4 1", "SHOW badge", "FETCH copy image 1 4", "SHOW copy"],
+      "expected": ["SOURCE image 5", "STORED trailer 4", "PART trailer 4 0080fe7f", "STORED badge 1", "PART badge 1 7f", "STORED copy 4", "PART copy 4 0080fe7f"]
+    },
+    {
+      "name": "supplier-delivery",
+      "refs": ["6", "7", "8"],
+      "quote": "실패한 전송의 일부 바이트는 구간 파일로 공개하지 않는다.",
+      "input": ["SOURCE image 11223344 64", "FETCH poster image 2 3", "SHOW poster", "FETCH label image 4 1", "SHOW label", "FETCH neighbor image 1 2", "SHOW neighbor", "SHOW poster"],
+      "expected": ["SOURCE image 4", "FAILED poster EOF", "MISSING poster", "FAILED label EOF", "MISSING label", "STORED neighbor 2", "PART neighbor 2 2233", "MISSING poster"]
+    },
+    {
+      "name": "catalog-refresh",
+      "refs": ["6", "7", "8"],
+      "quote": "실패하면 기존 파일을 유지한다.",
+      "input": ["SOURCE archive 010203040506 64", "FETCH tile archive 0 3", "SOURCE live aabbccdd 1,2", "FETCH tile live 1 5", "SHOW tile", "FETCH badge live 2 2", "SHOW badge", "SHOW tile", "FETCH tile archive 3 2", "SHOW tile", "SHOW badge"],
+      "expected": ["SOURCE archive 6", "STORED tile 3", "SOURCE live 4", "FAILED tile EOF", "PART tile 3 010203", "STORED badge 2", "PART badge 2 ccdd", "PART tile 3 010203", "STORED tile 2", "PART tile 2 0405", "PART badge 2 ccdd"]
+    },
+    {
+      "name": "supplier-revision",
+      "refs": ["3", "4", "7", "8"],
+      "quote": "같은 이름을 다시 등록하면 원본과 응답 설정을 교체한다.",
+      "input": ["SOURCE wire 010203040506 1,2", "FETCH part wire 0 3", "SHOW part", "SOURCE wire ABCD 9", "SHOW part", "FETCH part wire 1 1", "SHOW part", "FETCH solo wire 0 2", "SHOW solo", "SHOW part"],
+      "expected": ["SOURCE wire 6", "STORED part 3", "PART part 3 010203", "SOURCE wire 2", "PART part 3 010203", "STORED part 1", "PART part 1 cd", "STORED solo 2", "PART solo 2 abcd", "PART part 1 cd"]
+    }
+  ]
+}

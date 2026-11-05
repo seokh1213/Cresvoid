@@ -1,0 +1,75 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "order-basics",
+      "refs": ["3", "5", "7", "10", "11"],
+      "quote": "등록 자체는 상태 변경 횟수에 넣지 않고 이력 저장소도 호출하지 않는다.", 
+      "input": ["OPEN coat-1 NEW", "CHANGE coat-1 PAID", "SHOW coat-1", "HISTORY coat-1", "METRICS"],
+      "expected": ["OPENED coat-1 NEW", "CHANGED coat-1 NEW>PAID delivery=CONFIRMED attempts=1", "ORDER coat-1 PAID changes=1", "HISTORY coat-1 NEW>PAID", "STORE calls=1 records=1 queued=0"]
+    },
+    {
+      "name": "warehouse-notes",
+      "refs": ["6", "8", "9"],
+      "quote": "이력 전송은 첫 시도를 포함해 최대 세 번 호출한다.",
+      "input": ["OPEN boots-2 NEW", "PLAN BEFORE BEFORE OK", "CHANGE boots-2 PACKED", "HISTORY boots-2", "METRICS"],
+      "expected": ["OPENED boots-2 NEW", "PLANNED 3", "CHANGED boots-2 NEW>PACKED delivery=CONFIRMED attempts=3", "HISTORY boots-2 NEW>PACKED", "STORE calls=3 records=1 queued=0"]
+    },
+    {
+      "name": "dispatch-review",
+      "refs": ["5", "6", "9", "10"],
+      "quote": "같은 변경을 여러 번 전송해도 이력은 한 건만 남아야 한다.",
+      "input": ["OPEN scarf-3 PAID", "PLAN AFTER OK", "CHANGE scarf-3 SHIPPED", "HISTORY scarf-3", "SHOW scarf-3", "METRICS"],
+      "expected": ["OPENED scarf-3 PAID", "PLANNED 2", "CHANGED scarf-3 PAID>SHIPPED delivery=CONFIRMED attempts=2", "HISTORY scarf-3 PAID>SHIPPED", "ORDER scarf-3 SHIPPED changes=1", "STORE calls=2 records=1 queued=0"]
+    },
+    {
+      "name": "packing-review",
+      "refs": ["5", "6", "9"],
+      "quote": "같은 변경을 여러 번 전송해도 이력은 한 건만 남아야 한다.",
+      "input": ["OPEN cap-4 NEW", "PLAN BEFORE AFTER OK OK", "CHANGE cap-4 PAID", "METRICS", "CHANGE cap-4 PACKED", "HISTORY cap-4", "METRICS"],
+      "expected": ["OPENED cap-4 NEW", "PLANNED 4", "CHANGED cap-4 NEW>PAID delivery=CONFIRMED attempts=3", "STORE calls=3 records=1 queued=1", "CHANGED cap-4 PAID>PACKED delivery=CONFIRMED attempts=1", "HISTORY cap-4 NEW>PAID|PAID>PACKED", "STORE calls=4 records=2 queued=0"]
+    },
+    {
+      "name": "evening-ledger",
+      "refs": ["4", "5", "6", "9"],
+      "quote": "UNKNOWN은 저장 여부를 확정하지 못했다는 뜻이며 이 단계에서는 이후 명령에서 해당 변경을 다시 전송하지 않는다.",
+      "input": ["OPEN bag-5 NEW", "PLAN AFTER AFTER AFTER OK", "CHANGE bag-5 CANCELLED", "SHOW bag-5", "CHANGE bag-5 CANCELLED", "HISTORY bag-5", "METRICS", "CHANGE bag-5 NEW", "HISTORY bag-5", "METRICS"],
+      "expected": ["OPENED bag-5 NEW", "PLANNED 4", "CHANGED bag-5 NEW>CANCELLED delivery=UNKNOWN attempts=3", "ORDER bag-5 CANCELLED changes=1", "UNCHANGED bag-5 CANCELLED", "HISTORY bag-5 NEW>CANCELLED", "STORE calls=3 records=1 queued=1", "CHANGED bag-5 CANCELLED>NEW delivery=CONFIRMED attempts=1", "HISTORY bag-5 NEW>CANCELLED|CANCELLED>NEW", "STORE calls=4 records=2 queued=0"]
+    },
+    {
+      "name": "operations-return",
+      "refs": ["5", "10", "11"],
+      "quote": "다른 명령에서 발생한 별개의 변경은 주문 ID와 이전·새 상태가 같더라도 각각 기록해야 한다.",
+      "input": ["OPEN gloves-6 NEW", "OPEN socks-6 NEW", "CHANGE gloves-6 PAID", "CHANGE socks-6 PAID", "CHANGE gloves-6 NEW", "CHANGE gloves-6 PAID", "HISTORY gloves-6", "HISTORY socks-6", "SHOW gloves-6", "METRICS"],
+      "expected": ["OPENED gloves-6 NEW", "OPENED socks-6 NEW", "CHANGED gloves-6 NEW>PAID delivery=CONFIRMED attempts=1", "CHANGED socks-6 NEW>PAID delivery=CONFIRMED attempts=1", "CHANGED gloves-6 PAID>NEW delivery=CONFIRMED attempts=1", "CHANGED gloves-6 NEW>PAID delivery=CONFIRMED attempts=1", "HISTORY gloves-6 NEW>PAID|PAID>NEW|NEW>PAID", "HISTORY socks-6 NEW>PAID", "ORDER gloves-6 PAID changes=3", "STORE calls=4 records=4 queued=0"]
+    },
+    {
+      "name": "operator-corrections",
+      "refs": ["1", "6", "8", "9"],
+      "quote": "정상 응답이나 거절 뒤에는 남은 시도를 하지 않는다.",
+      "input": ["OPEN belt-7 NEW", "PLAN DENY BEFORE DENY OK", "CHANGE belt-7 PAID", "SHOW belt-7", "METRICS", "CHANGE belt-7 SHIPPED", "HISTORY belt-7", "METRICS", "CHANGE belt-7 PACKED", "HISTORY belt-7"],
+      "expected": ["OPENED belt-7 NEW", "PLANNED 4", "CHANGED belt-7 NEW>PAID delivery=REJECTED attempts=1", "ORDER belt-7 PAID changes=1", "STORE calls=1 records=0 queued=3", "CHANGED belt-7 PAID>SHIPPED delivery=REJECTED attempts=2", "HISTORY belt-7 -", "STORE calls=3 records=0 queued=1", "CHANGED belt-7 SHIPPED>PACKED delivery=CONFIRMED attempts=1", "HISTORY belt-7 SHIPPED>PACKED"]
+    },
+    {
+      "name": "support-checks",
+      "refs": ["2", "3", "4", "10", "12"],
+      "quote": "오류가 난 명령은 주문, 이력, 호출 횟수, 예정된 호출 결과를 바꾸지 않는다.",
+      "input": ["", "  ", "HISTORY absent", "SHOW absent", "PLAN BEFORE BAD", "PLAN DENY", "OPEN bad_id NEW", "OPEN valid NEW", "OPEN valid PAID", "CHANGE valid paid", "CHANGE absent PAID", "CHANGE valid NEW", "CHANGE valid PACKED extra", "METRICS extra", "PLAN", "UNKNOWN", "SHOW valid", "METRICS", "CHANGE valid PAID", "METRICS"],
+      "expected": ["HISTORY absent -", "NOT_FOUND absent", "ERROR input", "PLANNED 1", "ERROR input", "OPENED valid NEW", "EXISTS valid NEW", "ERROR input", "NOT_FOUND absent", "UNCHANGED valid NEW", "ERROR input", "ERROR input", "ERROR input", "ERROR input", "ORDER valid NEW changes=0", "STORE calls=0 records=0 queued=1", "CHANGED valid NEW>PAID delivery=REJECTED attempts=1", "STORE calls=1 records=0 queued=0"]
+    },
+    {
+      "name": "morning-queue",
+      "refs": ["4", "5", "8", "11"],
+      "quote": "각 저장소 호출은 주문에 관계없이 맨 앞 결과 하나를 소비한다.", 
+      "input": ["PLAN AFTER", "PLAN BEFORE OK OK", "OPEN hat-9 NEW", "OPEN shirt-9 PAID", "CHANGE missing PACKED", "CHANGE hat-9 NEW", "HISTORY hat-9", "METRICS", "CHANGE shirt-9 PACKED", "CHANGE hat-9 SHIPPED", "HISTORY shirt-9", "HISTORY hat-9", "METRICS"],
+      "expected": ["PLANNED 1", "PLANNED 4", "OPENED hat-9 NEW", "OPENED shirt-9 PAID", "NOT_FOUND missing", "UNCHANGED hat-9 NEW", "HISTORY hat-9 -", "STORE calls=0 records=0 queued=4", "CHANGED shirt-9 PAID>PACKED delivery=CONFIRMED attempts=3", "CHANGED hat-9 NEW>SHIPPED delivery=CONFIRMED attempts=1", "HISTORY shirt-9 PAID>PACKED", "HISTORY hat-9 NEW>SHIPPED", "STORE calls=4 records=2 queued=0"]
+    },
+    {
+      "name": "archive-review",
+      "refs": ["5", "6", "8", "9"],
+      "quote": "세 번 모두 시간 초과면 UNKNOWN",
+      "input": ["OPEN vest-10 NEW", "PLAN BEFORE BEFORE BEFORE AFTER", "CHANGE vest-10 PAID", "HISTORY vest-10", "METRICS", "CHANGE vest-10 PACKED", "HISTORY vest-10", "SHOW vest-10", "METRICS"],
+      "expected": ["OPENED vest-10 NEW", "PLANNED 4", "CHANGED vest-10 NEW>PAID delivery=UNKNOWN attempts=3", "HISTORY vest-10 -", "STORE calls=3 records=0 queued=1", "CHANGED vest-10 PAID>PACKED delivery=CONFIRMED attempts=2", "HISTORY vest-10 PAID>PACKED", "ORDER vest-10 PACKED changes=2", "STORE calls=5 records=1 queued=0"]
+    }
+  ]
+}

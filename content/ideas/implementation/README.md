@@ -70,6 +70,17 @@ Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 �
 | F-kotlin-10 | bug-fix / 01-cursor-pagination | 판매량순 키셋 페이지 넘기기에서 커서에 동점 키가 빠져 상품이 사라지는 버그 |
 | F-kotlin-20 | bug-fix / 06-point-accrual | 적립률 곱셈을 Double 로 계산한 뒤 내림해 일부 결제의 포인트가 1 모자란 버그 |
 | F-kotlin-30 | bug-fix / 07-daily-limit | 업무 날짜를 UTC 로 잘라 한국 자정에 일일 한도가 초기화되지 않는 버그 |
+| F-kotlin-40 | bug-fix / 08-option-equality | 장바구니 상품 옵션 비교 |
+| F-kotlin-50 | bug-fix / 09-comparator-contract | 추천 점수 정렬 |
+| F-kotlin-130 | bug-fix / 10-byte-offset | 작업자별 내보내기 결과 불일치 |
+| F-kotlin-140 | bug-fix / 11-short-read | 저장되지 않는 이미지 구간 |
+| F-kotlin-60 | bug-fix / 18-sublist-view | 페이지 단위 일괄 처리 |
+| F-kotlin-70 | bug-fix / 19-locale-format | 가격 문자열 출력 |
+| F-kotlin-80 | bug-fix / 20-code-pattern | 상품 코드 검증 |
+| F-kotlin-90 | bug-fix / 21-retry-duplicate | 주문 상태 변경 기록 |
+| F-kotlin-100 | bug-fix / 22-cache-key | 회원 등급별 가격 캐시 |
+| F-kotlin-110 | bug-fix / 23-float-threshold | 무료 배송 기준 금액 |
+| F-kotlin-120 | bug-fix / 24-sale-window | 타임세일 시작과 끝 |
 
 ## 4. 카드
 

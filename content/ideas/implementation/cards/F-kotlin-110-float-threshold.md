@@ -4,7 +4,7 @@ title: 무료 배송 기준 금액
 kind: fix
 track: bug-fix
 stage: 23-float-threshold
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

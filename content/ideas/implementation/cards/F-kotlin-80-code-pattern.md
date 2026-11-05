@@ -4,7 +4,7 @@ title: 상품 코드 검증
 kind: fix
 track: bug-fix
 stage: 20-code-pattern
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

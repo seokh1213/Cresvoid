@@ -4,7 +4,7 @@ title: 두 번 시작되는 정산 작업
 kind: fix
 track: bug-fix
 stage: 25-double-start
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

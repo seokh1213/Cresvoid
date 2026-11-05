@@ -4,7 +4,7 @@ title: 회원 등급별 가격 캐시
 kind: fix
 track: bug-fix
 stage: 22-cache-key
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

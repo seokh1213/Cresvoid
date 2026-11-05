@@ -4,7 +4,7 @@ title: 한글에서 어긋나는 파일 구간 위치
 kind: fix
 track: bug-fix
 stage: 10-byte-offset
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq: B-record-range-10

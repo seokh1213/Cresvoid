@@ -4,7 +4,7 @@ title: 페이지 단위 일괄 처리
 kind: fix
 track: bug-fix
 stage: 18-sublist-view
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

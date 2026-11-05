@@ -4,7 +4,7 @@ title: 주문 상태 변경 기록
 kind: fix
 track: bug-fix
 stage: 21-retry-duplicate
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

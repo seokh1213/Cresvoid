@@ -1,0 +1,256 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-check",
+      "refs": [
+        "3",
+        "4",
+        "7"
+      ],
+      "quote": "각 작업은 해당 상품의 원본 버전과 상품명을 검색 색인에 복사한다.",
+      "input": [
+        "WORKERS 1",
+        "PUT TEA 차",
+        "REFRESH TEA",
+        "SHOW TEA"
+      ],
+      "expected": [
+        "WORKERS 1",
+        "PUT TEA 1",
+        "REFRESH accepted=1 completed=1 alive=1 errors=-",
+        "PRODUCT TEA source=1:차 index=1:차"
+      ]
+    },
+    {
+      "name": "search-refresh",
+      "refs": [
+        "6",
+        "8",
+        "9"
+      ],
+      "quote": "정상 결과의 완료 수는 접수 수와 같고 살아 있는 작업자 수는 설정값과 같다.",
+      "input": [
+        "REFRESH -",
+        "REFRESH -",
+        "WORKERS 1",
+        "REFRESH -",
+        "SHOW CUP"
+      ],
+      "expected": [
+        "REFRESH accepted=0 completed=0 alive=2 errors=-",
+        "REFRESH accepted=0 completed=0 alive=2 errors=-",
+        "WORKERS 1",
+        "REFRESH accepted=0 completed=0 alive=1 errors=-",
+        "MISSING CUP"
+      ]
+    },
+    {
+      "name": "catalog-edit",
+      "refs": [
+        "3",
+        "4",
+        "6"
+      ],
+      "quote": "이 명령은 기존 검색 색인을 바꾸지 않는다.",
+      "input": [
+        "WORKERS 1",
+        "PUT CUP 컵",
+        "PUT BAG 가방",
+        "REFRESH CUP BAG CUP",
+        "PUT CUP 큰컵",
+        "SHOW CUP",
+        "SHOW BAG",
+        "REFRESH CUP",
+        "SHOW CUP",
+        "PUT CUP 큰컵",
+        "SHOW CUP"
+      ],
+      "expected": [
+        "WORKERS 1",
+        "PUT CUP 1",
+        "PUT BAG 1",
+        "REFRESH accepted=3 completed=3 alive=1 errors=-",
+        "PUT CUP 2",
+        "PRODUCT CUP source=2:큰컵 index=1:컵",
+        "PRODUCT BAG source=1:가방 index=1:가방",
+        "REFRESH accepted=1 completed=1 alive=1 errors=-",
+        "PRODUCT CUP source=2:큰컵 index=2:큰컵",
+        "PUT CUP 3",
+        "PRODUCT CUP source=3:큰컵 index=2:큰컵"
+      ]
+    },
+    {
+      "name": "refresh-session",
+      "refs": [
+        "7",
+        "8"
+      ],
+      "quote": "접수한 작업은 각각 정확히 한 번 완료되어야 하며 작업이 없다는 이유로 작업자가 실패해서는 안 된다.",
+      "input": [
+        "PUT PLATE 접시",
+        "SHOW PLATE",
+        "REFRESH PLATE",
+        "SHOW PLATE"
+      ],
+      "expected": [
+        "PUT PLATE 1",
+        "PRODUCT PLATE source=1:접시 index=-",
+        "REFRESH accepted=1 completed=1 alive=2 errors=-",
+        "PRODUCT PLATE source=1:접시 index=1:접시"
+      ]
+    },
+    {
+      "name": "shop-maintenance",
+      "refs": [
+        "7",
+        "8",
+        "9"
+      ],
+      "quote": "각 갱신 명령이 끝난 뒤에도 상품 원본, 검색 색인, 작업자 수 설정은 유지된다.",
+      "input": [
+        "PUT MAT 매트",
+        "REFRESH MAT",
+        "REFRESH -",
+        "PUT MAT 새매트",
+        "REFRESH MAT",
+        "SHOW MAT",
+        "REFRESH MAT"
+      ],
+      "expected": [
+        "PUT MAT 1",
+        "REFRESH accepted=1 completed=1 alive=2 errors=-",
+        "REFRESH accepted=0 completed=0 alive=2 errors=-",
+        "PUT MAT 2",
+        "REFRESH accepted=1 completed=1 alive=2 errors=-",
+        "PRODUCT MAT source=2:새매트 index=2:새매트",
+        "REFRESH accepted=1 completed=1 alive=2 errors=-"
+      ]
+    },
+    {
+      "name": "operator-session",
+      "refs": [
+        "3",
+        "5",
+        "7",
+        "8"
+      ],
+      "quote": "정상 결과의 완료 수는 접수 수와 같고 살아 있는 작업자 수는 설정값과 같다.",
+      "input": [
+        "PUT CUP-1 머그컵",
+        "PUT BAG-2 천가방",
+        "SHOW CUP-1",
+        "WORKERS 1",
+        "REFRESH CUP-1 BAG-2",
+        "PUT CUP-1 큰머그컵",
+        "SHOW CUP-1",
+        "WORKERS 2",
+        "REFRESH CUP-1",
+        "SHOW CUP-1",
+        "SHOW BAG-2"
+      ],
+      "expected": [
+        "PUT CUP-1 1",
+        "PUT BAG-2 1",
+        "PRODUCT CUP-1 source=1:머그컵 index=-",
+        "WORKERS 1",
+        "REFRESH accepted=2 completed=2 alive=1 errors=-",
+        "PUT CUP-1 2",
+        "PRODUCT CUP-1 source=2:큰머그컵 index=1:머그컵",
+        "WORKERS 2",
+        "REFRESH accepted=1 completed=1 alive=2 errors=-",
+        "PRODUCT CUP-1 source=2:큰머그컵 index=2:큰머그컵",
+        "PRODUCT BAG-2 source=1:천가방 index=1:천가방"
+      ]
+    },
+    {
+      "name": "command-check",
+      "refs": [
+        "2",
+        "5",
+        "6"
+      ],
+      "quote": "하나라도 등록하지 않은 코드가 있으면 `ERROR missing-product`를 출력하며 아무 작업도 실행하지 않는다.",
+      "input": [
+        "",
+        "PUT A 상품",
+        "WORKERS 1",
+        "REFRESH A Z",
+        "SHOW A",
+        "WORKERS 3",
+        "PUT lower 이름",
+        "REFRESH",
+        "REFRESH - A",
+        "SHOW lower",
+        "PUT A",
+        "UNKNOWN A",
+        "REFRESH A",
+        "SHOW A"
+      ],
+      "expected": [
+        "PUT A 1",
+        "WORKERS 1",
+        "ERROR missing-product",
+        "PRODUCT A source=1:상품 index=-",
+        "ERROR command",
+        "ERROR command",
+        "ERROR command",
+        "ERROR command",
+        "ERROR command",
+        "ERROR command",
+        "ERROR command",
+        "REFRESH accepted=1 completed=1 alive=1 errors=-",
+        "PRODUCT A source=1:상품 index=1:상품"
+      ]
+    },
+    {
+      "name": "catalog-batch",
+      "refs": [
+        "6",
+        "7",
+        "9"
+      ],
+      "quote": "같은 코드를 여러 번 넣어도 각각 작업 하나로 센다.",
+      "input": [
+        "WORKERS 1",
+        "PUT A 첫상품",
+        "PUT B 둘째상품",
+        "PUT C 셋째상품",
+        "REFRESH A B C A B C A B C",
+        "SHOW A",
+        "SHOW B",
+        "SHOW C",
+        "WORKERS 1",
+        "REFRESH B A B C",
+        "SHOW B",
+        "WORKERS 2",
+        "PUT A 새첫상품",
+        "REFRESH B A B C",
+        "SHOW A",
+        "SHOW B",
+        "SHOW C",
+        "REFRESH -"
+      ],
+      "expected": [
+        "WORKERS 1",
+        "PUT A 1",
+        "PUT B 1",
+        "PUT C 1",
+        "REFRESH accepted=9 completed=9 alive=1 errors=-",
+        "PRODUCT A source=1:첫상품 index=1:첫상품",
+        "PRODUCT B source=1:둘째상품 index=1:둘째상품",
+        "PRODUCT C source=1:셋째상품 index=1:셋째상품",
+        "WORKERS 1",
+        "REFRESH accepted=4 completed=4 alive=1 errors=-",
+        "PRODUCT B source=1:둘째상품 index=1:둘째상품",
+        "WORKERS 2",
+        "PUT A 2",
+        "REFRESH accepted=4 completed=4 alive=2 errors=-",
+        "PRODUCT A source=2:새첫상품 index=2:새첫상품",
+        "PRODUCT B source=1:둘째상품 index=1:둘째상품",
+        "PRODUCT C source=1:셋째상품 index=1:셋째상품",
+        "REFRESH accepted=0 completed=0 alive=2 errors=-"
+      ]
+    }
+  ]
+}

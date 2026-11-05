@@ -7,12 +7,12 @@
 | 도메인 | 카드 | 후보 | 제작 중 | 완료 | 보류 |
 |---|---|---|---|---|---|
 | [읽기](reading/README.md) | 15 | 0 | 0 | 15 | 0 |
-| [구현](implementation/README.md) | 32 | 6 | 11 | 15 | 0 |
+| [구현](implementation/README.md) | 32 | 6 | 0 | 26 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 1 | 4 | 3 | 0 |
-| [설계 패턴](backend/design-patterns/README.md) | 11 | 1 | 2 | 8 | 0 |
-| [분산 시스템](backend/distributed/README.md) | 8 | 5 | 1 | 2 | 0 |
+| [설계 패턴](backend/design-patterns/README.md) | 11 | 1 | 0 | 10 | 0 |
+| [분산 시스템](backend/distributed/README.md) | 8 | 5 | 0 | 3 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [JVM](backend/jvm/README.md) | 4 | 1 | 0 | 3 | 0 |
@@ -22,12 +22,12 @@
 | [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [OLAP](backend/olap/README.md) | 6 | 1 | 3 | 2 | 0 |
-| [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 3 | 1 | 0 |
-| [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 6 | 3 | 0 |
+| [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
+| [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 4 | 5 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 5 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 44 | 55 | 84 | 2 |
+| 합계 | 185 | 44 | 36 | 103 | 2 |
 
 ## 다음 후보
 
@@ -93,7 +93,7 @@
 | autocomplete | build | 없음 | 04 |  | 01-trie(B-system-design-90 4차), 02-cached-top-k(B-system-design-90 4차), 03-filters-and-shards(B-system-design-90 4차) |
 | backend-lab | lab | 없음 | 11 | 01-stock-race(L-load-10 제작 중), 02-idempotency(L-load-20 제작 중), 03-cache-stampede(L-load-30 제작 중), 04-penetration-avalanche(L-load-40 제작 중), 05-stale-set(L-load-50 제작 중), 06-cache-outage(L-load-60 제작 중), 07-retry-storm(L-load-70 제작 중), 08-load-shedding(L-load-80 제작 중), 09-rate-limit(L-load-90 제작 중), 10-adaptive-concurrency(L-load-120 제작 중) | idempotent-consumer(L-load-100 5차), outbox(L-load-110 5차) |
 | batch-workflow | build | 없음 | 04 |  | 01-markers(B-pipeline-30 4차), 02-resume(B-pipeline-30 4차), 03-seal(B-pipeline-30 4차) |
-| bug-fix | fix | 있음 | 27 | 01-cursor-pagination(F-kotlin-10 완료), 02-order-deadline(F-coroutines-31 완료), 03-skipped-subscriber(F-design-patterns-60 완료), 04-stale-redo(F-design-patterns-70 완료), 05-instant-finish(F-coroutines-34 완료), 06-point-accrual(F-kotlin-20 완료), 07-daily-limit(F-kotlin-30 완료), 08-option-equality(F-kotlin-40 제작 중), 09-comparator-contract(F-kotlin-50 제작 중), 10-byte-offset(F-kotlin-130 제작 중), 11-short-read(F-kotlin-140 제작 중), 12-late-lock-release(F-distributed-70 제작 중), 13-rollover-delete-scope(F-pipeline-20 제작 중), 14-missing-chunk(F-pipeline-40 제작 중), 15-replay-regression(F-pipeline-60 제작 중), 16-hangul-normalization(F-search-40 제작 중), 17-fallback-constraints(F-search-70 제작 중), 18-sublist-view(F-kotlin-60 제작 중), 19-locale-format(F-kotlin-70 제작 중), 20-code-pattern(F-kotlin-80 제작 중), 21-retry-duplicate(F-kotlin-90 제작 중), 22-cache-key(F-kotlin-100 제작 중), 23-float-threshold(F-kotlin-110 제작 중), 24-sale-window(F-kotlin-120 제작 중), 25-double-start(F-design-patterns-100 제작 중), 26-unchecked-wakeup(F-design-patterns-110 제작 중) |  |
+| bug-fix | fix | 있음 | 27 | 01-cursor-pagination(F-kotlin-10 완료), 02-order-deadline(F-coroutines-31 완료), 03-skipped-subscriber(F-design-patterns-60 완료), 04-stale-redo(F-design-patterns-70 완료), 05-instant-finish(F-coroutines-34 완료), 06-point-accrual(F-kotlin-20 완료), 07-daily-limit(F-kotlin-30 완료), 08-option-equality(F-kotlin-40 완료), 09-comparator-contract(F-kotlin-50 완료), 10-byte-offset(F-kotlin-130 완료), 11-short-read(F-kotlin-140 완료), 12-late-lock-release(F-distributed-70 완료), 13-rollover-delete-scope(F-pipeline-20 완료), 14-missing-chunk(F-pipeline-40 완료), 15-replay-regression(F-pipeline-60 완료), 16-hangul-normalization(F-search-40 완료), 17-fallback-constraints(F-search-70 완료), 18-sublist-view(F-kotlin-60 완료), 19-locale-format(F-kotlin-70 완료), 20-code-pattern(F-kotlin-80 완료), 21-retry-duplicate(F-kotlin-90 완료), 22-cache-key(F-kotlin-100 완료), 23-float-threshold(F-kotlin-110 완료), 24-sale-window(F-kotlin-120 완료), 25-double-start(F-design-patterns-100 완료), 26-unchecked-wakeup(F-design-patterns-110 완료) |  |
 | chat | build | 없음 | 04 |  | 01-sequencing(B-system-design-80 4차), 02-sync(B-system-design-80 4차), 03-presence(B-system-design-80 4차) |
 | code-reading | code | 있음 | 16 | 01-price-rules(C-kotlin-10 완료), 02-coroutine-order(C-coroutines-30 완료), 03-flow-semantics(C-coroutines-32 완료), 04-stock-reservation(C-kotlin-20 완료), 05-order-events(C-kotlin-30 완료), 06-lru-cache(C-kotlin-40 완료), 07-retry-policy(C-kotlin-50 완료), 08-decorated-client(C-design-patterns-40 완료), 09-state-observers(C-design-patterns-50 완료), 10-consumer-commit(C-messaging-30 완료), 11-search-query-parser(C-kotlin-60 완료), 12-settlement-batch(C-kotlin-70 완료), 13-csv-import(C-kotlin-80 완료), 14-notification-queue(C-design-patterns-90 완료), 15-stable-diversity(C-search-80 완료) |  |
 | columnar | build | 없음 | 04 |  | 01-encode(B-lakehouse-20 4차), 02-pruning(B-lakehouse-20 4차), 03-nested(B-lakehouse-20 4차) |
@@ -191,21 +191,21 @@
 | [C-kotlin-30](implementation/cards/C-kotlin-30-order-events.md) | 주문 이벤트 처리 | code | code-reading | 05-order-events | 완료(2026-11-05) | 1 | 없음 |  |
 | [F-kotlin-30](implementation/cards/F-kotlin-30-daily-limit.md) | 일일 사용 한도 | fix | bug-fix | 07-daily-limit | 완료(2026-11-05) | 1 | 없음 |  |
 | [C-kotlin-40](implementation/cards/C-kotlin-40-lru-cache.md) | 상품 상세 로컬 캐시 | code | code-reading | 06-lru-cache | 완료(2026-11-05) | 4 | 없음 |  |
-| [F-kotlin-40](implementation/cards/F-kotlin-40-option-equality.md) | 장바구니 상품 옵션 비교 | fix | bug-fix | 08-option-equality | 제작 중 | 4 | 없음 |  |
+| [F-kotlin-40](implementation/cards/F-kotlin-40-option-equality.md) | 장바구니 상품 옵션 비교 | fix | bug-fix | 08-option-equality | 완료(2026-11-06) | 4 | 없음 |  |
 | [C-kotlin-50](implementation/cards/C-kotlin-50-retry-policy.md) | 외부 결제 호출 재시도 정책 | code | code-reading | 07-retry-policy | 완료(2026-11-05) | 4 | 없음 |  |
-| [F-kotlin-50](implementation/cards/F-kotlin-50-comparator-contract.md) | 추천 점수 정렬 | fix | bug-fix | 09-comparator-contract | 제작 중 | 4 | 없음 |  |
+| [F-kotlin-50](implementation/cards/F-kotlin-50-comparator-contract.md) | 추천 점수 정렬 | fix | bug-fix | 09-comparator-contract | 완료(2026-11-06) | 4 | 없음 |  |
 | [C-kotlin-60](implementation/cards/C-kotlin-60-search-query-parser.md) | 검색어 파서 | code | code-reading | 11-search-query-parser | 완료(2026-11-05) | 5 | 없음 |  |
-| [F-kotlin-60](implementation/cards/F-kotlin-60-sublist-view.md) | 페이지 단위 일괄 처리 | fix | bug-fix | 18-sublist-view | 제작 중 | 5 | 없음 |  |
+| [F-kotlin-60](implementation/cards/F-kotlin-60-sublist-view.md) | 페이지 단위 일괄 처리 | fix | bug-fix | 18-sublist-view | 완료(2026-11-06) | 5 | 없음 |  |
 | [C-kotlin-70](implementation/cards/C-kotlin-70-settlement-batch.md) | 정산 배치 | code | code-reading | 12-settlement-batch | 완료(2026-11-05) | 5 | 없음 |  |
-| [F-kotlin-70](implementation/cards/F-kotlin-70-locale-format.md) | 가격 문자열 출력 | fix | bug-fix | 19-locale-format | 제작 중 | 5 | 없음 |  |
+| [F-kotlin-70](implementation/cards/F-kotlin-70-locale-format.md) | 가격 문자열 출력 | fix | bug-fix | 19-locale-format | 완료(2026-11-06) | 5 | 없음 |  |
 | [C-kotlin-80](implementation/cards/C-kotlin-80-csv-import.md) | 상품 일괄 등록 | code | code-reading | 13-csv-import | 완료(2026-11-05) | 5 | 없음 |  |
-| [F-kotlin-80](implementation/cards/F-kotlin-80-code-pattern.md) | 상품 코드 검증 | fix | bug-fix | 20-code-pattern | 제작 중 | 5 | 없음 |  |
-| [F-kotlin-90](implementation/cards/F-kotlin-90-retry-duplicate.md) | 주문 상태 변경 기록 | fix | bug-fix | 21-retry-duplicate | 제작 중 | 5 | 없음 |  |
-| [F-kotlin-100](implementation/cards/F-kotlin-100-cache-key.md) | 회원 등급별 가격 캐시 | fix | bug-fix | 22-cache-key | 제작 중 | 5 | 없음 |  |
-| [F-kotlin-110](implementation/cards/F-kotlin-110-float-threshold.md) | 무료 배송 기준 금액 | fix | bug-fix | 23-float-threshold | 제작 중 | 5 | 없음 |  |
-| [F-kotlin-120](implementation/cards/F-kotlin-120-sale-window.md) | 타임세일 시작과 끝 | fix | bug-fix | 24-sale-window | 제작 중 | 5 | 없음 |  |
-| [F-kotlin-130](implementation/cards/F-kotlin-130-byte-offset.md) | 한글에서 어긋나는 파일 구간 위치 | fix | bug-fix | 10-byte-offset | 제작 중 | 4 | 없음 | B-record-range-10 |
-| [F-kotlin-140](implementation/cards/F-kotlin-140-short-read.md) | 한 번만 읽어 잘리는 전송 구간 | fix | bug-fix | 11-short-read | 제작 중 | 4 | 없음 | B-record-range-10 |
+| [F-kotlin-80](implementation/cards/F-kotlin-80-code-pattern.md) | 상품 코드 검증 | fix | bug-fix | 20-code-pattern | 완료(2026-11-06) | 5 | 없음 |  |
+| [F-kotlin-90](implementation/cards/F-kotlin-90-retry-duplicate.md) | 주문 상태 변경 기록 | fix | bug-fix | 21-retry-duplicate | 완료(2026-11-06) | 5 | 없음 |  |
+| [F-kotlin-100](implementation/cards/F-kotlin-100-cache-key.md) | 회원 등급별 가격 캐시 | fix | bug-fix | 22-cache-key | 완료(2026-11-06) | 5 | 없음 |  |
+| [F-kotlin-110](implementation/cards/F-kotlin-110-float-threshold.md) | 무료 배송 기준 금액 | fix | bug-fix | 23-float-threshold | 완료(2026-11-06) | 5 | 없음 |  |
+| [F-kotlin-120](implementation/cards/F-kotlin-120-sale-window.md) | 타임세일 시작과 끝 | fix | bug-fix | 24-sale-window | 완료(2026-11-06) | 5 | 없음 |  |
+| [F-kotlin-130](implementation/cards/F-kotlin-130-byte-offset.md) | 한글에서 어긋나는 파일 구간 위치 | fix | bug-fix | 10-byte-offset | 완료(2026-11-06) | 4 | 없음 | B-record-range-10 |
+| [F-kotlin-140](implementation/cards/F-kotlin-140-short-read.md) | 한 번만 읽어 잘리는 전송 구간 | fix | bug-fix | 11-short-read | 완료(2026-11-06) | 4 | 없음 | B-record-range-10 |
 | [B-kv-store-10](implementation/cards/B-kv-store-10-kv-store.md) | 키-값 저장소 | build | kv-store | 01-basic, 02-log, 03-transactions | 후보 | 4 | 없음 |  |
 | [B-mini-sql-10](implementation/cards/B-mini-sql-10-mini-sql.md) | 작은 SQL 엔진 | build | mini-sql | 01-select, 02-group, 03-join | 후보 | 5 | 없음 |  |
 | [B-record-range-10](implementation/cards/B-record-range-10-record-range.md) | 레코드 경계를 지키는 파일 분할기 만들기 | build | record-range | 01-lines, 02-json-ranges, 03-range-read | 후보 | 4 | 없음 |  |
@@ -274,8 +274,8 @@
 | [F-design-patterns-70](backend/design-patterns/cards/F-design-patterns-70-stale-redo.md) | 다시 실행하면 끼어드는 옛 편집 | fix | bug-fix | 04-stale-redo | 완료(2026-11-05) | 4 | 없음 | R-design-patterns-30 |
 | [B-design-patterns-80](backend/design-patterns/cards/B-design-patterns-80-doc-editor.md) | 되돌리기를 지원하는 문서 편집기 만들기 | build | doc-editor | 01-edit, 02-undo, 03-macro, 04-snapshot | 후보 | 5 | 없음 | R-design-patterns-30 |
 | [C-design-patterns-90](backend/design-patterns/cards/C-design-patterns-90-notification-queue.md) | 알림 발송 작업 큐 | code | code-reading | 14-notification-queue | 완료(2026-11-05) | 5 | 없음 |  |
-| [F-design-patterns-100](backend/design-patterns/cards/F-design-patterns-100-double-start.md) | 두 번 시작되는 정산 작업 | fix | bug-fix | 25-double-start | 제작 중 | 5 | 없음 |  |
-| [F-design-patterns-110](backend/design-patterns/cards/F-design-patterns-110-unchecked-wakeup.md) | 빈 대기열에서 꺼내는 작업자 | fix | bug-fix | 26-unchecked-wakeup | 제작 중 | 5 | 없음 |  |
+| [F-design-patterns-100](backend/design-patterns/cards/F-design-patterns-100-double-start.md) | 두 번 시작되는 정산 작업 | fix | bug-fix | 25-double-start | 완료(2026-11-06) | 5 | 없음 |  |
+| [F-design-patterns-110](backend/design-patterns/cards/F-design-patterns-110-unchecked-wakeup.md) | 빈 대기열에서 꺼내는 작업자 | fix | bug-fix | 26-unchecked-wakeup | 완료(2026-11-06) | 5 | 없음 |  |
 
 ### 분산 시스템
 
@@ -289,7 +289,7 @@
 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 후보 | 4 | 없음 |  |
 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 후보 | 5 | 없음 | B-distributed-20 |
 | [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 후보 | 4 | 없음 |  |
-| [F-distributed-70](backend/distributed/cards/F-distributed-70-late-lock-release.md) | 늦은 해제가 새 잠금을 지우는 버그 | fix | bug-fix | 12-late-lock-release | 제작 중 | 4 | 없음 | B-distributed-60 |
+| [F-distributed-70](backend/distributed/cards/F-distributed-70-late-lock-release.md) | 늦은 해제가 새 잠금을 지우는 버그 | fix | bug-fix | 12-late-lock-release | 완료(2026-11-06) | 4 | 없음 | B-distributed-60 |
 | [B-distributed-80](backend/distributed/cards/B-distributed-80-fenced-writes.md) | 저장소가 검사하는 펜싱 토큰 만들기 | build | lease-lock | 03-fenced-writes | 후보 | 5 | 없음 | B-distributed-60 |
 
 ### HDFS
@@ -405,11 +405,11 @@
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
 | [B-pipeline-10](backend/pipeline/cards/B-pipeline-10-history-rollover.md) | 현재 상태를 보존하는 이력 압축기 만들기 | build | history-rollover | 01-materialize, 02-baseline, 03-retention | 후보 | 4 | 없음 | B-lakehouse-30 |
-| [F-pipeline-20](backend/pipeline/cards/F-pipeline-20-delete-scope.md) | 다시 적재하지 않은 키까지 지우는 정리 작업 | fix | bug-fix | 13-rollover-delete-scope | 제작 중 | 4 | 없음 | B-pipeline-10 |
+| [F-pipeline-20](backend/pipeline/cards/F-pipeline-20-delete-scope.md) | 다시 적재하지 않은 키까지 지우는 정리 작업 | fix | bug-fix | 13-rollover-delete-scope | 완료(2026-11-06) | 4 | 없음 | B-pipeline-10 |
 | [B-pipeline-30](backend/pipeline/cards/B-pipeline-30-batch-workflow.md) | 실행 증거로 연결하는 배치 단계 만들기 | build | batch-workflow | 01-markers, 02-resume, 03-seal | 후보 | 4 | 없음 |  |
-| [F-pipeline-40](backend/pipeline/cards/F-pipeline-40-missing-chunk.md) | 빠진 조각을 못 찾는 완료 판정 | fix | bug-fix | 14-missing-chunk | 제작 중 | 4 | 없음 | B-pipeline-30 |
+| [F-pipeline-40](backend/pipeline/cards/F-pipeline-40-missing-chunk.md) | 빠진 조각을 못 찾는 완료 판정 | fix | bug-fix | 14-missing-chunk | 완료(2026-11-06) | 4 | 없음 | B-pipeline-30 |
 | [B-pipeline-50](backend/pipeline/cards/B-pipeline-50-index-overlay.md) | 운영과 실험의 변경을 합치는 병합기 만들기 | build | index-overlay | 01-current-state, 02-round-merge, 03-replay | 후보 | 4 | 없음 |  |
-| [F-pipeline-60](backend/pipeline/cards/F-pipeline-60-replay-regression.md) | 과거 회차 재실행이 최신 결과를 되돌리는 버그 | fix | bug-fix | 15-replay-regression | 제작 중 | 4 | 없음 | B-pipeline-50 |
+| [F-pipeline-60](backend/pipeline/cards/F-pipeline-60-replay-regression.md) | 과거 회차 재실행이 최신 결과를 되돌리는 버그 | fix | bug-fix | 15-replay-regression | 완료(2026-11-06) | 4 | 없음 | B-pipeline-50 |
 | [B-pipeline-70](backend/pipeline/cards/B-pipeline-70-experiment-recovery.md) | 실험 종료 뒤 운영 상태로 복구하는 도구 만들기 | build | index-overlay | 04-reconcile | 후보 | 5 | 없음 | B-pipeline-50 |
 | [B-pipeline-80](backend/pipeline/cards/B-pipeline-80-dedup-candidates.md) | 중복 후보 생성과 대표 선택기 만들기 | build | dedup-candidates | 01-exact, 02-candidates, 03-components | 후보 | 5 | 없음 |  |
 | [L-pipeline-90](backend/pipeline/cards/L-pipeline-90-candidate-recall.md) | 비교 비용과 놓친 중복쌍 측정 | lab | pipeline-lab | 01-candidate-recall | 완료(2026-11-05) | 5 | 없음 | B-pipeline-80 |
@@ -423,13 +423,13 @@
 | [R-search-10](backend/search/cards/R-search-10-near-real-time-search.md) | 거의 실시간 검색과 내구성 | reading | tech-reading | 04-near-real-time-search | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-search-20](backend/search/cards/B-search-20-es-cluster.md) | 분산 검색 조정 노드 만들기 | build | es-cluster | 01-routing, 02-terms-agg, 03-paging | 완료(2026-10-10) | 2 | 없음 | R-search-10 |
 | [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 후보 | 3 | 없음 | R-search-10 |
-| [F-search-40](backend/search/cards/F-search-40-hangul-normalization.md) | 한글 정규화가 어긋난 상품 검색 | fix | bug-fix | 16-hangul-normalization | 제작 중 | 4 | 없음 |  |
+| [F-search-40](backend/search/cards/F-search-40-hangul-normalization.md) | 한글 정규화가 어긋난 상품 검색 | fix | bug-fix | 16-hangul-normalization | 완료(2026-11-06) | 4 | 없음 |  |
 | [L-search-50](backend/search/cards/L-search-50-mapping-explosion.md) | 동적 매핑과 필드 폭증 | lab | es-lab | 01-mapping-explosion | 제작 중 | 4 | docker | R-search-10 |
 | [L-search-51](backend/search/cards/L-search-51-deep-paging.md) | 깊은 페이지 넘기기 | lab | es-lab | 02-deep-paging | 제작 중 | 4 | docker | B-search-20 |
 | [L-search-52](backend/search/cards/L-search-52-nori-analysis.md) | nori 분석기와 상품명 | lab | es-lab | 03-nori-analysis | 제작 중 | 4 | docker | R-search-10 |
 | [L-search-53](backend/search/cards/L-search-53-terms-agg-accuracy.md) | terms 집계의 오차 | lab | es-lab | 04-terms-agg-accuracy | 제작 중 | 5 | docker | B-search-20 |
 | [B-search-60](backend/search/cards/B-search-60-result-placement.md) | 제약을 만족하는 검색 결과 배치기 만들기 | build | result-placement | 01-ordered, 02-constraints, 03-exact-search | 후보 | 4 | 없음 |  |
-| [F-search-70](backend/search/cards/F-search-70-fallback-constraints.md) | 대체 배치 경로의 노출 상한 누락 | fix | bug-fix | 17-fallback-constraints | 제작 중 | 4 | 없음 | B-search-60 |
+| [F-search-70](backend/search/cards/F-search-70-fallback-constraints.md) | 대체 배치 경로의 노출 상한 누락 | fix | bug-fix | 17-fallback-constraints | 완료(2026-11-06) | 4 | 없음 | B-search-60 |
 | [C-search-80](backend/search/cards/C-search-80-stable-diversity.md) | 재조회해도 유지되는 추천 다양성 | code | code-reading | 15-stable-diversity | 완료(2026-11-05) | 5 | 없음 | B-search-60 |
 
 ### Spark

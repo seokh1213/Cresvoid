@@ -1,0 +1,61 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "morning-close",
+      "refs": ["3", "5", "6", "7", "10"],
+      "quote": "시작만으로 원장에 반영하지는 않는다.",
+      "input": ["SALE 2026-09-01 100", "SALE 2026-09-01 200", "START 2026-09-01 1", "STATE", "REPORT 2026-09-01", "FINISH", "REPORT 2026-09-01", "STATE"],
+      "expected": ["SALE 2026-09-01 OK", "SALE 2026-09-01 OK", "START accepted=1 rejected=0", "STATE RUNNING pending=1", "REPORT 2026-09-01 runs=0 sales=0 amount=0", "FINISH batches=1 amount=300", "REPORT 2026-09-01 runs=1 sales=2 amount=300", "STATE IDLE pending=0"]
+    },
+    {
+      "name": "catalog-review",
+      "refs": ["5", "6", "7", "10"],
+      "quote": "이 제한은 날짜별이 아니라 작업 객체 전체에 적용한다.",
+      "input": ["SALE 2026-09-11 70", "SALE 2026-09-12 40", "START 2026-09-11 1", "SALE 2026-09-11 30", "START 2026-09-12 1", "REPORT 2026-09-12", "FINISH", "REPORT 2026-09-11", "START 2026-09-12 1", "FINISH", "REPORT 2026-09-12", "STATE"],
+      "expected": ["SALE 2026-09-11 OK", "SALE 2026-09-12 OK", "START accepted=1 rejected=0", "SALE 2026-09-11 OK", "START accepted=0 rejected=1", "REPORT 2026-09-12 runs=0 sales=0 amount=0", "FINISH batches=1 amount=70", "REPORT 2026-09-11 runs=1 sales=1 amount=70", "START accepted=1 rejected=0", "FINISH batches=1 amount=40", "REPORT 2026-09-12 runs=1 sales=1 amount=40", "STATE IDLE pending=0"]
+    },
+    {
+      "name": "scheduler-round",
+      "refs": ["4", "5", "7", "10"],
+      "quote": "대기 상태에서 겹쳐 들어온 시작 요청 중 정확히 하나만 수락한다.",
+      "input": ["SALE 2026-09-20 800", "SALE 2026-09-20 800", "START 2026-09-20 2", "STATE", "FINISH", "REPORT 2026-09-20", "STATE"],
+      "expected": ["SALE 2026-09-20 OK", "SALE 2026-09-20 OK", "START accepted=1 rejected=1", "STATE RUNNING pending=1", "FINISH batches=1 amount=1600", "REPORT 2026-09-20 runs=1 sales=2 amount=1600", "STATE IDLE pending=0"]
+    },
+    {
+      "name": "settlement-review",
+      "refs": ["4", "5", "6", "7", "10"],
+      "quote": "거부한 요청은 작업 상태, 대기 중인 정산 내역, 원장을 바꾸지 않는다.",
+      "input": ["SALE 2026-09-21 1000000", "START 2026-09-21 16", "SALE 2026-09-21 1", "START 2026-09-22 4", "STATE", "FINISH", "REPORT 2026-09-21", "REPORT 2026-09-22", "FINISH"],
+      "expected": ["SALE 2026-09-21 OK", "START accepted=1 rejected=15", "SALE 2026-09-21 OK", "START accepted=0 rejected=4", "STATE RUNNING pending=1", "FINISH batches=1 amount=1000000", "REPORT 2026-09-21 runs=1 sales=1 amount=1000000", "REPORT 2026-09-22 runs=0 sales=0 amount=0", "FINISH batches=0 amount=0"]
+    },
+    {
+      "name": "manual-retry",
+      "refs": ["3", "6", "7", "9", "10"],
+      "quote": "원장에는 각 완료 실행의 내역을 누적한다.",
+      "input": ["SALE 2026-09-23 1000", "START 2026-09-23 1", "FINISH", "SALE 2026-09-23 200", "START 2026-09-23 1", "FINISH", "REPORT 2026-09-23", "FINISH", "REPORT 2026-09-23"],
+      "expected": ["SALE 2026-09-23 OK", "START accepted=1 rejected=0", "FINISH batches=1 amount=1000", "SALE 2026-09-23 OK", "START accepted=1 rejected=0", "FINISH batches=1 amount=1200", "REPORT 2026-09-23 runs=2 sales=3 amount=2200", "FINISH batches=0 amount=0", "REPORT 2026-09-23 runs=2 sales=3 amount=2200"]
+    },
+    {
+      "name": "operator-abort",
+      "refs": ["3", "5", "7", "8", "9"],
+      "quote": "판매 내역은 지우지 않는다.",
+      "input": ["ABORT", "SALE 2026-09-24 0", "SALE 2026-09-24 400", "START 2026-09-24 1", "ABORT", "STATE", "REPORT 2026-09-24", "START 2026-09-24 1", "FINISH", "REPORT 2026-09-24"],
+      "expected": ["ABORT batches=0", "SALE 2026-09-24 OK", "SALE 2026-09-24 OK", "START accepted=1 rejected=0", "ABORT batches=1", "STATE IDLE pending=0", "REPORT 2026-09-24 runs=0 sales=0 amount=0", "START accepted=1 rejected=0", "FINISH batches=1 amount=400", "REPORT 2026-09-24 runs=1 sales=2 amount=400"]
+    },
+    {
+      "name": "empty-close",
+      "refs": ["2", "6", "7", "8", "10"],
+      "quote": "판매가 없어도 시작할 수 있다.",
+      "input": ["", "STATE", "REPORT 2026-09-25", "FINISH", "ABORT", "START 2026-09-25 1", "STATE", "REPORT 2026-09-25", "FINISH", "REPORT 2026-09-25", "START 2026-09-25 1", "ABORT", "FINISH", "STATE"],
+      "expected": ["STATE IDLE pending=0", "REPORT 2026-09-25 runs=0 sales=0 amount=0", "FINISH batches=0 amount=0", "ABORT batches=0", "START accepted=1 rejected=0", "STATE RUNNING pending=1", "REPORT 2026-09-25 runs=0 sales=0 amount=0", "FINISH batches=1 amount=0", "REPORT 2026-09-25 runs=1 sales=0 amount=0", "START accepted=1 rejected=0", "ABORT batches=1", "FINISH batches=0 amount=0", "STATE IDLE pending=0"]
+    },
+    {
+      "name": "daily-history",
+      "refs": ["4", "5", "7", "8", "9", "10"],
+      "quote": "FINISH 또는 ABORT 후에는 같은 날짜도 다시 시작할 수 있다.",
+      "input": ["SALE 2026-09-26 40", "SALE 2026-09-27 90", "START 2026-09-26 3", "ABORT", "START 2026-09-27 2", "FINISH", "START 2026-09-26 4", "FINISH", "REPORT 2026-09-26", "REPORT 2026-09-27", "STATE"],
+      "expected": ["SALE 2026-09-26 OK", "SALE 2026-09-27 OK", "START accepted=1 rejected=2", "ABORT batches=1", "START accepted=1 rejected=1", "FINISH batches=1 amount=90", "START accepted=1 rejected=3", "FINISH batches=1 amount=40", "REPORT 2026-09-26 runs=1 sales=1 amount=40", "REPORT 2026-09-27 runs=1 sales=1 amount=90", "STATE IDLE pending=0"]
+    }
+  ]
+}

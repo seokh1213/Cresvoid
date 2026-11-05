@@ -1,0 +1,80 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "morning-basket",
+      "refs": ["4", "5", "6", "7", "8"],
+      "quote": "항목이 없는 장바구니의 배송비는 0.00달러다.",
+      "input": ["PRICE mug 12.50", "PUT home a mug", "ITEMS home", "QUOTE home", "DROP home a", "ITEMS home", "QUOTE home"],
+      "expected": ["OK", "OK", "ITEMS home a:mug:12.50", "QUOTE home subtotal=12.50 shipping=4.99 total=17.49", "OK", "ITEMS home (empty)", "QUOTE home subtotal=0.00 shipping=0.00 total=0.00"]
+    },
+    {
+      "name": "desk-basket",
+      "refs": ["4", "7", "8"],
+      "quote": "상품 합계가 50.00달러 이상이면 배송비는 0.00달러이며 그보다 작으면 4.99달러다.",
+      "input": ["PRICE lamp 25.00", "PUT desk a lamp", "PUT desk b lamp", "QUOTE desk", "PRICE lamp 24.99", "PUT desk b lamp", "QUOTE desk", "PRICE lamp 25.01", "PUT desk b lamp", "QUOTE desk"],
+      "expected": ["OK", "OK", "OK", "QUOTE desk subtotal=50.00 shipping=0.00 total=50.00", "OK", "OK", "QUOTE desk subtotal=49.99 shipping=4.99 total=54.98", "OK", "OK", "QUOTE desk subtotal=50.01 shipping=0.00 total=50.01"]
+    },
+    {
+      "name": "travel-basket",
+      "refs": ["4", "5", "6", "7", "8"],
+      "quote": "상품 합계가 50.00달러 이상이면 배송비는 0.00달러이며 그보다 작으면 4.99달러다.",
+      "input": ["PRICE mug 13.04", "PRICE pouch 19.81", "PRICE flask 17.15", "PUT trip a mug", "PUT trip b pouch", "PUT trip c flask", "ITEMS trip", "QUOTE trip", "PRICE mug 13.05", "PUT trip a mug", "QUOTE trip", "DROP trip a", "QUOTE trip"],
+      "expected": ["OK", "OK", "OK", "OK", "OK", "OK", "ITEMS trip a:mug:13.04 b:pouch:19.81 c:flask:17.15", "QUOTE trip subtotal=50.00 shipping=0.00 total=50.00", "OK", "OK", "QUOTE trip subtotal=50.01 shipping=0.00 total=50.01", "OK", "QUOTE trip subtotal=36.96 shipping=4.99 total=41.95"]
+    },
+    {
+      "name": "weekend-basket",
+      "refs": ["4", "5", "7"],
+      "quote": "조회는 장바구니를 바꾸지 않는다.",
+      "input": ["PRICE pin 4.02", "PRICE bag 28.08", "PRICE bottle 17.90", "PUT outing a pin", "PUT outing b bag", "PUT outing c bottle", "QUOTE outing", "QUOTE outing", "DROP outing b", "QUOTE outing", "PUT outing b bag", "QUOTE outing"],
+      "expected": ["OK", "OK", "OK", "OK", "OK", "OK", "QUOTE outing subtotal=50.00 shipping=0.00 total=50.00", "QUOTE outing subtotal=50.00 shipping=0.00 total=50.00", "OK", "QUOTE outing subtotal=21.92 shipping=4.99 total=26.91", "OK", "QUOTE outing subtotal=50.00 shipping=0.00 total=50.00"]
+    },
+    {
+      "name": "shelf-review",
+      "refs": ["3", "4", "6", "7"],
+      "quote": "항목을 담을 때의 가격은 이후 카탈로그 가격이 바뀌어도 유지한다.",
+      "input": ["PRICE book 10.01", "PRICE case 10.02", "PRICE stand 29.97", "PUT office z book", "PUT office a case", "PUT office m stand", "PRICE case 90.00", "PUT gift a case", "ITEMS office", "QUOTE office", "QUOTE gift", "ITEMS gift", "QUOTE office"],
+      "expected": ["OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "ITEMS office a:case:10.02 m:stand:29.97 z:book:10.01", "QUOTE office subtotal=50.00 shipping=0.00 total=50.00", "QUOTE gift subtotal=90.00 shipping=0.00 total=90.00", "ITEMS gift a:case:90.00", "QUOTE office subtotal=50.00 shipping=0.00 total=50.00"]
+    },
+    {
+      "name": "cart-edits",
+      "refs": ["4", "5", "6", "7"],
+      "quote": "같은 장바구니에 같은 항목 ID가 있으면 상품과 가격을 모두 교체한다.",
+      "input": ["PRICE sample 0.00", "PRICE card 0.01", "PRICE pack 49.99", "PUT order x sample", "QUOTE order", "PUT order x card", "PUT order y pack", "QUOTE order", "PUT other x card", "DROP order x", "QUOTE order", "QUOTE other", "ITEMS order", "DROP other x", "QUOTE other"],
+      "expected": ["OK", "OK", "OK", "OK", "QUOTE order subtotal=0.00 shipping=4.99 total=4.99", "OK", "OK", "QUOTE order subtotal=50.00 shipping=0.00 total=50.00", "OK", "OK", "QUOTE order subtotal=49.99 shipping=4.99 total=54.98", "QUOTE other subtotal=0.01 shipping=4.99 total=5.00", "ITEMS order y:pack:49.99", "OK", "QUOTE other subtotal=0.00 shipping=0.00 total=0.00"]
+    },
+    {
+      "name": "catalog-feedback",
+      "refs": ["2", "3", "4", "5", "8"],
+      "quote": "다른 형식이나 범위의 금액은 `ERROR amount`를 출력하고 기존 가격을 유지한다.",
+      "input": ["PRICE pen 2.00", "PRICE pen -1.00", "PRICE pen 2.0", "PRICE pen 02.00", "PRICE pen 1000000.00", "PRICE pen 2e0", "PRICE pen +2.00", "PUT draft b pen", "PUT draft b missing", "ITEMS draft", "DROP unknown b", "DROP draft z", "ITEMS draft", "QUOTE draft", "", "UNKNOWN", "QUOTE draft"],
+      "expected": ["OK", "ERROR amount", "ERROR amount", "ERROR amount", "ERROR amount", "ERROR amount", "ERROR amount", "OK", "ERROR product", "ITEMS draft b:pen:2.00", "ERROR line", "ERROR line", "ITEMS draft b:pen:2.00", "QUOTE draft subtotal=2.00 shipping=4.99 total=6.99", "ERROR command", "QUOTE draft subtotal=2.00 shipping=4.99 total=6.99"]
+    },
+    {
+      "name": "warehouse-basket",
+      "refs": ["3", "4", "6", "7", "8"],
+      "quote": "모든 출력 금액은 천 단위 구분 없이 점을 소수점으로 쓰고 소수점 아래 두 자리를 표시한다.",
+      "input": [
+        "QUOTE pending", "ITEMS pending", "PRICE pallet 999999.99",
+        "PUT wholesale a pallet", "PUT wholesale b pallet", "PUT wholesale c pallet",
+        "PUT wholesale d pallet", "PUT wholesale e pallet", "PUT wholesale f pallet",
+        "PUT wholesale g pallet", "PUT wholesale h pallet", "PUT wholesale i pallet",
+        "PUT wholesale j pallet", "PUT wholesale k pallet", "PUT wholesale l pallet",
+        "PUT wholesale m pallet", "PUT wholesale n pallet", "PUT wholesale o pallet",
+        "PUT wholesale p pallet", "PUT wholesale q pallet", "PUT wholesale r pallet",
+        "PUT wholesale s pallet", "PUT wholesale t pallet", "PUT wholesale u pallet",
+        "PUT wholesale v pallet", "QUOTE wholesale",
+        "PRICE label 0.10", "PUT retail z label", "PUT retail a label", "PUT retail m label",
+        "ITEMS retail", "QUOTE retail"
+      ],
+      "expected": [
+        "QUOTE pending subtotal=0.00 shipping=0.00 total=0.00", "ITEMS pending (empty)", "OK",
+        "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK",
+        "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK", "OK",
+        "QUOTE wholesale subtotal=21999999.78 shipping=0.00 total=21999999.78",
+        "OK", "OK", "OK", "OK", "ITEMS retail a:label:0.10 m:label:0.10 z:label:0.10",
+        "QUOTE retail subtotal=0.30 shipping=4.99 total=5.29"
+      ]
+    }
+  ]
+}

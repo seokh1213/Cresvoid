@@ -9,6 +9,25 @@
     {"dir": "04-stale-redo", "title": "다시 실행하면 끼어드는 옛 편집"},
     {"dir": "05-instant-finish", "title": "시작하자마자 끝나는 백그라운드 이벤트"},
     {"dir": "06-point-accrual", "title": "포인트 적립 계산"},
-    {"dir": "07-daily-limit", "title": "일일 사용 한도"}
+    {"dir": "07-daily-limit", "title": "일일 사용 한도"},
+    {"dir": "08-option-equality", "title": "장바구니 상품 옵션 비교"},
+    {"dir": "09-comparator-contract", "title": "추천 점수 정렬"},
+    {"dir": "10-byte-offset", "title": "작업자별 내보내기 결과 불일치"},
+    {"dir": "11-short-read", "title": "저장되지 않는 이미지 구간"},
+    {"dir": "12-late-lock-release", "title": "문서 생성 작업의 잠금 상태 불일치"},
+    {"dir": "13-rollover-delete-scope", "title": "정리 후 비어 버린 상품 상세"},
+    {"dir": "14-missing-chunk", "title": "확인 전에 나온 전체 완료 안내"},
+    {"dir": "15-replay-regression", "title": "검색 반영 명단에 되살아난 옛 상품 내용"},
+    {"dir": "16-hangul-normalization", "title": "목록에는 있지만 검색되지 않는 상품"},
+    {"dir": "17-fallback-constraints", "title": "카탈로그 페이지 배치 이상"},
+    {"dir": "18-sublist-view", "title": "페이지 단위 일괄 처리"},
+    {"dir": "19-locale-format", "title": "가격 문자열 출력"},
+    {"dir": "20-code-pattern", "title": "상품 코드 검증"},
+    {"dir": "21-retry-duplicate", "title": "주문 상태 변경 기록"},
+    {"dir": "22-cache-key", "title": "회원 등급별 가격 캐시"},
+    {"dir": "23-float-threshold", "title": "무료 배송 기준 금액"},
+    {"dir": "24-sale-window", "title": "타임세일 시작과 끝"},
+    {"dir": "25-double-start", "title": "두 번 시작되는 정산 작업"},
+    {"dir": "26-unchecked-wakeup", "title": "검색 색인 갱신 중 작업자 종료"}
   ]
 }

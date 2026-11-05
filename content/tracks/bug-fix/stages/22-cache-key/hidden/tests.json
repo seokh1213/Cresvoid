@@ -1,0 +1,61 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "counter-sale",
+      "refs": ["4", "5", "6"],
+      "quote": "쿠폰이 OFF이면 등급 할인 후 금액이 판매가다.",
+      "input": ["SET mug 1000 30", "PRICE mug REGULAR OFF", "PRICE mug REGULAR OFF"],
+      "expected": ["OK mug", "PRICE mug 1000", "PRICE mug 1000"]
+    },
+    {
+      "name": "morning-browse",
+      "refs": ["5", "6", "7"],
+      "quote": "상품이 같아도 각 요청에 지정한 등급과 쿠폰 적용 여부에 맞는 판매가를 반환한다.",
+      "input": ["SET coat 12500 30", "PRICE coat VIP OFF", "PRICE coat REGULAR OFF", "PRICE coat SILVER OFF", "LIST REGULAR OFF coat coat"],
+      "expected": ["OK coat", "PRICE coat 10000", "PRICE coat 12500", "PRICE coat 11875", "PRICES coat:12500 coat:12500"]
+    },
+    {
+      "name": "evening-browse",
+      "refs": ["5", "6"],
+      "quote": "상품이 같아도 각 요청에 지정한 등급과 쿠폰 적용 여부에 맞는 판매가를 반환한다.",
+      "input": ["SET shoes 999 8", "PRICE shoes REGULAR ON", "PRICE shoes VIP ON", "PRICE shoes SILVER ON", "PRICE shoes VIP OFF", "PRICE shoes REGULAR OFF"],
+      "expected": ["OK shoes", "PRICE shoes 699", "PRICE shoes 499", "PRICE shoes 649", "PRICE shoes 799", "PRICE shoes 999"]
+    },
+    {
+      "name": "shelf-preview",
+      "refs": ["3", "5", "7"],
+      "quote": "입력에 나온 상품의 순서와 중복을 그대로 유지한다.",
+      "input": ["SET 01 301 5", "SET 1 999 5", "SET 12 1050 5", "LIST SILVER ON 01 1 01 none 12", "LIST SILVER OFF 12 01 1", "PRICE 1 SILVER ON"],
+      "expected": ["OK 01", "OK 1", "OK 12", "PRICES 01:0 1:649 01:0 none:- 12:697", "PRICES 12:997 01:285 1:949", "PRICE 1 649"]
+    },
+    {
+      "name": "catalog-refresh",
+      "refs": ["4", "5", "6", "10"],
+      "quote": "이 상품에 대해 보관한 판매가는 등급과 쿠폰 적용 여부에 관계없이 모두 폐기한다.",
+      "input": ["SET a 2000 20", "SET b 1000 20", "PRICE a VIP OFF", "PRICE a VIP ON", "PRICE a REGULAR OFF", "PRICE a REGULAR ON", "PRICE a SILVER OFF", "PRICE a SILVER ON", "PRICE b REGULAR OFF", "SET a 1001 2", "PRICE a VIP OFF", "PRICE a VIP ON", "PRICE a REGULAR OFF", "PRICE a REGULAR ON", "PRICE a SILVER OFF", "PRICE a SILVER ON", "LIST REGULAR OFF b a", "CLEAR a", "PRICE a SILVER OFF", "PRICE a SILVER ON", "PRICE b REGULAR OFF"],
+      "expected": ["OK a", "OK b", "PRICE a 1600", "PRICE a 1300", "PRICE a 2000", "PRICE a 1700", "PRICE a 1900", "PRICE a 1600", "PRICE b 1000", "OK a", "PRICE a 800", "PRICE a 500", "PRICE a 1001", "PRICE a 701", "PRICE a 950", "PRICE a 650", "PRICES b:1000 a:1001", "OK a", "PRICE a 950", "PRICE a 650", "PRICE b 1000"]
+    },
+    {
+      "name": "timer-session",
+      "refs": ["5", "6", "9"],
+      "quote": "상품이 같아도 각 요청에 지정한 등급과 쿠폰 적용 여부에 맞는 판매가를 반환한다.",
+      "input": ["SET a 1000 5", "PRICE a VIP OFF", "ADVANCE 4", "PRICE a VIP OFF", "ADVANCE 1", "PRICE a REGULAR OFF", "ADVANCE 0", "PRICE a REGULAR OFF", "ADVANCE 5", "PRICE a SILVER OFF", "ADVANCE 5", "PRICE a VIP OFF"],
+      "expected": ["OK a", "PRICE a 800", "TIME 4", "PRICE a 800", "TIME 5", "PRICE a 1000", "TIME 5", "PRICE a 1000", "TIME 10", "PRICE a 950", "TIME 15", "PRICE a 800"]
+    },
+    {
+      "name": "price-review",
+      "refs": ["3", "5", "6", "7", "10"],
+      "quote": "쿠폰이 ON이면 이 금액에서 300원을 더 빼되 0원 미만이면 0원으로 정한다.",
+      "input": ["PRICE later REGULAR OFF", "CLEAR later", "SET z 0 1", "SET tiny 1 1", "SET edge 301 1", "SET high 1000000000 86400", "LIST VIP ON z tiny edge high", "LIST VIP OFF high edge tiny z", "SET odd 19 1", "PRICE odd SILVER OFF", "PRICE odd SILVER ON", "SET later 600 1", "PRICE later REGULAR OFF"],
+      "expected": ["MISSING later", "OK later", "OK z", "OK tiny", "OK edge", "OK high", "PRICES z:0 tiny:0 edge:0 high:799999700", "PRICES high:800000000 edge:240 tiny:0 z:0", "OK odd", "PRICE odd 18", "PRICE odd 0", "OK later", "PRICE later 600"]
+    },
+    {
+      "name": "support-session",
+      "refs": ["5", "6", "7", "8", "9", "10"],
+      "quote": "상품이 같아도 각 요청에 지정한 등급과 쿠폰 적용 여부에 맞는 판매가를 반환한다.",
+      "input": ["SET coat 12500 30", "SET mug 799 10", "PRICE mug SILVER ON", "LIST VIP OFF coat mug ghost", "ADVANCE 4", "PRICE coat REGULAR OFF", "PRICE mug SILVER ON", "CLEAR mug", "PRICE mug REGULAR OFF", "ADVANCE 30", "PRICE coat REGULAR OFF"],
+      "expected": ["OK coat", "OK mug", "PRICE mug 459", "PRICES coat:10000 mug:639 ghost:-", "TIME 4", "PRICE coat 12500", "PRICE mug 459", "OK mug", "PRICE mug 799", "TIME 34", "PRICE coat 12500"]
+    }
+  ]
+}

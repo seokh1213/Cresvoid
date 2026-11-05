@@ -1,0 +1,68 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-opening",
+      "refs": ["4", "6", "9"],
+      "quote": "id의 숫자 오름차순으로 나열하며 상품명은 공백과 유니코드 표현을 포함해 등록된 원문 그대로 출력한다.",
+      "input": ["PUT|5|Blue Mug", "SEARCH|mug", "LIST"],
+      "expected": ["SAVED 5", "FOUND 5", "LIST 1", "5|Blue Mug"]
+    },
+    {
+      "name": "tableware-browse",
+      "refs": ["4", "5", "6", "7", "9"],
+      "quote": "검색에서 비교하는 상품명과 검색어는 모두 NFC 정규화를 적용한 뒤 ASCII 대문자 `A`~`Z`만 소문자로 바꾼 문자열로 취급한다.",
+      "input": ["PUT|24|Blue 한 컵", "PUT|7|Red 접시", "PUT|31|Green 수저", "SEARCH|red 접시", "PUT|7|Red 한 접시", "SEARCH|red 접시", "SEARCH|red 한", "SEARCH|컵 한", "REMOVE|24", "SEARCH|한", "SEARCH|red", "LIST", "PUT|31|Green 한 수저", "SEARCH|한", "SEARCH|접시 한", "SEARCH|수저 green", "REMOVE|7", "SEARCH|한", "LIST"],
+      "expected": ["SAVED 24", "SAVED 7", "SAVED 31", "FOUND 7", "SAVED 7", "FOUND 7", "FOUND 7", "FOUND 24", "REMOVED 24", "FOUND 7", "FOUND 7", "LIST 2", "7|Red 한 접시", "31|Green 수저", "SAVED 31", "FOUND 7,31", "FOUND 7", "FOUND 31", "REMOVED 7", "FOUND 31", "LIST 1", "31|Green 한 수저"]
+    },
+    {
+      "name": "cup-lookup",
+      "refs": ["7", "9"],
+      "quote": "검색에서 비교하는 상품명과 검색어는 모두 NFC 정규화를 적용한 뒤 ASCII 대문자 `A`~`Z`만 소문자로 바꾼 문자열로 취급한다.",
+      "input": ["PUT|9|한 컵", "PUT|2|작은 컵", "SEARCH|한 컵", "SEARCH|컵", "SEARCH|한 작은"],
+      "expected": ["SAVED 9", "SAVED 2", "FOUND 9", "FOUND 2,9", "FOUND -"]
+    },
+    {
+      "name": "travel-selection",
+      "refs": ["7", "9"],
+      "quote": "검색어의 모든 단어를 포함하는 상품을 찾는다.",
+      "input": ["PUT|100|가방 BLUE blue", "PUT|2|가방 Blue", "PUT|11|가방 RED", "SEARCH|가방", "SEARCH|BLUE 가방 BLUE", "SEARCH|가방 red", "SEARCH|가", "SEARCH|가방 blue red"],
+      "expected": ["SAVED 100", "SAVED 2", "SAVED 11", "FOUND 2,11,100", "FOUND 2,100", "FOUND 11", "FOUND -", "FOUND -"]
+    },
+    {
+      "name": "seller-revision",
+      "refs": ["4", "5", "7"],
+      "quote": "교체가 끝난 상품은 새 상품명으로만 검색된다.",
+      "input": ["PUT|4|한 컵", "PUT|4|가방 GREEN", "SEARCH|한", "SEARCH|가방", "PUT|4|한 컵", "SEARCH|가방", "SEARCH|한", "REMOVE|4", "SEARCH|한", "LIST"],
+      "expected": ["SAVED 4", "SAVED 4", "FOUND -", "FOUND 4", "SAVED 4", "FOUND -", "FOUND 4", "REMOVED 4", "FOUND -", "LIST 0"]
+    },
+    {
+      "name": "label-comparison",
+      "refs": ["7", "8", "9"],
+      "quote": "NFC 적용 외에 전각 영문, 문장부호, 폭 없는 공백(U+200B)을 추가로 변환하거나 제거하지 않는다.",
+      "input": ["PUT|1|가", "PUT|2|ㄱㅏ", "PUT|3|Ａ", "PUT|4|a", "PUT|5|가\u200B방", "PUT|6|가방", "PUT|7|가-방", "SEARCH|가", "SEARCH|ㄱㅏ", "SEARCH|A", "SEARCH|Ａ", "SEARCH|가방", "SEARCH|가\u200B방", "SEARCH|가-방", "PUT|8|\u037E", "SEARCH|;", "SEARCH|\u037E", "LIST"],
+      "expected": ["SAVED 1", "SAVED 2", "SAVED 3", "SAVED 4", "SAVED 5", "SAVED 6", "SAVED 7", "FOUND 1", "FOUND 2", "FOUND 4", "FOUND 3", "FOUND 6", "FOUND 5", "FOUND 7", "SAVED 8", "FOUND 8", "FOUND 8", "LIST 8", "1|가", "2|ㄱㅏ", "3|Ａ", "4|a", "5|가\u200B방", "6|가방", "7|가-방", "8|\u037E"]
+    },
+    {
+      "name": "display-and-lookup",
+      "refs": ["6", "7", "9"],
+      "quote": "단어 전체가 같아야 하며 부분 문자열, 초성, 접두어로 찾지 않는다.",
+      "input": ["PUT|12|  Café   CUP  ", "PUT|3|Café CUP", "LIST", "SEARCH|  café  cup cup ", "SEARCH|CAFE", "SEARCH|Caf", "SEARCH|Café"],
+      "expected": ["SAVED 12", "SAVED 3", "LIST 2", "3|Café CUP", "12|  Café   CUP  ", "FOUND 3,12", "FOUND -", "FOUND -", "FOUND 3,12"]
+    },
+    {
+      "name": "command-desk",
+      "refs": ["3", "4", "5", "9"],
+      "quote": "오류가 발생한 명령은 상태를 바꾸지 않으며 다음 줄을 계속 처리한다.",
+      "input": ["LIST", "SEARCH|", "SEARCH|   ", "PUT|1|cup", "PUT|1| ", "PUT|0|", "PUT|01|cup", "PUT|2147483648|cup", "PUT|+1|cup", "PUT|2", "LIST|", "SEARCH|a|b", "", "REMOVE|x", "REMOVE|2", "SEARCH|cup", "PUT|2147483647|spoon", "SEARCH|spoon", "LIST"],
+      "expected": ["LIST 0", "ERR query", "ERR query", "SAVED 1", "ERR title", "ERR id", "ERR id", "ERR id", "ERR id", "ERR command", "ERR command", "ERR command", "ERR command", "ERR id", "MISSING 2", "FOUND 1", "SAVED 2147483647", "FOUND 2147483647", "LIST 2", "1|cup", "2147483647|spoon"]
+    },
+    {
+      "name": "stock-cleanup",
+      "refs": ["4", "5", "7", "9"],
+      "quote": "삭제한 상품은 목록과 모든 검색 결과에서 빠진다.",
+      "input": ["PUT|10|한 BLUE", "PUT|2|한 한 blue", "PUT|8|접시 blue", "REMOVE|10", "SEARCH|한 blue", "PUT|2|접시 green", "SEARCH|한", "SEARCH|blue", "REMOVE|8", "SEARCH|blue", "SEARCH|접시", "REMOVE|8"],
+      "expected": ["SAVED 10", "SAVED 2", "SAVED 8", "REMOVED 10", "FOUND 2", "SAVED 2", "FOUND -", "FOUND 8", "REMOVED 8", "FOUND -", "FOUND 2", "MISSING 8"]
+    }
+  ]
+}

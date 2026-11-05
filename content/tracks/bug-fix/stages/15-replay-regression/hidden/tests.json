@@ -1,0 +1,208 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-check",
+      "refs": ["3", "5", "8"],
+      "quote": "CHANGE는 출력하지 않는다.",
+      "input": [
+        "CHANGE LIVE 1 1 PUT mug blue",
+        "REPLAY 1"
+      ],
+      "expected": [
+        "BATCH 1 1",
+        "PUT mug blue LIVE 1 1",
+        "END 1"
+      ]
+    },
+    {
+      "name": "merch-review",
+      "refs": ["4", "6", "7", "8"],
+      "quote": "같은 회차에서는 순번이 가장 큰 것을 고른다.",
+      "input": [
+        "CHANGE LIVE 4 100 PUT bag canvas",
+        "CHANGE LIVE 4 99 PUT bag cotton",
+        "CHANGE TRIAL 4 5 PUT bag preview",
+        "CHANGE TRIAL 4 2 DELETE bag",
+        "CHANGE LIVE 4 90 DELETE cap",
+        "CHANGE LIVE 4 80 PUT cap navy",
+        "CHANGE LIVE 3 1000000000000 PUT dish old",
+        "CHANGE LIVE 4 1 PUT dish new",
+        "CHANGE TRIAL 4 7 DELETE dish",
+        "REPLAY 4"
+      ],
+      "expected": [
+        "BATCH 4 3",
+        "PUT bag preview TRIAL 4 5",
+        "DELETE cap LIVE 4 90",
+        "DELETE dish TRIAL 4 7",
+        "END 4"
+      ]
+    },
+    {
+      "name": "display-review",
+      "refs": ["5", "6", "7", "9"],
+      "quote": "TRIAL에 선택된 기록이 있으면 그 기록이 병합 결과다.",
+      "input": [
+        "CHANGE TRIAL 3 9 PUT kettle preview",
+        "CHANGE LIVE 4 1 PUT kettle steel",
+        "CHANGE LIVE 3 2 PUT rug wool",
+        "REPLAY 4",
+        "REPLAY 5",
+        "REPLAY 2"
+      ],
+      "expected": [
+        "BATCH 4 1",
+        "PUT kettle preview TRIAL 3 9",
+        "END 4",
+        "BATCH 5 0",
+        "END 5",
+        "BATCH 2 0",
+        "END 2"
+      ]
+    },
+    {
+      "name": "daily-export",
+      "refs": ["4", "5", "8", "9"],
+      "quote": "후보 키에 그보다 큰 회차의 기록이 어느 원천에든 하나라도 있으면 그 키를 명단에서 제외한다.",
+      "input": [
+        "CHANGE LIVE 8 1 PUT mug old",
+        "CHANGE LIVE 8 2 PUT lamp warm",
+        "REPLAY 8",
+        "CHANGE LIVE 9 1 PUT mug new",
+        "CHANGE LIVE 9 2 PUT tray oak",
+        "REPLAY 8",
+        "REPLAY 9"
+      ],
+      "expected": [
+        "BATCH 8 2",
+        "PUT lamp warm LIVE 8 2",
+        "PUT mug old LIVE 8 1",
+        "END 8",
+        "BATCH 8 1",
+        "PUT lamp warm LIVE 8 2",
+        "END 8",
+        "BATCH 9 2",
+        "PUT mug new LIVE 9 1",
+        "PUT tray oak LIVE 9 2",
+        "END 9"
+      ]
+    },
+    {
+      "name": "sample-export",
+      "refs": ["5", "6", "7", "8"],
+      "quote": "나중 기록이 PUT인지 DELETE인지, 병합 결과에서 어느 원천이 우선하는지는 이 제외 규칙에 영향을 주지 않는다.",
+      "input": [
+        "CHANGE LIVE 20 1 PUT bowl stone",
+        "CHANGE TRIAL 20 1 PUT flask amber",
+        "CHANGE LIVE 20 2 PUT flask steel",
+        "CHANGE TRIAL 21 1 DELETE bowl",
+        "CHANGE LIVE 21 1 DELETE flask",
+        "REPLAY 20",
+        "REPLAY 21"
+      ],
+      "expected": [
+        "BATCH 20 0",
+        "END 20",
+        "BATCH 21 2",
+        "DELETE bowl TRIAL 21 1",
+        "PUT flask amber TRIAL 20 1",
+        "END 21"
+      ]
+    },
+    {
+      "name": "warehouse-review",
+      "refs": ["4", "5", "6", "7", "8"],
+      "quote": "나중 기록이 PUT인지 DELETE인지, 병합 결과에서 어느 원천이 우선하는지는 이 제외 규칙에 영향을 주지 않는다.",
+      "input": [
+        "CHANGE LIVE 8 1 PUT plate olive",
+        "CHANGE TRIAL 3 10 PUT plate violet",
+        "CHANGE LIVE 3 1000 PUT plate olive",
+        "CHANGE TRIAL 3 20 PUT saucer cream",
+        "CHANGE LIVE 2 999 PUT saucer white",
+        "CHANGE LIVE 3 1001 DELETE spoon",
+        "CHANGE LIVE 2 1 PUT spoon silver",
+        "CHANGE TRIAL 8 2 PUT tray oak",
+        "REPLAY 3",
+        "REPLAY 8"
+      ],
+      "expected": [
+        "BATCH 3 2",
+        "PUT saucer cream TRIAL 3 20",
+        "DELETE spoon LIVE 3 1001",
+        "END 3",
+        "BATCH 8 2",
+        "PUT plate violet TRIAL 3 10",
+        "PUT tray oak TRIAL 8 2",
+        "END 8"
+      ]
+    },
+    {
+      "name": "accessory-review",
+      "refs": ["3", "4", "6", "7", "8", "9"],
+      "quote": "순번은 서로 다른 회차나 원천 사이의 우선순위가 아니다.",
+      "input": [
+        "CHANGE LIVE 999999 1000000000000 PUT hat previous",
+        "CHANGE LIVE 1000000 1000000000000 PUT hat final",
+        "CHANGE LIVE 1000000 9 DELETE hat",
+        "REPLAY 1000000",
+        "CHANGE TRIAL 1000000 1 PUT hat sample",
+        "REPLAY 1000000",
+        "CHANGE TRIAL 1000000 4000000000 DELETE hat",
+        "CHANGE TRIAL 1000000 3000000000 PUT hat preview",
+        "REPLAY 1000000"
+      ],
+      "expected": [
+        "BATCH 1000000 1",
+        "PUT hat final LIVE 1000000 1000000000000",
+        "END 1000000",
+        "BATCH 1000000 1",
+        "PUT hat sample TRIAL 1000000 1",
+        "END 1000000",
+        "BATCH 1000000 1",
+        "DELETE hat TRIAL 1000000 4000000000",
+        "END 1000000"
+      ]
+    },
+    {
+      "name": "operator-review",
+      "refs": ["4", "5", "8", "9"],
+      "quote": "같은 이력으로 같은 회차를 여러 번 실행하면 같은 명단이 나온다.",
+      "input": [
+        "CHANGE LIVE 5 1 PUT sku-a old",
+        "CHANGE LIVE 5 2 PUT sku-b keep",
+        "REPLAY 5",
+        "CHANGE LIVE 6 1 DELETE sku-a",
+        "REPLAY 5",
+        "REPLAY 6",
+        "REPLAY 5",
+        "REPLAY 5",
+        "REPLAY 4",
+        "REPLAY 6"
+      ],
+      "expected": [
+        "BATCH 5 2",
+        "PUT sku-a old LIVE 5 1",
+        "PUT sku-b keep LIVE 5 2",
+        "END 5",
+        "BATCH 5 1",
+        "PUT sku-b keep LIVE 5 2",
+        "END 5",
+        "BATCH 6 1",
+        "DELETE sku-a LIVE 6 1",
+        "END 6",
+        "BATCH 5 1",
+        "PUT sku-b keep LIVE 5 2",
+        "END 5",
+        "BATCH 5 1",
+        "PUT sku-b keep LIVE 5 2",
+        "END 5",
+        "BATCH 4 0",
+        "END 4",
+        "BATCH 6 1",
+        "DELETE sku-a LIVE 6 1",
+        "END 6"
+      ]
+    }
+  ]
+}

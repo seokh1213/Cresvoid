@@ -36,7 +36,7 @@
 | `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |
 | `code-reading` | code | 15 |
-| `bug-fix` | fix | 7 |
+| `bug-fix` | fix | 26 |
 
 ## 채점용 파일
 

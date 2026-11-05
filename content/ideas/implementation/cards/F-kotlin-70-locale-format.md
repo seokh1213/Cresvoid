@@ -4,7 +4,7 @@ title: 가격 문자열 출력
 kind: fix
 track: bug-fix
 stage: 19-locale-format
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

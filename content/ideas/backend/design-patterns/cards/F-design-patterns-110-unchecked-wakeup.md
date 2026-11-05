@@ -4,7 +4,7 @@ title: 빈 대기열에서 꺼내는 작업자
 kind: fix
 track: bug-fix
 stage: 26-unchecked-wakeup
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

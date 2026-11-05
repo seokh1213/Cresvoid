@@ -4,7 +4,7 @@ title: 대체 배치 경로의 노출 상한 누락
 kind: fix
 track: bug-fix
 stage: 17-fallback-constraints
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq: B-search-60

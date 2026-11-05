@@ -4,7 +4,7 @@ title: 추천 점수 정렬
 kind: fix
 track: bug-fix
 stage: 09-comparator-contract
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

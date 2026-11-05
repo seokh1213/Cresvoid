@@ -1,0 +1,312 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "morning-orders",
+      "refs": [
+        "3",
+        "5",
+        "8"
+      ],
+      "quote": "페이지 번호는 RUN마다 1부터 시작한다.",
+      "input": [
+        "ADD a 0",
+        "RUN 1 1",
+        "SHOW a",
+        "QUEUE"
+      ],
+      "expected": [
+        "ADDED a",
+        "PAGE 1 a:OK",
+        "END pages=1 attempts=1 completed=1 pending=0",
+        "ORDER a DONE attempts=1 failures=0",
+        "QUEUE -"
+      ]
+    },
+    {
+      "name": "afternoon-orders",
+      "refs": [
+        "5",
+        "6",
+        "8"
+      ],
+      "quote": "남은 주문이 적으면 남은 주문만 고른다.",
+      "input": [
+        "QUEUE",
+        "RUN 2 4",
+        "ADD a 0",
+        "ADD b 0",
+        "ADD c 0",
+        "ADD d 0",
+        "ADD e 0",
+        "RUN 2 2",
+        "QUEUE",
+        "SHOW e",
+        "RUN 4 3",
+        "SHOW e"
+      ],
+      "expected": [
+        "QUEUE -",
+        "END pages=0 attempts=0 completed=0 pending=0",
+        "ADDED a",
+        "ADDED b",
+        "ADDED c",
+        "ADDED d",
+        "ADDED e",
+        "PAGE 1 a:OK,b:OK",
+        "PAGE 2 c:OK,d:OK",
+        "END pages=2 attempts=4 completed=4 pending=1",
+        "QUEUE e",
+        "ORDER e WAITING attempts=0 failures=0",
+        "PAGE 1 e:OK",
+        "END pages=1 attempts=1 completed=1 pending=0",
+        "ORDER e DONE attempts=1 failures=0"
+      ]
+    },
+    {
+      "name": "checkout-export",
+      "refs": [
+        "4",
+        "7",
+        "8"
+      ],
+      "quote": "그중 실패한 주문만 원래 페이지 안의 순서대로 대기열 끝에 다시 넣는다.",
+      "input": [
+        "ADD red 0",
+        "ADD blue 1",
+        "ADD green 0",
+        "RUN 2 1",
+        "QUEUE",
+        "SHOW blue",
+        "SHOW green",
+        "RUN 2 2",
+        "QUEUE",
+        "SHOW blue"
+      ],
+      "expected": [
+        "ADDED red",
+        "ADDED blue",
+        "ADDED green",
+        "PAGE 1 red:OK,blue:RETRY",
+        "END pages=1 attempts=2 completed=1 pending=2",
+        "QUEUE green,blue",
+        "ORDER blue WAITING attempts=1 failures=0",
+        "ORDER green WAITING attempts=0 failures=0",
+        "PAGE 1 green:OK,blue:OK",
+        "END pages=1 attempts=2 completed=2 pending=0",
+        "QUEUE -",
+        "ORDER blue DONE attempts=2 failures=0"
+      ]
+    },
+    {
+      "name": "fulfillment-cycle",
+      "refs": [
+        "4",
+        "6",
+        "7",
+        "8"
+      ],
+      "quote": "다음 RUN은 이전 실행이 남긴 대기열과 주문 상태를 이어받는다.",
+      "input": [
+        "ADD a 2",
+        "ADD b 1",
+        "ADD c 0",
+        "ADD d 2",
+        "RUN 2 2",
+        "QUEUE",
+        "RUN 2 2",
+        "QUEUE",
+        "SHOW a",
+        "SHOW d",
+        "RUN 3 2",
+        "QUEUE"
+      ],
+      "expected": [
+        "ADDED a",
+        "ADDED b",
+        "ADDED c",
+        "ADDED d",
+        "PAGE 1 a:RETRY,b:RETRY",
+        "PAGE 2 c:OK,d:RETRY",
+        "END pages=2 attempts=4 completed=1 pending=3",
+        "QUEUE a,b,d",
+        "PAGE 1 a:RETRY,b:OK",
+        "PAGE 2 d:RETRY,a:OK",
+        "END pages=2 attempts=4 completed=2 pending=1",
+        "QUEUE d",
+        "ORDER a DONE attempts=3 failures=0",
+        "ORDER d WAITING attempts=2 failures=0",
+        "PAGE 1 d:OK",
+        "END pages=1 attempts=1 completed=1 pending=0",
+        "QUEUE -"
+      ]
+    },
+    {
+      "name": "recovery-audit",
+      "refs": [
+        "3",
+        "4",
+        "6",
+        "7",
+        "8"
+      ],
+      "quote": "다시 넣은 주문은 같은 페이지에서 재시도하지 않으며 다음 페이지부터 다시 고를 수 있다.",
+      "input": [
+        "ADD solo 2",
+        "RUN 9 1",
+        "QUEUE",
+        "SHOW solo",
+        "RUN 9 1",
+        "SHOW solo",
+        "RUN 9 1",
+        "RUN 9 1",
+        "ADD solo 0",
+        "SHOW solo"
+      ],
+      "expected": [
+        "ADDED solo",
+        "PAGE 1 solo:RETRY",
+        "END pages=1 attempts=1 completed=0 pending=1",
+        "QUEUE solo",
+        "ORDER solo WAITING attempts=1 failures=1",
+        "PAGE 1 solo:RETRY",
+        "END pages=1 attempts=1 completed=0 pending=1",
+        "ORDER solo WAITING attempts=2 failures=0",
+        "PAGE 1 solo:OK",
+        "END pages=1 attempts=1 completed=1 pending=0",
+        "END pages=0 attempts=0 completed=0 pending=0",
+        "ERROR duplicate-order",
+        "ORDER solo DONE attempts=3 failures=0"
+      ]
+    },
+    {
+      "name": "registration-review",
+      "refs": [
+        "3",
+        "5",
+        "9"
+      ],
+      "quote": "잘못된 명령은 상태를 바꾸지 않는다.",
+      "input": [
+        "ADD bad# 0",
+        "ADD x -1",
+        "ADD x 0",
+        "ADD x 2",
+        "SHOW missing",
+        "SHOW bad#",
+        "RUN 0 1",
+        "RUN 1 1001",
+        "RUN 1 +2",
+        "RUN 2147483648 1",
+        "ADD y 1001",
+        "ADD y 0 extra",
+        "QUEUE extra",
+        "OTHER",
+        "SHOW x",
+        "QUEUE",
+        "RUN 1 1",
+        "SHOW x"
+      ],
+      "expected": [
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ADDED x",
+        "ERROR duplicate-order",
+        "ERROR unknown-order",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ERROR invalid-command",
+        "ORDER x WAITING attempts=0 failures=0",
+        "QUEUE x",
+        "PAGE 1 x:OK",
+        "END pages=1 attempts=1 completed=1 pending=0",
+        "ORDER x DONE attempts=1 failures=0"
+      ]
+    },
+    {
+      "name": "shipment-ledger",
+      "refs": [
+        "3",
+        "4",
+        "7",
+        "8"
+      ],
+      "quote": "아직 고르지 않은 주문의 상대 순서는 유지한다.",
+      "input": [
+        "ADD k 1",
+        "ADD m 0",
+        "ADD n 1",
+        "ADD k 0",
+        "RUN 10 1",
+        "QUEUE",
+        "SHOW m",
+        "ADD p 0",
+        "RUN 1 2",
+        "QUEUE",
+        "SHOW k",
+        "SHOW n",
+        "RUN 10 1"
+      ],
+      "expected": [
+        "ADDED k",
+        "ADDED m",
+        "ADDED n",
+        "ERROR duplicate-order",
+        "PAGE 1 k:RETRY,m:OK,n:RETRY",
+        "END pages=1 attempts=3 completed=1 pending=2",
+        "QUEUE k,n",
+        "ORDER m DONE attempts=1 failures=0",
+        "ADDED p",
+        "PAGE 1 k:OK",
+        "PAGE 2 n:OK",
+        "END pages=2 attempts=2 completed=2 pending=1",
+        "QUEUE p",
+        "ORDER k DONE attempts=2 failures=0",
+        "ORDER n DONE attempts=2 failures=0",
+        "PAGE 1 p:OK",
+        "END pages=1 attempts=1 completed=1 pending=0"
+      ]
+    },
+    {
+      "name": "dispatch-register",
+      "refs": [
+        "2",
+        "3",
+        "5",
+        "9"
+      ],
+      "quote": "주문 ID는 대소문자를 구분한다.",
+      "input": [
+        "",
+        "  ",
+        "  ADD  Ab_1  0000  ",
+        "ADD ab_1 0",
+        "SHOW Ab_1",
+        "SHOW ab_1",
+        "QUEUE",
+        "RUN 001000 001000",
+        "QUEUE",
+        "SHOW Ab_1",
+        "SHOW ab_1"
+      ],
+      "expected": [
+        "ADDED Ab_1",
+        "ADDED ab_1",
+        "ORDER Ab_1 WAITING attempts=0 failures=0",
+        "ORDER ab_1 WAITING attempts=0 failures=0",
+        "QUEUE Ab_1,ab_1",
+        "PAGE 1 Ab_1:OK,ab_1:OK",
+        "END pages=1 attempts=2 completed=2 pending=0",
+        "QUEUE -",
+        "ORDER Ab_1 DONE attempts=1 failures=0",
+        "ORDER ab_1 DONE attempts=1 failures=0"
+      ]
+    }
+  ]
+}

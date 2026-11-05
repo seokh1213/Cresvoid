@@ -1,0 +1,213 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-run",
+      "refs": ["4", "5", "8"],
+      "quote": "현재 계획의 예상 목록에 있는 모든 조각에 대해",
+      "input": [
+        "PLAN catalog 1 snap-a east,west",
+        "RESULT catalog 1 snap-a west SUCCESS 8",
+        "RESULT catalog 1 snap-a east SUCCESS 12",
+        "CHECK catalog",
+        "INSPECT catalog east"
+      ],
+      "expected": [
+        "PLANNED catalog 2", "RECORDED catalog west", "RECORDED catalog east",
+        "catalog COMPLETE", "catalog east SUCCESS 12"
+      ]
+    },
+    {
+      "name": "morning-run",
+      "refs": ["8", "10"],
+      "quote": "현재 계획의 예상 목록에 있는 모든 조각에 대해",
+      "input": [
+        "CHECK clearance",
+        "PLAN morning 12 snap-q bags,coats,shoes",
+        "RESULT morning 11 snap-q coats SUCCESS 29",
+        "RESULT morning 12 snap-q bags SUCCESS 7",
+        "PLAN evening 3 snap-r hats",
+        "RESULT evening 3 snap-r hats SUCCESS 2",
+        "CHECK evening",
+        "RESULT morning 12 snap-q shoes SUCCESS 0",
+        "INSPECT morning shoes",
+        "CHECK morning",
+        "RESULT morning 12 snap-q coats SUCCESS 29",
+        "CHECK morning"
+      ],
+      "expected": [
+        "clearance UNPLANNED", "PLANNED morning 3", "RECORDED morning coats",
+        "RECORDED morning bags", "PLANNED evening 1", "RECORDED evening hats",
+        "evening COMPLETE", "RECORDED morning shoes", "morning shoes SUCCESS 0",
+        "morning PENDING", "RECORDED morning coats", "morning COMPLETE"
+      ]
+    },
+    {
+      "name": "evening-run",
+      "refs": ["8", "9"],
+      "quote": "SUCCESS 0",
+      "input": [
+        "PLAN evening 2 snap-b bags,hats",
+        "RESULT evening 2 snap-b bags SUCCESS 0",
+        "RESULT evening 2 snap-b hats SUCCESS 0",
+        "RESULT evening 2 snap-b coats FAILURE 0",
+        "CHECK evening",
+        "INSPECT evening coats",
+        "INSPECT evening shoes"
+      ],
+      "expected": [
+        "PLANNED evening 2", "RECORDED evening bags", "RECORDED evening hats",
+        "RECORDED evening coats", "evening COMPLETE", "evening coats FAILURE 0",
+        "evening shoes MISSING"
+      ]
+    },
+    {
+      "name": "refresh-run",
+      "refs": ["8", "10"],
+      "quote": "현재 계획과 세대 번호 또는 입력 ID가 다른 결과는 현재 실행의 증거로 사용하지 않는다.",
+      "input": [
+        "PLAN refresh 4 snap-c east,west",
+        "RESULT refresh 3 snap-c east SUCCESS 10",
+        "RESULT refresh 4 snap-old east SUCCESS 20",
+        "RESULT refresh 4 snap-c west SUCCESS 30",
+        "INSPECT refresh east",
+        "CHECK refresh",
+        "RESULT refresh 4 snap-c east SUCCESS 40",
+        "CHECK refresh",
+        "PLAN refresh 3 snap-c east",
+        "INSPECT refresh east",
+        "CHECK refresh"
+      ],
+      "expected": [
+        "PLANNED refresh 2", "RECORDED refresh east", "RECORDED refresh east",
+        "RECORDED refresh west", "refresh east MISSING", "refresh PENDING",
+        "RECORDED refresh east", "refresh COMPLETE", "PLANNED refresh 1",
+        "refresh east SUCCESS 10", "refresh COMPLETE"
+      ]
+    },
+    {
+      "name": "supplier-run",
+      "refs": ["8", "9"],
+      "quote": "그 결과가 성공이어도 예상 조각의 결과를 대신할 수 없으며",
+      "input": [
+        "PLAN supplier 8 snap-d east,west",
+        "RESULT supplier 8 snap-d east SUCCESS 10",
+        "RESULT supplier 8 snap-d north SUCCESS 20",
+        "CHECK supplier",
+        "RESULT supplier 8 snap-d north FAILURE 0",
+        "RESULT supplier 8 snap-d west SUCCESS 0",
+        "CHECK supplier"
+      ],
+      "expected": [
+        "PLANNED supplier 2", "RECORDED supplier east", "RECORDED supplier north",
+        "supplier PENDING", "RECORDED supplier north", "RECORDED supplier west",
+        "supplier COMPLETE"
+      ]
+    },
+    {
+      "name": "weekend-run",
+      "refs": ["4", "9"],
+      "quote": "예상 목록이 빈 계획은 처리할 조각이 없으므로 COMPLETE다.",
+      "input": [
+        "PLAN weekend 1 snap-e -",
+        "CHECK weekend",
+        "RESULT weekend 1 snap-e east FAILURE 0",
+        "CHECK weekend",
+        "PLAN weekend 1 snap-e east",
+        "CHECK weekend",
+        "RESULT weekend 1 snap-e east SUCCESS 0",
+        "CHECK weekend",
+        "PLAN weekend 1 snap-e -",
+        "CHECK weekend"
+      ],
+      "expected": [
+        "PLANNED weekend 0", "weekend COMPLETE", "RECORDED weekend east",
+        "weekend COMPLETE", "PLANNED weekend 1", "weekend PENDING",
+        "RECORDED weekend east", "weekend COMPLETE", "PLANNED weekend 0",
+        "weekend COMPLETE"
+      ]
+    },
+    {
+      "name": "repair-run",
+      "refs": ["5", "7", "8", "10"],
+      "quote": "같은 실행의 결과를 나중에 덮어쓰면 다음 CHECK부터 새 결과로 판단한다.",
+      "input": [
+        "PLAN repair 7 snap-f north,south",
+        "RESULT repair 7 snap-f north SUCCESS 6",
+        "RESULT repair 7 snap-f south FAILURE 0",
+        "INSPECT repair south",
+        "CHECK repair",
+        "RESULT repair 7 snap-f south SUCCESS 0",
+        "CHECK repair",
+        "RESULT repair 7 snap-f north FAILURE 0",
+        "CHECK repair",
+        "RESULT repair 7 snap-f north SUCCESS 9",
+        "CHECK repair"
+      ],
+      "expected": [
+        "PLANNED repair 2", "RECORDED repair north", "RECORDED repair south",
+        "repair south FAILURE 0", "repair PENDING", "RECORDED repair south",
+        "repair COMPLETE", "RECORDED repair north", "repair PENDING",
+        "RECORDED repair north", "repair COMPLETE"
+      ]
+    },
+    {
+      "name": "handover-run",
+      "refs": ["4", "8", "10"],
+      "quote": "서로 다른 배치의 결과도 섞지 않는다.",
+      "input": [
+        "PLAN handover 1 snap-g east",
+        "PLAN backup 1 snap-g east",
+        "RESULT backup 1 snap-g east SUCCESS 14",
+        "INSPECT handover east",
+        "CHECK handover",
+        "RESULT handover 1 snap-g east SUCCESS 15",
+        "CHECK handover",
+        "PLAN handover 2 snap-g east",
+        "INSPECT handover east",
+        "CHECK handover",
+        "RESULT handover 2 snap-g east SUCCESS 16",
+        "PLAN handover 2 snap-h east",
+        "INSPECT handover east",
+        "CHECK handover",
+        "RESULT handover 2 snap-h east SUCCESS 17",
+        "CHECK handover",
+        "CHECK backup"
+      ],
+      "expected": [
+        "PLANNED handover 1", "PLANNED backup 1", "RECORDED backup east",
+        "handover east MISSING", "handover PENDING", "RECORDED handover east",
+        "handover COMPLETE", "PLANNED handover 1", "handover east MISSING",
+        "handover PENDING", "RECORDED handover east", "PLANNED handover 1",
+        "handover east MISSING", "handover PENDING", "RECORDED handover east",
+        "handover COMPLETE", "backup COMPLETE"
+      ]
+    },
+    {
+      "name": "warehouse-run",
+      "refs": ["3", "4", "5", "6", "8"],
+      "quote": "같은 실행을 다시 등록하면 그 실행의 기존 결과를 사용할 수 있다.",
+      "input": [
+        "",
+        "  INSPECT warehouse east  ",
+        "RESULT warehouse 5 snap-i east SUCCESS 1000000000",
+        "PLAN warehouse 5 snap-i east",
+        "CHECK warehouse",
+        "PLAN warehouse 5 snap-i east,west",
+        "INSPECT warehouse east",
+        "INSPECT warehouse west",
+        "CHECK warehouse",
+        "RESULT warehouse 5 snap-i west SUCCESS 0",
+        "CHECK warehouse",
+        "PLAN warehouse 5 snap-i west,east",
+        "CHECK warehouse"
+      ],
+      "expected": [
+        "warehouse UNPLANNED", "RECORDED warehouse east", "PLANNED warehouse 1",
+        "warehouse COMPLETE", "PLANNED warehouse 2", "warehouse east SUCCESS 1000000000",
+        "warehouse west MISSING", "warehouse PENDING", "RECORDED warehouse west",
+        "warehouse COMPLETE", "PLANNED warehouse 2", "warehouse COMPLETE"
+      ]
+    }
+  ]
+}

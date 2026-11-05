@@ -1,0 +1,68 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "shelf-preview",
+      "refs": ["6", "8", "9", "10"],
+      "quote": "성공한 배치는 정확히 칸수만큼의 상품을 담고 같은 상품을 두 번 담지 않는다.",
+      "input": ["PLACE OK 2 1 mug:9,plate:4 -", "PLACE FAIL 2 1 mug:9,plate:4 -"],
+      "expected": ["OPTIMAL mug,plate 22", "FALLBACK mug,plate 22"]
+    },
+    {
+      "name": "home-feed",
+      "refs": ["6", "9", "10"],
+      "quote": "추천 상품 수는 추천상한 이하여야 한다.",
+      "input": ["PLACE OK 4 1 lamp:40,desk:30,rug:20 vase:95,clock:85,frame:75", "PLACE FAIL 4 1 lamp:40,desk:30,rug:20 vase:95,clock:85,frame:75"],
+      "expected": ["OPTIMAL vase,lamp,desk,rug 580", "FALLBACK vase,lamp,desk,rug 580"]
+    },
+    {
+      "name": "catalog-review",
+      "refs": ["6", "10"],
+      "quote": "추천상한에 도달한 경우에는 추천 후보를 비교 대상에서 제외한다.",
+      "input": ["PLACE OK 2 0 a:10,b:9 x:30,y:20", "PLACE FAIL 2 0 a:10,b:9 x:30,y:20"],
+      "expected": ["OPTIMAL a,b 29", "FALLBACK a,b 29"]
+    },
+    {
+      "name": "footwear-page",
+      "refs": ["6", "10"],
+      "quote": "추천상한은 목표 수량이 아니므로 추천이 적거나 없어도 된다.",
+      "input": ["PLACE FAIL 4 3 a:10,b:8,c:6 x:9", "PLACE FAIL 4 2 a:10,b:8 x:9,y:7,z:100", "PLACE FAIL 3 3 - x:3,y:2,z:1"],
+      "expected": ["FALLBACK a,x,b,c 89", "FALLBACK a,x,b,y 90", "FALLBACK x,y,z 14"]
+    },
+    {
+      "name": "seasonal-display",
+      "refs": ["7", "10"],
+      "quote": "필수 규칙을 만족하는 배치가 없으면 두 경로 모두 `IMPOSSIBLE`을 출력한다.",
+      "input": ["PLACE OK 3 1 a:5 x:9,y:8,z:7", "PLACE FAIL 3 1 a:5 x:9,y:8,z:7", "PLACE FAIL 4 4 a:5 x:9", "PLACE OK 1 0 - -", "PLACE FAIL 1 0 - x:9"],
+      "expected": ["IMPOSSIBLE", "IMPOSSIBLE", "IMPOSSIBLE", "IMPOSSIBLE", "IMPOSSIBLE"]
+    },
+    {
+      "name": "browse-order",
+      "refs": ["6", "8", "9", "10"],
+      "quote": "대체 경로는 이 선택 순서를 따르며 최적 점수를 보장하지 않는다.",
+      "input": ["PLACE OK 2 1 a:1,b:100 x:2", "PLACE FAIL 2 1 a:1,b:100 x:2", "PLACE OK 3 2 a:5,b:5 x:5,y:5", "PLACE FAIL 3 2 a:5,b:5 x:5,y:5"],
+      "expected": ["OPTIMAL a,b 102", "FALLBACK x,a 5", "OPTIMAL a,b,x 30", "FALLBACK a,b,x 30"]
+    },
+    {
+      "name": "request-review",
+      "refs": ["2", "3", "4", "5"],
+      "quote": "잘못된 줄이 있어도 다음 줄을 처리한다.",
+      "input": ["PLACE FAIL 2 1 a:5 a:8", "PLACE OK 2 1 a:5,a:6 -", "PLACE MAYBE 2 1 a:5 -", "PLACE OK 0 0 - -", "PLACE FAIL 2 3 a:5 -", "PLACE OK 1 1 a:1000001 -", "PLACE OK 1 1 a:-1 -", "PLACE OK 1 1 A:1 -", "PLACE OK 1 1 a:1, -", "PLACE OK 1 1 a:1:b -", "PLACE OK 1 1 a:1 - extra", "WHAT", "PLACE OK 1 1 a:1,b:2,c:3,d:4,e:5,f:6,g:7,h:8,i:9 -", "PLACE OK +1 0 a:1 -", "  ", "  PLACE\tFAIL 01 00 a:0000007 -  "],
+      "expected": ["ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "FALLBACK a 7"]
+    },
+    {
+      "name": "long-page",
+      "refs": ["4", "6", "8", "9", "10"],
+      "quote": "각 후보열에서는 앞부분만 사용한다.",
+      "input": ["PLACE OK 8 2 a:1000000,b:1000000,c:1000000,d:1000000,e:1000000,f:1000000,g:1000000,h:1000000 x:1000000,y:1000000,z:1000000", "PLACE FAIL 8 2 a:1000000,b:1000000,c:1000000,d:1000000,e:1000000,f:1000000,g:1000000,h:1000000 x:1000000,y:1000000,z:1000000"],
+      "expected": ["OPTIMAL a,b,c,d,e,f,g,h 36000000", "FALLBACK a,b,c,d,e,f,g,h 36000000"]
+    },
+    {
+      "name": "page-refresh",
+      "refs": ["2", "6", "8", "9", "10"],
+      "quote": "요청 사이에 상태를 공유하지 않는다.",
+      "input": ["PLACE FAIL 3 1 a:0,b:0 x:0", "PLACE OK 3 1 a:0,b:0 x:0", "PLACE FAIL 1 1 - x:0", "PLACE FAIL 3 1 a:0,b:0 x:0"],
+      "expected": ["FALLBACK a,b,x 0", "OPTIMAL a,b,x 0", "FALLBACK x 0", "FALLBACK a,b,x 0"]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "boots-update",
+      "refs": ["6", "8"],
+      "quote": "창시작 이전에만 변경된 필드도 포함하고 삭제된 필드는 제외한다.",
+      "input": ["PUT boots 2 title Boots", "PUT boots 12 price Cheap", "PLAN morning 10 20", "LOAD morning boots OK", "APPLY morning", "GET boots 25", "HISTORY boots", "GET boots 19"],
+      "expected": ["OK", "OK", "PLANNED 1", "LOADED", "APPLIED 1", "price=Cheap,title=Boots", "B@20{price=Cheap,title=Boots}", "EXPIRED"]
+    },
+    {
+      "name": "evening-review",
+      "refs": ["4", "5", "8"],
+      "quote": "적재가 확인되지 않은 키의 기준 상태와 이력은 그대로 보존한다.",
+      "input": ["PUT boots 2 title Boots", "PUT boots 6 color Black", "PUT mug 3 title Mug", "PUT boots 12 price Cheap", "GET boots 18", "GET mug 18", "PLAN evening 10 20", "LOAD evening boots OK", "APPLY evening", "GET boots 18", "GET boots 25", "GET mug 25", "GET poster 25", "HISTORY mug"],
+      "expected": ["OK", "OK", "OK", "OK", "color=Black,price=Cheap,title=Boots", "title=Mug", "PLANNED 1", "LOADED", "APPLIED 1", "EXPIRED", "color=Black,price=Cheap,title=Boots", "title=Mug", "EMPTY", "P@3#3{title=Mug}"]
+    },
+    {
+      "name": "store-opening",
+      "refs": ["4", "8"],
+      "quote": "확인된 키가 없어도 성공한다.",
+      "input": ["PLAN opening 0 1", "APPLY opening", "GET lamp 1", "PUT lamp 2 title Lamp", "PLAN noon 10 20", "APPLY noon", "GET lamp 25", "GET lamp 2", "HISTORY lamp"],
+      "expected": ["PLANNED 0", "APPLIED 0", "EMPTY", "OK", "PLANNED 0", "APPLIED 0", "title=Lamp", "title=Lamp", "P@2#1{title=Lamp}"]
+    },
+    {
+      "name": "tableware-load",
+      "refs": ["7", "8"],
+      "quote": "FAIL이거나 LOAD하지 않은 키는 적재가 확인되지 않은 상태다.",
+      "input": ["PUT kettle 1 title Kettle", "PUT kettle 12 price Low", "PUT plate 2 title Plate", "PUT plate 14 color Blue", "PUT bowl 3 title Bowl", "PUT bowl 15 size Wide", "PLAN batch 10 20", "LOAD batch kettle OK", "LOAD batch plate OK", "LOAD batch plate FAIL", "APPLY batch", "GET kettle 25", "GET plate 25", "GET bowl 25", "HISTORY plate", "HISTORY bowl", "HISTORY kettle"],
+      "expected": ["OK", "OK", "OK", "OK", "OK", "OK", "PLANNED 3", "LOADED", "LOADED", "FAILED", "APPLIED 1", "price=Low,title=Kettle", "color=Blue,title=Plate", "size=Wide,title=Bowl", "P@2#3{title=Plate};P@14#4{color=Blue}", "P@3#5{title=Bowl};P@15#6{size=Wide}", "B@20{price=Low,title=Kettle}"]
+    },
+    {
+      "name": "label-maintenance",
+      "refs": ["3", "4", "5", "8"],
+      "quote": "빈 상태도 적재 확인 대상이다.",
+      "input": ["PUT tag 1 label Sale", "DEL tag 11 label", "PUT bag 2 title Bag", "PUT bag 3 color Blue", "DEL bag 12 color", "DEL bag 13 missing", "PLAN labels 10 20", "LOAD labels tag OK", "LOAD labels bag OK", "APPLY labels", "GET tag 25", "HISTORY tag", "GET tag 19", "GET bag 25", "HISTORY bag"],
+      "expected": ["OK", "OK", "OK", "OK", "OK", "OK", "PLANNED 2", "LOADED", "LOADED", "APPLIED 2", "EMPTY", "B@20{EMPTY}", "EXPIRED", "title=Bag", "B@20{title=Bag}"]
+    },
+    {
+      "name": "outerwear-timeline",
+      "refs": ["3", "6", "8"],
+      "quote": "기준시각 이상의 변경은 원래 시각·순번과 함께 남긴다.",
+      "input": ["PUT coat 20 price High", "PUT coat 4 title Coat", "PUT coat 19 price Low", "PUT coat 20 price Mid", "DEL coat 20 title", "PUT coat 25 title Parka", "PUT scarf 20 title Scarf", "PLAN clothes 10 20", "LOAD clothes coat OK", "APPLY clothes", "GET coat 20", "GET coat 24", "GET coat 25", "HISTORY coat", "GET scarf 25", "HISTORY scarf"],
+      "expected": ["OK", "OK", "OK", "OK", "OK", "OK", "OK", "PLANNED 1", "LOADED", "APPLIED 1", "price=Mid", "price=Mid", "price=Mid,title=Parka", "B@20{price=Low,title=Coat};P@20#1{price=High};P@20#4{price=Mid};D@20#5{title};P@25#6{title=Parka}", "title=Scarf", "P@20#7{title=Scarf}"]
+    },
+    {
+      "name": "accessories-retry",
+      "refs": ["7", "9"],
+      "quote": "이미 적용한 작업의 APPLY는 버전을 검사하기 전에 ALREADY_APPLIED를 출력하고 아무것도 바꾸지 않는다.",
+      "input": ["PUT sock 1 title Sock", "PUT sock 11 price Low", "PLAN retry 10 20", "LOAD retry sock OK", "LOAD retry sock FAIL", "LOAD retry sock OK", "APPLY retry", "PUT sock 22 price High", "PUT cap 2 title Cap", "APPLY retry", "GET sock 25", "HISTORY sock", "GET cap 25", "HISTORY cap"],
+      "expected": ["OK", "OK", "PLANNED 1", "LOADED", "FAILED", "LOADED", "APPLIED 1", "OK", "OK", "ALREADY_APPLIED", "price=High,title=Sock", "B@20{price=Low,title=Sock};P@22#3{price=High}", "title=Cap", "P@2#4{title=Cap}"]
+    },
+    {
+      "name": "cups-schedule",
+      "refs": ["9"],
+      "quote": "APPLY 시 계획의 입력 버전과 현재 버전이 다르면 STALE을 출력하고 기준 상태·이력·작업의 적용 여부를 바꾸지 않는다.",
+      "input": ["PUT cup 1 title Cup", "PUT cup 12 price Low", "PLAN first 10 20", "LOAD first cup OK", "PUT cup 21 price High", "APPLY first", "GET cup 25", "HISTORY cup", "PLAN second 10 20", "LOAD second cup OK", "PLAN third 10 20", "LOAD third cup OK", "APPLY second", "APPLY third", "HISTORY cup"],
+      "expected": ["OK", "OK", "PLANNED 1", "LOADED", "OK", "STALE", "price=High,title=Cup", "P@1#1{title=Cup};P@12#2{price=Low};P@21#3{price=High}", "PLANNED 1", "LOADED", "PLANNED 1", "LOADED", "APPLIED 1", "STALE", "B@20{price=Low,title=Cup};P@21#3{price=High}"]
+    },
+    {
+      "name": "evening-inventory",
+      "refs": ["4", "5", "7", "8", "9"],
+      "quote": "적재가 확인되지 않은 키의 기준 상태와 이력은 그대로 보존한다.",
+      "input": ["PUT boots 2 title Boots", "PUT boots 6 color Black", "PUT mug 3 title Mug", "PUT poster 4 title Poster", "PLAN morning 0 10", "LOAD morning boots OK", "LOAD morning mug OK", "LOAD morning poster OK", "APPLY morning", "PUT boots 12 price Cheap", "PUT mug 14 color Blue", "PUT poster 16 size Wide", "PUT boots 20 price High", "GET boots 18", "PLAN evening 10 20", "LOAD evening boots OK", "LOAD evening mug OK", "LOAD evening mug FAIL", "APPLY evening", "GET boots 19", "GET boots 25", "GET mug 25", "GET poster 25", "HISTORY boots", "HISTORY mug", "HISTORY poster", "APPLY evening", "GET boots 25"],
+      "expected": ["OK", "OK", "OK", "OK", "PLANNED 3", "LOADED", "LOADED", "LOADED", "APPLIED 3", "OK", "OK", "OK", "OK", "color=Black,price=Cheap,title=Boots", "PLANNED 3", "LOADED", "LOADED", "FAILED", "APPLIED 1", "EXPIRED", "color=Black,price=High,title=Boots", "color=Blue,title=Mug", "size=Wide,title=Poster", "B@20{color=Black,price=Cheap,title=Boots};P@20#8{price=High}", "B@10{title=Mug};P@14#6{color=Blue}", "B@10{title=Poster};P@16#7{size=Wide}", "ALREADY_APPLIED", "color=Black,price=High,title=Boots"]
+    },
+    {
+      "name": "furniture-rollover",
+      "refs": ["4", "6", "8"],
+      "quote": "적재가 확인되지 않은 키의 기준 상태와 이력은 그대로 보존한다.",
+      "input": ["PUT chair 1 title Chair", "PUT chair 11 price Low", "PUT desk 2 title Desk", "PUT desk 12 price High", "PLAN first 10 20", "LOAD first chair OK", "LOAD first desk OK", "APPLY first", "PUT chair 22 price Mid", "PUT chair 32 stock Ready", "PLAN second 20 30", "LOAD second chair OK", "APPLY second", "GET chair 35", "HISTORY chair", "GET desk 35", "GET desk 20", "GET desk 19", "HISTORY desk"],
+      "expected": ["OK", "OK", "OK", "OK", "PLANNED 2", "LOADED", "LOADED", "APPLIED 2", "OK", "OK", "PLANNED 1", "LOADED", "APPLIED 1", "price=Mid,stock=Ready,title=Chair", "B@30{price=Mid,title=Chair};P@32#6{stock=Ready}", "price=High,title=Desk", "price=High,title=Desk", "EXPIRED", "B@20{price=High,title=Desk}"]
+    }
+  ]
+}

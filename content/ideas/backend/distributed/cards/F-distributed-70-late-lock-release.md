@@ -4,7 +4,7 @@ title: 늦은 해제가 새 잠금을 지우는 버그
 kind: fix
 track: bug-fix
 stage: 12-late-lock-release
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq: B-distributed-60

@@ -1,0 +1,61 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "cart-visit",
+      "refs": ["1.2", "3.1", "3.3", "3.4", "3.5", "3.6"],
+      "quote": "빈 장바구니는 `CART 0 0` 한 줄만 출력한다.",
+      "input": ["SHOW", "", "   ", "ADD book 2 -", "QUANTITY book -", "SET 1 5", "SHOW", "REMOVE 1", "QUANTITY book -", "SET 1 2", "REMOVE 1", "SHOW"],
+      "expected": ["CART 0 0", "ADDED 1 2", "QUANTITY 2", "SET 1 5", "CART 1 5", "LINE 1 book 5 -", "REMOVED 1", "QUANTITY 0", "NOT_FOUND 1", "NOT_FOUND 1", "CART 0 0"]
+    },
+    {
+      "name": "tote-visit",
+      "refs": ["2.3", "3.1", "3.2", "3.3"],
+      "quote": "상품 ID와 옵션 묶음이 모두 같은 항목이 있으면 수량을 더한다.",
+      "input": ["ADD tote 2 color=navy;size=M", "ADD tote 3 color=navy;size=M", "QUANTITY tote color=navy;size=M", "ADD tote 1 color=navy;size=M", "ADD mug 1 -", "SHOW"],
+      "expected": ["ADDED 1 2", "ADDED 1 5", "QUANTITY 5", "ADDED 1 6", "ADDED 2 1", "CART 2 7", "LINE 1 tote 6 color=navy;size=M", "LINE 2 mug 1 -"]
+    },
+    {
+      "name": "gift-visit",
+      "refs": ["2.3", "2.4", "3.1", "3.3"],
+      "quote": "옵션 이름을 나열한 순서와 한 이름의 선택값을 나열한 순서는 비교에 영향을 주지 않는다.",
+      "input": ["ADD gift 1 wrap=ribbon,box;card=thanks", "ADD gift 2 card=thanks;wrap=box,ribbon", "QUANTITY gift wrap=ribbon,box;card=thanks", "SHOW"],
+      "expected": ["ADDED 1 1", "ADDED 1 3", "QUANTITY 3", "CART 1 3", "LINE 1 gift 3 card=thanks;wrap=box,ribbon"]
+    },
+    {
+      "name": "catalog-visit",
+      "refs": ["2.1", "2.3", "3.1", "3.6"],
+      "quote": "이름이나 선택값 하나라도 다르면 다른 옵션 묶음이다.",
+      "input": ["ADD shirt 1 color=navy;size=M", "ADD shirt 2 color=navy;size=L", "ADD shirt 3 color=navy;fit=M", "ADD shirt 4 color=Navy;size=M", "ADD blouse 5 color=navy;size=M", "SHOW"],
+      "expected": ["ADDED 1 1", "ADDED 2 2", "ADDED 3 3", "ADDED 4 4", "ADDED 5 5", "CART 5 15", "LINE 1 shirt 1 color=navy;size=M", "LINE 2 shirt 2 color=navy;size=L", "LINE 3 shirt 3 color=navy;fit=M", "LINE 4 shirt 4 color=Navy;size=M", "LINE 5 blouse 5 color=navy;size=M"]
+    },
+    {
+      "name": "bag-visit",
+      "refs": ["3.1", "3.2", "3.3", "3.4", "3.5"],
+      "quote": "같은 상품과 옵션을 삭제 뒤 다시 담으면 새 ID를 부여한다.",
+      "input": ["ADD bag 2 color=black", "ADD pin 1 -", "REMOVE 1", "QUANTITY bag color=black", "ADD bag 3 color=black", "SET 3 7", "QUANTITY bag color=black", "ADD bag 2 color=black", "REMOVE 1", "SET 1 4", "SHOW"],
+      "expected": ["ADDED 1 2", "ADDED 2 1", "REMOVED 1", "QUANTITY 0", "ADDED 3 3", "SET 3 7", "QUANTITY 7", "ADDED 3 9", "NOT_FOUND 1", "NOT_FOUND 1", "CART 2 10", "LINE 2 pin 1 -", "LINE 3 bag 9 color=black"]
+    },
+    {
+      "name": "basket-visit",
+      "refs": ["2.3", "2.4", "3.1", "3.2", "3.3"],
+      "quote": "이름이나 선택값 하나라도 다르면 다른 옵션 묶음이다.",
+      "input": ["ADD basket 1 -", "ADD basket 2 pack=wrap", "ADD basket 3 pack=card,wrap", "ADD basket 4 pack=wrap;tag=new", "ADD basket 5 -", "ADD basket 6 pack=wrap,card", "QUANTITY basket pack=card", "SHOW"],
+      "expected": ["ADDED 1 1", "ADDED 2 2", "ADDED 3 3", "ADDED 4 4", "ADDED 1 6", "ADDED 3 9", "QUANTITY 0", "CART 4 21", "LINE 1 basket 6 -", "LINE 2 basket 2 pack=wrap", "LINE 3 basket 9 pack=card,wrap", "LINE 4 basket 4 pack=wrap;tag=new"]
+    },
+    {
+      "name": "bundle-visit",
+      "refs": ["2.3", "3.1", "3.6"],
+      "quote": "이름이나 선택값 하나라도 다르면 다른 옵션 묶음이다.",
+      "input": ["ADD bundle 1 tag=Aa", "ADD bundle 2 tag=BB", "ADD bundle 3 Aa=red", "ADD bundle 4 BB=red", "SHOW"],
+      "expected": ["ADDED 1 1", "ADDED 2 2", "ADDED 3 3", "ADDED 4 4", "CART 4 10", "LINE 1 bundle 1 tag=Aa", "LINE 2 bundle 2 tag=BB", "LINE 3 bundle 3 Aa=red", "LINE 4 bundle 4 BB=red"]
+    },
+    {
+      "name": "checkout-visit",
+      "refs": ["2.1", "2.4", "3.1", "3.4", "3.5", "3.7"],
+      "quote": "ADD와 SET의 수량은 1 이상 1,000,000 이하의 10진 정수다.",
+      "input": ["   ADD   coat   1000000   -   ", "ADD coat 1000000 -", "  SET  1  1  ", "ADD scarf 1 z=beta,Alpha;A=z,a", "REMOVE 1000000", "SET 1000000 1000000", "SHOW"],
+      "expected": ["ADDED 1 1000000", "ADDED 1 2000000", "SET 1 1", "ADDED 2 1", "NOT_FOUND 1000000", "NOT_FOUND 1000000", "CART 2 2", "LINE 1 coat 1 -", "LINE 2 scarf 1 A=a,z;z=Alpha,beta"]
+    }
+  ]
+}

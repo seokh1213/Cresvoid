@@ -4,7 +4,7 @@ title: 장바구니 상품 옵션 비교
 kind: fix
 track: bug-fix
 stage: 08-option-equality
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

@@ -4,7 +4,7 @@ title: 한 번만 읽어 잘리는 전송 구간
 kind: fix
 track: bug-fix
 stage: 11-short-read
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq: B-record-range-10

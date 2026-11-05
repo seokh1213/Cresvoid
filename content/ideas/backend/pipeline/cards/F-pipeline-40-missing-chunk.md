@@ -4,7 +4,7 @@ title: 빠진 조각을 못 찾는 완료 판정
 kind: fix
 track: bug-fix
 stage: 14-missing-chunk
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq: B-pipeline-30
