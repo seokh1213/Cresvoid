@@ -31,7 +31,7 @@
 | `coroutine-runtime` | build | 8 |
 | `coroutine-lab` | lab | 1 |
 | `reading` | reading | 3 |
-| `tech-reading` | reading | 12 |
+| `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |
 | `code-reading` | code | 5 |
 | `bug-fix` | fix | 7 |

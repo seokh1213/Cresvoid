@@ -14,6 +14,10 @@
     { "dir": "09-raft", "title": "Raft 의 선출과 커밋", "target_minutes": 15 },
     { "dir": "10-table-format", "title": "테이블 포맷과 원자적 커밋", "target_minutes": 15 },
     { "dir": "11-kafka-replication", "title": "Kafka 의 복제와 전달 보장", "target_minutes": 15 },
-    { "dir": "12-percentiles-and-slo", "title": "백분위수와 오류 예산", "target_minutes": 15 }
+    { "dir": "12-percentiles-and-slo", "title": "백분위수와 오류 예산", "target_minutes": 15 },
+    { "dir": "13-online-resharding", "title": "서비스를 멈추지 않는 데이터 이전과 샤딩", "target_minutes": 15 },
+    { "dir": "14-creational-patterns", "title": "객체를 만드는 책임과 생성 패턴", "target_minutes": 15 },
+    { "dir": "15-structural-patterns", "title": "감싸기와 합성, 구조 패턴", "target_minutes": 15 },
+    { "dir": "16-behavioral-patterns", "title": "바뀌는 부분 떼어 내기, 행위 패턴", "target_minutes": 15 }
   ]
 }

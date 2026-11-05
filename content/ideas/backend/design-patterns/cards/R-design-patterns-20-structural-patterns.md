@@ -4,7 +4,7 @@ title: 감싸기와 합성, 구조 패턴
 kind: reading
 track: tech-reading
 stage: 15-structural-patterns
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-design-patterns-10

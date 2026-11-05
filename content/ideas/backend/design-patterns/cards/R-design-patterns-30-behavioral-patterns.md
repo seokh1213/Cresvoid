@@ -4,7 +4,7 @@ title: 바뀌는 부분 떼어 내기, 행위 패턴
 kind: reading
 track: tech-reading
 stage: 16-behavioral-patterns
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-design-patterns-20

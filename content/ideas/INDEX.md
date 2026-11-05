@@ -10,8 +10,8 @@
 | [구현](implementation/README.md) | 32 | 22 | 0 | 10 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
-| [데이터베이스](backend/database/README.md) | 8 | 5 | 1 | 2 | 0 |
-| [설계 패턴](backend/design-patterns/README.md) | 11 | 6 | 3 | 2 | 0 |
+| [데이터베이스](backend/database/README.md) | 8 | 5 | 0 | 3 | 0 |
+| [설계 패턴](backend/design-patterns/README.md) | 11 | 6 | 0 | 5 | 0 |
 | [분산 시스템](backend/distributed/README.md) | 8 | 6 | 0 | 2 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 119 | 10 | 54 | 2 |
+| 합계 | 185 | 119 | 6 | 58 | 2 |
 
 ## 다음 후보
 
@@ -225,7 +225,7 @@
 | spreadsheet | build | 없음 | 04 |  | 01-formula(B-spreadsheet-10 5차), 02-recalc(B-spreadsheet-10 5차), 03-cycles(B-spreadsheet-10 5차) |
 | spring-lab | lab | 없음 | 01 |  | pool-deadlock(L-spring-10 4차), open-in-view(L-spring-20 4차), proxy-pitfalls(L-spring-30 4차), async-executor(L-spring-40 4차), http-client-pool(L-spring-50 4차), max-lifetime(L-spring-60 5차), virtual-threads(L-spring-70 5차), n-plus-one(L-spring-80 5차), batch-insert(L-spring-90 5차), scheduler(L-spring-100 5차) |
 | table-format | build | 있음 | 04 | 01-snapshots(B-lakehouse-30 완료), 02-commits(B-lakehouse-30 완료), 03-deletes(B-lakehouse-30 완료) |  |
-| tech-reading | reading | 있음 | 17 | 01-agent-loop(R-ai-agent-10 완료), 02-hdfs-write-path(R-hdfs-10 완료), 03-columnar-execution(R-olap-10 완료), 04-near-real-time-search(R-search-10 완료), 05-spark-stages(R-spark-10 완료), 06-coroutines(R-coroutines-10 완료), 07-capacity-estimation(R-system-design-10 완료), 08-mvcc-isolation(R-database-10 완료), 09-raft(R-distributed-10 완료), 10-table-format(R-lakehouse-10 완료), 11-kafka-replication(R-messaging-10 완료), 12-percentiles-and-slo(R-observability-10 완료), 13-online-resharding(R-database-40 제작 중), 14-creational-patterns(R-design-patterns-10 제작 중), 15-structural-patterns(R-design-patterns-20 제작 중), 16-behavioral-patterns(R-design-patterns-30 제작 중) |  |
+| tech-reading | reading | 있음 | 17 | 01-agent-loop(R-ai-agent-10 완료), 02-hdfs-write-path(R-hdfs-10 완료), 03-columnar-execution(R-olap-10 완료), 04-near-real-time-search(R-search-10 완료), 05-spark-stages(R-spark-10 완료), 06-coroutines(R-coroutines-10 완료), 07-capacity-estimation(R-system-design-10 완료), 08-mvcc-isolation(R-database-10 완료), 09-raft(R-distributed-10 완료), 10-table-format(R-lakehouse-10 완료), 11-kafka-replication(R-messaging-10 완료), 12-percentiles-and-slo(R-observability-10 완료), 13-online-resharding(R-database-40 완료), 14-creational-patterns(R-design-patterns-10 완료), 15-structural-patterns(R-design-patterns-20 완료), 16-behavioral-patterns(R-design-patterns-30 완료) |  |
 | url-shortener | build | 없음 | 04 |  | 01-base62(B-system-design-140 5차), 02-collisions(B-system-design-140 5차), 03-expiry(B-system-design-140 5차) |
 
 ## 도메인별 카드
@@ -328,7 +328,7 @@
 | [R-database-10](backend/database/cards/R-database-10-mvcc-isolation.md) | MVCC 와 격리 수준 | reading | tech-reading | 08-mvcc-isolation | 완료(2026-10-10) | 4 | 없음 |  |
 | [B-database-20](backend/database/cards/B-database-20-mvcc.md) | 트랜잭션 격리 엔진 만들기 | build | mvcc | 01-snapshot, 02-locking, 03-serializable | 완료(2026-10-10) | 3 | 없음 | R-database-10 |
 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 후보 | 4 | 없음 |  |
-| [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | 13-online-resharding | 제작 중 | 4 | 없음 | R-database-10 |
+| [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | 13-online-resharding | 완료(2026-11-05) | 4 | 없음 | R-database-10 |
 | [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | gap-lock | 후보 | 4 | docker, maven | R-database-10 |
 | [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | metadata-lock | 후보 | 4 | docker, maven, k6 | R-database-10 |
 | [L-database-52](backend/database/cards/L-database-52-index-usage.md) | 인덱스를 쓰지 못하는 질의 | lab | db-lab | index-usage | 후보 | 5 | docker, maven |  |
@@ -340,9 +340,9 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [R-design-patterns-10](backend/design-patterns/cards/R-design-patterns-10-creational-patterns.md) | 객체를 만드는 책임과 생성 패턴 | reading | tech-reading | 14-creational-patterns | 제작 중 | 4 | 없음 |  |
-| [R-design-patterns-20](backend/design-patterns/cards/R-design-patterns-20-structural-patterns.md) | 감싸기와 합성, 구조 패턴 | reading | tech-reading | 15-structural-patterns | 제작 중 | 4 | 없음 | R-design-patterns-10 |
-| [R-design-patterns-30](backend/design-patterns/cards/R-design-patterns-30-behavioral-patterns.md) | 바뀌는 부분 떼어 내기, 행위 패턴 | reading | tech-reading | 16-behavioral-patterns | 제작 중 | 4 | 없음 | R-design-patterns-20 |
+| [R-design-patterns-10](backend/design-patterns/cards/R-design-patterns-10-creational-patterns.md) | 객체를 만드는 책임과 생성 패턴 | reading | tech-reading | 14-creational-patterns | 완료(2026-11-05) | 4 | 없음 |  |
+| [R-design-patterns-20](backend/design-patterns/cards/R-design-patterns-20-structural-patterns.md) | 감싸기와 합성, 구조 패턴 | reading | tech-reading | 15-structural-patterns | 완료(2026-11-05) | 4 | 없음 | R-design-patterns-10 |
+| [R-design-patterns-30](backend/design-patterns/cards/R-design-patterns-30-behavioral-patterns.md) | 바뀌는 부분 떼어 내기, 행위 패턴 | reading | tech-reading | 16-behavioral-patterns | 완료(2026-11-05) | 4 | 없음 | R-design-patterns-20 |
 | [C-design-patterns-40](backend/design-patterns/cards/C-design-patterns-40-decorated-client.md) | 겹겹이 감싼 상품 조회 클라이언트 | code | code-reading | decorated-client | 후보 | 4 | 없음 | R-design-patterns-20 |
 | [C-design-patterns-50](backend/design-patterns/cards/C-design-patterns-50-state-observers.md) | 주문 상태 객체와 구독자 알림 | code | code-reading | state-observers | 후보 | 4 | 없음 | R-design-patterns-30 |
 | [F-design-patterns-60](backend/design-patterns/cards/F-design-patterns-60-skipped-subscriber.md) | 재입고 알림을 놓치는 구독자 | fix | bug-fix | 03-skipped-subscriber | 완료(2026-11-05) | 4 | 없음 | R-design-patterns-30 |

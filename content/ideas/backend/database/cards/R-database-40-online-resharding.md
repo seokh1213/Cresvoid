@@ -4,7 +4,7 @@ title: 서비스를 멈추지 않는 데이터 이전과 샤딩
 kind: reading
 track: tech-reading
 stage: 13-online-resharding
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-database-10

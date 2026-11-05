@@ -4,7 +4,7 @@ title: 객체를 만드는 책임과 생성 패턴
 kind: reading
 track: tech-reading
 stage: 14-creational-patterns
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq:
