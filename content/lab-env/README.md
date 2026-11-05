@@ -87,7 +87,8 @@ ClickHouse 26 은 기본 사용자에 비밀번호를 요구한다. 127.0.0.1 �
 
 JDBC 드라이버, Kafka 클라이언트, Spring 이 필요한 lab 은 학습자 프로젝트를 실행 이미지 안에서 빌드하고 실행한다. 학습자 기기에는 라이브러리를 내려받지 않고 저장소에도 jar 를 넣지 않는다.
 
-- 프로젝트 루트의 `.lab-libs` 파일에 묶음 이름 하나를 적는다. 묶음은 `jdbc-mysql`, `jdbc-postgres`, `kafka`, `spring` 이다.
+- 프로젝트 루트의 `.lab-libs` 파일에 묶음 이름 하나를 적는다. 묶음은 `jdbc-mysql`, `jdbc-postgres`, `kafka`, `spring`, `spark` 다.
+- Spark 는 클러스터 없이 로컬 모드로 쓴다. 학습자 코드가 `SparkSession.builder().master("local[2]").config("spark.ui.enabled", "false")`로 세션을 만들고 SQL 이나 Dataset 작업을 실행한다. `spark-submit`과 `spark-sql` 대신 같은 JVM 에서 실행하므로 결과가 기기마다 덜 달라진다.
 - `.lab-libs` 가 있는 프로젝트는 `kotlin content/templates/sync.main.kts` 가 `content/templates/kotlin-lab`의 `build.sh`·`run.sh`를 복사한다. 두 스크립트는 `jvm-runner.sh`로 넘긴다.
 - 코드는 `lab` 패키지에 두고 진입점은 `lab.MainKt`다. Spring 은 기본 패키지를 스캔하지 못한다.
 - 실험에서는 학습자 앱도 compose 서비스로 띄운다. `ComposeStack(File("compose.yaml"), "<트랙>-<단계>", programEnvironment(File(args[0])))`가 `${PROGRAM_DIR}`을 넘긴다.
@@ -134,6 +135,6 @@ MySQL 은 `MYSQL_ROOT_PASSWORD`·`MYSQL_DATABASE`와 `mysqladmin ping` 준비 �
 | `MYSQL_IMAGE` | `mysql@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902` | 8.4.13 LTS |
 | `POSTGRES_IMAGE` | `postgres@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5` | 18.6 alpine |
 | `KAFKA_IMAGE` | `apache/kafka@sha256:833b867a9585a141da455dc2b57431c65cbccb27f11c91f694444cca9f777e0f` | 4.4.0 |
-| `JVM_RUNNER_IMAGE` | `cresvoid-lab/jvm-runner:1` | `images/jvm-runner`에서 로컬로 만든다. 그 디렉터리를 바꾸면 태그도 함께 올린다 |
+| `JVM_RUNNER_IMAGE` | `cresvoid-lab/jvm-runner:2` | `images/jvm-runner`에서 로컬로 만든다. 그 디렉터리를 바꾸면 태그도 함께 올린다 |
 
-실행 이미지의 라이브러리 묶음은 Spring Boot 4.1.2(Spring 7.0.10, Hibernate 7.4), MySQL Connector/J 26.10.0, PostgreSQL JDBC 42.7.14, kafka-clients 4.4.0, HikariCP 7.1.0, H2(Spring Boot 관리 버전)다. Kotlin 런타임은 컴파일러와 같은 2.4.21 로 맞춘다.
+실행 이미지의 라이브러리 묶음은 Spring Boot 4.1.2(Spring 7.0.10, Hibernate 7.4), MySQL Connector/J 26.10.0, PostgreSQL JDBC 42.7.14, kafka-clients 4.4.0, HikariCP 7.1.0, H2(Spring Boot 관리 버전), Spark SQL 4.3.0(Scala 2.13)이다. Kotlin 런타임은 컴파일러와 같은 2.4.21 로 맞춘다.

@@ -3,7 +3,7 @@
 # The project names its library set in .lab-libs; the libraries live in the runner image, not on this machine.
 set -e
 here=$(cd "$(dirname "$0")" && pwd)
-image="cresvoid-lab/jvm-runner:1"
+image="cresvoid-lab/jvm-runner:2"
 project=$(pwd)
 libs=$(cat "$project/.lab-libs")
 if ! docker info >/dev/null 2>&1; then

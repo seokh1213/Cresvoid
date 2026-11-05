@@ -24,7 +24,7 @@ val LAB_IMAGES: Map<String, String> = mapOf(
     // apache/kafka 4.4.0, KRaft single node
     "KAFKA_IMAGE" to "apache/kafka@sha256:833b867a9585a141da455dc2b57431c65cbccb27f11c91f694444cca9f777e0f",
     // Built locally from images/jvm-runner. The tag changes whenever that directory changes.
-    "JVM_RUNNER_IMAGE" to "cresvoid-lab/jvm-runner:1",
+    "JVM_RUNNER_IMAGE" to "cresvoid-lab/jvm-runner:2",
 )
 
 /** Compose variables for the learner's program when it runs as a service from the lab runner image. */
