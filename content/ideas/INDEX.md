@@ -6,7 +6,7 @@
 
 | 도메인 | 카드 | 후보 | 제작 중 | 완료 | 보류 |
 |---|---|---|---|---|---|
-| [읽기](reading/README.md) | 15 | 6 | 6 | 3 | 0 |
+| [읽기](reading/README.md) | 15 | 0 | 6 | 9 | 0 |
 | [구현](implementation/README.md) | 32 | 22 | 0 | 10 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 119 | 6 | 58 | 2 |
+| 합계 | 185 | 113 | 6 | 64 | 2 |
 
 ## 다음 후보
 
@@ -108,7 +108,6 @@
 | 5 | [B-distributed-30](backend/distributed/cards/B-distributed-30-crdt.md) | 복제 자료형 만들기 | build | crdt | 01-counters, 02-sets-and-registers, 03-convergence | 없음 |
 | 5 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 없음 |
 | 5 | [B-distributed-80](backend/distributed/cards/B-distributed-80-fenced-writes.md) | 저장소가 검사하는 펜싱 토큰 만들기 | build | lease-lock | 03-fenced-writes | 없음 |
-| 5 | [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | source-criticism | 없음 |
 | 5 | [L-jvm-40](backend/jvm/cards/L-jvm-40-jit-warmup.md) | JIT 예열과 측정 함정 | lab | jvm-lab | jit-warmup | 없음 |
 | 5 | [C-kotlin-60](implementation/cards/C-kotlin-60-search-query-parser.md) | 검색어 파서 | code | code-reading | search-query-parser | 없음 |
 | 5 | [F-kotlin-60](implementation/cards/F-kotlin-60-sublist-view.md) | 페이지 단위 일괄 처리 | fix | bug-fix | sublist-view | 없음 |
@@ -126,16 +125,11 @@
 | 5 | [B-pipeline-80](backend/pipeline/cards/B-pipeline-80-dedup-candidates.md) | 중복 후보 생성과 대표 선택기 만들기 | build | dedup-candidates | 01-exact, 02-candidates, 03-components | 없음 |
 | 5 | [L-pipeline-90](backend/pipeline/cards/L-pipeline-90-candidate-recall.md) | 비교 비용과 놓친 중복쌍 측정 | lab | pipeline-lab | candidate-recall | 없음 |
 | 5 | [B-regex-10](implementation/cards/B-regex-10-regex.md) | 정규식 엔진 | build | regex | 01-basic, 02-classes, 03-linear | 없음 |
-| 5 | [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | carnot | 없음 |
-| 5 | [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | plate-tectonics | 없음 |
 | 5 | [C-search-80](backend/search/cards/C-search-80-stable-diversity.md) | 재조회해도 유지되는 추천 다양성 | code | code-reading | stable-diversity | 없음 |
-| 5 | [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | monetary-policy | 없음 |
-| 5 | [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | prospect-theory | 없음 |
 | 5 | [B-spreadsheet-10](implementation/cards/B-spreadsheet-10-spreadsheet.md) | 스프레드시트 계산기 | build | spreadsheet | 01-formula, 02-recalc, 03-cycles | 없음 |
 | 5 | [B-system-design-140](backend/system-design/cards/B-system-design-140-url-shortener.md) | URL 단축기 만들기 | build | url-shortener | 01-base62, 02-collisions, 03-expiry | 없음 |
 | 5 | [B-system-design-150](backend/system-design/cards/B-system-design-150-notifier.md) | 알림 발송기 만들기 | build | notifier | 01-dispatch, 02-reliability, 03-throttling | 없음 |
 | 5 | [B-system-design-160](backend/system-design/cards/B-system-design-160-object-store.md) | 객체 저장소 만들기 | build | object-store | 01-versioning, 02-multipart, 03-durability | 없음 |
-| 5 | [R-technology-20](reading/cards/R-technology-20-congestion-control.md) | TCP 혼잡 제어 | reading | reading | congestion-control | 없음 |
 | 5 | [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | real-model | llm-api |
 | 5 | [L-database-52](backend/database/cards/L-database-52-index-usage.md) | 인덱스를 쓰지 못하는 질의 | lab | db-lab | index-usage | docker, maven |
 | 5 | [L-database-53](backend/database/cards/L-database-53-serializable-retry.md) | 직렬화 실패와 재시도 | lab | db-lab | serializable-retry | docker, maven |
@@ -214,7 +208,7 @@
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
 | rag | build | 있음 | 05 | 01-chunking(B-ai-agent-30 완료), 02-retrieval(B-ai-agent-30 완료), 03-hybrid(B-ai-agent-30 완료), 04-eval(B-ai-agent-30 완료) |  |
 | rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료) | 04-client-throttle(B-system-design-25 4차) |
-| reading | reading | 있음 | 10 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 제작 중), 05-key-exchange(R-technology-10 제작 중), 06-rescission(R-society-10 제작 중), 07-saussure(R-humanities-10 제작 중), 08-perspective(R-art-10 제작 중), 09-falsification(R-interdisciplinary-10 제작 중) | source-criticism(R-humanities-20 5차), carnot(R-science-20 5차), plate-tectonics(R-science-30 5차), monetary-policy(R-society-20 5차), prospect-theory(R-society-30 5차), congestion-control(R-technology-20 5차) |
+| reading | reading | 있음 | 16 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 완료), 05-key-exchange(R-technology-10 완료), 06-rescission(R-society-10 완료), 07-saussure(R-humanities-10 완료), 08-perspective(R-art-10 완료), 09-falsification(R-interdisciplinary-10 완료), 10-carnot(R-science-20 제작 중), 11-monetary-policy(R-society-20 제작 중), 12-congestion-control(R-technology-20 제작 중), 13-source-criticism(R-humanities-20 제작 중), 14-plate-tectonics(R-science-30 제작 중), 15-prospect-theory(R-society-30 제작 중) |  |
 | record-range | build | 없음 | 04 |  | 01-lines(B-record-range-10 4차), 02-json-ranges(B-record-range-10 4차), 03-range-read(B-record-range-10 4차) |
 | regex | build | 없음 | 04 |  | 01-basic(B-regex-10 5차), 02-classes(B-regex-10 5차), 03-linear(B-regex-10 5차) |
 | reservation | build | 없음 | 04 |  | 01-inventory(B-system-design-120 4차), 02-idempotency(B-system-design-120 4차), 03-concurrency(B-system-design-120 4차) |
@@ -236,21 +230,21 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [R-art-10](reading/cards/R-art-10-perspective.md) | 원근법과 시점 | reading | reading | 08-perspective | 제작 중 | 5 | 없음 |  |
+| [R-art-10](reading/cards/R-art-10-perspective.md) | 원근법과 시점 | reading | reading | 08-perspective | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-economics-10](reading/cards/R-economics-10-auction.md) | 경매의 설계 | reading | reading | 01-auction | 완료(2026-10-07) | 1 | 없음 |  |
-| [R-humanities-10](reading/cards/R-humanities-10-saussure.md) | 소쉬르의 기호 이론 | reading | reading | 07-saussure | 제작 중 | 4 | 없음 |  |
-| [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | source-criticism | 후보 | 5 | 없음 |  |
-| [R-interdisciplinary-10](reading/cards/R-interdisciplinary-10-falsification.md) | 반증주의와 뒤엠-콰인 논제 | reading | reading | 09-falsification | 제작 중 | 5 | 없음 |  |
+| [R-humanities-10](reading/cards/R-humanities-10-saussure.md) | 소쉬르의 기호 이론 | reading | reading | 07-saussure | 완료(2026-11-05) | 4 | 없음 |  |
+| [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | 13-source-criticism | 제작 중 | 5 | 없음 |  |
+| [R-interdisciplinary-10](reading/cards/R-interdisciplinary-10-falsification.md) | 반증주의와 뒤엠-콰인 논제 | reading | reading | 09-falsification | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-law-10](reading/cards/R-law-10-agency.md) | 대리와 표현대리 | reading | reading | 02-agency | 완료(2026-10-07) | 1 | 없음 |  |
 | [R-philosophy-10](reading/cards/R-philosophy-10-grue.md) | 귀납의 새로운 수수께끼 | reading | reading | 03-grue | 완료(2026-10-07) | 1 | 없음 |  |
-| [R-science-10](reading/cards/R-science-10-enzyme.md) | 효소 반응 속도와 저해 | reading | reading | 04-enzyme | 제작 중 | 4 | 없음 |  |
-| [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | carnot | 후보 | 5 | 없음 |  |
-| [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | plate-tectonics | 후보 | 5 | 없음 |  |
-| [R-society-10](reading/cards/R-society-10-rescission.md) | 계약의 해제와 원상회복 | reading | reading | 06-rescission | 제작 중 | 5 | 없음 |  |
-| [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | monetary-policy | 후보 | 5 | 없음 |  |
-| [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | prospect-theory | 후보 | 5 | 없음 |  |
-| [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | 05-key-exchange | 제작 중 | 4 | 없음 |  |
-| [R-technology-20](reading/cards/R-technology-20-congestion-control.md) | TCP 혼잡 제어 | reading | reading | congestion-control | 후보 | 5 | 없음 |  |
+| [R-science-10](reading/cards/R-science-10-enzyme.md) | 효소 반응 속도와 저해 | reading | reading | 04-enzyme | 완료(2026-11-05) | 4 | 없음 |  |
+| [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | 10-carnot | 제작 중 | 5 | 없음 |  |
+| [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | 14-plate-tectonics | 제작 중 | 5 | 없음 |  |
+| [R-society-10](reading/cards/R-society-10-rescission.md) | 계약의 해제와 원상회복 | reading | reading | 06-rescission | 완료(2026-11-05) | 5 | 없음 |  |
+| [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | 11-monetary-policy | 제작 중 | 5 | 없음 |  |
+| [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | 15-prospect-theory | 제작 중 | 5 | 없음 |  |
+| [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | 05-key-exchange | 완료(2026-11-05) | 4 | 없음 |  |
+| [R-technology-20](reading/cards/R-technology-20-congestion-control.md) | TCP 혼잡 제어 | reading | reading | 12-congestion-control | 제작 중 | 5 | 없음 |  |
 
 ### 구현
 

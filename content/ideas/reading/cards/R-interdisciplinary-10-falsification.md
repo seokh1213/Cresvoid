@@ -4,7 +4,7 @@ title: 반증주의와 뒤엠-콰인 논제
 kind: reading
 track: reading
 stage: 09-falsification
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

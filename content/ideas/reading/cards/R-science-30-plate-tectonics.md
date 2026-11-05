@@ -3,8 +3,8 @@ id: R-science-30
 title: 판 구조론
 kind: reading
 track: reading
-stage: plate-tectonics
-status: 후보
+stage: 14-plate-tectonics
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

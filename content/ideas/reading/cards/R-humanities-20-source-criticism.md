@@ -3,8 +3,8 @@ id: R-humanities-20
 title: 사료 비판
 kind: reading
 track: reading
-stage: source-criticism
-status: 후보
+stage: 13-source-criticism
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

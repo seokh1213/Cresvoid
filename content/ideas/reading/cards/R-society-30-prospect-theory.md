@@ -3,8 +3,8 @@ id: R-society-30
 title: 전망 이론과 프레이밍
 kind: reading
 track: reading
-stage: prospect-theory
-status: 후보
+stage: 15-prospect-theory
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

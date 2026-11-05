@@ -5,6 +5,12 @@
   "stages": [
     { "dir": "01-auction", "title": "경매의 설계", "target_minutes": 10 },
     { "dir": "02-agency", "title": "대리와 표현대리", "target_minutes": 13 },
-    { "dir": "03-grue", "title": "귀납의 새로운 수수께끼", "target_minutes": 15 }
+    { "dir": "03-grue", "title": "귀납의 새로운 수수께끼", "target_minutes": 15 },
+    { "dir": "04-enzyme", "title": "효소 반응 속도와 저해", "target_minutes": 15 },
+    { "dir": "05-key-exchange", "title": "공개키 암호와 디피-헬먼 키 교환", "target_minutes": 15 },
+    { "dir": "06-rescission", "title": "계약의 해제와 원상회복", "target_minutes": 15 },
+    { "dir": "07-saussure", "title": "소쉬르의 기호 이론", "target_minutes": 15 },
+    { "dir": "08-perspective", "title": "원근법과 시점", "target_minutes": 15 },
+    { "dir": "09-falsification", "title": "반증주의와 뒤엠-콰인 논제", "target_minutes": 15 }
   ]
 }

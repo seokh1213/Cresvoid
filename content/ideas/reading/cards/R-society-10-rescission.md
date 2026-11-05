@@ -4,7 +4,7 @@ title: 계약의 해제와 원상회복
 kind: reading
 track: reading
 stage: 06-rescission
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

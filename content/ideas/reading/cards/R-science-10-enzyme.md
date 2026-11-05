@@ -4,7 +4,7 @@ title: 효소 반응 속도와 저해
 kind: reading
 track: reading
 stage: 04-enzyme
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq:

@@ -4,7 +4,7 @@ title: 소쉬르의 기호 이론
 kind: reading
 track: reading
 stage: 07-saussure
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq:

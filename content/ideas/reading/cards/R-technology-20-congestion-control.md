@@ -3,8 +3,8 @@ id: R-technology-20
 title: TCP 혼잡 제어
 kind: reading
 track: reading
-stage: congestion-control
-status: 후보
+stage: 12-congestion-control
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

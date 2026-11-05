@@ -3,8 +3,8 @@ id: R-society-20
 title: 통화정책의 전달 경로와 테일러 준칙
 kind: reading
 track: reading
-stage: monetary-policy
-status: 후보
+stage: 11-monetary-policy
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

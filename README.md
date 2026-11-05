@@ -130,7 +130,7 @@ cresvoid test search-engine -stage 1
 | `coroutine-patterns` | 구현 | 가상 시간 위에서 kotlinx.coroutines 로 동시 호출과 시간 제한, 동시 실행 상한과 재시도, Channel 파이프라인, Flow 가격 처리, 묶음 저장과 요청 합치기를 구현한다 |
 | `coroutine-runtime` | 구현 | 표준 라이브러리의 Continuation으로 단일 스레드 가상 시간 실행기를 만들고 구조적 동시성, 취소, 예외, Channel·Mutex, cold Flow, pull 시퀀스와 수동 상태 기계를 단계별로 구현한다 |
 | `coroutine-lab` | 실험 | Default의 제한된 실행 자리를 블로킹 호출이 차지할 때의 지연을 측정하고 IO 디스패처와 세마포어로 개선한다 |
-| `reading` | 독해 | 경제(경매 이론), 법(무권대리와 표현대리), 철학(귀납의 새로운 수수께끼) 지문을 읽고 수능·LEET 형식 문항을 푼다 |
+| `reading` | 독해 | 경제(경매 이론), 법(무권대리와 표현대리, 계약 해제), 철학(귀납의 새로운 수수께끼), 생명·화학(효소 반응), 암호(키 교환), 언어학(소쉬르), 미술(원근법), 과학철학(반증주의) 지문을 읽고 수능·LEET 형식 문항을 푼다 |
 | `tech-reading` | 독해 | 실무 도메인의 원리를 다룬 기술 지문 16편(에이전트 루프, HDFS 쓰기 경로, 열 저장, 거의 실시간 검색, Spark 셔플, 코루틴, 규모 추정, MVCC, Raft, 테이블 포맷, Kafka 복제, 백분위수와 오류 예산, 무중단 데이터 이전과 샤딩, 생성·구조·행위 설계 패턴)을 읽고 수능·LEET 형식 문항을 푼다 |
 | `incident-reading` | 독해 | 공개된 장애 사후 보고서 7편(Cloudflare 정규식, GitHub 43초 분할, AWS S3 용량 제거 명령, CrowdStrike 채널 파일, Google Cloud Service Control, Meta 백본과 DNS, Slack 연휴 뒤 급증)을 바탕으로 쓴 지문을 읽고 원인 사슬, 대응, 재발 방지책을 구별하는 LEET 형식 문항을 푼다 |
 | `code-reading` | 코드 읽기 | 남이 쓴 Kotlin 코드를 줄 번호와 함께 읽고 실행 결과와 변경 영향을 예측한다. 1단계는 장바구니 할인 계산, 2단계는 상품 상세 집계 서비스의 코루틴 실행 순서와 취소, 3단계는 가격 상태 저장소의 StateFlow 와 SharedFlow 코드, 4단계는 재고 예약과 만료 코드, 5단계는 중복되고 순서가 뒤섞인 주문 이벤트 처리 코드다 |

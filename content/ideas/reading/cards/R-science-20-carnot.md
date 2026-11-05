@@ -3,8 +3,8 @@ id: R-science-20
 title: 카르노 기관과 열역학 제2법칙
 kind: reading
 track: reading
-stage: carnot
-status: 후보
+stage: 10-carnot
+status: 제작 중
 wave: 5
 env: 없음
 prereq:
