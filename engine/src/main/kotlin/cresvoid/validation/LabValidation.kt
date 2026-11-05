@@ -115,7 +115,8 @@ class LabValidation(private val track: Track, runner: ProcessRunner, private val
                         LabOutcome.Passed -> Unit
                         LabOutcome.InvariantFailed -> failedInvariant = true
                         is LabOutcome.Invalid -> {
-                            problems += "${stage.dir} $label ${round + 1}회차 ${scenario.name}: ${outcome.reason}"
+                            val detail = outcome.detail?.let { " [stderr: $it]" }.orEmpty()
+                            problems += "${stage.dir} $label ${round + 1}회차 ${scenario.name}: ${outcome.reason}$detail"
                             return
                         }
                     }

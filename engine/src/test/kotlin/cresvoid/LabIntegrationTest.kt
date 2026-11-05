@@ -52,6 +52,19 @@ class LabIntegrationTest : FunSpec({
             sandbox.cresvoid("test", "mini-lab").expectExit(1, "실험 오류")
                 .expectOutput("실험을 완료하지 못했습니다 (종료 코드 2)", "실험 오류 문구")
                 .expectNoOutput("형식이 잘못되었습니다", "형식 오류로 잘못 알림")
+                .expectNoOutput("crashed", "학습자에게 실험 표준 오류 노출")
+        }
+    }
+
+    test("lab 검증은 끝나지 못한 실험의 표준 오류 요약을 출제자에게 보인다") {
+        Sandbox(engineJar).use { sandbox ->
+            addLabTrack(sandbox)
+            sandbox.file(
+                "content/tracks/mini-lab/stages/01-observe/hidden/experiment.main.kts",
+                "System.err.println(\"Experiment error: boom\")\nSystem.err.println(\"\\tat Lab.run(lab.kt:3)\")\nkotlin.system.exitProcess(2)\n",
+            )
+            sandbox.cresvoid("validate", "mini-lab").expectExit(1, "실험 오류")
+                .expectOutput("실험을 완료하지 못했습니다 (종료 코드 2) [stderr: Experiment error: boom]", "표준 오류 요약")
         }
     }
 

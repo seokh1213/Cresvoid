@@ -12,7 +12,8 @@ data class LabMetric(val name: String, val value: Double)
 sealed interface LabOutcome {
     data object Passed : LabOutcome
     data object InvariantFailed : LabOutcome
-    data class Invalid(val reason: String) : LabOutcome
+    // detail carries the experiment stderr summary for authors; learner-facing output must not show it.
+    data class Invalid(val reason: String, val detail: String? = null) : LabOutcome
 }
 
 data class LabRun(val outcome: LabOutcome, val metrics: List<LabMetric>)
@@ -26,17 +27,31 @@ class LabHarness(private val runner: ProcessRunner) {
             scenario.timeout,
         )
         if (result.startError != null) return LabRun(LabOutcome.Invalid("실험을 시작하지 못했습니다"), emptyList())
-        if (result.timedOut) return LabRun(LabOutcome.Invalid("제한 시간 ${scenario.timeoutSec}초를 넘었습니다"), emptyList())
+        if (result.timedOut) return LabRun(LabOutcome.Invalid("제한 시간 ${scenario.timeoutSec}초를 넘었습니다", errorSummary(result.stderr)), emptyList())
         if (result.truncated) return LabRun(LabOutcome.Invalid("지표 출력 제한을 넘었습니다"), emptyList())
         // An experiment that crashes before reporting leaves stdout empty; say it crashed instead of blaming the format.
         if (result.exitCode != 0 && result.exitCode != 1) {
-            return LabRun(LabOutcome.Invalid("실험을 완료하지 못했습니다 (종료 코드 ${result.exitCode})"), parseMetrics(result.stdout).orEmpty())
+            val reason = "실험을 완료하지 못했습니다 (종료 코드 ${result.exitCode})"
+            return LabRun(LabOutcome.Invalid(reason, errorSummary(result.stderr)), parseMetrics(result.stdout).orEmpty())
         }
         val metrics = parseMetrics(result.stdout) ?: return LabRun(LabOutcome.Invalid("실험 지표 출력 형식이 잘못되었습니다"), emptyList())
         val outcome = if (result.exitCode == 0) LabOutcome.Passed else LabOutcome.InvariantFailed
         return LabRun(outcome, metrics)
     }
 }
+
+private const val SUMMARY_LINES = 2
+private const val SUMMARY_LIMIT = 300
+private val stackFrame = Regex("""^\s+(at |\.\.\. \d+ more)""")
+
+// Stack frames say where the script stopped, not why; keep the last lines that carry a message.
+private fun errorSummary(stderr: ByteArray): String? =
+    tailLines(stderr, 40)
+        .filter { it.isNotBlank() && !stackFrame.containsMatchIn(it) }
+        .takeLast(SUMMARY_LINES)
+        .joinToString(" / ")
+        .take(SUMMARY_LIMIT)
+        .ifEmpty { null }
 
 private fun parseMetrics(stdout: ByteArray): List<LabMetric>? {
     val text = stdout.toString(Charsets.UTF_8).trimEnd('\n', '\r')
