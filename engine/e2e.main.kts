@@ -117,7 +117,12 @@ fun expect(condition: Boolean, problem: String) {
     log("!! $problem")
 }
 
+// lab validate repeats every experiment per target and round, so it needs far more than the other commands.
+val COMMAND_LIMIT_MINUTES = 30L
+val VALIDATE_LIMIT_MINUTES = 120L
+
 fun cresvoid(vararg arguments: String, input: String = ""): Run {
+    val limitMinutes = if (arguments.firstOrNull() == "validate") VALIDATE_LIMIT_MINUTES else COMMAND_LIMIT_MINUTES
     val command = "cresvoid ${arguments.joinToString(" ")}"
     log("$ $command")
     val outputFile = Files.createTempFile("cresvoid-e2e-", ".out").toFile()
@@ -130,11 +135,11 @@ fun cresvoid(vararg arguments: String, input: String = ""): Run {
             .apply { environment()["PWD"] = workspace.path }
             .start()
         process.outputStream.use { it.write(input.toByteArray()) }
-        val finished = process.waitFor(30, TimeUnit.MINUTES)
+        val finished = process.waitFor(limitMinutes, TimeUnit.MINUTES)
         if (!finished) process.destroyForcibly().waitFor()
         val output = outputFile.readText()
         output.lineSequence().forEach { log("  | $it") }
-        expect(finished, "$command 가 30분 안에 끝나지 않아 멈췄습니다")
+        expect(finished, "$command 가 ${limitMinutes}분 안에 끝나지 않아 멈췄습니다")
         log("  exit ${process.exitValue()}")
         return Run(process.exitValue(), output)
     } finally {
