@@ -4,7 +4,7 @@ title: 병합 때만 지워지는 중복
 kind: lab
 track: olap-lab
 stage: 02-replacing-merge
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: L-olap-40

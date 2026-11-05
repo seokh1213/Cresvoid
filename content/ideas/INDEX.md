@@ -21,13 +21,13 @@
 | [메시징: Kafka](backend/messaging/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
-| [OLAP](backend/olap/README.md) | 6 | 1 | 3 | 2 | 0 |
+| [OLAP](backend/olap/README.md) | 6 | 1 | 0 | 5 | 0 |
 | [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 4 | 5 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 5 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 44 | 36 | 103 | 2 |
+| 합계 | 185 | 44 | 33 | 106 | 2 |
 
 ## 다음 후보
 
@@ -134,7 +134,7 @@
 | notifier | build | 없음 | 04 |  | 01-dispatch(B-system-design-150 5차), 02-reliability(B-system-design-150 5차), 03-throttling(B-system-design-150 5차) |
 | nrt-index | build | 없음 | 04 |  | 01-refresh(B-search-30 3차), 02-durability(B-search-30 3차), 03-concurrency(B-search-30 3차) |
 | object-store | build | 없음 | 04 |  | 01-versioning(B-system-design-160 5차), 02-multipart(B-system-design-160 5차), 03-durability(B-system-design-160 5차) |
-| olap-lab | lab | 없음 | 04 | 01-sorting-key(L-olap-40 제작 중), 02-replacing-merge(L-olap-41 제작 중), 03-too-many-parts(L-olap-42 제작 중) |  |
+| olap-lab | lab | 있음 | 04 | 01-sorting-key(L-olap-40 완료), 02-replacing-merge(L-olap-41 완료), 03-too-many-parts(L-olap-42 완료) |  |
 | pipeline-lab | lab | 있음 | 02 | 01-candidate-recall(L-pipeline-90 완료) |  |
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
 | rag | build | 있음 | 05 | 01-chunking(B-ai-agent-30 완료), 02-retrieval(B-ai-agent-30 완료), 03-hybrid(B-ai-agent-30 완료), 04-eval(B-ai-agent-30 완료) |  |
@@ -394,9 +394,9 @@
 | [R-olap-10](backend/olap/cards/R-olap-10-columnar-execution.md) | 열 저장과 분석 질의 | reading | tech-reading | 03-columnar-execution | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-olap-20](backend/olap/cards/B-olap-20-mini-olap.md) | 열 지향 집계 엔진 만들기 | build | mini-olap | 01-aggregate, 02-scale, 03-rollup | 완료(2026-10-10) | 2 | 없음 | R-olap-10 |
 | [B-olap-30](backend/olap/cards/B-olap-30-sketch-and-sparse-index.md) | 근사 집계와 희소 인덱스 | build | mini-olap | 04-sketch, 05-sparse-index | 후보 | 3 | 없음 | B-olap-20 |
-| [L-olap-40](backend/olap/cards/L-olap-40-sorting-key.md) | 정렬 키와 읽는 그래뉼 수 | lab | olap-lab | 01-sorting-key | 제작 중 | 4 | docker | R-olap-10 |
-| [L-olap-41](backend/olap/cards/L-olap-41-replacing-merge.md) | 병합 때만 지워지는 중복 | lab | olap-lab | 02-replacing-merge | 제작 중 | 4 | docker | L-olap-40 |
-| [L-olap-42](backend/olap/cards/L-olap-42-too-many-parts.md) | 작은 삽입과 파트 폭증 | lab | olap-lab | 03-too-many-parts | 제작 중 | 5 | docker | L-olap-40 |
+| [L-olap-40](backend/olap/cards/L-olap-40-sorting-key.md) | 정렬 키와 읽는 그래뉼 수 | lab | olap-lab | 01-sorting-key | 완료(2026-11-06) | 4 | docker | R-olap-10 |
+| [L-olap-41](backend/olap/cards/L-olap-41-replacing-merge.md) | 병합 때만 지워지는 중복 | lab | olap-lab | 02-replacing-merge | 완료(2026-11-06) | 4 | docker | L-olap-40 |
+| [L-olap-42](backend/olap/cards/L-olap-42-too-many-parts.md) | 작은 삽입과 파트 폭증 | lab | olap-lab | 03-too-many-parts | 완료(2026-11-06) | 5 | docker | L-olap-40 |
 
 ### 데이터 파이프라인
 

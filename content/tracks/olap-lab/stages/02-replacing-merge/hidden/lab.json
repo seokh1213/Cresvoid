@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "daily-summary",
+      "refs": ["8", "9", "10", "11", "12"],
+      "quote": "모든 72건은 HTTP 200으로 완료되어야 하며 각 구간의 응답은 입력으로 독립 계산한 최신 상태의 개수와 합계에 정확히 일치해야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    },
+    {
+      "name": "rolling-summary",
+      "refs": ["8", "9", "10", "11", "12"],
+      "quote": "모든 72건은 HTTP 200으로 완료되어야 하며 각 구간의 응답은 입력으로 독립 계산한 최신 상태의 개수와 합계에 정확히 일치해야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/filtered-history"]
+}

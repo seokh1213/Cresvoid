@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "weekday-flow",
+      "refs": ["7", "8", "9"],
+      "quote": "각 구간의 flush 직후에도 그때까지 보낸 모든 행이 정확히 한 번씩 원래 값으로 존재해야 한다.",
+      "timeout_sec": 180,
+      "repeat": 1
+    },
+    {
+      "name": "evening-flow",
+      "refs": ["6", "7", "9"],
+      "quote": "반복 flush는 행이나 파트를 추가하지 않아야 한다.",
+      "timeout_sec": 180,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/full-batches-only"]
+}

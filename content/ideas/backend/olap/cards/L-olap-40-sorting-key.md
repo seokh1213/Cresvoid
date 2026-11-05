@@ -4,7 +4,7 @@ title: 정렬 키와 읽는 그래뉼 수
 kind: lab
 track: olap-lab
 stage: 01-sorting-key
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: R-olap-10

@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "first-pass",
+      "refs": ["8", "9", "10"],
+      "quote": "a에 보낸 8개 부하 질의의 read_rows 합은 160,000 이하여야 한다.",
+      "timeout_sec": 420,
+      "repeat": 3
+    },
+    {
+      "name": "second-pass",
+      "refs": ["8", "9", "10"],
+      "quote": "모든 요청은 HTTP 200으로 완료되고 모든 합계가 공개 데이터의 정확한 합과 같아야 한다.",
+      "timeout_sec": 420,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/daily-partitions"]
+}

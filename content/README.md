@@ -32,6 +32,7 @@
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
 | `jvm-lab` | lab | 3 |
+| `olap-lab` | lab | 3 |
 | `reading` | reading | 15 |
 | `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |

@@ -1,0 +1,10 @@
+{
+  "title": "분석 데이터베이스 실험",
+  "kind": "lab",
+  "summary": "Docker 로 띄운 ClickHouse 에서 정렬 키와 읽는 그래뉼, 병합 때만 지워지는 중복, 작은 삽입과 파트 폭증을 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-sorting-key", "title": "정렬 키와 읽는 그래뉼 수" },
+    { "dir": "02-replacing-merge", "title": "병합 때만 지워지는 중복" },
+    { "dir": "03-too-many-parts", "title": "작은 삽입과 파트 폭증" }
+  ]
+}
