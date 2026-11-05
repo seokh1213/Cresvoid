@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "sample-round",
+      "refs": ["3", "4", "5", "6", "9", "10"],
+      "quote": "공개 기록은 같은 논리 ID를 다시 처리해도 한 번만 남아야 한다.",
+      "timeout_sec": 240,
+      "repeat": 3
+    },
+    {
+      "name": "expanded-round",
+      "refs": ["3", "4", "5", "6", "9", "10"],
+      "quote": "공개 기록은 같은 논리 ID를 다시 처리해도 한 번만 남아야 한다.",
+      "timeout_sec": 240,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/partition-key"]
+}

@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "query-workload",
+      "refs": ["7", "8", "9", "10", "11", "12"],
+      "quote": "행 수가 같아도 값이나 중복 수가 다르면 불일치다.",
+      "timeout_sec": 300,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/positional-union", "variants/filtered-not-in"]
+}

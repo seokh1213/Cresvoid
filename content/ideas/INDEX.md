@@ -24,10 +24,10 @@
 | [OLAP](backend/olap/README.md) | 6 | 1 | 0 | 5 | 0 |
 | [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 0 | 9 | 0 |
-| [Spark](backend/spark/README.md) | 7 | 0 | 5 | 2 | 0 |
+| [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 13 | 0 | 4 | 0 |
-| 합계 | 185 | 42 | 29 | 112 | 2 |
+| 합계 | 185 | 42 | 24 | 117 | 2 |
 
 ## 다음 후보
 
@@ -144,7 +144,7 @@
 | result-placement | build | 없음 | 04 |  | 01-ordered(B-search-60 4차), 02-constraints(B-search-60 4차), 03-exact-search(B-search-60 4차) |
 | search-engine | build | 있음 | 07 | 01-boolean(B-search-engine-10 완료), 02-ranking(B-search-engine-10 완료), 03-phrase(B-search-engine-10 완료), 04-fuzzy(B-search-engine-20 완료), 05-suggest(B-search-engine-30 완료), 06-snippet(B-search-engine-40 완료) |  |
 | sim-testing | build | 없음 | 04 |  | 01-scheduler(B-distributed-50 5차), 02-faults(B-distributed-50 5차), 03-shrink(B-distributed-50 5차) |
-| spark-lab | lab | 없음 | 06 | 01-null-semantics(L-spark-30 제작 중), 02-skew-and-aqe(L-spark-31 제작 중), 03-overwrite-and-small-files(L-spark-32 제작 중), 04-retries-and-side-effects(L-spark-33 제작 중), 05-streaming-watermark(L-spark-34 제작 중) |  |
+| spark-lab | lab | 있음 | 06 | 01-null-semantics(L-spark-30 완료), 02-skew-and-aqe(L-spark-31 완료), 03-overwrite-and-small-files(L-spark-32 완료), 04-retries-and-side-effects(L-spark-33 완료), 05-streaming-watermark(L-spark-34 완료) |  |
 | spreadsheet | build | 없음 | 04 |  | 01-formula(B-spreadsheet-10 5차), 02-recalc(B-spreadsheet-10 5차), 03-cycles(B-spreadsheet-10 5차) |
 | spring-lab | lab | 없음 | 11 | 01-pool-deadlock(L-spring-10 제작 중), 02-open-in-view(L-spring-20 제작 중), 03-proxy-pitfalls(L-spring-30 제작 중), 04-async-executor(L-spring-40 제작 중), 05-http-client-pool(L-spring-50 제작 중), 06-max-lifetime(L-spring-60 제작 중), 07-virtual-threads(L-spring-70 제작 중), 08-n-plus-one(L-spring-80 제작 중), 09-batch-insert(L-spring-90 제작 중), 10-scheduler(L-spring-100 제작 중) |  |
 | table-format | build | 있음 | 04 | 01-snapshots(B-lakehouse-30 완료), 02-commits(B-lakehouse-30 완료), 03-deletes(B-lakehouse-30 완료) |  |
@@ -438,11 +438,11 @@
 |---|---|---|---|---|---|---|---|---|
 | [R-spark-10](backend/spark/cards/R-spark-10-spark-stages.md) | Spark 의 실행 계획과 셔플 | reading | tech-reading | 05-spark-stages | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-spark-20](backend/spark/cards/B-spark-20-dataflow.md) | 데이터 흐름 엔진 만들기 | build | dataflow | 01-plan, 02-shuffle, 03-join, 04-adaptive | 완료(2026-10-10) | 2 | 없음 | R-spark-10 |
-| [L-spark-30](backend/spark/cards/L-spark-30-null-semantics.md) | NULL, 중복, 열 순서의 의미론 | lab | spark-lab | 01-null-semantics | 제작 중 | 4 | docker | R-spark-10 |
-| [L-spark-31](backend/spark/cards/L-spark-31-skew-and-aqe.md) | 데이터 쏠림과 적응 실행 | lab | spark-lab | 02-skew-and-aqe | 제작 중 | 4 | docker | B-spark-20 |
-| [L-spark-32](backend/spark/cards/L-spark-32-overwrite-and-small-files.md) | 파티션 덮어쓰기와 작은 파일 | lab | spark-lab | 03-overwrite-and-small-files | 제작 중 | 4 | docker | R-spark-10 |
-| [L-spark-33](backend/spark/cards/L-spark-33-retries-and-side-effects.md) | 재실행과 부수효과 | lab | spark-lab | 04-retries-and-side-effects | 제작 중 | 5 | docker | R-spark-10 |
-| [L-spark-34](backend/spark/cards/L-spark-34-streaming-watermark.md) | 워터마크와 늦은 이벤트 | lab | spark-lab | 05-streaming-watermark | 제작 중 | 5 | docker | R-spark-10 |
+| [L-spark-30](backend/spark/cards/L-spark-30-null-semantics.md) | NULL, 중복, 열 순서의 의미론 | lab | spark-lab | 01-null-semantics | 완료(2026-11-06) | 4 | docker | R-spark-10 |
+| [L-spark-31](backend/spark/cards/L-spark-31-skew-and-aqe.md) | 데이터 쏠림과 적응 실행 | lab | spark-lab | 02-skew-and-aqe | 완료(2026-11-06) | 4 | docker | B-spark-20 |
+| [L-spark-32](backend/spark/cards/L-spark-32-overwrite-and-small-files.md) | 파티션 덮어쓰기와 작은 파일 | lab | spark-lab | 03-overwrite-and-small-files | 완료(2026-11-06) | 4 | docker | R-spark-10 |
+| [L-spark-33](backend/spark/cards/L-spark-33-retries-and-side-effects.md) | 재실행과 부수효과 | lab | spark-lab | 04-retries-and-side-effects | 완료(2026-11-06) | 5 | docker | R-spark-10 |
+| [L-spark-34](backend/spark/cards/L-spark-34-streaming-watermark.md) | 워터마크와 늦은 이벤트 | lab | spark-lab | 05-streaming-watermark | 완료(2026-11-06) | 5 | docker | R-spark-10 |
 
 ### 프레임워크 심화와 튜닝
 

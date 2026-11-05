@@ -4,7 +4,7 @@ title: 워터마크와 늦은 이벤트
 kind: lab
 track: spark-lab
 stage: 05-streaming-watermark
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq: R-spark-10

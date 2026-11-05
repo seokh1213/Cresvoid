@@ -1,0 +1,123 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "가상 실험에서 N=20인 map 결과를 캐시하고 count로 전부 계산한 뒤 foreach를 실행한다. 두 행동 사이에 캐시 유실·축출과 태스크 실패는 없고 나머지는 [3]과 같다. counted, transformation_updates, action_updates, driver_value를 순서대로 예측해라. 숫자 네 개를 쉼표로 구분하고 공백 없이 써라.",
+      "answers": [
+        "20,20,20,0"
+      ],
+      "refs": [
+        "3"
+      ],
+      "quote": "count는 N, 변환 누산기는 2N, 행동 누산기는 N, 드라이버의 원본 value는 0이어야 한다.",
+      "explanation": "count가 map을 20회 실행해 캐시를 채우고 foreach는 그 결과를 읽으므로 변환 누산기는 20이다. foreach 자체는 20행에 행동 누산기를 더한다. counted는 20이고 드라이버 원본은 클로저 사본과 별개이므로 0이다. 캐시가 map 뒤에 있다는 점이 변환 재계산을 막는다.",
+      "context": "이 문항에서 캐시는 map 결과를 보관한다. foreach는 보관된 결과를 읽으므로 map을 다시 실행하지 않는다. 클로저 객체의 직렬화 방식은 바꾸지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "N=12, K=4인 가상 실험에서 첫 제출의 예외를 네 번째 raw.log 쓰기 직후, 네 번째 publishRecord 호출 전으로 옮긴다. 공개 기록의 중복 방지는 올바르게 구현했고 나머지는 [4]와 같다. 첫 실패 직후의 복구 행동 누산기와 공개 기록 행 수, 다음 제출 성공 뒤의 raw.log와 공개 기록 행 수를 순서대로 써라. 숫자 네 개를 쉼표로 구분하고 공백 없이 써라.",
+      "answers": [
+        "0,3,16,12"
+      ],
+      "refs": [
+        "4",
+        "5"
+      ],
+      "quote": "실패 잡은 정확히 1개, 제출은 정확히 2회, 실패 직후 복구 행동 누산기는 0, 두 번째 제출 완료 뒤 값은 N이어야 한다.",
+      "explanation": "첫 제출에서 raw는 4행, 공개 기록은 3행이 남는다. 복구 행동 누산기는 실패한 태스크의 갱신을 반영하지 않아 0이다. 두 번째 제출은 raw에 12행을 더한다. 공개 기록에서는 앞선 3개 ID의 재처리를 억제하고 나머지 9개를 남겨 최종 12행이 된다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "N=12인 가상 실험에서 드라이버가 최대 세 번 제출한다. 첫 제출은 4행, 두 번째 제출은 7행의 외부 쓰기와 누산기 갱신 직후 실패하고 세 번째는 성공한다. 세 제출은 [2]와 같은 별도 잡이며 같은 raw.log와 복구 행동 누산기를 사용한다. 공개 기록의 중복 방지는 올바르다. 최종 관측으로 옳은 것을 골라라.",
+      "choices": [
+        "failed_jobs=2, submissions=3, task_attempts=0,1,2, recovered_updates=12, raw_rows=23, published_rows=12다.",
+        "failed_jobs=2, submissions=3, task_attempts=0,0,0, recovered_updates=23, raw_rows=23, published_rows=12다.",
+        "failed_jobs=2, submissions=3, task_attempts=0,0,0, recovered_updates=12, raw_rows=23, published_rows=12다.",
+        "failed_jobs=2, submissions=3, task_attempts=0,0,0, recovered_updates=12, raw_rows=12, published_rows=12다."
+      ],
+      "answer": 3,
+      "refs": [
+        "2",
+        "4",
+        "5"
+      ],
+      "quote": "두 제출의 TaskContext.attemptNumber는 모두 0이며, 이 값을 태스크 재시도 횟수로 해석하지 마라.",
+      "explanation": "③은 두 실패 잡의 누산기 갱신이 반영되지 않아 최종 값은 12지만 외부 쓰기 4+7+12행은 남는다는 점을 함께 반영한다. 공개 기록은 12개 ID를 한 번씩 남긴다. ①은 별도 잡의 attemptNumber를 이어 센다. ②는 실패 태스크의 갱신도 합산한다. ④는 raw.log까지 롤백된 것으로 본다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "sample-round에서 readPublished가 실제 저장된 12행을 모두 읽었다고 가정해라. 내용은 ID 0부터 9까지가 각각 한 행, ID 9가 추가로 한 행, ID 12가 한 행이다. 이때 publication_errors는 얼마인지 숫자 하나로 써라.",
+      "answers": [
+        "4"
+      ],
+      "refs": [
+        "5",
+        "9",
+        "10"
+      ],
+      "quote": "publication_errors는 누락 ID 수, 범위 밖 ID 수, 중복 초과 행 수를 더한 값이다.",
+      "explanation": "N=12이므로 필요한 ID는 0부터 11까지다. 누락된 10과 11이 2개, 범위 밖 ID 12가 1개, ID 9의 중복 초과 행이 1개이므로 합은 4다. published_rows가 12라는 사실만으로 공개 기록 불변식을 만족하지는 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "N=12, K=4에서 공개 기록의 중복 방지 키를 (제출 번호, 논리 ID)로 바꿨다. 같은 제출 안의 재처리만 막으며 readPublished는 저장된 전체를 읽는다. raw.log와 나머지 관측은 그대로다. 두 번째 제출 성공 뒤의 진단으로 옳은 것을 골라라.",
+      "choices": [
+        "raw_rows=16, published_rows=12, publication_errors=0이다. 논리 ID가 키에 포함되면 제출 번호의 추가는 결과에 영향이 없다.",
+        "raw_rows=16, published_rows=16, publication_errors=4다. observation_errors=0이어도 공개 기록은 실패한다.",
+        "raw_rows=12, published_rows=16, publication_errors=4다. 새 제출 번호가 raw.log의 이전 행을 대체한다.",
+        "raw_rows=16, published_rows=16, publication_errors=0이다. 필요한 ID가 모두 있으므로 공개 기록은 통과한다."
+      ],
+      "answer": 2,
+      "refs": [
+        "4",
+        "5",
+        "10"
+      ],
+      "quote": "raw.log를 지워서 중복을 숨기거나 readPublished에서 distinct로 감추지 마라.",
+      "explanation": "②처럼 두 제출의 키가 다르면 앞선 4개 ID가 다시 저장된다. 누락과 범위 밖 ID는 없지만 중복 초과 행이 4개이므로 publication_errors는 4다. ①은 제출 번호에 따라 키가 달라지는 점을 놓친다. ③은 별도 저장소인 raw.log에 영향을 잘못 준다. ④는 ID 집합만 확인하고 중복 행을 놓친다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "가상 다중 호스트 실험에서 한 파티션의 ID 0~3을 원래 태스크와 투기 사본이 각각 한 번씩 모두 처리했다. 두 태스크는 모두 외부 쓰기를 마쳤고 Listener는 투기 사본 시작 한 건을 기록했다. raw는 매번 append하고 공개 저장소는 두 호스트에 걸쳐 논리 ID별 중복 방지가 보장된다. raw_rows, published_rows, speculative_tasks와 해석으로 옳은 것을 골라라.",
+      "choices": [
+        "4,4,1이다. 채택되지 않은 태스크의 raw 쓰기는 Spark가 롤백한다.",
+        "8,8,1이다. 투기 사본은 논리 ID를 바꾸므로 공개 저장소에서도 별도 기록이다.",
+        "8,4,0이다. 두 태스크가 모두 쓰기를 마쳤으면 투기 시작 이벤트는 취소된다.",
+        "8,4,1이다. 같은 공개 결과를 유지해도 중복 외부 쓰기 시도 자체가 사라지지는 않는다."
+      ],
+      "answer": 4,
+      "refs": [
+        "4",
+        "5",
+        "6"
+      ],
+      "quote": "여러 호스트에서 투기 실행이 실제 발생했을 때의 외부 중복 수는 이 단계에서 측정하지 않는다.",
+      "explanation": "④는 실제 두 태스크가 남긴 raw 8행과 중복을 막은 공개 기록 4행, Listener의 시작 이벤트 한 건을 구분한다. ①은 외부 쓰기의 롤백을 잘못 가정한다. ②는 태스크 사본을 새 논리 ID로 취급한다. ③은 이미 기록된 시작 이벤트를 없앤다. 이는 문항의 공유 저장소 보장을 전제로 한 추론이며 로컬 실험이 그 보장을 검증한 것은 아니다."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "규정된 세 번 검증과 별도로, 요청 간 상태 격리를 진단하려고 같은 서비스에 POST 두 건을 순차로 보냈다. 첫 요청은 size=12&cut=4, 다음 요청은 size=20&cut=7이며 공개 기록의 중복 방지는 올바르다. 각 응답의 (raw_rows,published_rows,recovered_updates) 조합으로 옳은 것을 골라라.",
+      "choices": [
+        "첫 응답은 (16,12,12), 다음 응답은 (27,20,20)이다.",
+        "첫 응답은 (16,12,12), 다음 응답은 (43,20,32)이다.",
+        "첫 응답은 (16,12,12), 다음 응답은 (27,8,20)이다.",
+        "첫 응답은 (16,12,12), 다음 응답은 (27,20,32)이다."
+      ],
+      "answer": 1,
+      "refs": [
+        "4",
+        "5",
+        "7"
+      ],
+      "quote": "요청 간 관찰 상태는 공유하지 않는다.",
+      "explanation": "①처럼 각 요청은 새 저장소와 관찰 상태를 사용하므로 다음 응답은 N=20, K=7만 반영한다. ②는 파일과 누산기 상태를 모두 누적한다. ③은 앞 요청에서 처리한 12개 ID가 새 요청에서도 저장된 것으로 보고 새 ID 8개만 센다. ④는 저장소만 초기화하고 누산기는 누적한 값이다."
+    }
+  ]
+}

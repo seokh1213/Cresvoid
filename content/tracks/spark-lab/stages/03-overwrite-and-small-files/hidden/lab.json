@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "daily-refresh",
+      "refs": ["4", "5", "10", "12"],
+      "quote": "두 모드 모두 기존 id 2는 남지 않아야 한다.",
+      "timeout_sec": 360,
+      "repeat": 3
+    },
+    {
+      "name": "batch-layout",
+      "refs": ["6", "7", "8", "9", "11", "12"],
+      "quote": "모든 전략에서 원래 id와 날짜가 정확히 한 번씩 남아야 하고 rows=T×P×R이어야 한다.",
+      "timeout_sec": 360,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/uncapped-writes"]
+}

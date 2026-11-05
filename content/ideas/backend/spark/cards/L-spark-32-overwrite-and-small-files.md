@@ -4,7 +4,7 @@ title: 파티션 덮어쓰기와 작은 파일
 kind: lab
 track: spark-lab
 stage: 03-overwrite-and-small-files
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: R-spark-10

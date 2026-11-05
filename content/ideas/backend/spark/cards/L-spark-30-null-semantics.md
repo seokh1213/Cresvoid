@@ -4,7 +4,7 @@ title: NULL, 중복, 열 순서의 의미론
 kind: lab
 track: spark-lab
 stage: 01-null-semantics
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: R-spark-10

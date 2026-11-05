@@ -4,7 +4,7 @@ title: 데이터 쏠림과 적응 실행
 kind: lab
 track: spark-lab
 stage: 02-skew-and-aqe
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: B-spark-20

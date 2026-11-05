@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "window-sequence",
+      "refs": ["6", "7", "8", "10", "11"],
+      "quote": "각 관찰 시점의 누적 출력 전체를 비교하므로 조기 출력, 누락, 중복을 함께 잡는다.",
+      "timeout_sec": 600,
+      "repeat": 3
+    },
+    {
+      "name": "recovery-sequence",
+      "refs": ["4", "9", "10", "11"],
+      "quote": "실패한 배치를 재호출해도 출판은 한 번만 반영되어야 한다.",
+      "timeout_sec": 600,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/unguarded-sink"]
+}

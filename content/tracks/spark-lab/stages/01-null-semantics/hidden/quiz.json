@@ -1,0 +1,105 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "sample의 repair join에서 총 행 수, match_count 열의 합, rhs.id가 NULL인 행 수를 차례로 예측해라. 공백 없이 세 정수를 쉼표로 이어 답해라.",
+      "answers": ["11,17,2"],
+      "refs": ["5", "7"],
+      "quote": "짝이 없는 왼쪽 행도 `(lhs.id,NULL,0)` 한 행으로 남겨라.",
+      "explanation": "a·b·d·e는 각각 rhs 두 행과 짝을 이루므로 8행이며 match_count 합은 16이다. f는 한 행과 짝을 이루어 1행과 1을 더한다. c와 g는 짝이 없어 각각 NULL·0을 가진 한 행으로 남는다. 따라서 총 11행, match_count 합 17, 미매칭 2행이다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "sample의 repair join에서 양쪽 NULL을 -1로 치환한 뒤 동등 조인한다고 하자. 첫 두 열 (lhs.id,rhs.id)만 비교할 때 올바른 결과에는 없지만 이 변경으로 추가될 쌍을 골라라.",
+      "choices": ["(d,w)", "(f,y)", "(d,y)", "(a,v)"],
+      "answer": 3,
+      "refs": ["5", "7"],
+      "quote": "-1도 정상 키이므로 NULL 대신 넣는 특수값으로 쓰지 마라.",
+      "explanation": "③의 d는 NULL이고 y는 -1이므로 올바른 join에서는 짝이 아니다. 둘을 -1로 합치면 이 행이 잘못 추가된다. ①은 NULL끼리, ②는 -1끼리, ④는 1끼리의 짝이므로 모두 올바른 결과에도 있다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "sample의 lhs는 그대로 두고 blocked만 바꾼다. A에서는 blocked가 (1),(NULL)이고 B에서는 (1)뿐이다. 두 repair exclude 결과를 A부터 [4]에 따라 직렬화해라. 결과 이름과 탭은 생략하고 두 결과 사이에 | 하나를 넣어 답해라.",
+      "answers": ["ROWS:c;f;g|ROWS:c;d;e;f;g"],
+      "refs": ["4", "5", "7"],
+      "quote": "blocked에 NULL이 있으면 lhs의 NULL을 제외하고, 없으면 lhs의 NULL을 남겨라.",
+      "explanation": "두 입력 모두 키 1인 a·b를 제외한다. A는 NULL도 제외 키이므로 d·e를 제외하여 c·f·g만 남는다. B는 NULL을 제외하지 않아 c·d·e·f·g가 남는다. 일반 NOT IN은 B에서도 NULL인 왼쪽 키를 남기지 못한다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "sample의 repair groups에서 모든 행의 두 번째 열을 합한 값, 세 번째 열을 합한 값, distinct_keys의 행 수를 차례로 예측해라.",
+      "choices": ["(7,7,5)", "(7,5,5)", "(5,5,4)", "(7,5,4)"],
+      "answer": 2,
+      "refs": ["5", "8"],
+      "quote": "distinct_keys는 `(k,lhs_rows)`로 키별 빈도를 남겨라.",
+      "explanation": "②가 맞다. 전체 7행을 키별로 나눴으므로 COUNT(*)의 합은 7이다. NULL 키 두 행은 COUNT(k)에 더해지지 않아 그 합은 5다. 고유 키는 -1, 1, 2, 3, NULL의 5개다. ①은 NULL을 COUNT(k)에 포함했다. ③은 NULL 행을 제거했고 ④는 distinct_keys에서 NULL을 빠뜨렸다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "sample의 observe에서 positional_union과 named_union을 실행하기 전이다. 두 결과의 차이를 올바르게 예측한 것을 골라라.",
+      "choices": [
+        "second의 열 순서가 다르므로 positional_union만 SQL 오류가 난다.",
+        "둘 다 5행이며 positional_union에는 (south,cy)가, named_union에는 (cy,south)가 들어간다.",
+        "둘 다 4행이며 (ann,east)의 중복 한 행이 제거된다.",
+        "둘 다 5행이며 열 이름이 같으므로 행의 값과 중복 수도 같다."
+      ],
+      "answer": 2,
+      "refs": ["5.1", "6", "9"],
+      "quote": "열 타입이 같아서 위치 기반 병합도 성공한다는 사실에 주의해라.",
+      "explanation": "②가 맞다. first는 3행, second는 2행이며 중복을 보존하므로 두 병합 모두 5행이다. second의 (region,user) 값 (south,cy)는 위치 기반 병합에서는 그대로 놓이고 이름 기반 병합에서는 공개 열 순서 (user,region)에 맞춰 (cy,south)가 된다. ①과 달리 모든 열이 STRING이므로 위치 기반 병합도 성공한다. ③은 중복을 제거했고 ④는 열 위치와 이름의 차이를 무시했다."
+    },
+    {
+      "id": "q6",
+      "type": "short",
+      "prompt": "sample의 repair에서 cast 결과의 두 번째 열이 NULL인 행 수와 add 결과의 두 번째 열이 NULL인 행 수를 차례로 예측해라. 공백 없이 두 정수를 쉼표로 이어 답해라.",
+      "answers": ["3,2"],
+      "refs": ["5.2", "10"],
+      "quote": "정상 문자열은 INT로 변환하고 잘못된 문자열·INT 범위 밖 문자열·NULL은 NULL로 남겨라.",
+      "explanation": "cast는 t2의 oops, t3의 NULL, t4의 범위 밖 문자열 2147483648을 NULL로 남기므로 3행이다. add는 t2의 INT 최댓값에 1을 더할 때의 넘침과 t3의 NULL만 NULL로 남기므로 2행이다. t4의 add는 -2+1=-1로 정상이다. 한 행의 변환 실패가 다른 행을 NULL로 만들지는 않는다."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "observe를 실행하기 전이다. sample의 eq_join, sample의 safe_join, alternate의 eq_join, alternate의 safe_join 행 수를 차례로 예측해라.",
+      "choices": [
+        "(5,9,6,7)",
+        "(5,7,6,7)",
+        "(7,11,7,8)",
+        "(5,5,6,6)"
+      ],
+      "answer": 1,
+      "refs": ["5", "6"],
+      "quote": "처음 둘은 `lhs.k = rhs.k`와 `lhs.k <=> rhs.k` 내부 조인의 `(lhs.id,rhs.id)`다.",
+      "explanation": "①이 맞다. sample의 일반 동등 조인은 키 1의 2×2와 -1의 1×1로 5행이다. NULL끼리 비교하면 2×2를 더해 9행이다. alternate는 키 2의 2×2와 -1의 1×2로 6행이며 NULL의 1×1을 더하면 7행이다. ②는 NULL 조합을 빠뜨렸고 ③은 내부 조인에 미매칭 행을 더했다. ④는 NULL 비교 방식의 차이를 무시했다."
+    },
+    {
+      "id": "q8",
+      "type": "short",
+      "prompt": "observe의 not_in 결과를 sample부터 alternate 순으로 [4]에 따라 직렬화해라. 결과 이름과 탭은 생략하고 두 결과 사이에 | 하나를 넣어 답해라.",
+      "answers": ["ROWS:|ROWS:a;d;e"],
+      "refs": ["4", "5", "6"],
+      "quote": "not_in은 `k NOT IN (SELECT k FROM blocked)`를 통과한 lhs의 `(id)`다.",
+      "explanation": "sample은 blocked에 NULL이 있어 키 2의 비교는 false, 다른 키의 NOT IN은 unknown이 되어 어떤 행도 통과하지 않는다. alternate는 blocked에 -1만 있어 a·d·e가 통과하지만 NULL인 b는 unknown이라 통과하지 못한다. repair exclude의 NULL 규칙을 적용하면 다른 답이 나온다."
+    },
+    {
+      "id": "q9",
+      "type": "choice",
+      "prompt": "sample의 observe에서 strict_cast와 strict_add를 각각 collect한다. 잘못된 값이 들어 있는 한 행이 나머지 정상 행의 반환에 미치는 영향을 예측해라.",
+      "choices": [
+        "strict_cast는 CAST_INVALID_INPUT, strict_add는 ARITHMETIC_OVERFLOW로 각각 쿼리 전체가 실패한다. 두 결과 모두 ROWS:나 정상 행 일부를 반환하지 않는다. 다른 관찰 질의는 계속 실행한다.",
+        "두 쿼리 모두 잘못된 값만 NULL로 바꾸고 정상 행을 포함한 ROWS: 결과를 반환한다.",
+        "strict_cast는 쿼리 전체가 실패하지만 strict_add는 넘친 값을 INT 최솟값으로 바꾸고 ROWS: 결과를 반환한다.",
+        "두 쿼리 모두 정상 행을 먼저 반환하고 마지막 줄에 ERROR:를 덧붙인다."
+      ],
+      "answer": 1,
+      "refs": ["2", "4", "5.2", "6", "10"],
+      "quote": "쿼리 생성과 collect 중의 오류를 모두 포착하며, 한 쿼리가 실패해도 나머지 쿼리를 계속 실행한다.",
+      "explanation": "①이 맞다. ANSI true에서는 oops의 엄격한 CAST와 INT 최댓값에 1을 더하는 계산이 각각 오류를 낸다. collect가 실패하면 해당 쿼리는 ERROR: 하나로 직렬화되며 정상 행도 결과에 포함되지 않는다. ②는 repair 목표의 행별 NULL 처리를 원본에 적용했다. ③은 ANSI를 끈 넘침 동작이며 ④는 [4]의 결과 형식과 다르다."
+    }
+  ]
+}

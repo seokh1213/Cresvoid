@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "daily-join",
+      "refs": ["7", "8", "9", "10"],
+      "quote": "두 tuned 실행의 작업량 비율은 각각 6 이하여야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/partition-flood"]
+}

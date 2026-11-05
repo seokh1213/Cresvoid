@@ -1,0 +1,12 @@
+{
+  "title": "Spark 실험",
+  "kind": "lab",
+  "summary": "고정 실행 이미지의 Spark 로컬 모드로 NULL 의미론, 데이터 쏠림과 적응 실행, 파티션 덮어쓰기와 작은 파일, 재실행과 부수효과, 워터마크와 늦은 이벤트를 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-null-semantics", "title": "NULL, 중복, 열 순서의 의미론" },
+    { "dir": "02-skew-and-aqe", "title": "데이터 쏠림과 적응 실행" },
+    { "dir": "03-overwrite-and-small-files", "title": "파티션 덮어쓰기와 작은 파일" },
+    { "dir": "04-retries-and-side-effects", "title": "재실행과 부수효과" },
+    { "dir": "05-streaming-watermark", "title": "워터마크와 늦은 이벤트" }
+  ]
+}
