@@ -65,3 +65,36 @@ fun indent(text: String, prefix: String): String =
     text.trimEnd('\n').split("\n").joinToString("\n") { prefix + it }
 
 fun formatRefs(refs: List<String>): String = refs.joinToString(" ") { "[$it]" }
+
+/** Wraps on display columns so Korean text (two columns per syllable) never overflows a terminal row. */
+fun wrapDisplay(text: String, width: Int): List<String> {
+    val limit = width.coerceAtLeast(1)
+    val lines = mutableListOf<String>()
+    for (paragraph in text.split('\n')) {
+        val line = StringBuilder()
+        var used = 0
+        var breakAt = -1
+        for (codePoint in paragraph.codePoints()) {
+            val columns = codePoint.displayColumns()
+            while (used + columns > limit && line.isNotEmpty()) {
+                if (breakAt > 0) {
+                    val rest = line.substring(breakAt)
+                    lines += line.substring(0, breakAt).trimEnd()
+                    line.setLength(0)
+                    line.append(rest)
+                    used = displayWidth(rest)
+                } else {
+                    lines += line.toString()
+                    line.setLength(0)
+                    used = 0
+                }
+                breakAt = -1
+            }
+            line.appendCodePoint(codePoint)
+            used += columns
+            if (codePoint == ' '.code) breakAt = line.length
+        }
+        lines += line.toString()
+    }
+    return lines
+}

@@ -14,6 +14,9 @@ import cresvoid.content.ContentLibrary
 import cresvoid.progress.FileProgressRepository
 import cresvoid.project.Project
 import cresvoid.runner.SystemProcessRunner
+import cresvoid.study.ChoiceShuffler
+import cresvoid.study.OriginalChoiceOrder
+import cresvoid.study.RandomChoiceShuffler
 import cresvoid.study.TrackStates
 import cresvoid.terminal.Console
 import cresvoid.terminal.SystemConsole
@@ -21,6 +24,7 @@ import cresvoid.terminal.SystemTerminal
 import java.io.FileDescriptor
 import java.io.FileOutputStream
 import java.io.PrintStream
+import java.security.SecureRandom
 import java.time.Clock
 import kotlin.system.exitProcess
 
@@ -47,10 +51,14 @@ private fun commands(project: Project, console: Console): List<Command> {
         StatusCommand(library, states, progress, console, clock),
         StartCommand(project, library, states, progress, console, clock),
         ReadCommand(project, states, progress, console, terminal, clock),
-        QuizCommand(project, states, progress, console, terminal, clock),
+        QuizCommand(project, states, progress, console, terminal, clock, choiceShuffler()),
         TestCommand(project, states, progress, runner, console, clock),
         SolutionCommand(project, states, runner, console, terminal),
         ResetCommand(project, library, states, progress, console, terminal, clock),
         ValidateCommand(project, library, runner, console),
     )
 }
+
+/** CRESVOID_CHOICE_ORDER=original keeps quiz.json order, for scripted checks that type answers into a terminal. */
+private fun choiceShuffler(): ChoiceShuffler =
+    if (System.getenv("CRESVOID_CHOICE_ORDER") == "original") OriginalChoiceOrder else RandomChoiceShuffler(SecureRandom())

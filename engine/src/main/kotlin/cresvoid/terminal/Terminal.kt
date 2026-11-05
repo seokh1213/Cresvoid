@@ -16,6 +16,9 @@ interface Terminal {
     fun readLine(): String?
 
     fun answers(): AnswerSource
+
+    /** A full-screen view on the controlling terminal, or null when one cannot be opened. */
+    fun screen(): Screen?
 }
 
 interface AnswerSource : AutoCloseable {
@@ -56,6 +59,8 @@ class SystemTerminal : Terminal {
     override fun readLine(): String? = readlnOrNull()
 
     override fun answers(): AnswerSource = InterruptibleAnswers()
+
+    override fun screen(): Screen? = TtyScreen.open()
 
     private fun runInteractive(command: List<String>, extraEnvironment: Map<String, String>): Int {
         val previous = handleSignal("INT") { }

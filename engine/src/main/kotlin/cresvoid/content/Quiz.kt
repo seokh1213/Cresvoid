@@ -35,11 +35,6 @@ data class Question(
         QuestionType.SHORT -> answers.any { collapseSpaces(it) == collapseSpaces(response) }
         null -> false
     }
-
-    fun correctAnswerText(): String = when {
-        type == QuestionType.CHOICE && answer in 1..choices.size -> "${answer}번. ${choices[answer - 1]}"
-        else -> answers.firstOrNull().orEmpty()
-    }
 }
 
 fun loadQuiz(stage: Stage): Quiz = readContentJson(stage.quizPath) { fields ->

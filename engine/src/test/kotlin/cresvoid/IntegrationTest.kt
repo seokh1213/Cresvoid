@@ -25,6 +25,7 @@ class IntegrationTest : FunSpec({
     test("검증: 좋은 트랙은 통과하고 망가진 트랙의 문제를 모두 찾는다") { Sandbox(engineJar).use { validation(it) } }
     test("여러 프로세스가 동시에 고쳐도 기록을 잃지 않는다") { Sandbox(engineJar).use { concurrentProcesses(it) } }
     test("문항 풀이 도중 Ctrl-C 를 받으면 첫 시도를 채점한다") { Sandbox(engineJar).use { quizInterrupt(it) } }
+    test("터미널에서는 문항을 전체 화면으로 풀고 한꺼번에 채점한다") { Sandbox(engineJar).use { quizOnScreen(it) } }
     test("테스트 도중 Ctrl-C 를 받으면 자식과 자손을 끝내고 130 으로 끝낸다") { Sandbox(engineJar).use { testInterrupt(it) } }
     test("터미널에서 테스트 도중 누른 Ctrl-\\ 와 Ctrl-C 는 풀이 프로그램이 아니라 엔진이 받는다") { Sandbox(engineJar).use { terminalSignals(it) } }
     test("명령 처리: 도움말, 모르는 명령, 없앤 명령, 권한 오류, 루트 찾기") { Sandbox(engineJar).use { commandHandling(it) } }
@@ -238,6 +239,7 @@ private fun validation(sandbox: Sandbox) {
         "파일을 읽지 못한 단계가 있어 실행 검증을 건너뜁니다.",
         "content/tracks/broken/stages/01-bad/spec.md: 문단 번호 [1] 가 겹칩니다",
         "01-bad/hidden/quiz.json q1: answer 4 가 선지 범위를 벗어납니다",
+        "01-bad/hidden/quiz.json q1: 해설은 선지를 원문자(①~⑤)로 가리킵니다",
         "01-bad/hidden/quiz.json q1: 문단 [7] 이 문서에 없습니다",
         "01-bad/hidden/quiz.json q1: quote 가 refs 문단에 없습니다: \"없는 문장\"",
         "01-bad/hidden/tests.json Bad_Name: 이름은 영문 kebab-case 여야 합니다",
@@ -298,6 +300,21 @@ private fun quizInterrupt(sandbox: Sandbox) {
     val quiz = sandbox.stage("story", "01-tide").quiz
     withClue("답한 문항은 채점") { quiz.resolved shouldBe listOf("q1") }
     withClue("답하지 않은 문항은 오답") { quiz.wrong shouldBe mapOf("q2" to 1) }
+}
+
+private fun quizOnScreen(sandbox: Sandbox) {
+    sandbox.addReadingTrack()
+    val run = typeInTerminal(
+        sandbox,
+        "3\r2\r\r",
+        listOf("quiz", "story"),
+        "전체 화면 문항",
+        environment = mapOf("CRESVOID_CHOICE_ORDER" to "original"),
+    ) { output -> "Enter 다음" in output }
+    withClue("종료 코드") { run.exitCode shouldBe 0 }
+    withClue("채점 결과") { run.output shouldContain "채점: 2문항 중 2문항 정답" }
+    withClue("전체 화면을 닫았다") { run.output shouldContain "\u001b[?1049l" }
+    withClue("저장한 진행") { sandbox.stage("story", "01-tide").quiz.resolved shouldBe listOf("q1", "q2") }
 }
 
 private fun testInterrupt(sandbox: Sandbox) {
@@ -641,9 +658,10 @@ private fun typeInTerminal(
     keys: String,
     args: List<String>,
     readyWhat: String,
+    environment: Map<String, String> = emptyMap(),
     isReady: (CharSequence) -> Boolean,
 ): TerminalRun {
-    val process = sandbox.terminalCommand(*args.toTypedArray()).start()
+    val process = sandbox.terminalCommand(*args.toTypedArray()).apply { environment().putAll(environment) }.start()
     val output = StringBuffer()
     val reader = Thread {
         process.inputStream.reader(Charsets.UTF_8).use { stream ->

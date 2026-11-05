@@ -132,7 +132,7 @@ build·reading·code·lab 트랙 단계의 `hidden/quiz.json` 이다.
 | answers | short | 정답으로 인정할 문자열 목록 |
 | refs | 공통 | 근거 문단 번호나 코드 위치 목록. 1개 이상 |
 | quote | 공통 | refs 가운데 하나에 그대로 들어 있는 핵심 문장 |
-| explanation | 공통 | 해설 |
+| explanation | 공통 | 해설. 선지는 원문자(①~⑤)로 가리킨다 |
 
 트랙 종류마다 허용하는 문항이 다르다.
 
@@ -144,6 +144,8 @@ build·reading·code·lab 트랙 단계의 `hidden/quiz.json` 이다.
 | fix | quiz.json 을 두지 않는다 | |
 | lab | 2~5 | 쓸 수 있다. input 은 선택이다 |
 
+- 학습자가 터미널에서 문항을 풀면 엔진이 choice 선지 순서를 매번 새로 섞는다. 채점과 진행 기록은 quiz.json 의 원래 번호를 쓴다. 해설의 원문자는 학습자가 본 순서에 맞춰 바꿔 보여 준다. 그래서 해설은 선지를 `①`~`⑤` 로 가리키고 `정답은 3번` 처럼 숫자로 쓰지 않는다. validate 가 숫자로 쓴 해설을 거절한다.
+- 파이프로 답을 넣으면(테스트, e2e) 선지를 섞지 않는다. 터미널에서도 원래 순서가 필요하면 `CRESVOID_CHOICE_ORDER=original` 을 준다.
 - short 답은 앞뒤 공백을 지우고 연속 공백을 하나로 줄인 뒤 비교한다. 대소문자는 구분한다.
 - input 이 있는 short 문항은 실행으로 정답을 확인한다. build·lab 트랙은 그 단계 참조 풀이에, code 트랙은 그 단계 `code/` 프로그램에 input 을 표준 입력으로 준다. 정확히 한 줄이 나와야 하고 그 줄이 `answers[0]` 과 같아야 한다. 서버형 lab은 input 없는 short 문항을 쓴다.
 

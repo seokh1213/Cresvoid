@@ -17,6 +17,9 @@ import cresvoid.progress.QuizProgress
 import cresvoid.progress.StageProgress
 import cresvoid.progress.Updated
 import cresvoid.project.Project
+import cresvoid.study.ChoiceOrder
+import cresvoid.study.ChoiceShuffler
+import cresvoid.study.OriginalChoiceOrder
 import cresvoid.study.QuizGrade
 import cresvoid.study.QuizSubmission
 import cresvoid.study.QuizTiming
@@ -24,10 +27,13 @@ import cresvoid.study.REVEAL_AFTER_WRONG
 import cresvoid.study.TrackState
 import cresvoid.study.TrackStates
 import cresvoid.study.allClosed
+import cresvoid.study.circled
+import cresvoid.study.correctAnswerText
 import cresvoid.study.grade
 import cresvoid.study.quizTiming
 import cresvoid.terminal.AnswerSource
 import cresvoid.terminal.Console
+import cresvoid.terminal.Screen
 import cresvoid.terminal.Terminal
 import cresvoid.terminal.bold
 import cresvoid.terminal.dim
@@ -38,6 +44,7 @@ import cresvoid.terminal.indent
 import cresvoid.terminal.red
 import cresvoid.terminal.yellow
 import java.time.Clock
+import java.time.Duration
 import java.time.OffsetDateTime
 
 class QuizCommand(
@@ -47,6 +54,7 @@ class QuizCommand(
     private val console: Console,
     private val terminal: Terminal,
     private val clock: Clock,
+    private val shuffler: ChoiceShuffler,
 ) : Command {
     override val name = "quiz"
     override val usage = "cresvoid quiz <트랙> [-stage N]"
@@ -70,8 +78,13 @@ class QuizCommand(
         val firstAttempt = snapshot.quiz.firstCorrect == null
         val timing = quizTiming(snapshot, OffsetDateTime.now(clock))
         if (firstAttempt && timing is QuizTiming.Unmeasured) console.println(yellow(timing.reason))
-        console.println("남은 문항 ${open.size}개. 모두 답한 뒤 한꺼번에 채점합니다. 문서는 다른 창에서 다시 봐도 됩니다.")
-        val answers = askQuestions(open)
+        // Piped answers (tests, scripts) keep quiz.json order; a person at a terminal sees freshly shuffled choices.
+        val orders = open.associate { it.id to (if (terminal.stdinIsTerminal) shuffler else OriginalChoiceOrder).orderFor(it) }
+        val answers = askOnScreen("${track.id} ${stage.dir} · ${stage.title}", open, orders)
+            ?: run {
+                console.println("남은 문항 ${open.size}개. 모두 답한 뒤 한꺼번에 채점합니다. 문서는 다른 창에서 다시 봐도 됩니다.")
+                askQuestions(open, orders)
+            }
         val submission = QuizSubmission(quiz, open, answers.responses, answers.aborted, timing)
         val now = OffsetDateTime.now(clock)
         val update = progress.updateWith { latest ->
@@ -86,20 +99,44 @@ class QuizCommand(
             QuizGrade.NotSaved -> console.println("\n중단했습니다. 이번 답은 저장하지 않았습니다.")
             is QuizGrade.Graded -> {
                 if (answers.aborted) console.println("\n중단했습니다. 첫 시도라서 답하지 않은 문항은 틀린 것으로 채점했습니다.")
-                reportGrade(state, stage, submission, result, state.withProgress(update.progress), now)
+                reportGrade(state, stage, submission, result, state.withProgress(update.progress), now, orders)
             }
         }
     }
 
     private class Answers(val responses: List<String>, val aborted: Boolean)
 
-    private fun askQuestions(open: List<Question>): Answers {
+    private fun askOnScreen(title: String, open: List<Question>, orders: Map<String, ChoiceOrder>): Answers? {
+        if (!terminal.stdinIsTerminal || !terminal.stdoutIsTerminal) return null
+        val screen = terminal.screen() ?: return null
+        val state = QuizScreenState(open, open.map { orders.getValue(it.id) })
+        val started = OffsetDateTime.now(clock)
+        screen.use {
+            while (true) {
+                val outcome = drawAndRead(screen, state, title, started)
+                if (outcome == QuizScreenState.Outcome.SUBMIT) return Answers(state.responses(), aborted = false)
+                if (outcome == QuizScreenState.Outcome.ABORT) return Answers(state.responses(), aborted = true)
+            }
+        }
+    }
+
+    private fun drawAndRead(screen: Screen, state: QuizScreenState, title: String, started: OffsetDateTime): QuizScreenState.Outcome {
+        val elapsed = Duration.between(started, OffsetDateTime.now(clock)).seconds.coerceAtLeast(0)
+        val status = "답함 ${state.answeredCount()}/${state.questions.size} · %d:%02d".format(elapsed / 60, elapsed % 60)
+        val frame = renderQuiz(state, screen.size(), title, status)
+        state.scroll = frame.scroll
+        screen.draw(frame.lines)
+        return state.handle(screen.readKey())
+    }
+
+    private fun askQuestions(open: List<Question>, orders: Map<String, ChoiceOrder>): Answers {
         terminal.answers().use { source ->
             val responses = mutableListOf<String>()
             open.forEachIndexed { index, question ->
-                printQuestion(index + 1, open.size, question)
+                val order = orders.getValue(question.id)
+                printQuestion(index + 1, open.size, question, order)
                 val response = ask(source, question) ?: return Answers(responses, aborted = true)
-                responses += response
+                responses += if (question.type == QuestionType.CHOICE) order.originalNumber(response.toInt()).toString() else response
             }
             return Answers(responses, aborted = false)
         }
@@ -121,18 +158,19 @@ class QuizCommand(
         result: QuizGrade.Graded,
         fresh: TrackState,
         now: OffsetDateTime,
+        orders: Map<String, ChoiceOrder>,
     ) {
         console.println("\n채점: ${submission.open.size}문항 중 ${result.correct}문항 정답")
         if (result.firstAttempt) printQuizSummary(result.progress, stage)
         for (question in result.wrong) {
-            printQuizHint(stage, question, result.progress.wrong[question.id] ?: 0)
+            printQuizHint(stage, question, result.progress.wrong[question.id] ?: 0, orderOf(question, orders))
         }
         if (!result.completed) {
             console.println("\n해당 문단을 다시 읽고 틀린 문항을 다시 푸세요: cresvoid quiz ${snapshot.track.id}${snapshot.stageFlag(stage)}")
             return
         }
         console.println(green("\n이 단계 문항을 모두 마쳤습니다."))
-        printExplanations(submission.quiz)
+        printExplanations(submission.quiz, orders)
         console.println()
         console.println(fresh.nextLine(now))
     }
@@ -153,10 +191,10 @@ class QuizCommand(
         }
         console.println("이 단계 문항은 모두 마쳤습니다.")
         printQuizSummary(snapshot.quiz, stage)
-        printExplanations(quiz)
+        printExplanations(quiz, emptyMap())
     }
 
-    private fun printQuestion(position: Int, total: Int, question: Question) {
+    private fun printQuestion(position: Int, total: Int, question: Question, order: ChoiceOrder) {
         console.println("\n${bold("[$position/$total]")} ${question.prompt}")
         if (question.context.isNotEmpty()) {
             console.println()
@@ -169,7 +207,7 @@ class QuizCommand(
         }
         if (question.type == QuestionType.CHOICE) {
             console.println()
-            question.choices.forEachIndexed { index, choice -> console.println("  ${index + 1}) $choice") }
+            for (display in 0 until order.size) console.println("  ${display + 1}) ${question.choices[order.originalIndex(display)]}")
         }
     }
 
@@ -184,24 +222,32 @@ class QuizCommand(
         console.println("첫 시도 $firstCorrect/${quiz.firstTotal}$time")
     }
 
-    private fun printQuizHint(stage: Stage, question: Question, wrongCount: Int) {
+    private fun printQuizHint(stage: Stage, question: Question, wrongCount: Int, order: ChoiceOrder) {
         console.println("  ${red("✗")} ${question.id}: ${rereadingPlaces(project.rel(stage.documentPath), question.refs)}을 다시 읽으세요.")
         if (wrongCount >= 2) console.println("    핵심 문장: ${question.quote}")
         if (wrongCount >= REVEAL_AFTER_WRONG) {
-            console.println("    정답: ${question.correctAnswerText()}")
-            console.println(indent("해설: ${question.explanation}", "    "))
+            console.println("    정답: ${question.correctAnswerText(order)}")
+            console.println(indent("해설: ${order.remap(question.explanation)}", "    "))
             console.println(dim("    세 번 틀려서 정답을 공개하고 이 문항을 닫았습니다."))
         }
     }
 
-    private fun printExplanations(quiz: Quiz) {
+    /** Questions answered in this run use the order the learner just saw; earlier ones fall back to quiz.json order. */
+    private fun printExplanations(quiz: Quiz, orders: Map<String, ChoiceOrder>) {
         console.println(bold("\n해설"))
         for (question in quiz.questions) {
+            val order = orderOf(question, orders)
             console.println("\n${bold(question.id)} ${question.prompt}")
-            console.println("  정답: ${question.correctAnswerText()}")
-            console.println(indent(question.explanation, "  "))
+            if (question.type == QuestionType.CHOICE) {
+                for (display in 0 until order.size) console.println(dim("  ${circled(display + 1)} ${question.choices[order.originalIndex(display)]}"))
+            }
+            console.println("  정답: ${question.correctAnswerText(order)}")
+            console.println(indent(order.remap(question.explanation), "  "))
         }
     }
+
+    private fun orderOf(question: Question, orders: Map<String, ChoiceOrder>): ChoiceOrder =
+        orders[question.id] ?: ChoiceOrder.identity(question.choices.size)
 }
 
 fun rereadingPlaces(document: String, refs: List<String>): String {

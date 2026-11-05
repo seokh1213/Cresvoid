@@ -18,3 +18,5 @@ fun yellow(text: String): String = paint("33", text)
 fun dim(text: String): String = paint("2", text)
 
 fun bold(text: String): String = paint("1", text)
+
+fun inverse(text: String): String = paint("7", text)

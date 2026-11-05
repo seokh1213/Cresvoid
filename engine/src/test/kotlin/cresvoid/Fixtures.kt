@@ -246,7 +246,7 @@ fun Sandbox.addBrokenTracks() {
               "answer": 4,
               "refs": ["7"],
               "quote": "없는 문장",
-              "explanation": "해설"
+              "explanation": "정답은 2번이다."
             }
           ]
         }

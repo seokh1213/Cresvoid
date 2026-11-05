@@ -58,7 +58,7 @@
       "answer": 3,
       "refs": ["ReservationReports.kt:15-35", "ReservationService.kt:18-39", "ReservationService.kt:59-65", "Reservation.kt:66-68"],
       "quote": "        val bySku = service.history().associateBy { it.request.sku }",
-      "explanation": "정답은 3번이다. ReservationService.kt:24,65의 이력은 성공한 예약을 넣은 순서인 a,b,c를 유지한다. 확정과 취소는 객체 상태만 바꾸고 삽입 순서를 바꾸지 않는다. ReservationReports.kt:30의 associateBy는 상품 키가 겹치면 뒤의 c를 값으로 남긴다. 반면 15-25행은 확정된 a와 b를 groupBy로 모두 보존해 2건, 2+3=5개를 출력한다. 1번은 마지막으로 확정한 a를 최근에 생성한 예약으로 오해했다. 2번은 날짜별 집계도 상품마다 한 예약만 남긴다고 오해했다. 4번은 COMPACT가 상품별 tracked뿐 아니라 전체 이력도 지운다고 오해했다."
+      "explanation": "정답은 ③이다. ReservationService.kt:24,65의 이력은 성공한 예약을 넣은 순서인 a,b,c를 유지한다. 확정과 취소는 객체 상태만 바꾸고 삽입 순서를 바꾸지 않는다. ReservationReports.kt:30의 associateBy는 상품 키가 겹치면 뒤의 c를 값으로 남긴다. 반면 15-25행은 확정된 a와 b를 groupBy로 모두 보존해 2건, 2+3=5개를 출력한다. ①은 마지막으로 확정한 a를 최근에 생성한 예약으로 오해했다. ②은 날짜별 집계도 상품마다 한 예약만 남긴다고 오해했다. ④은 COMPACT가 상품별 tracked뿐 아니라 전체 이력도 지운다고 오해했다."
     },
     {
       "id": "q4",
@@ -74,7 +74,7 @@
       "answer": 1,
       "refs": ["ReservationService.kt:9-10", "ReservationService.kt:48-55", "ReservationService.kt:67-74", "ReservationReports.kt:38-40"],
       "quote": "        return delivered.sorted()",
-      "explanation": "정답은 1번이다. 세 예약의 expiresAt은 같지만 a는 확정되었다. ReservationService.kt:53에서 a를 건너뛰므로 알림은 m과 z뿐이다. 9행의 비교자는 만료 시각만 비교하며 PriorityQueue는 동점의 삽입 순서를 보장하지 않는다. 67-74행은 반복자의 remove로 전달한 알림을 제거하고 반환 전에 정렬하므로 첫 출력은 m,z, 둘째는 (none)이다. 2번은 큐를 안정적인 FIFO로 오해했고 알림 정렬도 놓쳤다. 3번은 상태 검사를 놓쳤다. 4번은 iterator.remove를 놓쳤다. 정답은 실제로 관찰한 동점 꺼냄 순서에 의존하지 않는다."
+      "explanation": "정답은 ①이다. 세 예약의 expiresAt은 같지만 a는 확정되었다. ReservationService.kt:53에서 a를 건너뛰므로 알림은 m과 z뿐이다. 9행의 비교자는 만료 시각만 비교하며 PriorityQueue는 동점의 삽입 순서를 보장하지 않는다. 67-74행은 반복자의 remove로 전달한 알림을 제거하고 반환 전에 정렬하므로 첫 출력은 m,z, 둘째는 (none)이다. ②은 큐를 안정적인 FIFO로 오해했고 알림 정렬도 놓쳤다. ③은 상태 검사를 놓쳤다. ④은 iterator.remove를 놓쳤다. 정답은 실제로 관찰한 동점 꺼냄 순서에 의존하지 않는다."
     },
     {
       "id": "q5",
@@ -90,7 +90,7 @@
       "answer": 4,
       "refs": ["ReservationService.kt:12-26", "ReservationService.kt:37-39", "Reservation.kt:43-70", "ReservationReports.kt:7-12"],
       "quote": "        val stock = stockBySku.getOrPut(sku) { ProductStock(sku) }",
-      "explanation": "정답은 4번이다. ReservationService.kt:14의 getOrPut은 기존 값을 재사용하므로 mug의 입고는 8+4=12개다. a가 5개를 예약 중인 상태에서도 가용 7개라 b의 6개 요청이 승인된다. a 취소 후 held는 b의 6개뿐이고 COMPACT가 a를 제거해 tracked는 1이다. cup의 첫 HOLD는 21행에서 재고 0인 객체를 만들지만 22행에서 반환해 예약을 기록하지 않는다. 뒤의 ADD는 그 객체에 3개를 더하고 d만 1개를 예약해 가용 2개, tracked 1이다. 1번은 거절한 c까지 추적하고 예약 수량에 포함했다. 2번은 두 번째 ADD가 mug 객체를 새로 만들어 기존 재고와 추적 목록을 덮는다고 오해했다. 3번은 COMPACT가 취소된 a를 제거하지 않는다고 오해했다."
+      "explanation": "정답은 ④이다. ReservationService.kt:14의 getOrPut은 기존 값을 재사용하므로 mug의 입고는 8+4=12개다. a가 5개를 예약 중인 상태에서도 가용 7개라 b의 6개 요청이 승인된다. a 취소 후 held는 b의 6개뿐이고 COMPACT가 a를 제거해 tracked는 1이다. cup의 첫 HOLD는 21행에서 재고 0인 객체를 만들지만 22행에서 반환해 예약을 기록하지 않는다. 뒤의 ADD는 그 객체에 3개를 더하고 d만 1개를 예약해 가용 2개, tracked 1이다. ①은 거절한 c까지 추적하고 예약 수량에 포함했다. ②은 두 번째 ADD가 mug 객체를 새로 만들어 기존 재고와 추적 목록을 덮는다고 오해했다. ③은 COMPACT가 취소된 a를 제거하지 않는다고 오해했다."
     },
     {
       "id": "q6",
@@ -106,7 +106,7 @@
       "answer": 2,
       "refs": ["Reservation.kt:43-70", "ReservationService.kt:29-39", "ReservationService.kt:67-74"],
       "quote": "        tracked.removeIf { it.status != ReservationStatus.HELD }",
-      "explanation": "정답은 2번이다. COMPACT 직전 목록은 [a:HELD,b:CANCELLED,c:CONFIRMED]이고 onHand는 확정한 c의 1개를 뺀 9개다. Reservation.kt:60-64에서 a의 2개만 held에 포함하므로 가용은 7개다. 원본의 removeIf는 b와 c를 안전하게 제거한다. 변경안은 끝에서 두 번째인 b를 리스트에서 직접 제거한다. JDK 21 ArrayList 반복자의 다음 위치는 2이고 줄어든 size도 2이므로 hasNext가 false가 되어 c를 건너뛴 채 종료한다. c는 여전히 CONFIRMED라 재고 계산에는 포함되지 않지만 tracked는 2다. 1번은 c까지 방문한다고 오해했고 직접 remove가 항상 안전하다는 주장도 틀렸다. 3번은 fail-fast가 모든 배치에서 예외를 보장한다고 오해했다. 4번은 남은 c가 HELD로 되돌아간다고 오해했다. 원본의 removeIf와 ReservationService.kt:69-72의 반복자 remove는 각각 안전한 제거 방식이며 이 변경안과 다르다."
+      "explanation": "정답은 ②이다. COMPACT 직전 목록은 [a:HELD,b:CANCELLED,c:CONFIRMED]이고 onHand는 확정한 c의 1개를 뺀 9개다. Reservation.kt:60-64에서 a의 2개만 held에 포함하므로 가용은 7개다. 원본의 removeIf는 b와 c를 안전하게 제거한다. 변경안은 끝에서 두 번째인 b를 리스트에서 직접 제거한다. JDK 21 ArrayList 반복자의 다음 위치는 2이고 줄어든 size도 2이므로 hasNext가 false가 되어 c를 건너뛴 채 종료한다. c는 여전히 CONFIRMED라 재고 계산에는 포함되지 않지만 tracked는 2다. ①은 c까지 방문한다고 오해했고 직접 remove가 항상 안전하다는 주장도 틀렸다. ③은 fail-fast가 모든 배치에서 예외를 보장한다고 오해했다. ④은 남은 c가 HELD로 되돌아간다고 오해했다. 원본의 removeIf와 ReservationService.kt:69-72의 반복자 remove는 각각 안전한 제거 방식이며 이 변경안과 다르다."
     }
   ]
 }

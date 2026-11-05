@@ -87,3 +87,4 @@ Workflow({
 
 1. `cresvoid-content` 스킬의 "확인과 수정" 과 "기록" 을 따른다.
 2. `reading` 트랙이면 `content/ideas/reading/README.md` 의 장르 순환 표와 완료 표를 고친다. `tech-reading` 트랙은 고칠 표가 없다.
+3. 워크플로우는 마지막 수정 뒤에 다시 풀지 않는다. 마지막 수정이 문항을 바꾸거나 새로 썼으면(`final_changes`) 새 agent 로 블라인드 풀이를 한 번 더 하고 정답과 맞는지 확인한다.

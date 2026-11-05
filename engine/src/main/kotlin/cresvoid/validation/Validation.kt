@@ -354,6 +354,9 @@ class Validation(
                     fail("$where: ${track.kind.id} 트랙 문항은 선지가 ${rules.exactChoiceCount}개여야 합니다")
                 }
                 if (question.answer !in 1..question.choices.size) fail("$where: answer ${question.answer} 가 선지 범위를 벗어납니다")
+                if (NUMBERED_CHOICE.containsMatchIn(question.explanation)) {
+                    fail("$where: 해설은 선지를 원문자(①~⑤)로 가리킵니다. 문제를 낼 때 선지 순서를 섞어서 'N번' 은 학습자가 본 번호와 어긋납니다")
+                }
                 if (question.answers.isNotEmpty() || question.input.isNotEmpty()) {
                     fail("$where: choice 문항에는 answers 와 input 을 쓰지 않습니다")
                 }
@@ -500,3 +503,6 @@ class Validation(
 
     internal fun recordIssue(problem: String) = fail(problem)
 }
+
+/** "정답은 3번" style references break once choices are shuffled; circled numerals are remapped instead. */
+private val NUMBERED_CHOICE = Regex("""정답은\s*[0-9]+\s*번""")
