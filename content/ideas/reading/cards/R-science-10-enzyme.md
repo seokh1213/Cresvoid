@@ -3,8 +3,8 @@ id: R-science-10
 title: 효소 반응 속도와 저해
 kind: reading
 track: reading
-stage: enzyme
-status: 후보
+stage: 04-enzyme
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

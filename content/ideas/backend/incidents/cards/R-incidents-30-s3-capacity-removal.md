@@ -4,7 +4,7 @@ title: 잘못 입력한 용량 제거 명령
 kind: reading
 track: incident-reading
 stage: 03-s3-capacity-removal
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 3
 env: 없음
 prereq:

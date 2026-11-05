@@ -3,8 +3,8 @@ id: R-incidents-40
 title: 스스로 사라진 DNS
 kind: reading
 track: incident-reading
-stage: meta-backbone
-status: 후보
+stage: 06-meta-backbone
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

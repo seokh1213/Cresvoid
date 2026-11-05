@@ -3,8 +3,8 @@ id: R-humanities-10
 title: 소쉬르의 기호 이론
 kind: reading
 track: reading
-stage: saussure
-status: 후보
+stage: 07-saussure
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

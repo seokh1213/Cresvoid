@@ -31,6 +31,7 @@
 | `coroutine-lab` | lab | 1 |
 | `reading` | reading | 3 |
 | `tech-reading` | reading | 12 |
+| `incident-reading` | reading | 3 |
 | `code-reading` | code | 5 |
 | `bug-fix` | fix | 7 |
 

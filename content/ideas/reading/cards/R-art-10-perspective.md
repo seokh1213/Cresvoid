@@ -3,8 +3,8 @@ id: R-art-10
 title: 원근법과 시점
 kind: reading
 track: reading
-stage: perspective
-status: 후보
+stage: 08-perspective
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

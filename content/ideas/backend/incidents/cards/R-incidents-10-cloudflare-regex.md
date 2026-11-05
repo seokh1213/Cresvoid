@@ -4,7 +4,7 @@ title: 정규식 하나가 멈춘 전 세계 프록시
 kind: reading
 track: incident-reading
 stage: 01-cloudflare-regex
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 3
 env: 없음
 prereq:

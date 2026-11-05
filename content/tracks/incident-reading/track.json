@@ -1,0 +1,10 @@
+{
+  "title": "장애 보고서 독해",
+  "kind": "reading",
+  "summary": "공개된 장애 사후 보고서를 바탕으로 쓴 지문을 읽고 원인 사슬, 대응, 재발 방지책을 구별하는 LEET 형식 문항을 푼다.",
+  "stages": [
+    { "dir": "01-cloudflare-regex", "title": "정규식 하나가 멈춘 전 세계 프록시", "target_minutes": 15 },
+    { "dir": "02-github-split-writes", "title": "43초 분할이 만든 하루 동안의 장애", "target_minutes": 15 },
+    { "dir": "03-s3-capacity-removal", "title": "잘못 입력한 용량 제거 명령", "target_minutes": 15 }
+  ]
+}

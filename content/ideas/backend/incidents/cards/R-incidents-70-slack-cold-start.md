@@ -3,8 +3,8 @@ id: R-incidents-70
 title: 연휴 뒤 첫 월요일의 급증
 kind: reading
 track: incident-reading
-stage: slack-cold-start
-status: 후보
+stage: 07-slack-cold-start
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

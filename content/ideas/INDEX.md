@@ -6,15 +6,15 @@
 
 | 도메인 | 카드 | 후보 | 제작 중 | 완료 | 보류 |
 |---|---|---|---|---|---|
-| [읽기](reading/README.md) | 15 | 12 | 0 | 3 | 0 |
+| [읽기](reading/README.md) | 15 | 6 | 6 | 3 | 0 |
 | [구현](implementation/README.md) | 32 | 22 | 0 | 10 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 1 | 2 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
-| [데이터베이스](backend/database/README.md) | 8 | 6 | 0 | 2 | 0 |
-| [설계 패턴](backend/design-patterns/README.md) | 11 | 9 | 0 | 2 | 0 |
+| [데이터베이스](backend/database/README.md) | 8 | 5 | 1 | 2 | 0 |
+| [설계 패턴](backend/design-patterns/README.md) | 11 | 6 | 3 | 2 | 0 |
 | [분산 시스템](backend/distributed/README.md) | 8 | 6 | 0 | 2 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
-| [장애 보고서 독해](backend/incidents/README.md) | 7 | 4 | 3 | 0 | 0 |
+| [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 4 | 3 | 0 |
 | [JVM](backend/jvm/README.md) | 4 | 4 | 0 | 0 | 0 |
 | [레이크하우스: 파일 포맷과 테이블 포맷](backend/lakehouse/README.md) | 3 | 1 | 0 | 2 | 0 |
 | [부하 엣지 케이스](backend/load/README.md) | 12 | 10 | 0 | 0 | 2 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 133 | 4 | 46 | 2 |
+| 합계 | 185 | 119 | 15 | 49 | 2 |
 
 ## 다음 후보
 
@@ -36,8 +36,6 @@
 | 차수 | 카드 | 제목 | 종류 | 트랙 | 단계 | 환경 |
 |---|---|---|---|---|---|---|
 | 3 | [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 없음 |
-| 3 | [R-incidents-50](backend/incidents/cards/R-incidents-50-crowdstrike-channel-file.md) | 필드 하나가 모자랐던 콘텐츠 갱신 | reading | incident-reading | crowdstrike-channel-file | 없음 |
-| 3 | [R-incidents-60](backend/incidents/cards/R-incidents-60-gcp-service-control.md) | 기능 플래그 없는 코드 경로와 빈 필드 | reading | incident-reading | gcp-service-control | 없음 |
 | 3 | [B-olap-30](backend/olap/cards/B-olap-30-sketch-and-sparse-index.md) | 근사 집계와 희소 인덱스 | build | mini-olap | 04-sketch, 05-sparse-index | 없음 |
 | 3 | [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 없음 |
 | 3 | [B-system-design-30](backend/system-design/cards/B-system-design-30-id-generator.md) | 분산 고유 ID 생성기 만들기 | build | id-generator | 01-snowflake, 02-sharded-ids, 03-ordering | 없음 |
@@ -50,18 +48,11 @@
 | 3 | [L-load-50](backend/load/cards/L-load-50-stale-set.md) | 캐시와 원천의 불일치 | lab | backend-lab | stale-set | k6, redis |
 | 3 | [L-load-60](backend/load/cards/L-load-60-cache-outage.md) | 캐시 장애와 원천 보호 | lab | backend-lab | cache-outage | k6, redis |
 | 4 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 없음 |
-| 4 | [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | online-resharding | 없음 |
-| 4 | [R-design-patterns-10](backend/design-patterns/cards/R-design-patterns-10-creational-patterns.md) | 객체를 만드는 책임과 생성 패턴 | reading | tech-reading | creational-patterns | 없음 |
-| 4 | [R-design-patterns-20](backend/design-patterns/cards/R-design-patterns-20-structural-patterns.md) | 감싸기와 합성, 구조 패턴 | reading | tech-reading | structural-patterns | 없음 |
-| 4 | [R-design-patterns-30](backend/design-patterns/cards/R-design-patterns-30-behavioral-patterns.md) | 바뀌는 부분 떼어 내기, 행위 패턴 | reading | tech-reading | behavioral-patterns | 없음 |
 | 4 | [C-design-patterns-40](backend/design-patterns/cards/C-design-patterns-40-decorated-client.md) | 겹겹이 감싼 상품 조회 클라이언트 | code | code-reading | decorated-client | 없음 |
 | 4 | [C-design-patterns-50](backend/design-patterns/cards/C-design-patterns-50-state-observers.md) | 주문 상태 객체와 구독자 알림 | code | code-reading | state-observers | 없음 |
 | 4 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 없음 |
 | 4 | [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 없음 |
 | 4 | [F-distributed-70](backend/distributed/cards/F-distributed-70-late-lock-release.md) | 늦은 해제가 새 잠금을 지우는 버그 | fix | bug-fix | late-lock-release | 없음 |
-| 4 | [R-humanities-10](reading/cards/R-humanities-10-saussure.md) | 소쉬르의 기호 이론 | reading | reading | saussure | 없음 |
-| 4 | [R-incidents-40](backend/incidents/cards/R-incidents-40-meta-backbone.md) | 스스로 사라진 DNS | reading | incident-reading | meta-backbone | 없음 |
-| 4 | [R-incidents-70](backend/incidents/cards/R-incidents-70-slack-cold-start.md) | 연휴 뒤 첫 월요일의 급증 | reading | incident-reading | slack-cold-start | 없음 |
 | 4 | [L-jvm-10](backend/jvm/cards/L-jvm-10-container-heap.md) | 메모리 한도와 기본 힙 크기 | lab | jvm-lab | container-heap | 없음 |
 | 4 | [L-jvm-20](backend/jvm/cards/L-jvm-20-threadlocal-leak.md) | 스레드 풀과 ThreadLocal | lab | jvm-lab | threadlocal-leak | 없음 |
 | 4 | [L-jvm-30](backend/jvm/cards/L-jvm-30-thread-dump.md) | 스레드 덤프로 교착 찾기 | lab | jvm-lab | thread-dump | 없음 |
@@ -82,7 +73,6 @@
 | 4 | [B-pipeline-50](backend/pipeline/cards/B-pipeline-50-index-overlay.md) | 운영과 실험의 변경을 합치는 병합기 만들기 | build | index-overlay | 01-current-state, 02-round-merge, 03-replay | 없음 |
 | 4 | [F-pipeline-60](backend/pipeline/cards/F-pipeline-60-replay-regression.md) | 과거 회차 재실행이 최신 결과를 되돌리는 버그 | fix | bug-fix | replay-regression | 없음 |
 | 4 | [B-record-range-10](implementation/cards/B-record-range-10-record-range.md) | 레코드 경계를 지키는 파일 분할기 만들기 | build | record-range | 01-lines, 02-json-ranges, 03-range-read | 없음 |
-| 4 | [R-science-10](reading/cards/R-science-10-enzyme.md) | 효소 반응 속도와 저해 | reading | reading | enzyme | 없음 |
 | 4 | [F-search-40](backend/search/cards/F-search-40-hangul-normalization.md) | 한글 정규화가 어긋난 상품 검색 | fix | bug-fix | hangul-normalization | 없음 |
 | 4 | [B-search-60](backend/search/cards/B-search-60-result-placement.md) | 제약을 만족하는 검색 결과 배치기 만들기 | build | result-placement | 01-ordered, 02-constraints, 03-exact-search | 없음 |
 | 4 | [F-search-70](backend/search/cards/F-search-70-fallback-constraints.md) | 대체 배치 경로의 노출 상한 누락 | fix | bug-fix | fallback-constraints | 없음 |
@@ -95,7 +85,6 @@
 | 4 | [B-system-design-110](backend/system-design/cards/B-system-design-110-ad-click-aggregator.md) | 광고 클릭 집계기 만들기 | build | ad-click-aggregator | 01-windows, 02-late-events, 03-exactly-once | 없음 |
 | 4 | [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 없음 |
 | 4 | [B-system-design-130](backend/system-design/cards/B-system-design-130-leaderboard.md) | 실시간 순위표 만들기 | build | leaderboard | 01-sorted-set, 02-range-queries, 03-sharding | 없음 |
-| 4 | [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | key-exchange | 없음 |
 | 4 | [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | gap-lock | docker, maven |
 | 4 | [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | metadata-lock | docker, maven, k6 |
 | 4 | [L-olap-40](backend/olap/cards/L-olap-40-sorting-key.md) | 정렬 키와 읽는 그래뉼 수 | lab | olap-lab | sorting-key | docker |
@@ -112,7 +101,6 @@
 | 4 | [L-spring-40](backend/spring/cards/L-spring-40-async-executor.md) | @Async 실행기와 큐 | lab | spring-lab | async-executor | maven |
 | 4 | [L-spring-50](backend/spring/cards/L-spring-50-http-client-pool.md) | HTTP 클라이언트 커넥션 풀 | lab | spring-lab | http-client-pool | gradle, maven, k6 |
 | 5 | [B-algorithm-drills-10](implementation/cards/B-algorithm-drills-10-algorithm-drills.md) | 주제별 알고리즘 문제 묶음 | build | algorithm-drills | 01-strings, 02-arrays, 03-sort-search, 04-structures, 05-grids-recursion | 없음 |
-| 5 | [R-art-10](reading/cards/R-art-10-perspective.md) | 원근법과 시점 | reading | reading | perspective | 없음 |
 | 5 | [B-design-patterns-80](backend/design-patterns/cards/B-design-patterns-80-doc-editor.md) | 되돌리기를 지원하는 문서 편집기 만들기 | build | doc-editor | 01-edit, 02-undo, 03-macro, 04-snapshot | 없음 |
 | 5 | [C-design-patterns-90](backend/design-patterns/cards/C-design-patterns-90-notification-queue.md) | 알림 발송 작업 큐 | code | code-reading | notification-queue | 없음 |
 | 5 | [F-design-patterns-100](backend/design-patterns/cards/F-design-patterns-100-double-start.md) | 두 번 시작되는 정산 작업 | fix | bug-fix | double-start | 없음 |
@@ -121,7 +109,6 @@
 | 5 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 없음 |
 | 5 | [B-distributed-80](backend/distributed/cards/B-distributed-80-fenced-writes.md) | 저장소가 검사하는 펜싱 토큰 만들기 | build | lease-lock | 03-fenced-writes | 없음 |
 | 5 | [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | source-criticism | 없음 |
-| 5 | [R-interdisciplinary-10](reading/cards/R-interdisciplinary-10-falsification.md) | 반증주의와 뒤엠-콰인 논제 | reading | reading | falsification | 없음 |
 | 5 | [L-jvm-40](backend/jvm/cards/L-jvm-40-jit-warmup.md) | JIT 예열과 측정 함정 | lab | jvm-lab | jit-warmup | 없음 |
 | 5 | [C-kotlin-60](implementation/cards/C-kotlin-60-search-query-parser.md) | 검색어 파서 | code | code-reading | search-query-parser | 없음 |
 | 5 | [F-kotlin-60](implementation/cards/F-kotlin-60-sublist-view.md) | 페이지 단위 일괄 처리 | fix | bug-fix | sublist-view | 없음 |
@@ -142,7 +129,6 @@
 | 5 | [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | carnot | 없음 |
 | 5 | [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | plate-tectonics | 없음 |
 | 5 | [C-search-80](backend/search/cards/C-search-80-stable-diversity.md) | 재조회해도 유지되는 추천 다양성 | code | code-reading | stable-diversity | 없음 |
-| 5 | [R-society-10](reading/cards/R-society-10-rescission.md) | 계약의 해제와 원상회복 | reading | reading | rescission | 없음 |
 | 5 | [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | monetary-policy | 없음 |
 | 5 | [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | prospect-theory | 없음 |
 | 5 | [B-spreadsheet-10](implementation/cards/B-spreadsheet-10-spreadsheet.md) | 스프레드시트 계산기 | build | spreadsheet | 01-formula, 02-recalc, 03-cycles | 없음 |
@@ -201,7 +187,7 @@
 | geo-index | build | 없음 | 04 |  | 01-geohash(B-system-design-100 4차), 02-radius-search(B-system-design-100 4차), 03-quadtree(B-system-design-100 4차) |
 | history-rollover | build | 없음 | 04 |  | 01-materialize(B-pipeline-10 4차), 02-baseline(B-pipeline-10 4차), 03-retention(B-pipeline-10 4차) |
 | id-generator | build | 없음 | 04 |  | 01-snowflake(B-system-design-30 3차), 02-sharded-ids(B-system-design-30 3차), 03-ordering(B-system-design-30 3차) |
-| incident-reading | reading | 없음 | 04 | 01-cloudflare-regex(R-incidents-10 제작 중), 02-github-split-writes(R-incidents-20 제작 중), 03-s3-capacity-removal(R-incidents-30 제작 중) | crowdstrike-channel-file(R-incidents-50 3차), gcp-service-control(R-incidents-60 3차), meta-backbone(R-incidents-40 4차), slack-cold-start(R-incidents-70 4차) |
+| incident-reading | reading | 있음 | 08 | 01-cloudflare-regex(R-incidents-10 완료), 02-github-split-writes(R-incidents-20 완료), 03-s3-capacity-removal(R-incidents-30 완료), 04-crowdstrike-channel-file(R-incidents-50 제작 중), 05-gcp-service-control(R-incidents-60 제작 중), 06-meta-backbone(R-incidents-40 제작 중), 07-slack-cold-start(R-incidents-70 제작 중) |  |
 | index-overlay | build | 없음 | 05 |  | 01-current-state(B-pipeline-50 4차), 02-round-merge(B-pipeline-50 4차), 03-replay(B-pipeline-50 4차), 04-reconcile(B-pipeline-70 5차) |
 | jvm-lab | lab | 없음 | 01 |  | container-heap(L-jvm-10 4차), threadlocal-leak(L-jvm-20 4차), thread-dump(L-jvm-30 4차), jit-warmup(L-jvm-40 5차) |
 | kafka-lab | lab | 없음 | 01 |  | rebalance(L-messaging-40 5차), durability(L-messaging-41 5차) |
@@ -228,7 +214,7 @@
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
 | rag | build | 없음 | 05 | 01-chunking(B-ai-agent-30 제작 중), 02-retrieval(B-ai-agent-30 제작 중), 03-hybrid(B-ai-agent-30 제작 중), 04-eval(B-ai-agent-30 제작 중) |  |
 | rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료) | 04-client-throttle(B-system-design-25 4차) |
-| reading | reading | 있음 | 04 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료) | saussure(R-humanities-10 4차), enzyme(R-science-10 4차), key-exchange(R-technology-10 4차), perspective(R-art-10 5차), source-criticism(R-humanities-20 5차), falsification(R-interdisciplinary-10 5차), carnot(R-science-20 5차), plate-tectonics(R-science-30 5차), rescission(R-society-10 5차), monetary-policy(R-society-20 5차), prospect-theory(R-society-30 5차), congestion-control(R-technology-20 5차) |
+| reading | reading | 있음 | 10 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 제작 중), 05-key-exchange(R-technology-10 제작 중), 06-rescission(R-society-10 제작 중), 07-saussure(R-humanities-10 제작 중), 08-perspective(R-art-10 제작 중), 09-falsification(R-interdisciplinary-10 제작 중) | source-criticism(R-humanities-20 5차), carnot(R-science-20 5차), plate-tectonics(R-science-30 5차), monetary-policy(R-society-20 5차), prospect-theory(R-society-30 5차), congestion-control(R-technology-20 5차) |
 | record-range | build | 없음 | 04 |  | 01-lines(B-record-range-10 4차), 02-json-ranges(B-record-range-10 4차), 03-range-read(B-record-range-10 4차) |
 | regex | build | 없음 | 04 |  | 01-basic(B-regex-10 5차), 02-classes(B-regex-10 5차), 03-linear(B-regex-10 5차) |
 | reservation | build | 없음 | 04 |  | 01-inventory(B-system-design-120 4차), 02-idempotency(B-system-design-120 4차), 03-concurrency(B-system-design-120 4차) |
@@ -239,7 +225,7 @@
 | spreadsheet | build | 없음 | 04 |  | 01-formula(B-spreadsheet-10 5차), 02-recalc(B-spreadsheet-10 5차), 03-cycles(B-spreadsheet-10 5차) |
 | spring-lab | lab | 없음 | 01 |  | pool-deadlock(L-spring-10 4차), open-in-view(L-spring-20 4차), proxy-pitfalls(L-spring-30 4차), async-executor(L-spring-40 4차), http-client-pool(L-spring-50 4차), max-lifetime(L-spring-60 5차), virtual-threads(L-spring-70 5차), n-plus-one(L-spring-80 5차), batch-insert(L-spring-90 5차), scheduler(L-spring-100 5차) |
 | table-format | build | 있음 | 04 | 01-snapshots(B-lakehouse-30 완료), 02-commits(B-lakehouse-30 완료), 03-deletes(B-lakehouse-30 완료) |  |
-| tech-reading | reading | 있음 | 13 | 01-agent-loop(R-ai-agent-10 완료), 02-hdfs-write-path(R-hdfs-10 완료), 03-columnar-execution(R-olap-10 완료), 04-near-real-time-search(R-search-10 완료), 05-spark-stages(R-spark-10 완료), 06-coroutines(R-coroutines-10 완료), 07-capacity-estimation(R-system-design-10 완료), 08-mvcc-isolation(R-database-10 완료), 09-raft(R-distributed-10 완료), 10-table-format(R-lakehouse-10 완료), 11-kafka-replication(R-messaging-10 완료), 12-percentiles-and-slo(R-observability-10 완료) | online-resharding(R-database-40 4차), creational-patterns(R-design-patterns-10 4차), structural-patterns(R-design-patterns-20 4차), behavioral-patterns(R-design-patterns-30 4차) |
+| tech-reading | reading | 있음 | 17 | 01-agent-loop(R-ai-agent-10 완료), 02-hdfs-write-path(R-hdfs-10 완료), 03-columnar-execution(R-olap-10 완료), 04-near-real-time-search(R-search-10 완료), 05-spark-stages(R-spark-10 완료), 06-coroutines(R-coroutines-10 완료), 07-capacity-estimation(R-system-design-10 완료), 08-mvcc-isolation(R-database-10 완료), 09-raft(R-distributed-10 완료), 10-table-format(R-lakehouse-10 완료), 11-kafka-replication(R-messaging-10 완료), 12-percentiles-and-slo(R-observability-10 완료), 13-online-resharding(R-database-40 제작 중), 14-creational-patterns(R-design-patterns-10 제작 중), 15-structural-patterns(R-design-patterns-20 제작 중), 16-behavioral-patterns(R-design-patterns-30 제작 중) |  |
 | url-shortener | build | 없음 | 04 |  | 01-base62(B-system-design-140 5차), 02-collisions(B-system-design-140 5차), 03-expiry(B-system-design-140 5차) |
 
 ## 도메인별 카드
@@ -250,20 +236,20 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [R-art-10](reading/cards/R-art-10-perspective.md) | 원근법과 시점 | reading | reading | perspective | 후보 | 5 | 없음 |  |
+| [R-art-10](reading/cards/R-art-10-perspective.md) | 원근법과 시점 | reading | reading | 08-perspective | 제작 중 | 5 | 없음 |  |
 | [R-economics-10](reading/cards/R-economics-10-auction.md) | 경매의 설계 | reading | reading | 01-auction | 완료(2026-10-07) | 1 | 없음 |  |
-| [R-humanities-10](reading/cards/R-humanities-10-saussure.md) | 소쉬르의 기호 이론 | reading | reading | saussure | 후보 | 4 | 없음 |  |
+| [R-humanities-10](reading/cards/R-humanities-10-saussure.md) | 소쉬르의 기호 이론 | reading | reading | 07-saussure | 제작 중 | 4 | 없음 |  |
 | [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | source-criticism | 후보 | 5 | 없음 |  |
-| [R-interdisciplinary-10](reading/cards/R-interdisciplinary-10-falsification.md) | 반증주의와 뒤엠-콰인 논제 | reading | reading | falsification | 후보 | 5 | 없음 |  |
+| [R-interdisciplinary-10](reading/cards/R-interdisciplinary-10-falsification.md) | 반증주의와 뒤엠-콰인 논제 | reading | reading | 09-falsification | 제작 중 | 5 | 없음 |  |
 | [R-law-10](reading/cards/R-law-10-agency.md) | 대리와 표현대리 | reading | reading | 02-agency | 완료(2026-10-07) | 1 | 없음 |  |
 | [R-philosophy-10](reading/cards/R-philosophy-10-grue.md) | 귀납의 새로운 수수께끼 | reading | reading | 03-grue | 완료(2026-10-07) | 1 | 없음 |  |
-| [R-science-10](reading/cards/R-science-10-enzyme.md) | 효소 반응 속도와 저해 | reading | reading | enzyme | 후보 | 4 | 없음 |  |
+| [R-science-10](reading/cards/R-science-10-enzyme.md) | 효소 반응 속도와 저해 | reading | reading | 04-enzyme | 제작 중 | 4 | 없음 |  |
 | [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | carnot | 후보 | 5 | 없음 |  |
 | [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | plate-tectonics | 후보 | 5 | 없음 |  |
-| [R-society-10](reading/cards/R-society-10-rescission.md) | 계약의 해제와 원상회복 | reading | reading | rescission | 후보 | 5 | 없음 |  |
+| [R-society-10](reading/cards/R-society-10-rescission.md) | 계약의 해제와 원상회복 | reading | reading | 06-rescission | 제작 중 | 5 | 없음 |  |
 | [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | monetary-policy | 후보 | 5 | 없음 |  |
 | [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | prospect-theory | 후보 | 5 | 없음 |  |
-| [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | key-exchange | 후보 | 4 | 없음 |  |
+| [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | 05-key-exchange | 제작 중 | 4 | 없음 |  |
 | [R-technology-20](reading/cards/R-technology-20-congestion-control.md) | TCP 혼잡 제어 | reading | reading | congestion-control | 후보 | 5 | 없음 |  |
 
 ### 구현
@@ -342,7 +328,7 @@
 | [R-database-10](backend/database/cards/R-database-10-mvcc-isolation.md) | MVCC 와 격리 수준 | reading | tech-reading | 08-mvcc-isolation | 완료(2026-10-10) | 4 | 없음 |  |
 | [B-database-20](backend/database/cards/B-database-20-mvcc.md) | 트랜잭션 격리 엔진 만들기 | build | mvcc | 01-snapshot, 02-locking, 03-serializable | 완료(2026-10-10) | 3 | 없음 | R-database-10 |
 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 후보 | 4 | 없음 |  |
-| [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | online-resharding | 후보 | 4 | 없음 | R-database-10 |
+| [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | 13-online-resharding | 제작 중 | 4 | 없음 | R-database-10 |
 | [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | gap-lock | 후보 | 4 | docker, maven | R-database-10 |
 | [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | metadata-lock | 후보 | 4 | docker, maven, k6 | R-database-10 |
 | [L-database-52](backend/database/cards/L-database-52-index-usage.md) | 인덱스를 쓰지 못하는 질의 | lab | db-lab | index-usage | 후보 | 5 | docker, maven |  |
@@ -354,9 +340,9 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [R-design-patterns-10](backend/design-patterns/cards/R-design-patterns-10-creational-patterns.md) | 객체를 만드는 책임과 생성 패턴 | reading | tech-reading | creational-patterns | 후보 | 4 | 없음 |  |
-| [R-design-patterns-20](backend/design-patterns/cards/R-design-patterns-20-structural-patterns.md) | 감싸기와 합성, 구조 패턴 | reading | tech-reading | structural-patterns | 후보 | 4 | 없음 | R-design-patterns-10 |
-| [R-design-patterns-30](backend/design-patterns/cards/R-design-patterns-30-behavioral-patterns.md) | 바뀌는 부분 떼어 내기, 행위 패턴 | reading | tech-reading | behavioral-patterns | 후보 | 4 | 없음 | R-design-patterns-20 |
+| [R-design-patterns-10](backend/design-patterns/cards/R-design-patterns-10-creational-patterns.md) | 객체를 만드는 책임과 생성 패턴 | reading | tech-reading | 14-creational-patterns | 제작 중 | 4 | 없음 |  |
+| [R-design-patterns-20](backend/design-patterns/cards/R-design-patterns-20-structural-patterns.md) | 감싸기와 합성, 구조 패턴 | reading | tech-reading | 15-structural-patterns | 제작 중 | 4 | 없음 | R-design-patterns-10 |
+| [R-design-patterns-30](backend/design-patterns/cards/R-design-patterns-30-behavioral-patterns.md) | 바뀌는 부분 떼어 내기, 행위 패턴 | reading | tech-reading | 16-behavioral-patterns | 제작 중 | 4 | 없음 | R-design-patterns-20 |
 | [C-design-patterns-40](backend/design-patterns/cards/C-design-patterns-40-decorated-client.md) | 겹겹이 감싼 상품 조회 클라이언트 | code | code-reading | decorated-client | 후보 | 4 | 없음 | R-design-patterns-20 |
 | [C-design-patterns-50](backend/design-patterns/cards/C-design-patterns-50-state-observers.md) | 주문 상태 객체와 구독자 알림 | code | code-reading | state-observers | 후보 | 4 | 없음 | R-design-patterns-30 |
 | [F-design-patterns-60](backend/design-patterns/cards/F-design-patterns-60-skipped-subscriber.md) | 재입고 알림을 놓치는 구독자 | fix | bug-fix | 03-skipped-subscriber | 완료(2026-11-05) | 4 | 없음 | R-design-patterns-30 |
@@ -396,13 +382,13 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [R-incidents-10](backend/incidents/cards/R-incidents-10-cloudflare-regex.md) | 정규식 하나가 멈춘 전 세계 프록시 | reading | incident-reading | 01-cloudflare-regex | 제작 중 | 3 | 없음 |  |
-| [R-incidents-20](backend/incidents/cards/R-incidents-20-github-split-writes.md) | 43초 분할이 만든 하루 동안의 장애 | reading | incident-reading | 02-github-split-writes | 제작 중 | 3 | 없음 |  |
-| [R-incidents-30](backend/incidents/cards/R-incidents-30-s3-capacity-removal.md) | 잘못 입력한 용량 제거 명령 | reading | incident-reading | 03-s3-capacity-removal | 제작 중 | 3 | 없음 |  |
-| [R-incidents-40](backend/incidents/cards/R-incidents-40-meta-backbone.md) | 스스로 사라진 DNS | reading | incident-reading | meta-backbone | 후보 | 4 | 없음 |  |
-| [R-incidents-50](backend/incidents/cards/R-incidents-50-crowdstrike-channel-file.md) | 필드 하나가 모자랐던 콘텐츠 갱신 | reading | incident-reading | crowdstrike-channel-file | 후보 | 3 | 없음 |  |
-| [R-incidents-60](backend/incidents/cards/R-incidents-60-gcp-service-control.md) | 기능 플래그 없는 코드 경로와 빈 필드 | reading | incident-reading | gcp-service-control | 후보 | 3 | 없음 |  |
-| [R-incidents-70](backend/incidents/cards/R-incidents-70-slack-cold-start.md) | 연휴 뒤 첫 월요일의 급증 | reading | incident-reading | slack-cold-start | 후보 | 4 | 없음 |  |
+| [R-incidents-10](backend/incidents/cards/R-incidents-10-cloudflare-regex.md) | 정규식 하나가 멈춘 전 세계 프록시 | reading | incident-reading | 01-cloudflare-regex | 완료(2026-11-05) | 3 | 없음 |  |
+| [R-incidents-20](backend/incidents/cards/R-incidents-20-github-split-writes.md) | 43초 분할이 만든 하루 동안의 장애 | reading | incident-reading | 02-github-split-writes | 완료(2026-11-05) | 3 | 없음 |  |
+| [R-incidents-30](backend/incidents/cards/R-incidents-30-s3-capacity-removal.md) | 잘못 입력한 용량 제거 명령 | reading | incident-reading | 03-s3-capacity-removal | 완료(2026-11-05) | 3 | 없음 |  |
+| [R-incidents-40](backend/incidents/cards/R-incidents-40-meta-backbone.md) | 스스로 사라진 DNS | reading | incident-reading | 06-meta-backbone | 제작 중 | 4 | 없음 |  |
+| [R-incidents-50](backend/incidents/cards/R-incidents-50-crowdstrike-channel-file.md) | 필드 하나가 모자랐던 콘텐츠 갱신 | reading | incident-reading | 04-crowdstrike-channel-file | 제작 중 | 3 | 없음 |  |
+| [R-incidents-60](backend/incidents/cards/R-incidents-60-gcp-service-control.md) | 기능 플래그 없는 코드 경로와 빈 필드 | reading | incident-reading | 05-gcp-service-control | 제작 중 | 3 | 없음 |  |
+| [R-incidents-70](backend/incidents/cards/R-incidents-70-slack-cold-start.md) | 연휴 뒤 첫 월요일의 급증 | reading | incident-reading | 07-slack-cold-start | 제작 중 | 4 | 없음 |  |
 
 ### JVM
 

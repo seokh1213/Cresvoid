@@ -3,8 +3,8 @@ id: R-interdisciplinary-10
 title: 반증주의와 뒤엠-콰인 논제
 kind: reading
 track: reading
-stage: falsification
-status: 후보
+stage: 09-falsification
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

@@ -3,8 +3,8 @@ id: R-society-10
 title: 계약의 해제와 원상회복
 kind: reading
 track: reading
-stage: rescission
-status: 후보
+stage: 06-rescission
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

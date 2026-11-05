@@ -3,8 +3,8 @@ id: R-technology-10
 title: 공개키 암호와 디피-헬먼 키 교환
 kind: reading
 track: reading
-stage: key-exchange
-status: 후보
+stage: 05-key-exchange
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

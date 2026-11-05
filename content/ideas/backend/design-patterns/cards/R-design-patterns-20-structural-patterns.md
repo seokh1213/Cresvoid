@@ -3,8 +3,8 @@ id: R-design-patterns-20
 title: 감싸기와 합성, 구조 패턴
 kind: reading
 track: tech-reading
-stage: structural-patterns
-status: 후보
+stage: 15-structural-patterns
+status: 제작 중
 wave: 4
 env: 없음
 prereq: R-design-patterns-10

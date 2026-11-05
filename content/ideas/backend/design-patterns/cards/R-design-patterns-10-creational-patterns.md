@@ -3,8 +3,8 @@ id: R-design-patterns-10
 title: 객체를 만드는 책임과 생성 패턴
 kind: reading
 track: tech-reading
-stage: creational-patterns
-status: 후보
+stage: 14-creational-patterns
+status: 제작 중
 wave: 4
 env: 없음
 prereq:
