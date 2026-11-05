@@ -1,0 +1,74 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령을 새 프로세스에서 처리할 때 마지막 AUDIT의 출력은?",
+      "context": "CONFIG 5 2 1 0 WAIT\nORDER_BEGIN 2\nSTREAM a 0 0\nSTREAM b 1 1\nSTREAM c 2 2\nSTREAM d 3 2\nAPPEND a 10 80\nAPPEND b 9 82\nAPPEND c 8 84\nAPPEND d 8 86\nAUDIT 1",
+      "choices": [
+        "ORDERED 1",
+        "VIOLATION 2 80 86",
+        "VIOLATION 4 80 84",
+        "ORDERED 2",
+        "VIOLATION 2 80 84"
+      ],
+      "answer": 5,
+      "refs": ["2.2", "2.4", "4.7", "4.8", "4.9"],
+      "quote": "그런 쌍이 여러 개면 earlierId가 가장 작은 쌍을 택하고 그것도 같으면 laterId가 가장 작은 쌍을 택한다.",
+      "explanation": "⑤가 맞다. 네 ID의 기록 시각은 모두 10이며 실제 시각은 ID 순서로 10·9·8·8이다. 최대 역전 폭은 10−8=2이므로 k=1에서는 위반이다. 증거 쌍은 80과 84, 80과 86이 동률이므로 laterId가 작은 80과 84를 택한다. ①은 인접한 쌍만 검사했다. ②는 증거 쌍의 동률 규칙을 적용하지 않았다. ③은 상한 2×bound=4를 실제 최솟값과 혼동했다. ④는 d가 k를 초과하는데도 ORDERED를 반환했다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령을 새 프로세스에서 처리할 때 마지막 두 명령의 출력을 순서대로 나열한 것은?",
+      "context": "CONFIG 5 1 1 100 WAIT\nORDER_BEGIN 3\nSTREAM west 1 -2\nCONFIG 2 1 1 0 REJECT\nAPPEND west 105 14\nAPPEND west 104 15\nMERGE",
+      "choices": [
+        "ERR ORDER / IDS 14",
+        "ERR OFFSET / IDS 14",
+        "ERR OFFSET / EMPTY",
+        "OK / IDS 14 15",
+        "ERR SESSION / EMPTY"
+      ],
+      "answer": 2,
+      "refs": ["4.2", "4.5", "4.6", "4.7", "5.1", "5.2"],
+      "quote": "APPEND는 세션, 흐름 존재, actual 범위, ID 범위, ID의 기계 번호, offset 일치, 흐름 내 순서 순으로 확인한다.",
+      "explanation": "②가 맞다. 세션은 epoch 100의 배치를 유지하므로 ID 14의 기록 시각은 103이고 103−105=−2라서 첫 APPEND는 성공한다. ID 15도 기록 시각이 103이지만 103−104=−1이므로 다음 APPEND는 ERR OFFSET이다. actual이 감소한 문제보다 offset 불일치를 먼저 검사하며 실패한 기록은 넣지 않으므로 MERGE는 IDS 14다. ①은 오류 우선순서를 뒤집었다. ③은 CONFIG 변경이 세션 배치에도 반영된다고 보았다. ④는 offset 불일치를 허용했다. ⑤는 CONFIG 변경이 분석 세션을 없앤다고 보았다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "bound가 2인 분석 세션에서 유효한 기록들에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "AUDIT 2는 실제 생성 순서와 ID 순서 사이에서 두 칸까지의 위치 이동을 허용하는 검사다.",
+        "ID 순서에서 이웃한 모든 기록의 역전 폭이 1 이하면 AUDIT 1은 반드시 ORDERED를 출력한다.",
+        "각 흐름의 시계 오차 절댓값이 2 이하이므로 AUDIT 2는 항상 ORDERED를 출력한다.",
+        "AUDIT 4는 ORDERED를 출력하며, 출력에 포함되는 최소 허용 역전 폭 d는 4보다 작을 수도 있다.",
+        "MERGE를 한 번 실행한 직후에는 모든 기록이 소비되므로 AUDIT 0은 ORDERED 0을 출력한다."
+      ],
+      "answer": 4,
+      "refs": ["2.3", "2.4", "4.7", "4.8"],
+      "quote": "실제 기록에서 필요한 최소 k는 이 상한보다 작을 수도 있다.",
+      "explanation": "④가 맞다. 보장 상한은 2×bound=4밀리초이며 d가 k와 같아도 ORDERED다. 실제 역전이 작거나 없으면 d는 4보다 작다. ①은 밀리초 단위의 역전 폭을 위치 차이로 바꿨다. ②는 모든 쌍을 검사해야 한다는 조건을 빠뜨렸다. ③은 두 생성기의 오차 차이가 최대 4일 수 있음을 빠뜨렸다. ⑤는 MERGE가 기록을 소비하지 않는다는 규칙에 어긋난다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "새 프로세스에 다음 입력을 넣었을 때 출력되는 한 줄은?",
+      "input": ["ORDER_BEGIN -1"],
+      "answers": ["ERR UNCONFIGURED"],
+      "refs": ["4.1", "5.1"],
+      "quote": "먼저 1단계 CONFIG 설정이 있는지 확인하고 없으면 `ERR UNCONFIGURED`다.",
+      "explanation": "ORDER_BEGIN은 다른 분석 명령과 달리 분석 세션 유무 대신 1단계 CONFIG 설정을 먼저 검사한다. 새 프로세스에는 그 설정이 없으므로 ERR UNCONFIGURED다. bound −1도 범위 밖이지만 설정 검사 다음이므로 ERR BOUND가 아니다. ORDER_BEGIN에는 ERR SESSION을 적용하지 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "새 프로세스에서 다음 명령을 순서대로 처리한다. 마지막 AUDIT가 출력하는 한 줄은?",
+      "context": "CONFIG 5 2 1 100 WAIT\nORDER_BEGIN 3\nSTREAM b 1 3\nSTREAM c 2 1\nSTREAM a 0 -1\nAPPEND b 108 90\nAPPEND c 109 84\nAPPEND a 111 80\nAPPEND b 108 91\nAPPEND a 111 81\nAUDIT 2",
+      "answers": ["VIOLATION 3 80 90"],
+      "refs": ["4.5", "4.7", "4.8", "4.9"],
+      "quote": "그런 쌍이 여러 개면 earlierId가 가장 작은 쌍을 택하고 그것도 같으면 laterId가 가장 작은 쌍을 택한다.",
+      "explanation": "ID 오름차순은 80·81·84·90·91이며 실제 시각은 111·111·109·108·108이다. ID 80·81·84의 기록 시각은 110, ID 90·91의 기록 시각은 111이므로 각 흐름의 offset과 일치한다. 최대 역전 폭 d는 111−108=3으로 k=2보다 크다. 증거 쌍 (80, 90), (80, 91), (81, 90), (81, 91) 가운데 earlierId가 가장 작은 것은 80이고 그중 laterId가 가장 작은 것은 90이다. 따라서 VIOLATION 3 80 90을 출력한다. 인접한 기록만 비교하면 최대 역전 폭을 2로 잘못 구한다."
+    }
+  ]
+}

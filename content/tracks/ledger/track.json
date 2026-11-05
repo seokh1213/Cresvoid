@@ -1,0 +1,10 @@
+{
+  "title": "결제 원장",
+  "kind": "build",
+  "summary": "복식 부기 원장을 만들고 외부 결제 대행사 호출을 멱등하게 다룬 뒤 정산 파일과 대조한다.",
+  "stages": [
+    { "dir": "01-double-entry", "title": "복식 부기 원장" },
+    { "dir": "02-psp-idempotency", "title": "멱등한 결제 호출" },
+    { "dir": "03-reconciliation", "title": "정산 파일 대조" }
+  ]
+}

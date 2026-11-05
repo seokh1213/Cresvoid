@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령을 새 프로세스에서 처리할 때 마지막 두 명령의 출력을 순서대로 나열한 것은?",
+      "context": "CONFIG 3 1 1 10 WAIT\nNODE east 0\nNEXT east 1 12\nNEXT east 2 12 9\nNEXT east 1 12",
+      "choices": [
+        "ID 9 / ID 12",
+        "ERR TIME / ID 8",
+        "ERR TIME / ID 9",
+        "ID 9 / ERR WAIT",
+        "ERR CLOCK / ID 9"
+      ],
+      "answer": 3,
+      "refs": ["4.2", "4.4", "4.5", "4.8"],
+      "quote": "하나라도 어기면 아직 읽지 않을 표본이라도 `ERR TIME`을 출력한다.",
+      "explanation": "③이 맞다. 첫 발급은 (12−10)×4=8이며 순번은 0이다. 다음 요청은 두 번째 표본 9가 epoch 미만이므로 ERR TIME이다. 실패는 순번을 바꾸지 않아 마지막 요청은 순번 1인 ID 9를 출력한다. ①과 ④는 사용하지 않을 표본도 먼저 검사한다는 규칙을 빠뜨렸다. ②는 실패 뒤 기존 순번까지 초기화했다. ⑤는 범위 오류를 시계 역행으로 처리했지만 전체 표본 범위 검사가 관측보다 먼저다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령을 새 프로세스에서 처리할 때 마지막 두 명령의 출력을 순서대로 나열한 것은?",
+      "context": "CONFIG 3 1 1 0 REJECT\nNODE east 1\nNEXT east 1 3\nNEXT east 1 3\nNEXT east 3 3 2 4\nNEXT east 1 3",
+      "choices": [
+        "ERR CLOCK / ERR WAIT",
+        "ID 18 / ERR CLOCK",
+        "ERR WAIT / ERR WAIT",
+        "ERR CLOCK / ID 14",
+        "ID 16 / ERR CLOCK"
+      ],
+      "answer": 1,
+      "refs": ["4.2", "4.5", "4.6", "4.7", "4.8"],
+      "quote": "이 규칙은 순번이 찬 뒤 관측하는 표본에도 적용한다.",
+      "explanation": "①이 맞다. 앞선 두 발급은 시각 3에서 순번 0·1을 모두 사용해 ID 14·15가 된다. 다음 요청은 표본 3에서 순번 소진으로 대기하다가 표본 2에서 즉시 ERR CLOCK으로 끝난다. 표본 4는 관측하지 않는다. 실패 후에도 시각 3의 순번은 소진된 상태라 마지막 요청은 ERR WAIT이다. ②는 REJECT에서도 역행을 건너뛰었다. ③은 역행 오류를 표본 소진으로 잘못 처리했다. ④는 실패 뒤 발급 이력을 초기화했다. ⑤는 역행을 건너뛴 데다 새 시각의 ID에서 기계 번호 1의 비트도 빠뜨렸다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "새 프로세스에서 다음 명령을 순서대로 처리할 때 마지막 DECODE의 출력은?",
+      "context": "CONFIG 3 1 1 10 WAIT\nCONFIG 2 1 1 -1 WAIT\nDECODE 26",
+      "choices": [
+        "ERR ID",
+        "PARTS 6 1 0",
+        "PARTS 12 1 0",
+        "ERR MACHINE",
+        "PARTS 16 1 0"
+      ],
+      "answer": 5,
+      "refs": ["4.1", "4.2", "4.9", "5.2"],
+      "quote": "잘못된 CONFIG는 기존의 정상 설정과 상태를 보존한다.",
+      "explanation": "⑤가 맞다. 두 번째 CONFIG는 epoch가 음수이므로 실패하고 기존의 3·1·1비트 배치와 epoch 10이 유지된다. ID 26은 기존 배치의 0 이상 32 미만 범위에 들며 26=6×4+1×2+0이므로 절대 시각 16·기계 1·순번 0으로 해석한다. ①은 실패한 CONFIG의 4비트 범위를 적용했다. ②는 경과 시각에 기존 epoch를 더하지 않았다. ③은 실패한 CONFIG의 시각 2비트에 맞춰 경과 시각의 상위 비트를 버렸다. ④는 DECODE에서 기계 등록 여부를 검사했다. DECODE는 실제 발급 여부나 기계 등록 여부를 확인하지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "새 프로세스에 다음 입력을 넣었을 때 출력되는 한 줄은?",
+      "input": ["CONFIG 61 1 1 6917529027641081856 WAIT"],
+      "answers": ["OK"],
+      "refs": ["2.4", "3.3", "4.1"],
+      "quote": "epoch는 0 이상이며 `epoch + 2^t − 1`이 Long.MAX_VALUE 이하여야 한다.",
+      "explanation": "각 비트 수는 1 이상이고 합은 61+1+1=63이므로 부호 비트를 침범하지 않는다. 2^61−1은 2305843009213693951이며 epoch에 더하면 정확히 Long.MAX_VALUE인 9223372036854775807이다. 상한과 같은 값도 허용하므로 OK다. 비트 합이 63이라는 이유나 상한에 도달했다는 이유로 ERR CONFIG를 출력하면 틀린다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "새 프로세스에 다음 입력을 넣었을 때 출력되는 한 줄은?",
+      "input": ["CONFIG 60 2 1 8070450532247928833 REJECT"],
+      "answers": ["ERR CONFIG"],
+      "refs": ["3.3", "4.1"],
+      "quote": "계산 결과는 수학적인 정수값을 기준으로 판단하며 정수 넘침으로 값이 바뀐 결과를 인정하지 않는다.",
+      "explanation": "비트 합은 60+2+1=63으로 허용된다. 그러나 2^60−1=1152921504606846975를 epoch에 더하면 9223372036854775808로 Long.MAX_VALUE보다 1 크다. 따라서 ERR CONFIG다. 비트 합만 검사해 OK로 판단하거나 Long 덧셈이 넘친 값을 정상 범위로 판단하면 틀린다."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령 중 마지막 명령의 출력은?",
+      "context": "빈 상태에서 아래 명령을 차례로 실행한다.\nOPEN psp KRW D ANY\nOPEN merchant KRW C ANY\nPAY p psp merchant KRW 50\nPSP p TIMEOUT_OK\nCALL p\nCOMMIT p\nQUERY p\nCALL p",
+      "choices": [
+        "ERR STATE",
+        "ERR OBSERVATION_PENDING",
+        "OBSERVED p OK",
+        "ERR NO_SCRIPT",
+        "STATE p SUCCEEDED"
+      ],
+      "answer": 2,
+      "refs": ["4.8", "4.9", "4.10", "4.11", "5.4"],
+      "quote": "`CALL`·`QUERY`는 그다음 미반영 관찰 유무 `OBSERVATION_PENDING`, 허용하지 않는 로컬 상태 `STATE` 순서로 검사한다.",
+      "explanation": "②는 옳다. TIMEOUT_OK로 외부는 성공하지만 첫 COMMIT 뒤 로컬 상태는 UNKNOWN이다. QUERY는 OK 관찰만 만들고 아직 성공을 확정하지 않는다. ①은 UNKNOWN에서 CALL할 수 없다는 점은 맞지만 미반영 관찰 검사가 상태 검사보다 먼저이므로 틀리다. ③은 관찰이 남아 있어 CALL을 수행할 수 없다. ④는 대기열 검사가 관찰·상태 검사 뒤이며 PSP 최종 성공도 남아 있으므로 틀리다. ⑤는 성공 관찰을 COMMIT해야 나오는 응답이다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령 중 마지막 명령의 출력은?",
+      "context": "빈 상태에서 아래 명령을 차례로 실행한다.\nOPEN psp USD D ANY\nOPEN merchant USD C ANY\nPAY p psp merchant USD 40\nPSP p OK\nPSP p DECLINE\nCALL p\nCRASH\nCALL p\nCOMMIT p\nREMOTE p",
+      "choices": [
+        "REMOTE p FAILED 2 0 1",
+        "REMOTE p SUCCEEDED 1 0 1",
+        "REMOTE p SUCCEEDED 2 0 2",
+        "REMOTE p SUCCEEDED 2 1 1",
+        "REMOTE p SUCCEEDED 2 0 1"
+      ],
+      "answer": 5,
+      "refs": ["4.7", "4.8", "4.11", "4.13", "4.14"],
+      "quote": "`CALL`로 이미 기록된 결과를 돌려받아도 호출횟수는 늘지만 효과횟수는 늘지 않는다.",
+      "explanation": "⑤는 옳다. 첫 CALL로 PSP는 성공하고 CRASH는 관찰만 버린다. 다음 CALL은 같은 최종 성공을 반환하며 호출횟수만 2가 된다. ①은 PSP 최종 기록이 있는데도 대기열의 DECLINE을 소비했다. ②는 CRASH 뒤의 호출을 세지 않았다. ③은 같은 키의 외부 효과를 두 번 셌다. ④는 REMOTE를 QUERY와 혼동해 조회횟수를 늘렸다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 상황에서 마지막 REFUND 명령의 출력은?",
+      "context": "p는 USD 100인 PAY 요청이며 로컬 상태가 SUCCEEDED다. 아래 명령을 실행하기 전 p의 환불 요청은 없다.\nREFUND r p USD 70\nPSP r DECLINE\nCALL r\nREFUND r p USD 70\nREFUND s p USD 40",
+      "choices": [
+        "STATE s READY",
+        "ERR OBSERVATION_PENDING",
+        "ERR REFUND_LIMIT",
+        "ERR PAYMENT_STATE",
+        "ERR KEY_CONFLICT"
+      ],
+      "answer": 3,
+      "refs": ["4.2", "4.3", "4.4", "4.5", "4.10", "4.11", "5.3"],
+      "quote": "`FAILED`로 확정되면 해당 요청의 금액만 한도에서 빠진다.",
+      "explanation": "③은 옳다. r의 DECLINE 관찰을 아직 COMMIT하지 않아 로컬 상태는 READY이고 70을 계속 점유한다. 같은 내용의 r 재요청은 현재 상태만 반환하며 한도를 추가로 점유하거나 관찰을 지우지 않는다. 새 환불 s를 합치면 110이므로 한도 100을 넘는다. ①은 원격 거절만으로 한도가 해제된다고 보아 틀리다. ②는 r의 관찰이 새 키 s의 REFUND를 막는다고 보아 틀리다. ④는 원결제 p가 로컬 성공 상태이므로 틀리다. ⑤는 s가 새 키이고 기존 r 재요청도 내용이 같으므로 틀리다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "빈 상태의 프로그램에 다음 입력을 넣었을 때 출력되는 한 줄은?",
+      "input": ["PAY request missing missing USD 5"],
+      "answers": ["ERR NOT_FOUND"],
+      "refs": ["4.1", "4.4", "5.2"],
+      "quote": "새 `PAY`는 0 이하 금액 `AMOUNT`, 없는 계정 `NOT_FOUND`, 같은 두 계정 `SAME_ACCOUNT`, 계정 통화 불일치 `CURRENCY`, `NONNEG` 계정 사용 `ACCOUNT_POLICY` 순서로 검사한다.",
+      "explanation": "새 키이고 금액 5는 양수다. 두 계정 이름이 같지만 그 계정이 존재하지 않으므로 SAME_ACCOUNT보다 먼저 NOT_FOUND에 걸린다. 출력은 ERR NOT_FOUND다. 접수 전에 거절되어 요청 키나 분개를 만들지 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "빈 상태의 프로그램에 다음 입력을 넣었을 때 출력되는 한 줄은?",
+      "input": ["REFUND refund missing EUR 0"],
+      "answers": ["ERR AMOUNT"],
+      "refs": ["4.2", "4.4", "5.3"],
+      "quote": "새 `REFUND`는 0 이하 금액 `AMOUNT`, 없는 원결제키 `NOT_FOUND`, 원요청이 `PAY`가 아니거나 로컬 `SUCCEEDED`가 아닌 경우 `PAYMENT_STATE`, 원결제와 통화 불일치 `CURRENCY`, 한도 초과 `REFUND_LIMIT` 순서로 검사한다.",
+      "explanation": "환불 금액은 양수여야 하는데 0이다. missing 원결제도 없지만 금액 검사가 원결제 존재 검사보다 먼저이므로 ERR AMOUNT다. NOT_FOUND를 함께 출력하거나 원결제가 없는 상태에서 통화·환불 한도를 먼저 검사하지 않는다. 접수 전에 거절되어 refund 키를 차지하지 않는다."
+    }
+  ]
+}

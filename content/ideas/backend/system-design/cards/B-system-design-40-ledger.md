@@ -4,7 +4,7 @@ title: 결제 원장 만들기
 kind: build
 track: ledger
 stage: 01-double-entry, 02-psp-idempotency, 03-reconciliation
-status: 후보
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq:

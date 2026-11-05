@@ -29,6 +29,8 @@
 | `metrics` | build | 3 |
 | `coroutine-patterns` | build | 6 |
 | `coroutine-runtime` | build | 8 |
+| `id-generator` | build | 3 |
+| `ledger` | build | 3 |
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
 | `jvm-lab` | lab | 3 |

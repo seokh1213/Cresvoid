@@ -1,0 +1,604 @@
+{
+  "timeout_sec": 30,
+  "tests": [
+    {
+      "name": "account-session",
+      "refs": [
+        "4.1",
+        "4.5",
+        "4.7",
+        "3.1"
+      ],
+      "quote": "`NONNEG` 계정은 정상방향으로 계산한 잔액이 0 이상이어야 하며 `ANY` 계정에는 이 제한이 없다.",
+      "input": [
+        "OPEN cash KRW D NONNEG",
+        "BALANCE cash",
+        "TRIAL KRW"
+      ],
+      "expected": [
+        "OK OPEN cash",
+        "BALANCE cash KRW 0",
+        "TRIAL KRW 0 0 0"
+      ]
+    },
+    {
+      "name": "journal-session",
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "항목 순서는 입력 그대로 보존한다.",
+      "input": [
+        "OPEN cash USD D NONNEG",
+        "OPEN debt USD C NONNEG",
+        "POST sale USD 2 cash D 125 debt C 125",
+        "BALANCE cash",
+        "BALANCE debt",
+        "JOURNAL sale",
+        "TRIAL USD"
+      ],
+      "expected": [
+        "OK OPEN cash",
+        "OK OPEN debt",
+        "OK POST sale",
+        "BALANCE cash USD 125",
+        "BALANCE debt USD 125",
+        "JOURNAL sale USD 2",
+        "ENTRY cash D 125",
+        "ENTRY debt C 125",
+        "TRIAL USD 125 125 0"
+      ]
+    },
+    {
+      "name": "balance-session",
+      "refs": [
+        "4.3",
+        "4.1",
+        "4.5",
+        "4.7"
+      ],
+      "quote": "정상방향이 `D`면 표시 잔액은 원시 잔액과 같고, `C`면 원시 잔액의 부호를 뒤집는다.",
+      "input": [
+        "OPEN asset USD D ANY",
+        "OPEN liability USD C ANY",
+        "POST move USD 2 asset C 9 liability D 9",
+        "BALANCE asset",
+        "BALANCE liability",
+        "TRIAL USD"
+      ],
+      "expected": [
+        "OK OPEN asset",
+        "OK OPEN liability",
+        "OK POST move",
+        "BALANCE asset USD -9",
+        "BALANCE liability USD -9",
+        "TRIAL USD 9 9 0"
+      ]
+    },
+    {
+      "name": "posting-session",
+      "refs": [
+        "4.3",
+        "4.2",
+        "2.3"
+      ],
+      "quote": "`POST`는 같은 계정의 모든 항목을 합친 뒤 최종 표시 잔액으로 `NONNEG`를 검사한다.",
+      "input": [
+        "OPEN cash KRW D NONNEG",
+        "OPEN debt KRW C NONNEG",
+        "POST loop KRW 4 cash C 17 debt D 13 cash D 17 debt C 13",
+        "BALANCE cash",
+        "BALANCE debt",
+        "JOURNAL loop",
+        "TRIAL KRW"
+      ],
+      "expected": [
+        "OK OPEN cash",
+        "OK OPEN debt",
+        "OK POST loop",
+        "BALANCE cash KRW 0",
+        "BALANCE debt KRW 0",
+        "JOURNAL loop KRW 4",
+        "ENTRY cash C 17",
+        "ENTRY debt D 13",
+        "ENTRY cash D 17",
+        "ENTRY debt C 13",
+        "TRIAL KRW 0 0 0"
+      ]
+    },
+    {
+      "name": "transfer-session",
+      "refs": [
+        "5.3",
+        "5.1",
+        "4.3",
+        "4.6"
+      ],
+      "quote": "최종 표시 잔액이 음수인 `NONNEG` 계정이 있으면 `INSUFFICIENT` 순서로 검사한다.",
+      "input": [
+        "OPEN cash KRW D NONNEG",
+        "OPEN debt KRW C NONNEG",
+        "OPEN bank KRW D ANY",
+        "POST seed KRW 2 cash D 10 debt C 10",
+        "POST spend KRW 3 bank D 11 cash C 12 debt D 1",
+        "JOURNAL spend",
+        "BALANCE bank",
+        "BALANCE cash",
+        "BALANCE debt",
+        "POST spend KRW 3 bank D 2 cash C 3 debt D 1",
+        "BALANCE bank",
+        "BALANCE cash",
+        "BALANCE debt",
+        "JOURNAL spend",
+        "POST other KRW 2 bank C 10 debt D 10",
+        "BALANCE bank",
+        "BALANCE debt",
+        "JOURNAL other",
+        "TRIAL KRW"
+      ],
+      "expected": [
+        "OK OPEN cash",
+        "OK OPEN debt",
+        "OK OPEN bank",
+        "OK POST seed",
+        "ERR INSUFFICIENT",
+        "ERR NOT_FOUND",
+        "BALANCE bank KRW 0",
+        "BALANCE cash KRW 10",
+        "BALANCE debt KRW 10",
+        "OK POST spend",
+        "BALANCE bank KRW 2",
+        "BALANCE cash KRW 7",
+        "BALANCE debt KRW 9",
+        "JOURNAL spend KRW 3",
+        "ENTRY bank D 2",
+        "ENTRY cash C 3",
+        "ENTRY debt D 1",
+        "ERR INSUFFICIENT",
+        "BALANCE bank KRW 2",
+        "BALANCE debt KRW 9",
+        "ERR NOT_FOUND",
+        "TRIAL KRW 9 9 0"
+      ]
+    },
+    {
+      "name": "repeated-journal",
+      "refs": [
+        "4.4",
+        "5.3",
+        "4.6"
+      ],
+      "quote": "항목을 합치거나 순서를 바꾼 요청은 같은 요청이 아니다.",
+      "input": [
+        "OPEN a USD D ANY",
+        "OPEN b USD C ANY",
+        "POST j USD 3 a D 2 a D 3 b C 5",
+        "POST j USD 3 a D 2 a D 3 b C 5",
+        "POST j USD 3 a D 3 a D 2 b C 5",
+        "POST j USD 2 a D 5 b C 5",
+        "POST j EUR 2 absent D 0 b C 0",
+        "BALANCE a",
+        "JOURNAL j",
+        "TRIAL USD",
+        "TRIAL EUR"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "OK OPEN b",
+        "OK POST j",
+        "OK DUP j",
+        "ERR JOURNAL_CONFLICT",
+        "ERR JOURNAL_CONFLICT",
+        "ERR JOURNAL_CONFLICT",
+        "BALANCE a USD 5",
+        "JOURNAL j USD 3",
+        "ENTRY a D 2",
+        "ENTRY a D 3",
+        "ENTRY b C 5",
+        "TRIAL USD 5 5 0",
+        "TRIAL EUR 0 0 0"
+      ]
+    },
+    {
+      "name": "submission-checks",
+      "refs": [
+        "5.3",
+        "5.1",
+        "4.4"
+      ],
+      "quote": "새 ID라면 항목 중 하나라도 0 이하의 금액이면 `AMOUNT`, 없는 계정이 있으면 `NOT_FOUND`, 통화가 다른 계정이 있으면 `CURRENCY`, 차변·대변 합이 다르면 `UNBALANCED`, 최종 표시 잔액이 음수인 `NONNEG` 계정이 있으면 `INSUFFICIENT` 순서로 검사한다.",
+      "input": [
+        "OPEN a USD D NONNEG",
+        "OPEN b USD C NONNEG",
+        "OPEN eur EUR D ANY",
+        "POST j USD 2 absent D 0 eur C 1",
+        "POST j USD 2 eur D 1 absent C 2",
+        "POST j USD 2 a C 2 eur D 1",
+        "POST j USD 2 a C 2 b D 1",
+        "POST j USD 2 a C 2 b D 2",
+        "JOURNAL j",
+        "POST j USD 2 a D 2 b C 2",
+        "POST n USD 2 a D -1000000000000 b C -1000000000000",
+        "JOURNAL n",
+        "BALANCE a",
+        "BALANCE b",
+        "TRIAL USD",
+        "TRIAL EUR"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "OK OPEN b",
+        "OK OPEN eur",
+        "ERR AMOUNT",
+        "ERR NOT_FOUND",
+        "ERR CURRENCY",
+        "ERR UNBALANCED",
+        "ERR INSUFFICIENT",
+        "ERR NOT_FOUND",
+        "OK POST j",
+        "ERR AMOUNT",
+        "ERR NOT_FOUND",
+        "BALANCE a USD 2",
+        "BALANCE b USD 2",
+        "TRIAL USD 2 2 0",
+        "TRIAL EUR 0 0 0"
+      ]
+    },
+    {
+      "name": "account-identity",
+      "refs": [
+        "5.2",
+        "4.1",
+        "3.2"
+      ],
+      "quote": "`OPEN`은 계정 ID가 이미 있으면 내용이 같아도 `ACCOUNT_EXISTS`다.",
+      "input": [
+        "OPEN a USD D NONNEG",
+        "OPEN a USD D NONNEG",
+        "OPEN a EUR C ANY",
+        "OPEN b USD C NONNEG",
+        "POST a USD 2 a D 4 b C 4",
+        "BALANCE a",
+        "JOURNAL a",
+        "TRIAL USD",
+        "TRIAL EUR"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "ERR ACCOUNT_EXISTS",
+        "ERR ACCOUNT_EXISTS",
+        "OK OPEN b",
+        "OK POST a",
+        "BALANCE a USD 4",
+        "JOURNAL a USD 2",
+        "ENTRY a D 4",
+        "ENTRY b C 4",
+        "TRIAL USD 4 4 0",
+        "TRIAL EUR 0 0 0"
+      ]
+    },
+    {
+      "name": "lookup-session",
+      "refs": [
+        "5.2",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "`BALANCE`와 `JOURNAL`은 조회 대상이 없으면 `NOT_FOUND`다.",
+      "input": [
+        "BALANCE absent",
+        "JOURNAL absent",
+        "TRIAL ZZZ",
+        "OPEN a ZZZ C ANY",
+        "BALANCE a",
+        "JOURNAL a",
+        "TRIAL ZZZ"
+      ],
+      "expected": [
+        "ERR NOT_FOUND",
+        "ERR NOT_FOUND",
+        "TRIAL ZZZ 0 0 0",
+        "OK OPEN a",
+        "BALANCE a ZZZ 0",
+        "ERR NOT_FOUND",
+        "TRIAL ZZZ 0 0 0"
+      ]
+    },
+    {
+      "name": "currency-session",
+      "refs": [
+        "4.2",
+        "4.7",
+        "3.2"
+      ],
+      "quote": "모든 계정의 통화가 분개 통화와 같고 차변 합과 대변 합이 같아야 한다.",
+      "input": [
+        "OPEN a USD D ANY",
+        "OPEN b USD C ANY",
+        "OPEN c XTS C ANY",
+        "OPEN d XTS D ANY",
+        "POST x USD 2 a D 7 c C 7",
+        "POST x USD 2 a D 7 b C 7",
+        "POST y XTS 2 c D 7 d C 7",
+        "BALANCE c",
+        "BALANCE d",
+        "TRIAL USD",
+        "TRIAL XTS",
+        "TRIAL EUR"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "OK OPEN b",
+        "OK OPEN c",
+        "OK OPEN d",
+        "ERR CURRENCY",
+        "OK POST x",
+        "OK POST y",
+        "BALANCE c XTS -7",
+        "BALANCE d XTS -7",
+        "TRIAL USD 7 7 0",
+        "TRIAL XTS 7 7 0",
+        "TRIAL EUR 0 0 0"
+      ]
+    },
+    {
+      "name": "amount-session",
+      "refs": [
+        "3.3",
+        "3.2",
+        "4.3",
+        "4.7"
+      ],
+      "quote": "모든 금액 합, 잔액, 잔액 변화량은 부호 있는 64비트 정수 범위 안이다.",
+      "input": [
+        "OPEN a KRW D ANY",
+        "OPEN b KRW C ANY",
+        "POST one KRW 2 a D 1000000000000 b C 1000000000000",
+        "POST two KRW 2 a D 1000000000000 b C 1000000000000",
+        "POST three KRW 2 a C 999999999999 b D 999999999999",
+        "BALANCE a",
+        "BALANCE b",
+        "TRIAL KRW"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "OK OPEN b",
+        "OK POST one",
+        "OK POST two",
+        "OK POST three",
+        "BALANCE a KRW 1000000000001",
+        "BALANCE b KRW 1000000000001",
+        "TRIAL KRW 1000000000001 1000000000001 0"
+      ]
+    },
+    {
+      "name": "allocation-session",
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "같은 계정이 여러 번 나오거나 양쪽 방향에 함께 나와도 된다.",
+      "input": [
+        "OPEN a USD D ANY",
+        "OPEN b USD C ANY",
+        "OPEN c USD D ANY",
+        "POST j USD 5 b C 9 a D 7 c D 4 a C 2 c C 0",
+        "POST j USD 5 b C 9 a D 7 c D 5 a C 2 c C 1",
+        "BALANCE a",
+        "BALANCE b",
+        "BALANCE c",
+        "JOURNAL j",
+        "TRIAL USD"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "OK OPEN b",
+        "OK OPEN c",
+        "ERR AMOUNT",
+        "OK POST j",
+        "BALANCE a USD 5",
+        "BALANCE b USD 9",
+        "BALANCE c USD 4",
+        "JOURNAL j USD 5",
+        "ENTRY b C 9",
+        "ENTRY a D 7",
+        "ENTRY c D 5",
+        "ENTRY a C 2",
+        "ENTRY c C 1",
+        "TRIAL USD 9 9 0"
+      ]
+    },
+    {
+      "name": "input-session",
+      "refs": [
+        "3.1",
+        "3.2",
+        "4.5"
+      ],
+      "quote": "줄 앞뒤 공백과 빈 줄은 무시한다.",
+      "input": [
+        "",
+        "  OPEN A1234567890123456789012345678901 ZZZ D ANY  ",
+        "OPEN a ZZZ C ANY",
+        "  ",
+        "POST A1234567890123456789012345678901 ZZZ 2 A1234567890123456789012345678901 D 1 a C 1",
+        "BALANCE   A1234567890123456789012345678901",
+        "BALANCE a",
+        "TRIAL ZZZ"
+      ],
+      "expected": [
+        "OK OPEN A1234567890123456789012345678901",
+        "OK OPEN a",
+        "OK POST A1234567890123456789012345678901",
+        "BALANCE A1234567890123456789012345678901 ZZZ 1",
+        "BALANCE a ZZZ 1",
+        "TRIAL ZZZ 1 1 0"
+      ]
+    },
+    {
+      "name": "extended-journal",
+      "refs": [
+        "3.3",
+        "4.3",
+        "4.6"
+      ],
+      "quote": "`POST`의 항목 수는 2~100이고 그 수만큼 항목이 주어진다.",
+      "input": [
+        "OPEN a XTS C NONNEG",
+        "POST j XTS 100 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a C 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000 a D 1000000000000",
+        "JOURNAL j",
+        "BALANCE a",
+        "TRIAL XTS"
+      ],
+      "expected": [
+        "OK OPEN a",
+        "OK POST j",
+        "JOURNAL j XTS 100",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a C 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "ENTRY a D 1000000000000",
+        "BALANCE a XTS 0",
+        "TRIAL XTS 0 0 0"
+      ]
+    },
+    {
+      "name": "generated-session",
+      "refs": [
+        "7.2",
+        "4.3",
+        "4.4",
+        "5.3",
+        "7.3"
+      ],
+      "quote": "고정 테스트와 시드를 고정한 생성 테스트로 반복 분개, 계정 방향, 복수 항목의 원자성, 오류 우선순위와 통화 분리를 확인한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--rounds",
+        "20"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    },
+    {
+      "name": "extended-session",
+      "refs": [
+        "7.2",
+        "4.3",
+        "4.4",
+        "5.3",
+        "7.3"
+      ],
+      "quote": "고정 테스트와 시드를 고정한 생성 테스트로 반복 분개, 계정 방향, 복수 항목의 원자성, 오류 우선순위와 통화 분리를 확인한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--rounds",
+        "200"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    }
+  ]
+}

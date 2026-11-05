@@ -1,0 +1,576 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "first-placement",
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.6",
+        "4.7",
+        "4.8",
+        "3.1",
+        "1.1"
+      ],
+      "quote": "식은 `(time − epoch) × 2^(h+s) + shard × 2^s + seq`다.",
+      "input": [
+        "SHARD_CONFIG 2 1 1 0 REJECT",
+        "PLACE 0 db",
+        "SHARD_NEXT 0 db 1 0",
+        "SHARD_DECODE 0",
+        "LOCATE 0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 0",
+        "PARTS 0 0 0",
+        "SHARD 0 db"
+      ]
+    },
+    {
+      "name": "placement-registration",
+      "refs": [
+        "4.3",
+        "4.2",
+        "5.2"
+      ],
+      "quote": "한 서버에 여러 샤드를 둘 수 있다.",
+      "input": [
+        "SHARD_CONFIG 3 2 2 10 WAIT",
+        "PLACE 0 db",
+        "PLACE 3 db",
+        "PLACE 0 db",
+        "PLACE 0 other",
+        "PLACE -1 db",
+        "PLACE 4 db",
+        "SHARD_NEXT 0 db 1 12",
+        "SHARD_NEXT 3 db 1 12",
+        "SHARD_NEXT 0 db 1 12",
+        "LOCATE 44",
+        "LOCATE 33"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "ERR EXISTS",
+        "ERR EXISTS",
+        "ERR SHARD",
+        "ERR SHARD",
+        "ID 32",
+        "ID 44",
+        "ID 33",
+        "SHARD 3 db",
+        "SHARD 0 db"
+      ]
+    },
+    {
+      "name": "relocation-history",
+      "refs": [
+        "4.4",
+        "4.6",
+        "4.8",
+        "2.1",
+        "2.2"
+      ],
+      "quote": "성공하면 대응표의 서버만 바꾸고 마지막 발급 시각과 순번을 그대로 보존한 뒤 `OK`를 출력한다.",
+      "input": [
+        "SHARD_CONFIG 4 2 2 100 REJECT",
+        "PLACE 2 a",
+        "SHARD_NEXT 2 a 1 103",
+        "MOVE 2 a b",
+        "SHARD_NEXT 2 a 1 103",
+        "SHARD_NEXT 2 b 1 103",
+        "MOVE 2 b b",
+        "SHARD_NEXT 2 b 1 103",
+        "MOVE 2 b c",
+        "MOVE 2 b d",
+        "LOCATE 56",
+        "SHARD_NEXT 2 c 1 103",
+        "MOVE 2 c a",
+        "SHARD_NEXT 2 a 1 103",
+        "SHARD_NEXT 2 a 2 103 104",
+        "LOCATE 57"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 56",
+        "OK",
+        "ERR OWNER",
+        "ID 57",
+        "OK",
+        "ID 58",
+        "OK",
+        "ERR OWNER",
+        "SHARD 2 c",
+        "ID 59",
+        "OK",
+        "ERR WAIT",
+        "ID 72",
+        "SHARD 2 a"
+      ]
+    },
+    {
+      "name": "relocation-observation",
+      "refs": [
+        "4.4",
+        "4.6"
+      ],
+      "quote": "from과 to가 같아도 소유자 검사를 통과하면 성공하며 발급 상태는 유지된다.",
+      "input": [
+        "SHARD_CONFIG 4 1 1 0 WAIT",
+        "PLACE 1 a",
+        "SHARD_NEXT 1 a 1 5",
+        "MOVE 1 a b",
+        "SHARD_NEXT 1 b 2 4 5",
+        "MOVE 1 b c",
+        "SHARD_NEXT 1 c 3 0 5 4",
+        "SHARD_NEXT 1 c 4 5 4 6 7",
+        "LOCATE 22",
+        "MOVE 1 c c",
+        "SHARD_NEXT 1 c 1 6"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 22",
+        "OK",
+        "ID 23",
+        "OK",
+        "ERR WAIT",
+        "ID 26",
+        "SHARD 1 c",
+        "OK",
+        "ID 27"
+      ]
+    },
+    {
+      "name": "command-precedence",
+      "refs": [
+        "5.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.8"
+      ],
+      "quote": "둘 이상 어겨도 이 순서에서 처음 만난 오류만 출력한다.",
+      "input": [
+        "SHARD_CONFIG 2 1 1 10 REJECT",
+        "PLACE 0 a",
+        "MOVE -1 wrong b",
+        "MOVE 2 wrong b",
+        "MOVE 1 wrong b",
+        "MOVE 0 wrong b",
+        "SHARD_NEXT -1 wrong 1 9",
+        "SHARD_NEXT 2 wrong 1 9",
+        "SHARD_NEXT 1 wrong 1 9",
+        "SHARD_NEXT 0 wrong 1 9",
+        "SHARD_NEXT 0 a 1 9",
+        "LOCATE -1",
+        "LOCATE 16",
+        "LOCATE 2",
+        "LOCATE 0",
+        "SHARD_NEXT 0 a 1 10"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR SHARD",
+        "ERR SHARD",
+        "ERR UNMAPPED",
+        "ERR OWNER",
+        "ERR SHARD",
+        "ERR SHARD",
+        "ERR UNMAPPED",
+        "ERR OWNER",
+        "ERR TIME",
+        "ERR ID",
+        "ERR ID",
+        "ERR UNMAPPED",
+        "SHARD 0 a",
+        "ID 0"
+      ]
+    },
+    {
+      "name": "sample-validation",
+      "refs": [
+        "4.5",
+        "4.6",
+        "3.2"
+      ],
+      "quote": "하나라도 epoch 미만이거나 경과 밀리초가 2^t 이상이면 `ERR TIME`이다.",
+      "input": [
+        "SHARD_CONFIG 2 1 2 10 REJECT",
+        "PLACE 1 a",
+        "SHARD_NEXT 1 a 2 11 9",
+        "SHARD_NEXT 1 a 1 11",
+        "SHARD_NEXT 1 a 2 10 14",
+        "SHARD_NEXT 1 a 1 11",
+        "SHARD_NEXT 1 a 1 -9223372036854775808",
+        "SHARD_NEXT 1 a 1 9223372036854775807",
+        "LOCATE 12",
+        "SHARD_NEXT 1 a 1 13",
+        "SHARD_DECODE 28"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR TIME",
+        "ID 12",
+        "ERR TIME",
+        "ID 13",
+        "ERR TIME",
+        "ERR TIME",
+        "SHARD 1 a",
+        "ID 28",
+        "PARTS 13 1 0"
+      ]
+    },
+    {
+      "name": "wait-observation",
+      "refs": [
+        "4.6",
+        "4.2"
+      ],
+      "quote": "실패 시 발급 이력과 대응표를 모두 보존한다.",
+      "input": [
+        "SHARD_CONFIG 20 1 1 0 WAIT",
+        "PLACE 0 db",
+        "PLACE 1 db",
+        "SHARD_NEXT 0 db 1 1000000",
+        "SHARD_NEXT 0 db 3 0 999999 1000000",
+        "SHARD_NEXT 0 db 2 1000000 0",
+        "SHARD_NEXT 1 db 1 0",
+        "SHARD_NEXT 0 db 3 0 1000001 1000002",
+        "SHARD_NEXT 0 db 1 1000001",
+        "SHARD_NEXT 1 db 1 0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "ID 4000000",
+        "ID 4000001",
+        "ERR WAIT",
+        "ID 2",
+        "ID 4000004",
+        "ID 4000005",
+        "ID 3"
+      ]
+    },
+    {
+      "name": "reject-observation",
+      "refs": [
+        "4.6",
+        "4.4"
+      ],
+      "quote": "시각 표본의 관측, 첫 순번 0, 같은 밀리초의 증가, 순번 소진 시 대기, REJECT의 즉시 `ERR CLOCK`, WAIT의 역행 표본 건너뛰기, 표본 소진의 `ERR WAIT`는 1단계 NEXT와 같다.",
+      "input": [
+        "SHARD_CONFIG 4 1 1 0 REJECT",
+        "PLACE 1 a",
+        "SHARD_NEXT 1 a 1 8",
+        "SHARD_NEXT 1 a 2 7 9",
+        "SHARD_NEXT 1 a 1 8",
+        "MOVE 1 a b",
+        "SHARD_NEXT 1 b 3 8 7 9",
+        "SHARD_NEXT 1 b 1 8",
+        "SHARD_NEXT 1 b 3 8 9 10",
+        "SHARD_NEXT 1 b 1 9"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 34",
+        "ERR CLOCK",
+        "ID 35",
+        "OK",
+        "ERR CLOCK",
+        "ERR WAIT",
+        "ID 38",
+        "ID 39"
+      ]
+    },
+    {
+      "name": "configuration-review",
+      "refs": [
+        "4.1",
+        "5.1"
+      ],
+      "quote": "잘못된 SHARD_CONFIG는 이전 샤드 설정·대응표·발급 이력을 그대로 남긴다.",
+      "input": [
+        "SHARD_CONFIG 2 1 2 5 WAIT",
+        "PLACE 1 db",
+        "SHARD_NEXT 1 db 1 6",
+        "SHARD_CONFIG 0 1 1 0 WAIT",
+        "SHARD_CONFIG 1 0 1 0 WAIT",
+        "SHARD_CONFIG 1 1 0 0 WAIT",
+        "SHARD_CONFIG -1 1 1 0 WAIT",
+        "SHARD_CONFIG 62 1 1 0 WAIT",
+        "SHARD_CONFIG 63 1 1 0 WAIT",
+        "SHARD_CONFIG 9223372036854775807 9223372036854775807 3 0 WAIT",
+        "SHARD_CONFIG 1 1 1 -1 WAIT",
+        "SHARD_CONFIG 2 1 1 9223372036854775805 WAIT",
+        "LOCATE 12",
+        "SHARD_NEXT 1 db 1 6"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 12",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "SHARD 1 db",
+        "ID 13"
+      ]
+    },
+    {
+      "name": "issuance-areas",
+      "refs": [
+        "1.2",
+        "4.1",
+        "4.7",
+        "5.1"
+      ],
+      "quote": "CONFIG를 다시 적용해도 샤드 영역은 유지되고, SHARD_CONFIG를 다시 적용해도 1단계 영역은 유지된다.",
+      "input": [
+        "CONFIG 3 1 2 10 WAIT",
+        "NODE a 1",
+        "NEXT a 1 12",
+        "SHARD_CONFIG 3 2 1 100 REJECT",
+        "PLACE 2 a",
+        "SHARD_NEXT 2 a 1 102",
+        "CONFIG 3 1 2 10 WAIT",
+        "LOCATE 20",
+        "SHARD_NEXT 2 a 1 102",
+        "NODE a 1",
+        "NEXT a 1 12",
+        "SHARD_CONFIG 3 2 1 100 REJECT",
+        "LOCATE 20",
+        "SHARD_NEXT 2 a 1 102",
+        "NEXT a 1 12",
+        "PLACE 2 b",
+        "SHARD_NEXT 2 b 1 102",
+        "DECODE 20",
+        "SHARD_DECODE 20"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 20",
+        "OK",
+        "OK",
+        "ID 20",
+        "OK",
+        "SHARD 2 a",
+        "ID 21",
+        "OK",
+        "ID 20",
+        "OK",
+        "ERR UNMAPPED",
+        "ERR UNMAPPED",
+        "ID 21",
+        "OK",
+        "ID 20",
+        "PARTS 12 1 0",
+        "PARTS 102 2 0"
+      ]
+    },
+    {
+      "name": "id-inspection",
+      "refs": [
+        "4.7",
+        "4.8"
+      ],
+      "quote": "해당 샤드의 배치 여부나 실제 발급 여부는 검사하지 않으며 범위 밖이면 `ERR ID`다.",
+      "input": [
+        "SHARD_CONFIG 2 2 2 7 REJECT",
+        "SHARD_DECODE 0",
+        "SHARD_DECODE 63",
+        "SHARD_DECODE -1",
+        "SHARD_DECODE -9223372036854775808",
+        "SHARD_DECODE 64",
+        "LOCATE 63",
+        "LOCATE 64",
+        "PLACE 3 db",
+        "LOCATE 63",
+        "SHARD_NEXT 3 db 1 10",
+        "SHARD_DECODE 63",
+        "LOCATE 60",
+        "SHARD_NEXT 3 db 1 10"
+      ],
+      "expected": [
+        "OK",
+        "PARTS 7 0 0",
+        "PARTS 10 3 3",
+        "ERR ID",
+        "ERR ID",
+        "ERR ID",
+        "ERR UNMAPPED",
+        "ERR ID",
+        "OK",
+        "SHARD 3 db",
+        "ID 60",
+        "PARTS 10 3 3",
+        "SHARD 3 db",
+        "ID 61"
+      ]
+    },
+    {
+      "name": "shard-representation",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "부호 비트와 사용하지 않는 상위 비트는 0이어야 한다.",
+      "input": [
+        "SHARD_CONFIG 1 61 1 0 WAIT",
+        "PLACE 2305843009213693951 db",
+        "PLACE 2305843009213693952 db",
+        "SHARD_NEXT 2305843009213693951 db 1 1",
+        "SHARD_NEXT 2305843009213693951 db 1 1",
+        "SHARD_DECODE 9223372036854775807",
+        "MOVE 2305843009213693951 db other",
+        "LOCATE 9223372036854775807",
+        "SHARD_DECODE -1"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR SHARD",
+        "ID 9223372036854775806",
+        "ID 9223372036854775807",
+        "PARTS 1 2305843009213693951 1",
+        "OK",
+        "SHARD 2305843009213693951 other",
+        "ERR ID"
+      ]
+    },
+    {
+      "name": "time-representation",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.5",
+        "4.6",
+        "4.7",
+        "7.3"
+      ],
+      "quote": "epoch는 0 이상이고 `epoch + 2^t − 1`이 Long.MAX_VALUE 이하여야 한다.",
+      "input": [
+        "SHARD_CONFIG 61 1 1 6917529027641081856 REJECT",
+        "PLACE 1 db",
+        "SHARD_NEXT 1 db 1 9223372036854775807",
+        "SHARD_NEXT 1 db 1 9223372036854775807",
+        "SHARD_DECODE 9223372036854775807",
+        "SHARD_NEXT 1 db 1 9223372036854775807",
+        "SHARD_CONFIG 61 1 1 6917529027641081857 WAIT",
+        "LOCATE 9223372036854775807",
+        "SHARD_CONFIG 1 1 61 0 WAIT",
+        "PLACE 1 db",
+        "SHARD_NEXT 1 db 1 1",
+        "SHARD_NEXT 1 db 1 1",
+        "SHARD_DECODE 9223372036854775807"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 9223372036854775806",
+        "ID 9223372036854775807",
+        "PARTS 9223372036854775807 1 1",
+        "ERR WAIT",
+        "ERR CONFIG",
+        "SHARD 1 db",
+        "OK",
+        "OK",
+        "ID 6917529027641081856",
+        "ID 6917529027641081857",
+        "PARTS 1 1 2305843009213693951"
+      ]
+    },
+    {
+      "name": "command-readiness",
+      "refs": [
+        "5.1",
+        "5.2"
+      ],
+      "quote": "SHARD_CONFIG 이외의 이 단계 명령은 먼저 샤드 설정 유무를 확인하고 없으면 `ERR UNCONFIGURED`를 출력한다.",
+      "input": [
+        "PLACE -1 db",
+        "MOVE -1 a b",
+        "SHARD_NEXT -1 a 1 -1",
+        "SHARD_DECODE -1",
+        "LOCATE -1",
+        "CONFIG 1 1 1 0 WAIT",
+        "PLACE 0 db",
+        "SHARD_CONFIG 0 1 1 0 WAIT",
+        "LOCATE 0",
+        "SHARD_CONFIG 1 1 1 0 WAIT",
+        "PLACE 0 db",
+        "SHARD_NEXT 0 db 1 0"
+      ],
+      "expected": [
+        "ERR UNCONFIGURED",
+        "ERR UNCONFIGURED",
+        "ERR UNCONFIGURED",
+        "ERR UNCONFIGURED",
+        "ERR UNCONFIGURED",
+        "OK",
+        "ERR UNCONFIGURED",
+        "ERR CONFIG",
+        "ERR UNCONFIGURED",
+        "OK",
+        "OK",
+        "ID 0"
+      ]
+    },
+    {
+      "name": "mixed-operations",
+      "refs": [
+        "1.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6",
+        "4.7",
+        "4.8",
+        "5.2"
+      ],
+      "quote": "실패 시 발급 이력과 대응표를 모두 보존한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--commands",
+        "1000"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "scale-operations",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "한 입력에는 최대 30,000개 명령, 최대 10,000개 배치된 논리 샤드, SHARD_NEXT 전체를 합쳐 최대 200,000개 시각 표본이 온다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--commands",
+        "30000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

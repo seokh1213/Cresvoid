@@ -1,0 +1,498 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "first-issue",
+      "refs": [
+        "4.2",
+        "4.5",
+        "4.9",
+        "3.1",
+        "3.3",
+        "1.1"
+      ],
+      "quote": "절대 시각을 time, 기계 번호를 machine, 순번을 seq라 할 때 ID는 `(time − epoch) × 2^(m+s) + machine × 2^s + seq`다.",
+      "input": [
+        "",
+        " \tCONFIG\t1 1 1 0 REJECT",
+        "NODE a 0",
+        "NEXT a 1 0",
+        "DECODE 0",
+        ""
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 0",
+        "PARTS 0 0 0"
+      ]
+    },
+    {
+      "name": "node-registration",
+      "refs": [
+        "4.3",
+        "4.8",
+        "5.2",
+        "2.1"
+      ],
+      "quote": "이름이나 기계 번호 중 하나라도 이미 등록되어 있으면 `ERR EXISTS`다.",
+      "input": [
+        "CONFIG 3 2 2 0 WAIT",
+        "NODE a 0",
+        "NODE b 3",
+        "NODE a 1",
+        "NODE c 3",
+        "NODE b 3",
+        "NODE a -1",
+        "NODE c 4",
+        "NODE c 1",
+        "NEXT a 1 2",
+        "NEXT b 1 2",
+        "NEXT a 1 2",
+        "NEXT c 1 2",
+        "DECODE 44"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "ERR EXISTS",
+        "ERR EXISTS",
+        "ERR EXISTS",
+        "ERR MACHINE",
+        "ERR MACHINE",
+        "OK",
+        "ID 32",
+        "ID 44",
+        "ID 33",
+        "ID 36",
+        "PARTS 2 3 0"
+      ]
+    },
+    {
+      "name": "sample-validation",
+      "refs": [
+        "4.4",
+        "4.8",
+        "5.2",
+        "5.3",
+        "2.2"
+      ],
+      "quote": "하나라도 어기면 아직 읽지 않을 표본이라도 `ERR TIME`을 출력한다.",
+      "input": [
+        "CONFIG 2 1 2 10 WAIT",
+        "NODE a 1",
+        "NEXT a 2 10 9",
+        "NEXT a 1 10",
+        "NEXT a 2 10 14",
+        "NEXT a 1 10",
+        "NEXT a 1 -9223372036854775808",
+        "NEXT a 1 9223372036854775807",
+        "NEXT missing 1 9",
+        "NEXT a 1 13",
+        "DECODE 28"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR TIME",
+        "ID 4",
+        "ERR TIME",
+        "ID 5",
+        "ERR TIME",
+        "ERR TIME",
+        "ERR NODE",
+        "ID 28",
+        "PARTS 13 1 0"
+      ]
+    },
+    {
+      "name": "sample-observation",
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.8",
+        "2.3"
+      ],
+      "quote": "관측 시각이 last보다 크면 그 시각에서 순번 0으로 발급한다.",
+      "input": [
+        "CONFIG 4 1 2 100 REJECT",
+        "NODE a 1",
+        "NEXT a 3 102 101 110",
+        "NEXT a 1 102",
+        "NEXT a 2 106 105",
+        "NEXT a 1 106",
+        "NEXT a 1 106",
+        "NEXT a 1 106",
+        "NEXT a 4 106 106 108 109",
+        "NEXT a 1 108",
+        "DECODE 68"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 20",
+        "ID 21",
+        "ID 52",
+        "ID 53",
+        "ID 54",
+        "ID 55",
+        "ID 68",
+        "ID 69",
+        "PARTS 108 1 0"
+      ]
+    },
+    {
+      "name": "request-retry",
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "순번이 찬 뒤 새 시각에서 발급할 때 순번은 0이다.",
+      "input": [
+        "CONFIG 4 1 1 0 REJECT",
+        "NODE a 0",
+        "NEXT a 1 8",
+        "NEXT a 1 8",
+        "NEXT a 2 8 8",
+        "NEXT a 3 8 7 9",
+        "NEXT a 1 8",
+        "NEXT a 3 8 9 10",
+        "NEXT a 2 8 10",
+        "NEXT a 1 9"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 32",
+        "ID 33",
+        "ERR WAIT",
+        "ERR CLOCK",
+        "ERR WAIT",
+        "ID 36",
+        "ERR CLOCK",
+        "ID 37"
+      ]
+    },
+    {
+      "name": "wait-observation",
+      "refs": [
+        "4.7",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "WAIT에서 last로 돌아온 표본은 순번에 여유가 있으면 사용할 수 있고, 여유가 없으면 last보다 커야 한다.",
+      "input": [
+        "CONFIG 20 1 1 0 WAIT",
+        "NODE a 0",
+        "NODE b 1",
+        "NEXT a 1 1000000",
+        "NEXT a 3 0 999999 1000000",
+        "NEXT a 3 0 1000000 999999",
+        "NEXT b 1 0",
+        "NEXT a 4 1000000 1 1000001 1000002",
+        "NEXT a 1 1000001",
+        "NEXT b 1 0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "ID 4000000",
+        "ID 4000001",
+        "ERR WAIT",
+        "ID 2",
+        "ID 4000004",
+        "ID 4000005",
+        "ID 3"
+      ]
+    },
+    {
+      "name": "configuration-review",
+      "refs": [
+        "4.1",
+        "5.1",
+        "5.2",
+        "5.3"
+      ],
+      "quote": "t, m, s는 각각 1 이상이고 합이 63 이하여야 한다.",
+      "input": [
+        "CONFIG 2 1 2 5 WAIT",
+        "NODE a 1",
+        "NEXT a 1 6",
+        "CONFIG 0 1 1 0 WAIT",
+        "CONFIG 1 0 1 0 WAIT",
+        "CONFIG 1 1 0 0 WAIT",
+        "CONFIG -1 1 1 0 WAIT",
+        "CONFIG 62 1 1 0 WAIT",
+        "CONFIG 63 1 1 0 WAIT",
+        "CONFIG 9223372036854775807 9223372036854775807 3 0 WAIT",
+        "CONFIG 1 1 1 -1 WAIT",
+        "CONFIG 2 1 1 9223372036854775805 WAIT",
+        "NEXT a 1 6",
+        "DECODE 13"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 12",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ERR CONFIG",
+        "ID 13",
+        "PARTS 6 1 1"
+      ]
+    },
+    {
+      "name": "configuration-renewal",
+      "refs": [
+        "4.1",
+        "4.9",
+        "1.2"
+      ],
+      "quote": "성공하면 설정을 교체하고 등록된 모든 기계와 발급 이력을 지운 뒤 `OK`를 출력한다.",
+      "input": [
+        "CONFIG 3 2 1 10 REJECT",
+        "NODE a 3",
+        "NEXT a 1 12",
+        "CONFIG 3 2 1 10 REJECT",
+        "NEXT a 1 12",
+        "NODE a 3",
+        "NEXT a 1 12",
+        "CONFIG 1 1 1 50 WAIT",
+        "DECODE 7",
+        "NODE a 0",
+        "NEXT a 1 50"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 22",
+        "OK",
+        "ERR NODE",
+        "OK",
+        "ID 22",
+        "OK",
+        "PARTS 51 1 1",
+        "OK",
+        "ID 0"
+      ]
+    },
+    {
+      "name": "id-inspection",
+      "refs": [
+        "4.9",
+        "4.2",
+        "2.4"
+      ],
+      "quote": "이 프로그램이 실제로 발급했는지나 해당 기계가 등록되어 있는지는 확인하지 않는다.",
+      "input": [
+        "CONFIG 2 2 2 7 REJECT",
+        "DECODE 0",
+        "DECODE 63",
+        "DECODE 64",
+        "DECODE -1",
+        "DECODE -9223372036854775808",
+        "DECODE 9223372036854775807",
+        "NODE a 3",
+        "NEXT a 1 10",
+        "DECODE 63",
+        "NEXT a 1 10"
+      ],
+      "expected": [
+        "OK",
+        "PARTS 7 0 0",
+        "PARTS 10 3 3",
+        "ERR ID",
+        "ERR ID",
+        "ERR ID",
+        "ERR ID",
+        "OK",
+        "ID 60",
+        "PARTS 10 3 3",
+        "ID 61"
+      ]
+    },
+    {
+      "name": "time-representation",
+      "refs": [
+        "3.3",
+        "4.1",
+        "4.2",
+        "4.4",
+        "4.9",
+        "7.3"
+      ],
+      "quote": "계산 결과는 수학적인 정수값을 기준으로 판단하며 정수 넘침으로 값이 바뀐 결과를 인정하지 않는다.",
+      "input": [
+        "CONFIG 61 1 1 6917529027641081856 REJECT",
+        "NODE a 1",
+        "NEXT a 1 9223372036854775807",
+        "NEXT a 1 9223372036854775807",
+        "DECODE 9223372036854775807",
+        "NEXT a 1 9223372036854775807",
+        "NEXT a 1 6917529027641081855",
+        "CONFIG 61 1 1 6917529027641081857 WAIT",
+        "DECODE 0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 9223372036854775806",
+        "ID 9223372036854775807",
+        "PARTS 9223372036854775807 1 1",
+        "ERR WAIT",
+        "ERR TIME",
+        "ERR CONFIG",
+        "PARTS 6917529027641081856 0 0"
+      ]
+    },
+    {
+      "name": "machine-representation",
+      "refs": [
+        "4.3",
+        "4.2",
+        "4.9"
+      ],
+      "quote": "설정이 있어야 하며 machine이 범위 밖이면 `ERR MACHINE`이다.",
+      "input": [
+        "CONFIG 1 61 1 0 WAIT",
+        "NODE a 2305843009213693951",
+        "NODE b 2305843009213693952",
+        "NEXT a 1 1",
+        "NEXT a 1 1",
+        "DECODE 9223372036854775807",
+        "DECODE 4611686018427387903"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR MACHINE",
+        "ID 9223372036854775806",
+        "ID 9223372036854775807",
+        "PARTS 1 2305843009213693951 1",
+        "PARTS 0 2305843009213693951 1"
+      ]
+    },
+    {
+      "name": "sequence-representation",
+      "refs": [
+        "4.2",
+        "4.5",
+        "4.9"
+      ],
+      "quote": "유효한 필드 범위는 경과 밀리초 0 이상 2^t 미만, 기계 번호 0 이상 2^m 미만, 순번 0 이상 2^s 미만이다.",
+      "input": [
+        "CONFIG 1 1 61 0 WAIT",
+        "NODE a 1",
+        "NEXT a 1 1",
+        "NEXT a 1 1",
+        "DECODE 9223372036854775807",
+        "DECODE 2305843009213693951",
+        "DECODE 2305843009213693952"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ID 6917529027641081856",
+        "ID 6917529027641081857",
+        "PARTS 1 1 2305843009213693951",
+        "PARTS 0 0 2305843009213693951",
+        "PARTS 0 1 0"
+      ]
+    },
+    {
+      "name": "command-errors",
+      "refs": [
+        "5.1",
+        "5.2"
+      ],
+      "quote": "CONFIG 이외의 이 단계 명령은 먼저 설정 유무를 확인하며 없으면 `ERR UNCONFIGURED`를 출력한다.",
+      "input": [
+        "NODE a -1",
+        "NEXT a 1 -1",
+        "DECODE -1",
+        "CONFIG 1 1 1 -1 REJECT",
+        "NODE a 0",
+        "CONFIG 2 1 1 0 REJECT",
+        "NEXT a 1 -1",
+        "NODE a 0",
+        "NEXT a 1 3",
+        "NEXT a 2 2 4",
+        "NEXT a 1 3"
+      ],
+      "expected": [
+        "ERR UNCONFIGURED",
+        "ERR UNCONFIGURED",
+        "ERR UNCONFIGURED",
+        "ERR CONFIG",
+        "ERR UNCONFIGURED",
+        "OK",
+        "ERR NODE",
+        "OK",
+        "ID 12",
+        "ERR TIME",
+        "ID 13"
+      ]
+    },
+    {
+      "name": "input-completion",
+      "refs": [
+        "3.1",
+        "7.2"
+      ],
+      "quote": "빈 줄은 무시한다.",
+      "input": [
+        "",
+        " \t",
+        ""
+      ],
+      "expected": []
+    },
+    {
+      "name": "mixed-operations",
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6",
+        "4.7",
+        "4.8",
+        "4.9",
+        "5.2"
+      ],
+      "quote": "실패한 요청은 last와 lastSeq를 바꾸지 않는다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--commands",
+        "1000"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "scale-operations",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "입력 한 건은 비어 있거나 최대 30,000개 명령, 최대 10,000개 NODE, NEXT 전체를 합쳐 최대 200,000개 시각 표본을 포함한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--commands",
+        "30000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

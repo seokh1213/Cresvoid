@@ -26,8 +26,8 @@
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 4 | 5 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 5 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
-| [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 44 | 33 | 106 | 2 |
+| [시스템 설계](backend/system-design/README.md) | 17 | 13 | 0 | 4 | 0 |
+| 합계 | 185 | 42 | 33 | 108 | 2 |
 
 ## 다음 후보
 
@@ -38,8 +38,6 @@
 | 3 | [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 없음 |
 | 3 | [B-olap-30](backend/olap/cards/B-olap-30-sketch-and-sparse-index.md) | 근사 집계와 희소 인덱스 | build | mini-olap | 04-sketch, 05-sparse-index | 없음 |
 | 3 | [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 없음 |
-| 3 | [B-system-design-30](backend/system-design/cards/B-system-design-30-id-generator.md) | 분산 고유 ID 생성기 만들기 | build | id-generator | 01-snowflake, 02-sharded-ids, 03-ordering | 없음 |
-| 3 | [B-system-design-40](backend/system-design/cards/B-system-design-40-ledger.md) | 결제 원장 만들기 | build | ledger | 01-double-entry, 02-psp-idempotency, 03-reconciliation | 없음 |
 | 3 | [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 없음 |
 | 4 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 없음 |
 | 4 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 없음 |
@@ -111,7 +109,7 @@
 | es-lab | lab | 없음 | 05 | 01-mapping-explosion(L-search-50 제작 중), 02-deep-paging(L-search-51 제작 중), 03-nori-analysis(L-search-52 제작 중), 04-terms-agg-accuracy(L-search-53 제작 중) |  |
 | geo-index | build | 없음 | 04 |  | 01-geohash(B-system-design-100 4차), 02-radius-search(B-system-design-100 4차), 03-quadtree(B-system-design-100 4차) |
 | history-rollover | build | 없음 | 04 |  | 01-materialize(B-pipeline-10 4차), 02-baseline(B-pipeline-10 4차), 03-retention(B-pipeline-10 4차) |
-| id-generator | build | 없음 | 04 |  | 01-snowflake(B-system-design-30 3차), 02-sharded-ids(B-system-design-30 3차), 03-ordering(B-system-design-30 3차) |
+| id-generator | build | 있음 | 04 | 01-snowflake(B-system-design-30 완료), 02-sharded-ids(B-system-design-30 완료), 03-ordering(B-system-design-30 완료) |  |
 | incident-reading | reading | 있음 | 08 | 01-cloudflare-regex(R-incidents-10 완료), 02-github-split-writes(R-incidents-20 완료), 03-s3-capacity-removal(R-incidents-30 완료), 04-crowdstrike-channel-file(R-incidents-50 완료), 05-gcp-service-control(R-incidents-60 완료), 06-meta-backbone(R-incidents-40 완료), 07-slack-cold-start(R-incidents-70 완료) |  |
 | index-overlay | build | 없음 | 05 |  | 01-current-state(B-pipeline-50 4차), 02-round-merge(B-pipeline-50 4차), 03-replay(B-pipeline-50 4차), 04-reconcile(B-pipeline-70 5차) |
 | jvm-lab | lab | 있음 | 04 | 01-container-heap(L-jvm-10 완료), 02-threadlocal-leak(L-jvm-20 완료), 03-thread-dump(L-jvm-30 완료) | jit-warmup(L-jvm-40 5차) |
@@ -119,7 +117,7 @@
 | kv-store | build | 없음 | 04 |  | 01-basic(B-kv-store-10 4차), 02-log(B-kv-store-10 4차), 03-transactions(B-kv-store-10 4차) |
 | leaderboard | build | 없음 | 04 |  | 01-sorted-set(B-system-design-130 4차), 02-range-queries(B-system-design-130 4차), 03-sharding(B-system-design-130 4차) |
 | lease-lock | build | 없음 | 04 |  | 01-acquisition(B-distributed-60 4차), 02-expiry(B-distributed-60 4차), 03-fenced-writes(B-distributed-80 5차) |
-| ledger | build | 없음 | 04 |  | 01-double-entry(B-system-design-40 3차), 02-psp-idempotency(B-system-design-40 3차), 03-reconciliation(B-system-design-40 3차) |
+| ledger | build | 있음 | 04 | 01-double-entry(B-system-design-40 완료), 02-psp-idempotency(B-system-design-40 완료), 03-reconciliation(B-system-design-40 완료) |  |
 | lsm | build | 없음 | 04 |  | 01-memtable(B-database-30 4차), 02-compaction(B-database-30 4차), 03-bloom-and-range(B-database-30 4차) |
 | matching-engine | build | 없음 | 04 |  | 01-order-book(B-system-design-50 3차), 02-order-types(B-system-design-50 3차), 03-replay(B-system-design-50 3차) |
 | mcp-server | build | 없음 | 04 |  | 01-tools(B-ai-agent-40 3차), 02-resources-prompts(B-ai-agent-40 3차), 03-errors-and-versions(B-ai-agent-40 3차) |
@@ -472,8 +470,8 @@
 | [R-system-design-10](backend/system-design/cards/R-system-design-10-capacity-estimation.md) | 규모 추정 | reading | tech-reading | 07-capacity-estimation | 완료(2026-10-10) | 3 | 없음 |  |
 | [B-system-design-20](backend/system-design/cards/B-system-design-20-rate-limiter.md) | 처리율 제한기 만들기 | build | rate-limiter | 01-buckets, 02-windows, 03-distributed | 완료(2026-10-10) | 3 | 없음 |  |
 | [B-system-design-25](backend/system-design/cards/B-system-design-25-client-throttling.md) | 호출자 쪽 적응형 쓰로틀링 | build | rate-limiter | 04-client-throttle | 후보 | 4 | 없음 | B-system-design-20 |
-| [B-system-design-30](backend/system-design/cards/B-system-design-30-id-generator.md) | 분산 고유 ID 생성기 만들기 | build | id-generator | 01-snowflake, 02-sharded-ids, 03-ordering | 후보 | 3 | 없음 |  |
-| [B-system-design-40](backend/system-design/cards/B-system-design-40-ledger.md) | 결제 원장 만들기 | build | ledger | 01-double-entry, 02-psp-idempotency, 03-reconciliation | 후보 | 3 | 없음 |  |
+| [B-system-design-30](backend/system-design/cards/B-system-design-30-id-generator.md) | 분산 고유 ID 생성기 만들기 | build | id-generator | 01-snowflake, 02-sharded-ids, 03-ordering | 완료(2026-11-06) | 3 | 없음 |  |
+| [B-system-design-40](backend/system-design/cards/B-system-design-40-ledger.md) | 결제 원장 만들기 | build | ledger | 01-double-entry, 02-psp-idempotency, 03-reconciliation | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 후보 | 3 | 없음 |  |
 | [B-system-design-60](backend/system-design/cards/B-system-design-60-crawler.md) | 웹 크롤러 만들기 | build | crawler | 01-frontier, 02-dedup, 03-politeness | 후보 | 4 | 없음 |  |
 | [B-system-design-70](backend/system-design/cards/B-system-design-70-news-feed.md) | 뉴스 피드 팬아웃 만들기 | build | news-feed | 01-fanout-on-write, 02-fanout-on-read, 03-hybrid | 후보 | 4 | 없음 |  |

@@ -1,0 +1,10 @@
+{
+  "title": "분산 고유 ID 생성기",
+  "kind": "build",
+  "summary": "조율 없이 여러 서버가 고유하고 대략 시간순인 64비트 ID 를 만드는 생성기를 시각·기계·순번 비트 배치, 샤드 번호, 여러 생성기의 순서 순으로 구현한다.",
+  "stages": [
+    { "dir": "01-snowflake", "title": "시각·기계·순번 비트 배치" },
+    { "dir": "02-sharded-ids", "title": "샤드 번호를 담은 ID" },
+    { "dir": "03-ordering", "title": "여러 생성기의 ID 순서" }
+  ]
+}

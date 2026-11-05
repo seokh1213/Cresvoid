@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 상태에서 RECONCILE batch의 전체 출력으로 옳은 것은?",
+      "context": "로컬 성공 요청은 USD 40인 PAY p 하나뿐이다. batch 파일에는 아래 두 행이 순서대로 저장되어 있다.\np,EUR,20\np,USD,40",
+      "choices": [
+        "REPORT batch 1 2\nDUPLICATE p 2\nTOTAL EUR 0 20 20\nTOTAL USD 40 40 0",
+        "REPORT batch 1 2\nCURRENCY_MISMATCH p USD 40 EUR 20\nTOTAL EUR 0 20 20\nTOTAL USD 40 40 0",
+        "REPORT batch 1 1\nDUPLICATE p 2\nTOTAL USD 40 0 -40",
+        "REPORT batch 0 1\nTOTAL USD 40 40 0",
+        "REPORT batch 2 2\nDUPLICATE p 2\nCURRENCY_MISMATCH p USD 40 EUR 20\nTOTAL EUR 0 20 20\nTOTAL USD 40 40 0"
+      ],
+      "answer": 1,
+      "refs": ["4.3", "4.4", "4.5", "4.8", "4.9"],
+      "quote": "중복·누락·불일치로 보고한 행도 총계에서 빼지 않는다.",
+      "explanation": "①은 옳다. 통화가 달라도 요청키 p가 같으므로 두 행은 한 묶음이고 중복 하나만 보고한다. 총계에는 두 행을 모두 포함하며 EUR를 USD보다 먼저 출력한다. ②는 중복보다 통화 차이를 먼저 분류했다. ③은 중복 행을 총계에서 제외하고 그 행에만 있는 EUR까지 누락했다. ④는 USD 행 하나를 임의로 선택해 중복과 EUR 행을 버렸다. ⑤는 한 키에 불일치를 두 개 보고하고 불일치키수도 2로 셌다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 상태에서 RECONCILE snap의 전체 출력으로 옳은 것은?",
+      "context": "로컬 요청은 USD 10인 PAY p 하나뿐이다. p에 대한 CALL은 OK를 관찰했지만 아직 COMMIT하지 않아 로컬 상태는 READY다. snap 파일에는 p,USD,10 한 행이 있다. EUR 계정 하나도 열려 있지만 EUR 요청이나 파일 행은 없다.",
+      "choices": [
+        "REPORT snap 0 1\nTOTAL USD 10 10 0",
+        "REPORT snap 1 1\nMISSING_REMOTE p USD 10\nTOTAL USD 10 0 -10",
+        "REPORT snap 1 2\nMISSING_LOCAL p USD 10\nTOTAL EUR 0 0 0\nTOTAL USD 0 10 10",
+        "REPORT snap 1 1\nMISSING_LOCAL p USD 10\nTOTAL USD 0 10 10",
+        "REPORT snap 1 1\nAMOUNT_MISMATCH p USD 0 10\nTOTAL USD 0 10 10"
+      ],
+      "answer": 4,
+      "refs": ["4.3", "4.6", "4.9", "4.10"],
+      "quote": "PSP가 이미 성공했더라도 로컬 사후 기록 전이면 제외한다.",
+      "explanation": "④는 옳다. 로컬 READY 요청은 대상에서 제외하므로 파일에만 p가 있는 MISSING_LOCAL이다. 로컬 USD 순액은 0, 외부 순액과 차액은 각각 10이다. ①은 원격 성공을 로컬 성공으로 취급하거나 대조가 COMMIT까지 수행한다고 보아 틀리다. ②는 누락 방향을 뒤집고 파일 행도 버렸다. ③은 열린 계정에만 있는 EUR를 총계에 포함했다. ⑤는 대상에서 제외할 요청을 금액 0인 로컬 대상으로 취급했다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 상태에서 RECONCILE settlement의 전체 출력으로 옳은 것은?",
+      "context": "로컬 성공 요청은 USD 100인 PAY z와 z에 대한 USD 30인 REFUND r뿐이다. settlement 파일에는 아래 행이 순서대로 저장되어 있다.\nz,USD,100\nr,USD,30\nghost,EUR,0",
+      "choices": [
+        "REPORT settlement 2 1\nMISSING_LOCAL ghost EUR 0\nAMOUNT_MISMATCH r USD -30 30\nTOTAL USD 70 130 60",
+        "REPORT settlement 2 2\nMISSING_LOCAL ghost EUR 0\nAMOUNT_MISMATCH r USD -30 30\nTOTAL EUR 0 0 0\nTOTAL USD 70 130 60",
+        "REPORT settlement 1 2\nMISSING_LOCAL ghost EUR 0\nTOTAL EUR 0 0 0\nTOTAL USD 130 130 0",
+        "REPORT settlement 2 2\nAMOUNT_MISMATCH r USD -30 30\nMISSING_LOCAL ghost EUR 0\nTOTAL EUR 0 0 0\nTOTAL USD 70 130 60",
+        "REPORT settlement 2 2\nMISSING_LOCAL ghost EUR 0\nAMOUNT_MISMATCH r USD -30 30\nTOTAL EUR 0 0 0\nTOTAL USD 70 130 -60"
+      ],
+      "answer": 2,
+      "refs": ["3.2", "4.3", "4.6", "4.7", "4.8", "4.9"],
+      "quote": "금액은 부호까지 비교하므로 환불을 양수로 보낸 행은 금액 차이다.",
+      "explanation": "②는 옳다. 환불 r의 기대 금액은 -30이므로 실제 30과 금액 차이가 난다. ghost는 파일에만 있으므로 누락이며, 상세 줄은 ghost, r 순서다. USD 로컬순액은 100-30=70, 외부순액은 100+30=130, 차액은 130-70=60이다. ①은 금액 0인 행이 있는 EUR를 총계에서 버렸다. ③은 환불 기대 금액을 양수로 두어 일치로 처리하고 로컬순액도 잘못 계산했다. ④는 키 사전순 대신 오류 유형으로 정렬했다. ⑤는 차액을 로컬순액에서 외부순액을 빼는 것으로 뒤집었다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 상태에서 RECONCILE batch의 전체 출력을 구한다. 각 줄을 ' | '로 연결한 한 줄을 답으로 쓴다.",
+      "context": "로컬 요청은 모두 SUCCEEDED이며 USD 90인 PAY p, p에 대한 USD 25인 REFUND r, EUR 40인 PAY e뿐이다. batch 파일에는 아래 네 행이 순서대로 저장되어 있다.\np,USD,90\nr,USD,25\nr,EUR,-5\ne,EUR,40",
+      "answers": ["REPORT batch 1 2 | DUPLICATE r 2 | TOTAL EUR 40 35 -5 | TOTAL USD 65 115 50"],
+      "refs": ["4.3", "4.4", "4.5", "4.8", "4.9"],
+      "quote": "중복·누락·불일치로 보고한 행도 총계에서 빼지 않는다.",
+      "explanation": "r은 통화와 금액이 달라도 같은 키의 두 행이므로 DUPLICATE r 2만 보고한다. 통화 차이와 금액 차이는 따로 보고하지 않는다. p와 e는 일치하므로 불일치키수는 1이다. 환불 r의 로컬 기대 금액은 -25이므로 USD 로컬순액은 90-25=65다. 외부순액에는 중복 행도 모두 더하므로 EUR는 -5+40=35, USD는 90+25=115다. 차액은 외부순액에서 로컬순액을 빼므로 EUR는 35-40=-5, USD는 115-65=50이다. 총계는 EUR, USD 순서다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "빈 상태의 프로그램에 다음 입력을 넣었을 때 출력되는 한 줄은?",
+      "input": ["IMPORT commands 2", "PAY,USD,5", "CRASH,EUR,-5"],
+      "answers": ["OK IMPORT commands"],
+      "refs": ["3.1", "3.2", "4.1"],
+      "quote": "이 데이터 줄은 명령으로 해석하지 않는다.",
+      "explanation": "IMPORT 뒤의 두 물리적 줄은 CSV 데이터다. PAY와 CRASH는 명령 이름과 같아도 요청키 문법에 맞는 문자열이므로 각 행의 요청키로 읽는다. 현재 해당 요청이 없어도 가져오기는 이를 검사하지 않는다. 따라서 결제나 장애 명령을 실행하지 않고 OK IMPORT commands 한 줄만 출력한다. ERR NOT_FOUND나 OK CRASH를 출력하지 않는다."
+    }
+  ]
+}

@@ -4,7 +4,7 @@ title: 분산 고유 ID 생성기 만들기
 kind: build
 track: id-generator
 stage: 01-snowflake, 02-sharded-ids, 03-ordering
-status: 후보
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq:
