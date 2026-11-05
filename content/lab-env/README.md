@@ -89,7 +89,7 @@ JDBC 드라이버, Kafka 클라이언트, Spring 이 필요한 lab 은 학습자
 
 - 프로젝트 루트의 `.lab-libs` 파일에 묶음 이름 하나를 적는다. 묶음은 `jdbc-mysql`, `jdbc-postgres`, `kafka`, `spring`, `spark` 다.
 - Spark 는 클러스터 없이 로컬 모드로 쓴다. 학습자 코드가 `SparkSession.builder().master("local[2]").config("spark.ui.enabled", "false")`로 세션을 만들고 SQL 이나 Dataset 작업을 실행한다. `spark-submit`과 `spark-sql` 대신 같은 JVM 에서 실행하므로 결과가 기기마다 덜 달라진다.
-- `.lab-libs` 가 있는 프로젝트는 `kotlin content/templates/sync.main.kts` 가 `content/templates/kotlin-lab`의 `build.sh`·`run.sh`를 복사한다. 두 스크립트는 `jvm-runner.sh`로 넘긴다.
+- `.lab-libs` 가 있는 프로젝트는 `kotlin content/templates/sync.main.kts` 가 `content/templates/kotlin-lab`의 `build.sh`·`run.sh`·`build.gradle.kts`를 복사한다. 두 스크립트는 `jvm-runner.sh`로 넘기고, Gradle 파일은 IDE 용으로 진입점을 `lab.MainKt`로 둔다.
 - 코드는 `lab` 패키지에 두고 진입점은 `lab.MainKt`다. Spring 은 기본 패키지를 스캔하지 못한다.
 - 실험에서는 학습자 앱도 compose 서비스로 띄운다. `ComposeStack(File("compose.yaml"), "<트랙>-<단계>", programEnvironment(File(args[0])))`가 `${PROGRAM_DIR}`을 넘긴다.
 
