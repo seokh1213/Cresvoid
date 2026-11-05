@@ -1,0 +1,175 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "checkout-desk",
+      "refs": ["4", "8", "10", "11"],
+      "quote": "결제별 적립 포인트는 결제 금액에 적용 적립률을 곱한 값에서 소수 부분을 버린 정수다.",
+      "input": [
+        "ACCRUE mug 2026-11-05 BASIC 199",
+        "ACCRUE cup 2026-11-05 SILVER 199",
+        "ACCRUE plate 2026-11-05 GOLD 199",
+        "RECEIPT cup",
+        "DAY 2026-11-05"
+      ],
+      "expected": [
+        "ACCRUED mug 1", "ACCRUED cup 5", "ACCRUED plate 9",
+        "RECEIPT cup 2026-11-05 SILVER 199 3.00 5",
+        "DAY 2026-11-05 3 597 15"
+      ]
+    },
+    {
+      "name": "autumn-orders",
+      "refs": ["7", "8", "11"],
+      "quote": "결제별 적립 포인트는 결제 금액에 적용 적립률을 곱한 값에서 소수 부분을 버린 정수다.",
+      "input": [
+        "EVENT autumn 2026-11-01 2026-11-07 28",
+        "ACCRUE pin 2026-11-05 BASIC 100",
+        "ACCRUE badge 2026-11-05 BASIC 101",
+        "ACCRUE bag 2026-11-05 BASIC 1000",
+        "RECEIPT pin", "DAY 2026-11-05"
+      ],
+      "expected": [
+        "OK", "ACCRUED pin 29", "ACCRUED badge 29", "ACCRUED bag 290",
+        "RECEIPT pin 2026-11-05 BASIC 100 29.00 29",
+        "DAY 2026-11-05 3 1201 348"
+      ]
+    },
+    {
+      "name": "member-orders",
+      "refs": ["4", "5", "8", "10", "11"],
+      "quote": "결제별 적립 포인트는 결제 금액에 적용 적립률을 곱한 값에서 소수 부분을 버린 정수다.",
+      "input": [
+        "RATE GOLD 14.50",
+        "ACCRUE towel 2026-11-05 GOLD 200",
+        "ACCRUE soap 2026-11-05 GOLD 201",
+        "ACCRUE brush 2026-11-05 GOLD 199",
+        "ACCRUE clip 2026-11-05 GOLD 20",
+        "RECEIPT towel", "DAY 2026-11-05"
+      ],
+      "expected": [
+        "OK", "ACCRUED towel 29", "ACCRUED soap 29", "ACCRUED brush 28", "ACCRUED clip 2",
+        "RECEIPT towel 2026-11-05 GOLD 200 14.50 29",
+        "DAY 2026-11-05 4 620 88"
+      ]
+    },
+    {
+      "name": "small-basket",
+      "refs": ["8", "11"],
+      "quote": "포인트합계는 결제별로 소수 부분을 버린 포인트를 모두 더한 값이며 금액 합계에 적립률을 적용해 다시 계산하지 않는다.",
+      "input": [
+        "RATE BASIC 1.50",
+        "ACCRUE ribbon 2026-11-05 BASIC 199",
+        "ACCRUE paper 2026-11-05 BASIC 199",
+        "ACCRUE label 2026-11-05 BASIC 1",
+        "ACCRUE sample 2026-11-05 BASIC 0",
+        "DAY 2026-11-05", "DAY 2026-11-06"
+      ],
+      "expected": [
+        "OK", "ACCRUED ribbon 2", "ACCRUED paper 2", "ACCRUED label 0", "ACCRUED sample 0",
+        "DAY 2026-11-05 4 399 4", "DAY 2026-11-06 0 0 0"
+      ]
+    },
+    {
+      "name": "campaign-calendar",
+      "refs": ["6", "7", "8"],
+      "quote": "시작일과 종료일을 모두 포함하며 시작일은 종료일보다 늦을 수 없다.",
+      "input": [
+        "EVENT launch 2026-11-04 2026-11-06 28",
+        "EVENT flash 2026-11-05 2026-11-05 2",
+        "ACCRUE mon 2026-11-03 BASIC 100",
+        "ACCRUE tue 2026-11-04 BASIC 100",
+        "ACCRUE wed 2026-11-05 SILVER 100",
+        "ACCRUE thu 2026-11-06 GOLD 101",
+        "ACCRUE fri 2026-11-07 GOLD 199",
+        "RECEIPT wed", "RECEIPT thu"
+      ],
+      "expected": [
+        "OK", "OK", "ACCRUED mon 1", "ACCRUED tue 29", "ACCRUED wed 33", "ACCRUED thu 33", "ACCRUED fri 9",
+        "RECEIPT wed 2026-11-05 SILVER 100 33.00 33",
+        "RECEIPT thu 2026-11-06 GOLD 101 33.00 33"
+      ]
+    },
+    {
+      "name": "support-review",
+      "refs": ["6", "8", "9", "10", "11", "12"],
+      "quote": "나중에 RATE나 EVENT로 설정을 바꿔도 이미 적립한 내역은 다시 계산하지 않는다.",
+      "input": [
+        "EVENT welcome 2026-11-05 2026-11-05 9",
+        "ACCRUE first 2026-11-05 BASIC 100",
+        "EVENT welcome 2026-11-05 2026-11-05 2",
+        "RATE BASIC 4", "ACCRUE second 2026-11-05 BASIC 100",
+        "ACCRUE first 2026-11-06 GOLD 777",
+        "ACCRUE first 2026-11-06 GOLD -1",
+        "RECEIPT first", "RECEIPT second", "DAY 2026-11-05", "DAY 2026-11-06"
+      ],
+      "expected": [
+        "OK", "ACCRUED first 10", "OK", "OK", "ACCRUED second 6", "ERROR duplicate", "ERROR invalid",
+        "RECEIPT first 2026-11-05 BASIC 100 10.00 10",
+        "RECEIPT second 2026-11-05 BASIC 100 6.00 6",
+        "DAY 2026-11-05 2 200 16", "DAY 2026-11-06 0 0 0"
+      ]
+    },
+    {
+      "name": "settlement-export",
+      "refs": ["3", "4", "7", "8", "11"],
+      "quote": "금액과 포인트 합계는 32비트 정수 범위를 넘을 수 있다.",
+      "input": [
+        "RATE GOLD 75.25",
+        "EVENT sale 2026-11-05 2026-11-05 40",
+        "ACCRUE bulk-a 2026-11-05 GOLD 1000000000000",
+        "ACCRUE bulk-b 2026-11-05 GOLD 1000000000000",
+        "RECEIPT bulk-b", "DAY 2026-11-05",
+        "RATE BASIC 0", "ACCRUE gift 2026-11-06 BASIC 1000000000000",
+        "DAY 2026-11-06"
+      ],
+      "expected": [
+        "OK", "OK", "ACCRUED bulk-a 1000000000000", "ACCRUED bulk-b 1000000000000",
+        "RECEIPT bulk-b 2026-11-05 GOLD 1000000000000 100.00 1000000000000",
+        "DAY 2026-11-05 2 2000000000000 2000000000000",
+        "OK", "ACCRUED gift 0", "DAY 2026-11-06 1 1000000000000 0"
+      ]
+    },
+    {
+      "name": "operator-console",
+      "refs": ["3", "4", "5", "6", "10", "12"],
+      "quote": "잘못된 명령은 설정과 적립 내역을 바꾸지 않으며 다음 줄을 계속 처리한다.",
+      "input": [
+        "RATE BASIC 2.50", "RATE BASIC 100.01", "RATE BASIC 1.234", "RATE basic 3", "RATE GOLD .5", "RATE SILVER 1e1",
+        "EVENT keep 2026-11-05 2026-11-05 2.50",
+        "EVENT keep 2026-11-06 2026-11-05 99",
+        "EVENT bad! 2026-11-05 2026-11-05 1",
+        "ACCRUE rejected 2026-02-29 BASIC 100", "ACCRUE rejected 1999-12-31 BASIC 100",
+        "ACCRUE rejected 2026-11-05 BASIC 1000000000001",
+        "ACCRUE rejected 2026-11-05 BASIC -1", "ACCRUE rejected 2026-11-05 BASIC +1",
+        "ACCRUE accepted 2026-11-05 BASIC 100", "RECEIPT accepted", "RECEIPT rejected",
+        "DAY 2026-11-05 extra", "UNKNOWN", "DAY 2026-11-05"
+      ],
+      "expected": [
+        "OK", "ERROR invalid", "ERROR invalid", "ERROR invalid", "ERROR invalid", "ERROR invalid",
+        "OK", "ERROR invalid", "ERROR invalid", "ERROR invalid", "ERROR invalid", "ERROR invalid", "ERROR invalid", "ERROR invalid",
+        "ACCRUED accepted 5", "RECEIPT accepted 2026-11-05 BASIC 100 5.00 5", "NONE",
+        "ERROR invalid", "ERROR invalid", "DAY 2026-11-05 1 100 5"
+      ]
+    },
+    {
+      "name": "late-payment",
+      "refs": ["2", "3", "6", "7", "9", "10", "11"],
+      "quote": "명령 입력 순서와 결제일 순서는 달라도 된다.",
+      "input": [
+        "", "  RATE\tBASIC 12.34  ", "EVENT leap 2024-02-29 2024-02-29 0.01",
+        "ACCRUE after 2024-03-01 BASIC 10000", "ACCRUE during 2024-02-29 BASIC 10000",
+        "ACCRUE before 2024-02-28 BASIC 10000",
+        "EVENT leap 2024-03-01 2024-03-01 0.02",
+        "ACCRUE late 2024-02-29 BASIC 10000",
+        "RECEIPT during", "RECEIPT late", "DAY 2024-02-29", "DAY 2024-03-01"
+      ],
+      "expected": [
+        "OK", "OK", "ACCRUED after 1234", "ACCRUED during 1235", "ACCRUED before 1234", "OK", "ACCRUED late 1234",
+        "RECEIPT during 2024-02-29 BASIC 10000 12.35 1235",
+        "RECEIPT late 2024-02-29 BASIC 10000 12.34 1234",
+        "DAY 2024-02-29 2 20000 2469", "DAY 2024-03-01 1 10000 1234"
+      ]
+    }
+  ]
+}

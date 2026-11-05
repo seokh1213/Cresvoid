@@ -4,6 +4,11 @@
   "summary": "버그 신고를 재현하고 원인을 찾아 필요한 줄만 고친다.",
   "stages": [
     {"dir": "01-cursor-pagination", "title": "커서 페이지네이션"},
-    {"dir": "02-order-deadline", "title": "주문 확정 제한 시간"}
+    {"dir": "02-order-deadline", "title": "주문 확정 제한 시간"},
+    {"dir": "03-skipped-subscriber", "title": "재입고 알림을 놓치는 구독자"},
+    {"dir": "04-stale-redo", "title": "다시 실행하면 끼어드는 옛 편집"},
+    {"dir": "05-instant-finish", "title": "시작하자마자 끝나는 백그라운드 이벤트"},
+    {"dir": "06-point-accrual", "title": "포인트 적립 계산"},
+    {"dir": "07-daily-limit", "title": "일일 사용 한도"}
   ]
 }

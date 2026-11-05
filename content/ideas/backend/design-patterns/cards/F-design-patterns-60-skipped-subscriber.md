@@ -3,8 +3,8 @@ id: F-design-patterns-60
 title: 재입고 알림을 놓치는 구독자
 kind: fix
 track: bug-fix
-stage: skipped-subscriber
-status: 후보
+stage: 03-skipped-subscriber
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-design-patterns-30

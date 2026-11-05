@@ -3,8 +3,8 @@ id: F-design-patterns-70
 title: 다시 실행하면 끼어드는 옛 편집
 kind: fix
 track: bug-fix
-stage: stale-redo
-status: 후보
+stage: 04-stale-redo
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-design-patterns-30

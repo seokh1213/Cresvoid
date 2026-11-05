@@ -1,0 +1,68 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "boots-request",
+      "refs": ["3", "5", "6", "7"],
+      "quote": "`ONCE` 구독자는 알림을 받은 뒤 자신의 구독을 해제한다.",
+      "input": ["WATCH boots mina ONCE", "LIST boots", "RESTOCK boots", "LIST boots", "RESTOCK boots"],
+      "expected": ["WATCHED boots mina", "SUBSCRIBERS boots mina:ONCE", "NOTIFIED boots 1 mina", "SUBSCRIBERS boots -", "NOTIFIED boots 2 -"]
+    },
+    {
+      "name": "catalog-check",
+      "refs": ["2", "4", "5", "6", "8"],
+      "quote": "회차 번호는 상품마다 1부터 시작하며 구독자가 없어도 명령마다 1씩 늘어난다.",
+      "input": ["", "LIST cap", "UNWATCH cap mina", "INVITE cap mina joon KEEP", "RESTOCK cap", "RESTOCK belt", "RESTOCK cap"],
+      "expected": ["SUBSCRIBERS cap -", "ABSENT cap mina", "ABSENT cap mina", "NOTIFIED cap 1 -", "NOTIFIED belt 1 -", "NOTIFIED cap 2 -"]
+    },
+    {
+      "name": "boots-restock",
+      "refs": ["5", "6", "7"],
+      "quote": "해당 회차를 시작할 때 구독 중인 모든 사용자는 등록 순서대로 정확히 한 번 알림을 받는다.",
+      "input": ["WATCH boots mina ONCE", "WATCH boots joon ONCE", "WATCH boots sora ONCE", "WATCH boots yuri ONCE", "RESTOCK boots", "LIST boots", "RESTOCK boots"],
+      "expected": ["WATCHED boots mina", "WATCHED boots joon", "WATCHED boots sora", "WATCHED boots yuri", "NOTIFIED boots 1 mina,joon,sora,yuri", "SUBSCRIBERS boots -", "NOTIFIED boots 2 -"]
+    },
+    {
+      "name": "coat-watchlist",
+      "refs": ["3", "4", "5", "6", "7"],
+      "quote": "해제한 사용자가 다시 신청하면 새 구독으로 목록 끝에 추가한다.",
+      "input": ["WATCH coat mina KEEP", "WATCH coat joon KEEP", "WATCH coat mina ONCE", "RESTOCK coat", "UNWATCH coat mina", "UNWATCH coat mina", "WATCH coat mina KEEP", "LIST coat", "RESTOCK coat"],
+      "expected": ["WATCHED coat mina", "WATCHED coat joon", "EXISTS coat mina", "NOTIFIED coat 1 mina,joon", "UNWATCHED coat mina", "ABSENT coat mina", "WATCHED coat mina", "SUBSCRIBERS coat joon:KEEP,mina:KEEP", "NOTIFIED coat 2 joon,mina"]
+    },
+    {
+      "name": "shoe-arrivals",
+      "refs": ["5", "6", "7"],
+      "quote": "`KEEP` 구독자는 그대로 남는다.",
+      "input": ["WATCH shoe mina ONCE", "WATCH shoe joon KEEP", "WATCH shoe sora ONCE", "WATCH shoe yuri KEEP", "WATCH shoe nari ONCE", "RESTOCK shoe", "LIST shoe", "RESTOCK shoe", "LIST shoe"],
+      "expected": ["WATCHED shoe mina", "WATCHED shoe joon", "WATCHED shoe sora", "WATCHED shoe yuri", "WATCHED shoe nari", "NOTIFIED shoe 1 mina,joon,sora,yuri,nari", "SUBSCRIBERS shoe joon:KEEP,yuri:KEEP", "NOTIFIED shoe 2 joon,yuri", "SUBSCRIBERS shoe joon:KEEP,yuri:KEEP"]
+    },
+    {
+      "name": "family-scarves",
+      "refs": ["3", "5", "6", "7", "8", "9"],
+      "quote": "알림 도중 새로 등록한 구독자는 이번 회차에 알림을 받지 않는다.",
+      "input": ["WATCH scarf mina KEEP", "WATCH scarf joon KEEP", "INVITE scarf mina sora ONCE", "INVITE scarf joon yuri KEEP", "RESTOCK scarf", "LIST scarf", "RESTOCK scarf", "LIST scarf", "RESTOCK scarf"],
+      "expected": ["WATCHED scarf mina", "WATCHED scarf joon", "INVITED scarf mina sora", "INVITED scarf joon yuri", "NOTIFIED scarf 1 mina,joon", "SUBSCRIBERS scarf mina:KEEP,joon:KEEP,sora:ONCE,yuri:KEEP", "NOTIFIED scarf 2 mina,joon,sora,yuri", "SUBSCRIBERS scarf mina:KEEP,joon:KEEP,yuri:KEEP", "NOTIFIED scarf 3 mina,joon,yuri"]
+    },
+    {
+      "name": "family-gloves",
+      "refs": ["5", "6", "7", "8", "9"],
+      "quote": "출력 시점에는 해당 회차의 자기 해제와 초대 등록이 모두 끝나 있다.",
+      "input": ["WATCH glove mina ONCE", "WATCH glove joon ONCE", "WATCH glove sora KEEP", "INVITE glove mina yuri KEEP", "INVITE glove joon nari ONCE", "RESTOCK glove", "LIST glove", "RESTOCK glove", "LIST glove", "RESTOCK glove"],
+      "expected": ["WATCHED glove mina", "WATCHED glove joon", "WATCHED glove sora", "INVITED glove mina yuri", "INVITED glove joon nari", "NOTIFIED glove 1 mina,joon,sora", "SUBSCRIBERS glove sora:KEEP,yuri:KEEP,nari:ONCE", "NOTIFIED glove 2 sora,yuri,nari", "SUBSCRIBERS glove sora:KEEP,yuri:KEEP", "NOTIFIED glove 3 sora,yuri"]
+    },
+    {
+      "name": "family-coats",
+      "refs": ["3", "4", "5", "8", "9"],
+      "quote": "한 구독에는 예약 하나만 두고 새 예약이 이전 예약을 덮어쓴다.",
+      "input": ["WATCH coat mina KEEP", "WATCH coat joon KEEP", "INVITE coat mina sora ONCE", "INVITE coat mina joon ONCE", "INVITE coat joon yuri KEEP", "WATCH coat joon ONCE", "LIST coat", "RESTOCK coat", "LIST coat", "UNWATCH coat yuri", "RESTOCK coat", "LIST coat", "INVITE coat mina nari ONCE", "UNWATCH coat mina", "WATCH coat mina KEEP", "RESTOCK coat", "LIST coat"],
+      "expected": ["WATCHED coat mina", "WATCHED coat joon", "INVITED coat mina sora", "INVITED coat mina joon", "INVITED coat joon yuri", "EXISTS coat joon", "SUBSCRIBERS coat mina:KEEP,joon:KEEP", "NOTIFIED coat 1 mina,joon", "SUBSCRIBERS coat mina:KEEP,joon:KEEP,yuri:KEEP", "UNWATCHED coat yuri", "NOTIFIED coat 2 mina,joon", "SUBSCRIBERS coat mina:KEEP,joon:KEEP", "INVITED coat mina nari", "UNWATCHED coat mina", "WATCHED coat mina", "NOTIFIED coat 3 joon,mina", "SUBSCRIBERS coat joon:KEEP,mina:KEEP"]
+    },
+    {
+      "name": "catalog-followup",
+      "refs": ["3", "5", "6", "7", "9"],
+      "quote": "자신을 초대할 수도 있다.",
+      "input": ["RESTOCK bag", "WATCH bag mina ONCE", "WATCH belt mina KEEP", "INVITE bag mina mina KEEP", "RESTOCK bag", "LIST bag", "RESTOCK belt", "RESTOCK bag", "LIST belt", "UNWATCH bag mina", "WATCH bag mina ONCE", "INVITE bag mina mina ONCE", "RESTOCK bag", "LIST bag", "RESTOCK bag", "LIST bag"],
+      "expected": ["NOTIFIED bag 1 -", "WATCHED bag mina", "WATCHED belt mina", "INVITED bag mina mina", "NOTIFIED bag 2 mina", "SUBSCRIBERS bag mina:KEEP", "NOTIFIED belt 1 mina", "NOTIFIED bag 3 mina", "SUBSCRIBERS belt mina:KEEP", "UNWATCHED bag mina", "WATCHED bag mina", "INVITED bag mina mina", "NOTIFIED bag 4 mina", "SUBSCRIBERS bag mina:ONCE", "NOTIFIED bag 5 mina", "SUBSCRIBERS bag -"]
+    }
+  ]
+}

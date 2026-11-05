@@ -3,8 +3,8 @@ id: R-incidents-30
 title: 잘못 입력한 용량 제거 명령
 kind: reading
 track: incident-reading
-stage: s3-capacity-removal
-status: 후보
+stage: 03-s3-capacity-removal
+status: 제작 중
 wave: 3
 env: 없음
 prereq:

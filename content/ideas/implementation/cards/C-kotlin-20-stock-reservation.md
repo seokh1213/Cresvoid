@@ -3,8 +3,8 @@ id: C-kotlin-20
 title: 재고 예약과 만료
 kind: code
 track: code-reading
-stage: stock-reservation
-status: 후보
+stage: 04-stock-reservation
+status: 완료(2026-11-05)
 wave: 1
 env: 없음
 prereq:

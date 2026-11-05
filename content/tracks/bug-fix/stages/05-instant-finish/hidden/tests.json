@@ -1,0 +1,61 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "catalog-session",
+      "refs": ["5", "6", "7", "10"],
+      "quote": "이벤트는 시작 시각에 한 번 갱신하고 이후 시작 시각에서 간격의 정수 배만큼 지난 시각마다 갱신한다.",
+      "input": ["SCHEDULER QUEUED", "START spring 10 4", "STATUS spring", "ADVANCE 4", "STATUS spring", "STOP spring", "LIST"],
+      "expected": ["READY", "STARTED spring", "EVENT spring 1 0 10", "TIME 4", "EVENT spring 2 0 10", "STOPPED spring", "EVENTS -"]
+    },
+    {
+      "name": "promotion-session",
+      "refs": ["3", "5", "6", "7", "8"],
+      "quote": "시작이 성공한 이벤트는 종료 시각 전까지 목록에 남아 있어야 한다.",
+      "input": ["SCHEDULER INLINE", "START spring 100 25", "STATUS spring", "LIST", "ADVANCE 25", "STATUS spring"],
+      "expected": ["READY", "STARTED spring", "EVENT spring 1 0 100", "EVENTS spring", "TIME 25", "EVENT spring 2 0 100"]
+    },
+    {
+      "name": "collection-session",
+      "refs": ["6", "7", "8", "9"],
+      "quote": "종료 시각에 도달하면 간격이 아직 남아 있더라도 목록에서 제거한다.",
+      "input": ["SCHEDULER INLINE", "START autumn 10 4", "ADVANCE 9", "STATUS autumn", "ADVANCE 1", "STATUS autumn", "LIST", "ADVANCE 0", "LIST"],
+      "expected": ["READY", "STARTED autumn", "TIME 9", "EVENT autumn 3 0 10", "TIME 10", "ERROR NOT_FOUND autumn", "EVENTS -", "TIME 10", "EVENTS -"]
+    },
+    {
+      "name": "operator-session",
+      "refs": ["5", "6", "7", "11"],
+      "quote": "진행 중인 ID에 대한 `START`는 `ERROR EXISTS <id>`를 출력하고 기존 이벤트를 그대로 둔다.",
+      "input": ["SCHEDULER QUEUED", "START sale 12 3", "ADVANCE 5", "START sale 100 1", "STATUS sale", "START sale 0 1", "STATUS sale", "ADVANCE 7", "START sale 4 8", "STATUS sale", "ADVANCE 4", "STATUS sale"],
+      "expected": ["READY", "STARTED sale", "TIME 5", "ERROR EXISTS sale", "EVENT sale 2 0 12", "ERROR INVALID", "EVENT sale 2 0 12", "TIME 12", "STARTED sale", "EVENT sale 1 12 16", "TIME 16", "ERROR NOT_FOUND sale"]
+    },
+    {
+      "name": "merchandising-session",
+      "refs": ["6", "7", "8", "9", "10"],
+      "quote": "종료되거나 중단된 ID는 다시 사용할 수 있고 새 이벤트의 갱신 횟수와 시작 시각은 새로 계산한다.",
+      "input": ["SCHEDULER INLINE", "START zeta 30 7", "ADVANCE 5", "START alpha 10 3", "LIST", "ADVANCE 7", "STATUS alpha", "STATUS zeta", "STOP zeta", "START zeta 20 6", "ADVANCE 3", "LIST", "STATUS zeta", "ADVANCE 15", "STATUS zeta", "ADVANCE 2", "LIST"],
+      "expected": ["READY", "STARTED zeta", "TIME 5", "STARTED alpha", "EVENTS alpha zeta", "TIME 12", "EVENT alpha 3 5 15", "EVENT zeta 2 0 30", "STOPPED zeta", "STARTED zeta", "TIME 15", "EVENTS zeta", "EVENT zeta 1 12 32", "TIME 30", "EVENT zeta 4 12 32", "TIME 32", "EVENTS -"]
+    },
+    {
+      "name": "console-session",
+      "refs": ["2", "7", "8", "10", "11"],
+      "quote": "잘못된 명령은 이벤트나 시각을 바꾸지 않는다.",
+      "input": ["SCHEDULER QUEUED", "", "  LIST  ", "STATUS missing", "STOP missing", "START Bad 5 1", "START a 1 0", "START a 1000001 1", "START a 1 1000001", "START a +1 1", "START a 1.0 1", "START a 999999999999999999999 1", "ADVANCE -1", "ADVANCE 1000000001", "ADVANCE nope", "LIST extra", "STATUS a extra", "START a 1", "RESET", "ADVANCE 0", "LIST"],
+      "expected": ["READY", "EVENTS -", "ERROR NOT_FOUND missing", "ERROR NOT_FOUND missing", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "ERROR INVALID", "TIME 0", "EVENTS -"]
+    },
+    {
+      "name": "display-session",
+      "refs": ["6", "7", "8", "9"],
+      "quote": "종료 시각과 같거나 늦은 시각에는 갱신하지 않는다.",
+      "input": ["SCHEDULER QUEUED", "START shoes 12 3", "START bags 12 3", "ADVANCE 0", "STATUS shoes", "ADVANCE 3", "STATUS shoes", "ADVANCE 3", "STATUS bags", "ADVANCE 5", "STATUS shoes", "STATUS shoes", "ADVANCE 1", "LIST", "STOP bags"],
+      "expected": ["READY", "STARTED shoes", "STARTED bags", "TIME 0", "EVENT shoes 1 0 12", "TIME 3", "EVENT shoes 2 0 12", "TIME 6", "EVENT bags 3 0 12", "TIME 11", "EVENT shoes 4 0 12", "EVENT shoes 4 0 12", "TIME 12", "EVENTS -", "ERROR NOT_FOUND bags"]
+    },
+    {
+      "name": "season-session",
+      "refs": ["5", "6", "7", "9", "10"],
+      "quote": "한 번에 이동하든 나누어 이동하든 같은 시각에서 조회한 결과는 같아야 한다.",
+      "input": ["SCHEDULER INLINE", "START season 1000000 1000000", "ADVANCE 999999", "STATUS season", "ADVANCE 1", "STATUS season", "ADVANCE 999000000", "START next 1 1000000", "STATUS next", "STOP next", "LIST"],
+      "expected": ["READY", "STARTED season", "TIME 999999", "EVENT season 1 0 1000000", "TIME 1000000", "ERROR NOT_FOUND season", "TIME 1000000000", "STARTED next", "EVENT next 1 1000000000 1000000001", "STOPPED next", "EVENTS -"]
+    }
+  ]
+}

@@ -3,8 +3,8 @@ id: F-kotlin-20
 title: 포인트 적립 계산
 kind: fix
 track: bug-fix
-stage: point-accrual
-status: 후보
+stage: 06-point-accrual
+status: 완료(2026-11-05)
 wave: 1
 env: 없음
 prereq:

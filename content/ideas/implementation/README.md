@@ -45,6 +45,7 @@ Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 �
 | 카드 | 트랙과 단계 | 내용 |
 |---|---|---|
 | C-kotlin-10 | code-reading / 01-price-rules | 장바구니 할인 계산 코드. BigDecimal 의 반올림 모드와 scale, 규칙 적용 순서, 안정 정렬, data class copy 의 얕은 복사 |
+| C-kotlin-20 | code-reading / 04-stock-reservation | 재고 예약과 만료 코드. 만료 시각 경계 비교, 서울 날짜 경계, PriorityQueue 의 동점 순서, 순회 중 제거 |
 
 ## 3. fix: 버그를 재현하고 고친다
 
@@ -61,6 +62,8 @@ Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 �
 | 카드 | 트랙과 단계 | 내용 |
 |---|---|---|
 | F-kotlin-10 | bug-fix / 01-cursor-pagination | 판매량순 키셋 페이지 넘기기에서 커서에 동점 키가 빠져 상품이 사라지는 버그 |
+| F-kotlin-20 | bug-fix / 06-point-accrual | 적립률 곱셈을 Double 로 계산한 뒤 내림해 일부 결제의 포인트가 1 모자란 버그 |
+| F-kotlin-30 | bug-fix / 07-daily-limit | 업무 날짜를 UTC 로 잘라 한국 자정에 일일 한도가 초기화되지 않는 버그 |
 
 ## 4. 카드
 

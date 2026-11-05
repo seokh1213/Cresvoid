@@ -3,8 +3,8 @@ id: F-kotlin-30
 title: 일일 사용 한도
 kind: fix
 track: bug-fix
-stage: daily-limit
-status: 후보
+stage: 07-daily-limit
+status: 완료(2026-11-05)
 wave: 1
 env: 없음
 prereq:

@@ -3,8 +3,8 @@ id: C-kotlin-30
 title: 주문 이벤트 처리
 kind: code
 track: code-reading
-stage: order-events
-status: 후보
+stage: 05-order-events
+status: 제작 중
 wave: 1
 env: 없음
 prereq:

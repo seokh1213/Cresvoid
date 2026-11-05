@@ -1,0 +1,284 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "seller-allowance",
+      "refs": ["6", "7", "11"],
+      "quote": "남은 한도와 사용량이 같아도 성공한다.",
+      "input": [
+        "REGISTER 2026-11-05T01:00:00Z seller 100",
+        "LIMIT 2026-11-05T01:00:00Z seller",
+        "USE 2026-11-05T01:01:00Z seller scan 30",
+        "LIMIT 2026-11-05T01:02:00Z seller",
+        "USE 2026-11-05T01:03:00Z seller export 70",
+        "LIMIT 2026-11-05T01:04:00Z seller"
+      ],
+      "expected": [
+        "REGISTERED seller 100",
+        "LIMIT seller 0 100",
+        "USED scan 70",
+        "LIMIT seller 30 70",
+        "USED export 0",
+        "LIMIT seller 100 0"
+      ]
+    },
+    {
+      "name": "request-results",
+      "refs": ["6", "7", "8", "9", "10", "11"],
+      "quote": "거절된 명령은 한도와 사용 기록을 바꾸지 않는다.",
+      "input": [
+        "LIMIT 2026-11-05T02:00:00Z seller",
+        "USE 2026-11-05T02:00:00Z seller scan 1",
+        "CANCEL 2026-11-05T02:00:00Z seller scan",
+        "REGISTER 2026-11-05T02:00:00Z seller 10",
+        "USE 2026-11-05T02:00:00Z seller scan 6",
+        "REGISTER 2026-11-05T02:00:00Z seller 100",
+        "USE 2026-11-05T02:00:00Z seller scan 10",
+        "USE 2026-11-05T02:00:00Z seller export 5",
+        "CANCEL 2026-11-05T02:00:00Z seller absent",
+        "LIMIT 2026-11-05T02:00:00Z seller",
+        "CANCEL 2026-11-05T02:00:00Z seller scan",
+        "CANCEL 2026-11-05T02:00:00Z seller scan",
+        "USE 2026-11-05T02:00:00Z seller scan 1",
+        "USE 2026-11-05T02:00:00Z seller export 10",
+        "LIMIT 2026-11-05T02:00:00Z seller"
+      ],
+      "expected": [
+        "ERROR UNKNOWN_USER",
+        "ERROR UNKNOWN_USER",
+        "ERROR UNKNOWN_USER",
+        "REGISTERED seller 10",
+        "USED scan 4",
+        "ERROR USER_EXISTS",
+        "ERROR DUPLICATE_USE",
+        "ERROR LIMIT_EXCEEDED",
+        "ERROR UNKNOWN_USE",
+        "LIMIT seller 6 4",
+        "CANCELED scan 10",
+        "ERROR ALREADY_CANCELED",
+        "ERROR DUPLICATE_USE",
+        "USED export 0",
+        "LIMIT seller 10 0"
+      ]
+    },
+    {
+      "name": "catalog-accounts",
+      "refs": ["4", "5", "8", "9"],
+      "quote": "사용자별 집계는 서로 독립적이다.",
+      "input": [
+        "REGISTER 2026-11-05T03:00:00Z north 1000000000",
+        "REGISTER 2026-11-05T03:00:00Z south 1",
+        "USE 2026-11-05T03:00:00Z north scan 999999999",
+        "USE 2026-11-05T03:00:00Z north export 1",
+        "USE 2026-11-05T03:00:00Z south scan 1",
+        "CANCEL 2026-11-05T03:00:00Z south export",
+        "CANCEL 2026-11-05T03:00:00Z north scan",
+        "LIMIT 2026-11-05T03:00:00Z south",
+        "USE 2026-11-05T03:00:00Z north bulk 999999999",
+        "LIMIT 2026-11-05T03:00:00Z north",
+        "CANCEL 2026-11-05T03:00:00Z south scan",
+        "LIMIT 2026-11-05T03:00:00Z south"
+      ],
+      "expected": [
+        "REGISTERED north 1000000000",
+        "REGISTERED south 1",
+        "USED scan 1",
+        "USED export 0",
+        "USED scan 0",
+        "ERROR UNKNOWN_USE",
+        "CANCELED scan 999999999",
+        "LIMIT south 1 0",
+        "USED bulk 0",
+        "LIMIT north 1000000000 0",
+        "CANCELED scan 1",
+        "LIMIT south 0 1"
+      ]
+    },
+    {
+      "name": "seller-session",
+      "refs": ["4", "7", "11"],
+      "quote": "하루는 한국 시각(UTC+09:00) 자정에 시작해 다음 자정 직전까지다.",
+      "input": [
+        "REGISTER 2026-11-05T14:00:00Z seller 100",
+        "USE 2026-11-05T14:30:00Z seller evening 100",
+        "LIMIT 2026-11-05T14:59:59Z seller",
+        "LIMIT 2026-11-05T15:00:00Z seller",
+        "USE 2026-11-05T15:00:01Z seller morning 40"
+      ],
+      "expected": [
+        "REGISTERED seller 100",
+        "USED evening 0",
+        "LIMIT seller 100 0",
+        "LIMIT seller 0 100",
+        "USED morning 60"
+      ]
+    },
+    {
+      "name": "analysis-session",
+      "refs": ["4", "7", "9", "11"],
+      "quote": "같은 한국 날짜의 사용을 취소하면 오늘의 사용량에서 그 양을 뺀다.",
+      "input": [
+        "REGISTER 2026-11-05T23:00:00Z seller 100",
+        "USE 2026-11-05T23:59:58Z seller scan 60",
+        "LIMIT 2026-11-05T23:59:59Z seller",
+        "LIMIT 2026-11-06T00:00:00Z seller",
+        "USE 2026-11-06T00:00:01Z seller export 41",
+        "CANCEL 2026-11-06T00:00:02Z seller scan",
+        "USE 2026-11-06T00:00:03Z seller export 100",
+        "LIMIT 2026-11-06T00:00:04Z seller"
+      ],
+      "expected": [
+        "REGISTERED seller 100",
+        "USED scan 40",
+        "LIMIT seller 60 40",
+        "LIMIT seller 60 40",
+        "ERROR LIMIT_EXCEEDED",
+        "CANCELED scan 100",
+        "USED export 0",
+        "LIMIT seller 100 0"
+      ]
+    },
+    {
+      "name": "usage-adjustments",
+      "refs": ["4", "8", "9", "10"],
+      "quote": "이전 날짜의 사용도 취소할 수 있지만 오늘의 사용량과 남은 한도에는 영향을 주지 않는다.",
+      "input": [
+        "REGISTER 2026-11-05T14:59:58Z seller 100",
+        "USE 2026-11-05T14:59:59Z seller old 30",
+        "USE 2026-11-05T15:00:00Z seller new 40",
+        "CANCEL 2026-11-05T15:00:01Z seller old",
+        "LIMIT 2026-11-05T15:00:02Z seller",
+        "CANCEL 2026-11-05T15:00:03Z seller new",
+        "USE 2026-11-05T15:00:04Z seller old 1",
+        "CANCEL 2026-11-05T15:00:05Z seller old",
+        "LIMIT 2026-11-05T15:00:06Z seller"
+      ],
+      "expected": [
+        "REGISTERED seller 100",
+        "USED old 70",
+        "USED new 60",
+        "CANCELED old 60",
+        "LIMIT seller 40 60",
+        "CANCELED new 100",
+        "ERROR DUPLICATE_USE",
+        "ERROR ALREADY_CANCELED",
+        "LIMIT seller 0 100"
+      ]
+    },
+    {
+      "name": "account-history",
+      "refs": ["4", "8", "9"],
+      "quote": "날짜가 바뀌면 새날의 사용량은 0이며, 며칠 동안 명령이 없어도 이 규칙을 적용한다.",
+      "input": [
+        "REGISTER 2026-12-31T14:59:58Z seller 7",
+        "USE 2026-12-31T14:59:59Z seller annual 7",
+        "LIMIT 2026-12-31T15:00:00Z seller",
+        "USE 2026-12-31T15:00:00Z seller january 7",
+        "LIMIT 2028-02-28T15:00:00Z seller",
+        "USE 2028-02-29T14:59:59Z seller february 7",
+        "LIMIT 2028-02-29T15:00:00Z seller",
+        "CANCEL 2028-03-04T12:00:00Z seller january",
+        "CANCEL 2028-03-04T12:00:00Z seller annual",
+        "USE 2028-03-04T12:00:00Z seller february 1",
+        "LIMIT 2028-03-04T12:00:00Z seller"
+      ],
+      "expected": [
+        "REGISTERED seller 7",
+        "USED annual 0",
+        "LIMIT seller 0 7",
+        "USED january 0",
+        "LIMIT seller 0 7",
+        "USED february 0",
+        "LIMIT seller 0 7",
+        "CANCELED january 7",
+        "CANCELED annual 7",
+        "ERROR DUPLICATE_USE",
+        "LIMIT seller 0 7"
+      ]
+    },
+    {
+      "name": "catalog-workday",
+      "refs": ["2", "3", "4", "6", "7", "8", "9", "10", "11"],
+      "quote": "조회는 사용 기록을 만들거나 취소하지 않는다.",
+      "input": [
+        "",
+        "  REGISTER   2026-11-05T14:59:59Z north 10  ",
+        "REGISTER 2026-11-05T14:59:59Z south 20",
+        "USE 2026-11-05T14:59:59Z north scan 10",
+        "USE 2026-11-05T15:00:00Z south scan 12",
+        "LIMIT 2026-11-05T15:00:00Z north",
+        "USE 2026-11-05T15:00:00Z north next 3",
+        "LIMIT 2026-11-05T23:59:59Z south",
+        "REGISTER 2026-11-06T00:00:00Z south 100",
+        "LIMIT 2026-11-06T00:00:00Z south",
+        "CANCEL 2026-11-06T00:00:00Z north scan",
+        "LIMIT 2026-11-06T14:59:59Z north",
+        "LIMIT 2026-11-06T15:00:00Z north",
+        "LIMIT 2026-11-06T15:00:00Z south",
+        "CANCEL 2026-11-06T15:00:00Z south scan",
+        "USE 2026-11-06T15:00:00Z south scan 1",
+        "USE 2026-11-06T15:00:00Z south next 20",
+        "   "
+      ],
+      "expected": [
+        "REGISTERED north 10",
+        "REGISTERED south 20",
+        "USED scan 0",
+        "USED scan 8",
+        "LIMIT north 0 10",
+        "USED next 7",
+        "LIMIT south 12 8",
+        "ERROR USER_EXISTS",
+        "LIMIT south 12 8",
+        "CANCELED scan 7",
+        "LIMIT north 3 7",
+        "LIMIT north 0 10",
+        "LIMIT south 0 20",
+        "CANCELED scan 20",
+        "ERROR DUPLICATE_USE",
+        "USED next 0"
+      ]
+    },
+    {
+      "name": "seller-activity",
+      "refs": ["4", "7", "8", "9", "11"],
+      "quote": "이전 날짜의 사용도 취소할 수 있지만 오늘의 사용량과 남은 한도에는 영향을 주지 않는다.",
+      "input": [
+        "REGISTER 2026-11-05T08:00:00Z seller 100",
+        "USE 2026-11-05T08:05:00Z seller batch 40",
+        "USE 2026-11-05T10:20:00Z seller preview 25",
+        "CANCEL 2026-11-05T10:25:00Z seller preview",
+        "USE 2026-11-05T14:40:00Z seller export 60",
+        "LIMIT 2026-11-05T14:50:00Z seller",
+        "LIMIT 2026-11-05T15:10:00Z seller",
+        "USE 2026-11-05T15:11:00Z seller next 40",
+        "CANCEL 2026-11-05T15:12:00Z seller batch",
+        "LIMIT 2026-11-05T15:13:00Z seller",
+        "USE 2026-11-05T15:14:00Z seller next 40",
+        "LIMIT 2026-11-05T15:15:00Z seller",
+        "CANCEL 2026-11-05T15:16:00Z seller export",
+        "LIMIT 2026-11-05T15:17:00Z seller",
+        "USE 2026-11-05T15:18:00Z seller report 60",
+        "LIMIT 2026-11-05T15:19:00Z seller"
+      ],
+      "expected": [
+        "REGISTERED seller 100",
+        "USED batch 60",
+        "USED preview 35",
+        "CANCELED preview 60",
+        "USED export 0",
+        "LIMIT seller 100 0",
+        "LIMIT seller 0 100",
+        "USED next 60",
+        "CANCELED batch 60",
+        "LIMIT seller 40 60",
+        "ERROR DUPLICATE_USE",
+        "LIMIT seller 40 60",
+        "CANCELED export 60",
+        "LIMIT seller 40 60",
+        "USED report 0",
+        "LIMIT seller 100 0"
+      ]
+    }
+  ]
+}

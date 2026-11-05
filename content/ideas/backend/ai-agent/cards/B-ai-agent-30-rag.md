@@ -4,7 +4,7 @@ title: 검색 증강 파이프라인 만들기
 kind: build
 track: rag
 stage: 01-chunking, 02-retrieval, 03-hybrid, 04-eval
-status: 후보
+status: 제작 중
 wave: 2
 env: 없음
 prereq:

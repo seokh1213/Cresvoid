@@ -3,8 +3,8 @@ id: R-incidents-20
 title: 43초 분할이 만든 하루 동안의 장애
 kind: reading
 track: incident-reading
-stage: github-split-writes
-status: 후보
+stage: 02-github-split-writes
+status: 제작 중
 wave: 3
 env: 없음
 prereq:

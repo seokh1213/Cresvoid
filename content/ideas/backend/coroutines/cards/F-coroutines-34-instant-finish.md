@@ -3,8 +3,8 @@ id: F-coroutines-34
 title: 시작하자마자 끝나는 백그라운드 이벤트
 kind: fix
 track: bug-fix
-stage: instant-finish
-status: 후보
+stage: 05-instant-finish
+status: 완료(2026-11-05)
 wave: 4
 env: kotlinx-coroutines
 prereq: B-coroutines-20
