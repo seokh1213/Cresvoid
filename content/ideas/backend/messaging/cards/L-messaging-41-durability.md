@@ -3,8 +3,8 @@ id: L-messaging-41
 title: acks 와 최소 동기 복제본
 kind: lab
 track: kafka-lab
-stage: durability
-status: 후보
+stage: 02-durability
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq: R-messaging-10

@@ -1,0 +1,9 @@
+{
+  "title": "Kafka 실험",
+  "kind": "lab",
+  "summary": "Docker 로 띄운 Kafka 에서 처리 시간이 poll 간격 한도를 넘을 때의 재조정 폭풍과, acks·최소 동기 복제본 조합별 장애 뒤 쓰기 실패와 유실을 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-rebalance", "title": "느린 처리와 재조정 폭풍" },
+    { "dir": "02-durability", "title": "acks 와 최소 동기 복제본" }
+  ]
+}

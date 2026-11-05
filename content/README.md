@@ -42,6 +42,7 @@
 | `olap-lab` | lab | 3 |
 | `es-lab` | lab | 4 |
 | `spark-lab` | lab | 5 |
+| `kafka-lab` | lab | 2 |
 | `reading` | reading | 15 |
 | `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |

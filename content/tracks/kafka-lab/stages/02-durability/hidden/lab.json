@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "journal-handover",
+      "refs": ["7", "10", "11"],
+      "quote": "합계가 맞아도 조합별 결과가 틀리면 실패다.",
+      "timeout_sec": 480,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/receipt-as-log"]
+}

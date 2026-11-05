@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "queued-work",
+      "refs": ["5", "6", "7"],
+      "quote": "12개 ID가 모두 처리 완료되어야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/commit-ahead"]
+}

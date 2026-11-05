@@ -18,7 +18,7 @@
 | [JVM](backend/jvm/README.md) | 4 | 1 | 0 | 3 | 0 |
 | [레이크하우스: 파일 포맷과 테이블 포맷](backend/lakehouse/README.md) | 3 | 1 | 0 | 2 | 0 |
 | [부하 엣지 케이스](backend/load/README.md) | 12 | 0 | 10 | 0 | 2 |
-| [메시징: Kafka](backend/messaging/README.md) | 5 | 2 | 0 | 3 | 0 |
+| [메시징: Kafka](backend/messaging/README.md) | 5 | 0 | 0 | 5 | 0 |
 | [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [OLAP](backend/olap/README.md) | 6 | 0 | 0 | 6 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 11 | 0 | 6 | 0 |
-| 합계 | 185 | 36 | 24 | 123 | 2 |
+| 합계 | 185 | 34 | 24 | 125 | 2 |
 
 ## 다음 후보
 
@@ -69,8 +69,6 @@
 | 5 | [B-system-design-150](backend/system-design/cards/B-system-design-150-notifier.md) | 알림 발송기 만들기 | build | notifier | 01-dispatch, 02-reliability, 03-throttling | 없음 |
 | 5 | [B-system-design-160](backend/system-design/cards/B-system-design-160-object-store.md) | 객체 저장소 만들기 | build | object-store | 01-versioning, 02-multipart, 03-durability | 없음 |
 | 5 | [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | real-model | llm-api |
-| 5 | [L-messaging-40](backend/messaging/cards/L-messaging-40-rebalance.md) | 느린 처리와 재조정 폭풍 | lab | kafka-lab | rebalance | docker |
-| 5 | [L-messaging-41](backend/messaging/cards/L-messaging-41-durability.md) | acks 와 최소 동기 복제본 | lab | kafka-lab | durability | docker |
 
 ## 트랙
 
@@ -107,7 +105,7 @@
 | incident-reading | reading | 있음 | 08 | 01-cloudflare-regex(R-incidents-10 완료), 02-github-split-writes(R-incidents-20 완료), 03-s3-capacity-removal(R-incidents-30 완료), 04-crowdstrike-channel-file(R-incidents-50 완료), 05-gcp-service-control(R-incidents-60 완료), 06-meta-backbone(R-incidents-40 완료), 07-slack-cold-start(R-incidents-70 완료) |  |
 | index-overlay | build | 없음 | 05 |  | 01-current-state(B-pipeline-50 4차), 02-round-merge(B-pipeline-50 4차), 03-replay(B-pipeline-50 4차), 04-reconcile(B-pipeline-70 5차) |
 | jvm-lab | lab | 있음 | 04 | 01-container-heap(L-jvm-10 완료), 02-threadlocal-leak(L-jvm-20 완료), 03-thread-dump(L-jvm-30 완료) | jit-warmup(L-jvm-40 5차) |
-| kafka-lab | lab | 없음 | 01 |  | rebalance(L-messaging-40 5차), durability(L-messaging-41 5차) |
+| kafka-lab | lab | 있음 | 03 | 01-rebalance(L-messaging-40 완료), 02-durability(L-messaging-41 완료) |  |
 | kv-store | build | 없음 | 04 |  | 01-basic(B-kv-store-10 4차), 02-log(B-kv-store-10 4차), 03-transactions(B-kv-store-10 4차) |
 | leaderboard | build | 있음 | 04 | 01-sorted-set(B-system-design-130 완료), 02-range-queries(B-system-design-130 완료), 03-sharding(B-system-design-130 완료) |  |
 | lease-lock | build | 없음 | 04 |  | 01-acquisition(B-distributed-60 4차), 02-expiry(B-distributed-60 4차), 03-fenced-writes(B-distributed-80 5차) |
@@ -356,8 +354,8 @@
 | [R-messaging-10](backend/messaging/cards/R-messaging-10-kafka-replication.md) | 복제와 전달 보장 | reading | tech-reading | 11-kafka-replication | 완료(2026-10-10) | 4 | 없음 |  |
 | [B-messaging-20](backend/messaging/cards/B-messaging-20-mini-log.md) | 파티션 로그와 컨슈머 그룹 만들기 | build | mini-log | 01-partitions, 02-idempotence, 03-groups, 04-compaction | 완료(2026-10-11) | 3 | 없음 | R-messaging-10 |
 | [C-messaging-30](backend/messaging/cards/C-messaging-30-consumer-commit.md) | 오프셋 커밋 시점과 중복 처리 | code | code-reading | 10-consumer-commit | 완료(2026-11-05) | 4 | 없음 | R-messaging-10 |
-| [L-messaging-40](backend/messaging/cards/L-messaging-40-rebalance.md) | 느린 처리와 재조정 폭풍 | lab | kafka-lab | rebalance | 후보 | 5 | docker | B-messaging-20 |
-| [L-messaging-41](backend/messaging/cards/L-messaging-41-durability.md) | acks 와 최소 동기 복제본 | lab | kafka-lab | durability | 후보 | 5 | docker | R-messaging-10 |
+| [L-messaging-40](backend/messaging/cards/L-messaging-40-rebalance.md) | 느린 처리와 재조정 폭풍 | lab | kafka-lab | 01-rebalance | 완료(2026-11-06) | 5 | docker | B-messaging-20 |
+| [L-messaging-41](backend/messaging/cards/L-messaging-41-durability.md) | acks 와 최소 동기 복제본 | lab | kafka-lab | 02-durability | 완료(2026-11-06) | 5 | docker | R-messaging-10 |
 
 ### 네트워크
 

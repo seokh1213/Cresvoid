@@ -3,8 +3,8 @@ id: L-messaging-40
 title: 느린 처리와 재조정 폭풍
 kind: lab
 track: kafka-lab
-stage: rebalance
-status: 후보
+stage: 01-rebalance
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq: B-messaging-20
