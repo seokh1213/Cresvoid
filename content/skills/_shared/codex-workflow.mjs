@@ -9,7 +9,8 @@ import { basename, dirname, join, resolve } from 'node:path'
 const realNow = Date.now.bind(Date)
 // Declared before the top-level run() below starts, so retries can read them.
 const MAX_CAPACITY_WAITS = 6
-const CAPACITY_WAIT_SEC = Number(process.env.CODEX_CAPACITY_WAIT_SEC ?? 60)
+const CAPACITY_WAIT_SEC = Number(process.env.CODEX_CAPACITY_WAIT_SEC ?? 5)
+const CONTINUE_PROMPT = '앞선 작업이 Codex 모델 용량 오류로 중간에 끊겼다. 지금까지 한 작업과 파일 상태를 확인하고 남은 일을 이어서 끝낸다. 끝나면 처음 지시한 형식 그대로 최종 결과를 낸다.'
 const CAPACITY_PATTERN = /at capacity|rate limit|too many requests|\b429\b|overloaded|usage limit/i
 
 const STATE_NAMES = { waiting: '대기', running: '실행 중', done: '완료', cached: '완료(재사용)', failed: '실패', stopped: '멈춤' }
@@ -96,21 +97,25 @@ async function run(scriptPath, argsPath, runDirArg) {
     try {
       let ordinaryFailures = 0
       let capacityWaits = 0
+      let resumeThread = null
       for (let attempt = 1; ; attempt++) {
-        const result = await runCall(call, prompt, opts.schema, attempt)
+        const result = await runCall(call, prompt, opts.schema, attempt, resumeThread)
         if (result !== undefined) {
           writeFileSync(join(dir, 'result.json'), JSON.stringify(result, null, 2) + '\n')
           call.state = 'done'
           return result
         }
-        // Model capacity and rate limits clear up on their own; an immediate retry just fails again.
+        // A spurious "model at capacity" error stops a session mid-work. Resuming the same session keeps what it
+        // already did; only a session that never started is run again from the beginning.
         if (isCapacityFailure(dir, attempt) && capacityWaits < MAX_CAPACITY_WAITS) {
           const seconds = Math.min(600, CAPACITY_WAIT_SEC * 2 ** capacityWaits)
           capacityWaits++
-          runnerLog(`모델 용량 부족, ${seconds}초 뒤 다시 시도 ${label}`)
+          resumeThread = threadOf(dir, attempt) ?? resumeThread
+          runnerLog(`모델 용량 오류, ${seconds}초 뒤 ${resumeThread ? '같은 세션을 이어서' : '처음부터 다시'} 실행 ${label}`)
           await new Promise(resume => setTimeout(resume, seconds * 1000))
           continue
         }
+        resumeThread = null
         ordinaryFailures++
         if (ordinaryFailures >= 2) break
       }
@@ -122,16 +127,22 @@ async function run(scriptPath, argsPath, runDirArg) {
     }
   }
 
-  async function runCall(call, prompt, schema, attempt) {
+  async function runCall(call, prompt, schema, attempt, resumeThread) {
     const { dir, label } = call
-    const fullPrompt = [prompt, recordRules(dir, runDir), extra].filter(Boolean).join('\n\n')
-    writeFileSync(join(dir, 'prompt.md'), fullPrompt + '\n')
+    const fullPrompt = resumeThread
+      ? CONTINUE_PROMPT
+      : [prompt, recordRules(dir, runDir), extra].filter(Boolean).join('\n\n')
+    if (!resumeThread) writeFileSync(join(dir, 'prompt.md'), fullPrompt + '\n')
     const lastMessage = join(dir, `last-message-${attempt}.txt`)
-    const args = [...baseArgs, '-C', root, '--json', '-o', lastMessage]
+    // `exec resume` takes no -C or -s; it runs from the spawn directory with the session's own settings.
+    const args = resumeThread
+      ? ['exec', 'resume', ...withoutSandbox(baseArgs.slice(1)), '--json', '-o', lastMessage]
+      : [...baseArgs, '-C', root, '--json', '-o', lastMessage]
     if (schema) {
       writeFileSync(join(dir, 'schema.json'), JSON.stringify(strictSchema(schema), null, 2) + '\n')
       args.push('--output-schema', join(dir, 'schema.json'))
     }
+    if (resumeThread) args.push(resumeThread)
     args.push('-')
     await waitForDisk(label)
     const out = openSync(join(dir, `events-${attempt}.jsonl`), 'a')
@@ -210,6 +221,27 @@ async function run(scriptPath, argsPath, runDirArg) {
   clearInterval(refresh)
   saveStatus()
   runnerLog('실행 끝, 결과는 result.json')
+}
+
+/** Session id from the call's event stream, so a cut-off session can be resumed instead of restarted. */
+function threadOf(dir, attempt) {
+  const events = join(dir, `events-${attempt}.jsonl`)
+  if (!existsSync(events)) return null
+  const first = readFileSync(events, 'utf8').split('\n').find(line => line.includes('"thread.started"'))
+  try {
+    return first ? JSON.parse(first).thread_id ?? null : null
+  } catch {
+    return null
+  }
+}
+
+function withoutSandbox(args) {
+  const out = []
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '-s') { i++; continue }
+    out.push(args[i])
+  }
+  return out
 }
 
 function isCapacityFailure(dir, attempt) {
