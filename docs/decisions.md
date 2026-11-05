@@ -138,3 +138,9 @@ Codex 에는 Workflow 도구가 없다. 실행기는 workflow.js 를 고치지 �
 
 카드가 적은 k6 는 쓰지 않는다. k6 스크립트는 JavaScript 라 프로젝트 코드 언어 규칙(D19)과 맞지 않고, 코루틴 lab 이 이미 JDK HTTP 클라이언트로 개방형 부하를 만들었다. 공용 부하 도구는 `content/lab-env/load.main.kts`다. 학습자 프로그램이 서비스에 붙는 클라이언트도 새 라이브러리 대신 `content/lab-env/kotlin/`의 JDK 전용 구현을 쓴다. 엔진은 바꾸지 않았다. 실험 스크립트가 서비스 시작과 정리를 맡는 기존 계약 안에서 동작한다.
 
+## D34. 라이브러리가 필요한 lab 은 고정 실행 이미지 안에서 빌드하고 실행한다 (2026-11-05)
+
+MySQL·PostgreSQL·Kafka·Spring lab 은 실제 드라이버와 프레임워크의 동작이 실습 대상이라 JDK 만으로 대신할 수 없다. 사용자가 이 라이브러리들을 Docker 이미지에 담아 쓰는 것을 승인했다. `content/lab-env/images/jvm-runner`가 JDK 21, Kotlin 2.4.21, Maven 으로 한 번 받은 라이브러리 묶음을 담는다. 프로젝트는 `.lab-libs`로 묶음을 고르고 `build.sh`·`run.sh`가 그 이미지 안에서 빌드·실행한다. 학습자 기기에 라이브러리를 내려받지 않고 저장소에 jar 를 넣지 않으므로 코루틴 jar 처럼 단계마다 jar 를 복사하는 방식(D21)보다 저장소가 가볍다.
+
+`kotlinc`가 만든 jar 에는 디렉터리 항목이 없어 Spring 클래스패스 스캔이 패키지를 찾지 못했다. 그래서 클래스 디렉터리로 컴파일한 뒤 JDK `jar` 도구로 묶는다. Spring 은 기본 패키지를 스캔하지 못하므로 lab 코드는 `lab` 패키지에 둔다. Spring Boot 4.1 + JPA + MySQL 8.4 앱 200건 요청과 Kafka 4.4 메시지 100건 송수신을 이 이미지로 확인했다.
+

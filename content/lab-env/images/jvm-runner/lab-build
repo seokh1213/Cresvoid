@@ -1,0 +1,18 @@
+#!/bin/sh
+# usage: lab-build <library set>, run inside a lab Kotlin project mounted at /work.
+set -e
+set_dir="/opt/lab-libs/$1"
+[ -d "$set_dir" ] || { echo "알 수 없는 라이브러리 묶음입니다: $1" >&2; exit 2; }
+classpath=$(find "$set_dir" -name '*.jar' | sort | tr '\n' ':')
+work="build/.classes-$$"
+partial="build/.app-$$.jar"
+trap 'rm -rf "$work" "$partial"' EXIT
+mkdir -p "$work"
+# allopen and noarg let Spring proxies and JPA entities work with plain Kotlin classes.
+kotlinc src/main/kotlin -jvm-target 21 -classpath "$classpath" \
+  -Xplugin=/opt/kotlinc/lib/allopen-compiler-plugin.jar -P plugin:org.jetbrains.kotlin.allopen:preset=spring \
+  -Xplugin=/opt/kotlinc/lib/noarg-compiler-plugin.jar -P plugin:org.jetbrains.kotlin.noarg:preset=jpa \
+  -d "$work"
+# The jar tool writes directory entries; Spring's classpath scanning needs them to find components in a package.
+jar --create --file "$partial" -C "$work" .
+mv -f "$partial" build/app.jar

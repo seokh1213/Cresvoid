@@ -17,7 +17,18 @@ val LAB_IMAGES: Map<String, String> = mapOf(
     "ELASTICSEARCH_IMAGE" to "elasticsearch@sha256:764a939891119d97e130b4d5da196c330afb2338382ada9e1b9b7943ce6707df",
     // clickhouse-server 26.8 (LTS)
     "CLICKHOUSE_IMAGE" to "clickhouse/clickhouse-server@sha256:d426d2f612e1e189c90f9a3f8dcd85a03c6851273833817a296bb327e63aa7a7",
+    // mysql 8.4.13 (LTS)
+    "MYSQL_IMAGE" to "mysql@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902",
+    // postgres 18.6, alpine
+    "POSTGRES_IMAGE" to "postgres@sha256:10a5c69a83035ab5239f5620d708520e8b28f5aa1f2b20143e6024532edadfb5",
+    // apache/kafka 4.4.0, KRaft single node
+    "KAFKA_IMAGE" to "apache/kafka@sha256:833b867a9585a141da455dc2b57431c65cbccb27f11c91f694444cca9f777e0f",
+    // Built locally from images/jvm-runner. The tag changes whenever that directory changes.
+    "JVM_RUNNER_IMAGE" to "cresvoid-lab/jvm-runner:1",
 )
+
+/** Compose variables for the learner's program when it runs as a service from the lab runner image. */
+fun programEnvironment(programDir: File): Map<String, String> = mapOf("PROGRAM_DIR" to programDir.canonicalPath)
 
 /** Exit code the engine reads as an experiment error, not as a failed invariant. */
 val EXPERIMENT_ERROR = 2
@@ -40,7 +51,11 @@ fun requireDocker() {
  * One compose project per experiment run. The project name carries the process id so parallel runs never share
  * containers, and published ports are ephemeral so they never collide.
  */
-class ComposeStack(private val file: File, label: String) : AutoCloseable {
+class ComposeStack(
+    private val file: File,
+    label: String,
+    private val environment: Map<String, String> = emptyMap(),
+) : AutoCloseable {
     val project: String = "cresvoid-" + label.lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-') +
         "-" + ProcessHandle.current().pid()
     private val cleanup = Thread { down() }
@@ -69,6 +84,9 @@ class ComposeStack(private val file: File, label: String) : AutoCloseable {
     fun exec(service: String, vararg command: String): String =
         compose("exec", "-T", service, *command).output
 
+    /** Runs a one-off container of [service], for example a producer or a client that finishes on its own. */
+    fun run(service: String, vararg command: String): Result = compose("run", "--rm", "-T", service, *command)
+
     /** Pauses or resumes a service, for experiments that simulate an outage. */
     fun pause(service: String) = compose("pause", service)
 
@@ -94,7 +112,7 @@ class ComposeStack(private val file: File, label: String) : AutoCloseable {
     private fun compose(vararg arguments: String): Result {
         val process = ProcessBuilder(listOf("docker", "compose", "-p", project, "-f", file.absolutePath) + arguments)
             .redirectErrorStream(true)
-            .apply { environment().putAll(LAB_IMAGES) }
+            .apply { environment().putAll(LAB_IMAGES + environment) }
             .start()
         val output = process.inputStream.bufferedReader().readText()
         process.waitFor()

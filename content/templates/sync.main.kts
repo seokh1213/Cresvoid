@@ -11,6 +11,12 @@ val templateDir = File(root, "content/templates/kotlin")
 val templates: List<File> = templateDir.listFiles().orEmpty().filter { it.isFile && it.name != ".DS_Store" }.sortedBy { it.name }
 val libTemplates: List<File> = File(templateDir, "lib").listFiles().orEmpty().filter { it.isFile && it.extension == "jar" }.sortedBy { it.name }
 
+// Projects with a .lab-libs file build and run inside the lab runner image, so their build.sh and run.sh differ.
+val labTemplates: List<File> = File(root, "content/templates/kotlin-lab").listFiles().orEmpty().filter { it.isFile && it.name != ".DS_Store" }.sortedBy { it.name }
+
+fun templatesFor(project: File): List<File> =
+    if (File(project, ".lab-libs").isFile) templates.filter { template -> labTemplates.none { it.name == template.name } } + labTemplates else templates
+
 if (templates.isEmpty()) {
     System.err.println("템플릿이 없습니다: ${templateDir.relativeTo(root)}")
     exitProcess(1)
@@ -30,7 +36,7 @@ val projects: List<File> = File(root, "content/tracks").walkTopDown()
 val libProjects: List<File> = projects.filter { File(it, "lib").isDirectory }
 
 val outdated = projects.flatMap { project ->
-    templates.mapNotNull { template -> File(project, template.name).takeUnless { matches(it, template) }?.let { it to template } }
+    templatesFor(project).mapNotNull { template -> File(project, template.name).takeUnless { matches(it, template) }?.let { it to template } }
 } + libProjects.flatMap { project ->
     libTemplates.mapNotNull { template -> File(project, "lib/${template.name}").takeUnless { matches(it, template) }?.let { it to template } }
 }
@@ -39,7 +45,8 @@ val strayJars: List<File> = libProjects.flatMap { project ->
     File(project, "lib").listFiles().orEmpty().filter { jar -> jar.isFile && jar.extension == "jar" && libTemplates.none { it.name == jar.name } }
 }
 
-val projectSummary = "Kotlin 프로젝트 ${projects.size}개(lib 를 쓰는 프로젝트 ${libProjects.size}개)"
+val labProjects = projects.count { File(it, ".lab-libs").isFile }
+val projectSummary = "Kotlin 프로젝트 ${projects.size}개(lib 를 쓰는 프로젝트 ${libProjects.size}개, lab 실행 이미지를 쓰는 프로젝트 ${labProjects}개)"
 
 if (checkOnly) {
     outdated.forEach { (copy, template) -> println("템플릿과 다릅니다: ${copy.relativeTo(root)} (원본 ${template.relativeTo(root)})") }

@@ -1,0 +1,4 @@
+#!/bin/sh
+# usage: lab-run <library set> [main class], run inside a lab Kotlin project mounted at /work.
+set -e
+exec java ${JAVA_OPTS:-} -cp "build/app.jar:/opt/kotlinc/lib/kotlin-stdlib.jar:/opt/lab-libs/$1/*" "${2:-${LAB_MAIN:-MainKt}}"

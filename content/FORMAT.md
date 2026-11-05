@@ -217,6 +217,7 @@ lab 단계는 `tests.json` 대신 `hidden/lab.json`을 둔다.
 - 공용 실험 도구는 `content/lab-env/`에 있다. 실험 스크립트는 `@file:Import("../../../../../lab-env/load.main.kts")`처럼 불러 쓴다. `load.main.kts`는 개방형 부하, 학습자 프로그램 시작과 종료, 백분위수, METRIC 출력을 맡는다. 외부 부하 도구는 쓰지 않는다.
 - Redis 같은 외부 서비스는 Docker 로 띄운다. 단계의 `hidden/compose.yaml`이 서비스, 준비 확인(healthcheck), CPU·메모리 한도를 정하고, 이미지는 `${REDIS_IMAGE}`처럼 `docker.main.kts`의 `LAB_IMAGES`에 digest 로 고정한 변수로만 쓴다. 포트는 `127.0.0.1::6379`처럼 임의 포트로 열고 `ComposeStack.port`로 찾는다. `ComposeStack`은 실행마다 다른 프로젝트 이름을 쓰고 끝나거나 중단될 때 컨테이너와 볼륨을 지운다. Docker 가 꺼져 있으면 실험 오류(종료 코드 2)다.
 - 학습자 프로그램이 서비스에 붙을 클라이언트는 `content/lab-env/kotlin/`의 JDK 전용 구현을 시작 코드와 참조 풀이에 그대로 복사해 쓴다.
+- JDBC 드라이버, Kafka 클라이언트, Spring 이 필요한 프로젝트는 루트에 `.lab-libs`(묶음 이름 한 줄)를 두고 실행 이미지 안에서 빌드·실행한다. 템플릿 동기화가 이 프로젝트에 `content/templates/kotlin-lab`의 `build.sh`·`run.sh`를 복사한다. 코드는 `lab` 패키지에 둔다. 묶음과 compose 예시는 `content/lab-env/README.md`에 있다.
 
 ## 6. 무작위 입력 생성기
 
