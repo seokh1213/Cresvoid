@@ -24,6 +24,8 @@ const ANTISLOP_CODE = '설치된 antislop-code 스킬의 SKILL.md'
 const ANTISLOP_CORE = '설치된 antislop 스킬의 SKILL.md'
 
 const COMMON = [
+  '자원 회수: 이 작업이 /tmp 에 만든 프로젝트 사본과 임시 파일, 직접 띄운 Docker 컨테이너·볼륨·네트워크, 백그라운드로 띄운 프로세스는 최종 출력을 내기 전에 모두 지운다. 남길 파일은 호출 기록 디렉터리의 work/ 에 둔다. 다른 작업이 만든 것은 지우지 않는다.',
+  '프로젝트를 /tmp 에 복사할 때는 rsync -a --exclude practice --exclude docs/log --exclude .gradle --exclude "content/**/build" 처럼 큰 디렉터리를 빼고 복사한다. 프로젝트 전체 사본은 1GB 가까이 된다.',
   '이 작업은 사용자의 개인 학습 프로젝트 ' + ROOT + ' 에서 진행한다. 이 프로젝트의 규칙은 ' + ROOT + '/AGENTS.md 와 ' + ROOT + '/docs/agents.md 에 있다.',
   '프로젝트 밖 기록 시스템은 쓰지 않는다. git 커밋을 하지 않는다. 결과는 최종 출력으로 돌려준다.',
   '작업 전에 ' + ROOT + '/content/FORMAT.md 를 처음부터 끝까지 읽는다. 엔진과 컨텐츠의 계약이다.',
@@ -130,7 +132,7 @@ ${ANTISLOP}
 읽을 것: ${dir}/spec.md, ${dir}/hidden/solution/, ${dir}/starter/, ${dir}/hidden/tests.json, 아래 출제자 보고와 블라인드 수정 결과.
 ${cardRules(st) ? "지켰는지 볼 카드 기준:\n" + cardRules(st) : ""}
 
-1. 블라인드 수정본을 숨은 테스트로 확인한다. ${ROOT} 를 /tmp/cresvoid-audit-${TRACK}-${st.dir} 로 복사한다. 그 사본에서 engine/bin/cresvoid start ${TRACK} -stage ${stageNumber(st)} -dir <블라인드 작업 공간 경로> 로 작업 공간을 고른다. 그다음 engine/bin/cresvoid test ${TRACK} -stage ${stageNumber(st)} 를 실행한다. 결과를 blind_test 에 적는다. 실패했으면 원인이 블라인드 수정의 실수인지, 테스트가 다른 올바른 수정을 거절하는 것인지, 버그 신고가 오해를 부른 것인지 판정한다.
+1. 블라인드 수정본을 숨은 테스트로 확인한다. ${ROOT} 를 큰 디렉터리를 뺀 채 /tmp/cresvoid-audit-${TRACK}-${st.dir} 로 복사하고, 판정을 마치면 그 사본을 지운다. 그 사본에서 engine/bin/cresvoid start ${TRACK} -stage ${stageNumber(st)} -dir <블라인드 작업 공간 경로> 로 작업 공간을 고른다. 그다음 engine/bin/cresvoid test ${TRACK} -stage ${stageNumber(st)} 를 실행한다. 결과를 blind_test 에 적는다. 실패했으면 원인이 블라인드 수정의 실수인지, 테스트가 다른 올바른 수정을 거절하는 것인지, 버그 신고가 오해를 부른 것인지 판정한다.
 2. antislop: antislop-code 점검표, 코드의 실무다움, 이름, 구조, 버그 자리를 암시하는 흔적, 결정마다 이유가 있는지, 주장마다 실행 증거가 있는지.
 3. 버그: 원인이 하나뿐인가. starter 와 solution 의 차이가 버그 자리뿐인가. 실무에서 생길 법한가. 난도가 학습자 수준에 맞는가.
 4. 스펙과 버그 신고: 의도한 동작이 번호 문단으로 빠짐없이 정해졌는가. 신고가 원인을 누설하지 않으면서 재현에 충분한가. 한국어가 정확한가.

@@ -24,6 +24,8 @@ const ANTISLOP_CODE = '설치된 antislop-code 스킬의 SKILL.md'
 const ANTISLOP_CORE = '설치된 antislop 스킬의 SKILL.md'
 
 const COMMON = [
+  '자원 회수: 이 작업이 /tmp 에 만든 프로젝트 사본과 임시 파일, 직접 띄운 Docker 컨테이너·볼륨·네트워크, 백그라운드로 띄운 프로세스는 최종 출력을 내기 전에 모두 지운다. 남길 파일은 호출 기록 디렉터리의 work/ 에 둔다. 다른 작업이 만든 것은 지우지 않는다.',
+  '프로젝트를 /tmp 에 복사할 때는 rsync -a --exclude practice --exclude docs/log --exclude .gradle --exclude "content/**/build" 처럼 큰 디렉터리를 빼고 복사한다. 프로젝트 전체 사본은 1GB 가까이 된다.',
   '이 작업은 사용자의 개인 학습 프로젝트 ' + ROOT + ' 에서 진행한다. 이 프로젝트의 규칙은 ' + ROOT + '/AGENTS.md 와 ' + ROOT + '/docs/agents.md 에 있다.',
   '프로젝트 밖 기록 시스템은 쓰지 않는다. git 커밋을 하지 않는다. 결과는 최종 출력으로 돌려준다.',
   '작업 전에 ' + ROOT + '/content/FORMAT.md 를 처음부터 끝까지 읽는다. 엔진과 컨텐츠의 계약이다.',

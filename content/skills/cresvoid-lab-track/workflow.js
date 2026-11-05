@@ -88,6 +88,8 @@ const FIX = {
 }
 
 const COMMON = [
+  '자원 회수: 이 작업이 /tmp 에 만든 프로젝트 사본과 임시 파일, 직접 띄운 Docker 컨테이너·볼륨·네트워크, 백그라운드로 띄운 프로세스는 최종 출력을 내기 전에 모두 지운다. 남길 파일은 호출 기록 디렉터리의 work/ 에 둔다. 다른 작업이 만든 것은 지우지 않는다.',
+  '프로젝트를 /tmp 에 복사할 때는 rsync -a --exclude practice --exclude docs/log --exclude .gradle --exclude "content/**/build" 처럼 큰 디렉터리를 빼고 복사한다. 프로젝트 전체 사본은 1GB 가까이 된다.',
   '이 작업은 개인 학습 프로젝트 ' + ROOT + ' 에서 한다. ' + ROOT + '/AGENTS.md, ' + ROOT + '/docs/agents.md, ' + ROOT + '/content/FORMAT.md 를 읽는다.',
   '지정한 단계 외의 파일과 track.json 은 고치지 않는다. git 커밋과 외부 기록은 하지 않는다. practice/ 도 고치지 않는다.',
   '제품 코드, 참조 풀이, 검사 스크립트는 Kotlin 이다. JavaScript 는 제작 워크플로우 도구에만 허용된다.',

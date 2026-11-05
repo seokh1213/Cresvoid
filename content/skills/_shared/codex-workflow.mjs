@@ -3,7 +3,7 @@
 // directory, so a person can follow a background run and a stopped run resumes from the calls
 // that already finished (workflow-design.md, D7).
 import { execFileSync, spawn } from 'node:child_process'
-import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, appendFileSync, statSync, writeFileSync } from 'node:fs'
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, readSync, appendFileSync, statSync, statfsSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 
 const realNow = Date.now.bind(Date)
@@ -19,7 +19,8 @@ if (command === 'status' && rest.length === 1) {
   node codex-workflow.mjs run <workflow.js> <args.json> <run dir>
   node codex-workflow.mjs status <run dir>
 env: CODEX_MAX (동시 실행 수, 기본 2), CODEX_MODEL, CODEX_EFFORT, CODEX_SANDBOX,
-     CODEX_TIMEOUT_MIN (호출 하나의 한도, 기본 90), CODEX_NO_MCP=1 (설정된 MCP 서버를 끈다)`)
+     CODEX_TIMEOUT_MIN (호출 하나의 한도, 기본 90), CODEX_NO_MCP=1 (설정된 MCP 서버를 끈다),
+     CODEX_MIN_FREE_GB (이보다 디스크 여유가 적으면 새 호출을 띄우지 않고 기다린다, 기본 15)`)
   process.exit(2)
 }
 
@@ -34,6 +35,7 @@ async function run(scriptPath, argsPath, runDirArg) {
   const extra = existsSync(extraPath) ? readFileSync(extraPath, 'utf8').trim() : ''
   const max = Number(process.env.CODEX_MAX ?? 2)
   const timeoutMs = Number(process.env.CODEX_TIMEOUT_MIN ?? 90) * 60_000
+  const minFreeGb = Number(process.env.CODEX_MIN_FREE_GB ?? 15)
   const baseArgs = codexBaseArgs()
 
   const state = { workflow: resolve(scriptPath), pid: process.pid, max, started: realNow(), finished: null, calls: [] }
@@ -114,6 +116,7 @@ async function run(scriptPath, argsPath, runDirArg) {
       args.push('--output-schema', join(dir, 'schema.json'))
     }
     args.push('-')
+    await waitForDisk(label)
     const out = openSync(join(dir, `events-${attempt}.jsonl`), 'a')
     const err = openSync(join(dir, `stderr-${attempt}.log`), 'a')
     Object.assign(call, { state: 'running', attempt, started: realNow(), ended: null, exit: null })
@@ -143,6 +146,19 @@ async function run(scriptPath, argsPath, runDirArg) {
     const result = exit === 0 && text ? parseResult(text, schema) : undefined
     runnerLog(`${result === undefined ? '실패' : '끝'} ${label} (시도 ${attempt}, 종료 코드 ${exit}, ${duration(call.started, call.ended)})`)
     return result
+  }
+
+  // A full disk breaks every running call at once, so new calls wait until space comes back.
+  async function waitForDisk(label) {
+    let warned = false
+    while (true) {
+      const stats = statfsSync(root)
+      const freeGb = (stats.bavail * stats.bsize) / 1024 ** 3
+      if (freeGb >= minFreeGb) return
+      if (!warned) runnerLog(`디스크 여유 ${freeGb.toFixed(1)}GB 라 ${label} 시작을 멈춘다. ${minFreeGb}GB 가 되면 이어 간다`)
+      warned = true
+      await new Promise(resume => setTimeout(resume, 60_000))
+    }
   }
 
   Date.now = () => { throw new Error('Date.now() is not allowed in workflow scripts') }
@@ -200,7 +216,7 @@ function recordRules(dir, runDir) {
 - 명령 출력이나 계산처럼 나중에 확인할 중간 산출물은 ${dir}/work/ 에 파일로 남긴다.
 - 끝내기 직전에 progress.md 에 "- HH:MM 완료: 한 줄 요약" 을 적는다.
 - ${runDir} 안의 다른 호출 디렉터리는 열지 않는다. 다른 agent 의 결과와 정답이 들어 있다.
-- 이 호출이 /tmp 에 만든 프로젝트 사본과 임시 파일은 끝내기 전에 지운다. 프로젝트 전체 사본은 1GB 가까이 되어 쌓이면 디스크가 찬다. 나중에 볼 파일은 ${dir}/work/ 에 남긴다. 다른 호출이 만든 /tmp 파일은 지우지 않는다.
+- 자원 회수: 이 호출이 /tmp 에 만든 프로젝트 사본과 임시 파일, 직접 띄운 Docker 컨테이너·볼륨·네트워크, 백그라운드로 띄운 프로세스는 최종 출력을 내기 전에 모두 지운다. 프로젝트 전체 사본은 1GB 가까이 되어 쌓이면 디스크가 찬다. 나중에 볼 파일은 ${dir}/work/ 에 남긴다. 다른 호출이 만든 것은 지우지 않는다.
 - docs/handoff.md 와 docs/log 의 작업 기록 문서는 실행을 조율하는 세션이 맡는다. 이 호출의 기록 디렉터리 밖에는 기록을 남기지 않는다.`
 }
 
