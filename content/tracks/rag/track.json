@@ -1,0 +1,11 @@
+{
+  "title": "검색 증강 파이프라인",
+  "kind": "build",
+  "summary": "문서 청크 나누기, BM25 와 벡터 검색, 검색 결과 결합, 검색 품질 평가를 표준 입출력 명령 처리기로 구현한다.",
+  "stages": [
+    { "dir": "01-chunking", "title": "청크 나누기" },
+    { "dir": "02-retrieval", "title": "낱말 검색과 벡터 검색" },
+    { "dir": "03-hybrid", "title": "검색 결과 결합과 다양성" },
+    { "dir": "04-eval", "title": "검색 품질 평가" }
+  ]
+}

@@ -1,0 +1,539 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "search-session",
+      "refs": [
+        "4.4",
+        "4.5",
+        "4.7",
+        "3.1",
+        "3.3"
+      ],
+      "quote": "`BM25<TAB>k<TAB>text`는 질의 텍스트로 청크를 검색한다.",
+      "input": [
+        "CONFIG\t100\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred",
+        "BUILD",
+        "BM25\t1\tred"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK\t1",
+        "1:0\t0.2877"
+      ]
+    },
+    {
+      "name": "ranking-session",
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.5"
+      ],
+      "quote": "전체 생성 청크 수를 N, 토큰 t를 포함한 청크 수를 df(t), 후보 d에 t가 나오는 횟수를 tf(t,d), d의 전체 토큰 수를 dl(d)라 한다.",
+      "input": [
+        "CONFIG\t100\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red blue",
+        "DOC\t2\t\tred",
+        "DOC\t3\t\tgreen",
+        "DOC\t4\t\t!!!",
+        "BUILD",
+        "BM25\t10\tRED red",
+        "BM25\t1\tred blue"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t4",
+        "2:0\t0.7549",
+        "1:0\t0.6838",
+        "1:0\t1.4494"
+      ]
+    },
+    {
+      "name": "context-session",
+      "refs": [
+        "4.4",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "`BM25<TAB>k<TAB>text`는 질의 텍스트로 청크를 검색한다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tTITLE",
+        "DOC\t1\tred\tred red",
+        "DOC\t2\tred\tblue",
+        "BUILD",
+        "BM25\t10\tred"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "1:0\t0.1836",
+        "1:1\t0.1836",
+        "2:0\t0.1335"
+      ]
+    },
+    {
+      "name": "overlap-session",
+      "refs": [
+        "4.6",
+        "4.7"
+      ],
+      "quote": "전체 생성 청크 수를 N, 토큰 t를 포함한 청크 수를 df(t), 후보 d에 t가 나오는 횟수를 tf(t,d), d의 전체 토큰 수를 dl(d)라 한다.",
+      "input": [
+        "CONFIG\t7\t3\tCHAR\tNONE",
+        "DOC\t1\t\tred red red",
+        "DOC\t2\t\tblue",
+        "BUILD",
+        "BM25\t10\tred"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "1:0\t0.6118",
+        "1:1\t0.6118"
+      ]
+    },
+    {
+      "name": "vocabulary-session",
+      "refs": [
+        "4.4",
+        "4.5",
+        "4.7"
+      ],
+      "quote": "`BM25<TAB>k<TAB>text`는 질의 텍스트로 청크를 검색한다.",
+      "input": [
+        "CONFIG\t100\t0\tCHAR\tNONE",
+        "DOC\t1\t\tAb12가나_é",
+        "DOC\t2\t\tab12 가나",
+        "DOC\t3\t\té 😀",
+        "BUILD",
+        "BM25\t10\tAB12+가나 -(ab12)",
+        "BM25\t10\tab12",
+        "BM25\t10\té 😀",
+        "BM25\t10\t"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "1:0\t0.7804",
+        "2:0\t0.7804",
+        "1:0\t0.3902",
+        "2:0\t0.3902",
+        "(none)",
+        "(none)"
+      ]
+    },
+    {
+      "name": "vector-session",
+      "refs": [
+        "4.8",
+        "4.9",
+        "3.4"
+      ],
+      "quote": "`VECTOR<TAB>k<TAB>vector`는 적재된 벡터가 있는 청크만 검색한다.",
+      "input": [
+        "CONFIG\t100\t0\tCHAR\tNONE",
+        "DOC\t10\t\tx",
+        "DOC\t2\t\tx",
+        "DOC\t1\t\tx",
+        "DOC\t3\t\tx",
+        "DOC\t4\t\tx",
+        "BUILD",
+        "VEC\t10:0\t-1,0",
+        "VEC\t2:0\t0,1",
+        "VEC\t1:0\t1,0",
+        "VEC\t3:0\t-0,0.0",
+        "VECTOR\t1000\t1,0",
+        "VECTOR\t2\t0,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t5",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t1.000000",
+        "2:0\t0.000000",
+        "3:0\t0.000000",
+        "10:0\t-1.000000",
+        "1:0\t0.000000",
+        "2:0\t0.000000"
+      ]
+    },
+    {
+      "name": "precision-session",
+      "refs": [
+        "3.3",
+        "3.4",
+        "4.9"
+      ],
+      "quote": "모든 수치 계산은 IEEE 754 Double로 한다.",
+      "input": [
+        "DOC\t2\t\tx",
+        "DOC\t1\t\tx",
+        "DOC\t3\t\tx",
+        "BUILD",
+        "VEC\t2:0\t1,0",
+        "VEC\t1:0\t1,0.000001",
+        "VEC\t3:0\t3,4",
+        "VECTOR\t3\t1,0",
+        "VECTOR\t3\t-1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t1.000000",
+        "2:0\t1.000000",
+        "3:0\t0.600000",
+        "3:0\t-0.600000",
+        "1:0\t-1.000000",
+        "2:0\t-1.000000"
+      ]
+    },
+    {
+      "name": "embedding-session",
+      "refs": [
+        "4.1",
+        "4.2",
+        "5.2"
+      ],
+      "quote": "`VEC<TAB>chunkId<TAB>vector`는 생성된 청크 하나의 벡터를 추가하거나 대체하고 `OK`를 출력한다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "BUILD",
+        "VECTOR\t1\t1,0,0",
+        "VEC\t9:0\t1,0",
+        "VEC\t1:0\t-1",
+        "VEC\t1:0\t1,0",
+        "VECTOR\t1\t1",
+        "VEC\t1:0\t0",
+        "VECTOR\t1\t1",
+        "VEC\t9:0\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "(none)",
+        "ERR NOT_FOUND",
+        "OK",
+        "ERR DIMENSION",
+        "1:0\t-1.000000",
+        "OK",
+        "1:0\t0.000000",
+        "ERR NOT_FOUND"
+      ]
+    },
+    {
+      "name": "rebuild-session",
+      "refs": [
+        "4.3",
+        "4.2"
+      ],
+      "quote": "성공한 DOC·DEL·CONFIG는 청크와 함께 모든 벡터와 차원을 폐기한다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "BUILD",
+        "VECTOR\t10\t1",
+        "VEC\t1:0\t1",
+        "CONFIG\t200\t20\tSENTENCE\tTITLE",
+        "VECTOR\t10\t1",
+        "BUILD",
+        "VEC\t1:0\t1,0,0",
+        "DOC\t1\t\tx",
+        "VECTOR\t10\t1",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "DEL\t1",
+        "BUILD",
+        "VECTOR\t10\t1"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "OK\t1",
+        "(none)",
+        "OK",
+        "OK",
+        "ERR NOT_BUILT",
+        "OK\t1",
+        "OK",
+        "OK",
+        "ERR NOT_BUILT",
+        "OK\t1",
+        "OK",
+        "OK",
+        "OK\t0",
+        "(none)"
+      ]
+    },
+    {
+      "name": "request-session",
+      "refs": [
+        "5.1",
+        "5.2",
+        "3.1"
+      ],
+      "quote": "VEC·BM25·VECTOR는 필드 수와 각 필드 형식·범위를 먼저 검사하고 위반 시 `ERR BAD_ARGUMENT`를 출력한다.",
+      "input": [
+        "BM25\t0\t",
+        "VECTOR\t1\tNaN",
+        "VEC\t01:0\t1",
+        "BM25\t1\t",
+        "VECTOR\t1\t1",
+        "VEC\t1:0\t1",
+        "BUILD",
+        "BM25\t1000\t",
+        "VEC\t1:0\t1",
+        "VECTOR\t1\t1,0"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NOT_BUILT",
+        "ERR NOT_BUILT",
+        "ERR NOT_BUILT",
+        "OK\t0",
+        "(none)",
+        "ERR NOT_FOUND",
+        "(none)"
+      ]
+    },
+    {
+      "name": "number-session",
+      "refs": [
+        "3.2",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "입력 실수는 `-?(0|[1-9][0-9]*)(\\.[0-9]{1,6})?` 형식이며 소수 부분은 최대 여섯 자리다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "BUILD",
+        "VEC\t1:0\t+1",
+        "VEC\t1:0\t01",
+        "VEC\t1:0\t1e2",
+        "VEC\t1:0\tNaN",
+        "VEC\t1:0\tInfinity",
+        "VEC\t1:0\t1.0000001",
+        "VEC\t1:0\t1000.000001",
+        "VEC\t1:0\t-1001",
+        "VEC\t1:0\t1,",
+        "VEC\t1:0\t1,,0",
+        "VEC\t1:0\t 1",
+        "VEC\t1:0\t1.",
+        "VEC\t1:0\t.5",
+        "VEC\t1:0\t0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
+        "VEC\t0:0\t1",
+        "VEC\t1:01\t1",
+        "VEC\t1:-1\t1",
+        "VEC\t1:1000000001\t1",
+        "VEC\t1\t1",
+        "VEC\t1:0:0\t1",
+        "VEC\t1:0\t-1000,0.000001",
+        "VECTOR\t1\t-1000,0.000001"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "OK",
+        "1:0\t1.000000"
+      ]
+    },
+    {
+      "name": "availability-session",
+      "refs": [
+        "5.2",
+        "4.3",
+        "4.8"
+      ],
+      "quote": "형식이 맞으면 세 명령 모두 청크 생성 여부를 검사하고 미생성이면 `ERR NOT_BUILT`다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VECTOR\t1\t1",
+        "VEC\t2:0\t1",
+        "VEC\t1:0\tNaN",
+        "BM25\t1\t?",
+        "VECTOR\t1\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "ERR DIMENSION",
+        "ERR NOT_FOUND",
+        "ERR BAD_ARGUMENT",
+        "(none)",
+        "1:0\t1.000000"
+      ]
+    },
+    {
+      "name": "ordering-session",
+      "refs": [
+        "3.4",
+        "3.3",
+        "4.7"
+      ],
+      "quote": "결과는 반올림한 점수 내림차순, 동점이면 청크 기본 순서로 정렬한다.",
+      "input": [
+        "CONFIG\t1\t0\tCHAR\tNONE",
+        "DOC\t10\t\tx",
+        "DOC\t2\t\txxxxxxxxxxx",
+        "BUILD",
+        "BM25\t1000\tx",
+        "CONFIG\t1000\t0\tCHAR\tNONE",
+        "DEL\t10",
+        "DOC\t2\t\tred red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red",
+        "DOC\t1\t\tred red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red red",
+        "BUILD",
+        "BM25\t2\tred",
+        "BM25\t1\tred"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t12",
+        "2:0\t0.0392",
+        "2:1\t0.0392",
+        "2:2\t0.0392",
+        "2:3\t0.0392",
+        "2:4\t0.0392",
+        "2:5\t0.0392",
+        "2:6\t0.0392",
+        "2:7\t0.0392",
+        "2:8\t0.0392",
+        "2:9\t0.0392",
+        "2:10\t0.0392",
+        "10:0\t0.0392",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t2",
+        "1:0\t0.3901",
+        "2:0\t0.3901",
+        "1:0\t0.3901"
+      ]
+    },
+    {
+      "name": "coordinate-session",
+      "refs": [
+        "4.9",
+        "3.2",
+        "4.2"
+      ],
+      "quote": "코사인은 `dot(a,b)/(sqrt(dot(a,a))*sqrt(dot(b,b)))`다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "BUILD",
+        "VEC\t1:0\t1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1",
+        "VECTOR\t1\t-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1",
+        "BM25\t1001\tx",
+        "VECTOR\t1\t1\t",
+        "VECTOR\t1\t0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "1:0\t-1.000000",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "1:0\t0.000000"
+      ]
+    },
+    {
+      "name": "practice-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "대규모 테스트는 청크 최대 50,000개, 차원 최대 32, BM25·VECTOR 질의 합계 최대 100개다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "12",
+        "--rounds",
+        "12",
+        "--dimensions",
+        "8"
+      ],
+      "repeat": 2,
+      "timeout_sec": 10
+    },
+    {
+      "name": "archive-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "대규모 테스트는 청크 최대 50,000개, 차원 최대 32, BM25·VECTOR 질의 합계 최대 100개다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10000",
+        "--queries",
+        "80",
+        "--rounds",
+        "0",
+        "--dimensions",
+        "32"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    }
+  ]
+}

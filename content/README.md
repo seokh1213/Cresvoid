@@ -16,6 +16,7 @@
 |---|---|---|
 | `search-engine` | build | 6 |
 | `agent-runtime` | build | 5 |
+| `rag` | build | 4 |
 | `mini-dfs` | build | 3 |
 | `es-cluster` | build | 3 |
 | `mini-olap` | build | 3 |

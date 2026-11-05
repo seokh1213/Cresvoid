@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | [읽기](reading/README.md) | 15 | 6 | 6 | 3 | 0 |
 | [구현](implementation/README.md) | 32 | 22 | 0 | 10 | 0 |
-| [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 1 | 2 | 0 |
+| [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 5 | 1 | 2 | 0 |
 | [설계 패턴](backend/design-patterns/README.md) | 11 | 6 | 3 | 2 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 119 | 15 | 49 | 2 |
+| 합계 | 185 | 119 | 14 | 50 | 2 |
 
 ## 다음 후보
 
@@ -212,7 +212,7 @@
 | olap-lab | lab | 없음 | 01 |  | sorting-key(L-olap-40 4차), replacing-merge(L-olap-41 4차), too-many-parts(L-olap-42 5차) |
 | pipeline-lab | lab | 없음 | 01 |  | candidate-recall(L-pipeline-90 5차) |
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
-| rag | build | 없음 | 05 | 01-chunking(B-ai-agent-30 제작 중), 02-retrieval(B-ai-agent-30 제작 중), 03-hybrid(B-ai-agent-30 제작 중), 04-eval(B-ai-agent-30 제작 중) |  |
+| rag | build | 있음 | 05 | 01-chunking(B-ai-agent-30 완료), 02-retrieval(B-ai-agent-30 완료), 03-hybrid(B-ai-agent-30 완료), 04-eval(B-ai-agent-30 완료) |  |
 | rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료) | 04-client-throttle(B-system-design-25 4차) |
 | reading | reading | 있음 | 10 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 제작 중), 05-key-exchange(R-technology-10 제작 중), 06-rescission(R-society-10 제작 중), 07-saussure(R-humanities-10 제작 중), 08-perspective(R-art-10 제작 중), 09-falsification(R-interdisciplinary-10 제작 중) | source-criticism(R-humanities-20 5차), carnot(R-science-20 5차), plate-tectonics(R-science-30 5차), monetary-policy(R-society-20 5차), prospect-theory(R-society-30 5차), congestion-control(R-technology-20 5차) |
 | record-range | build | 없음 | 04 |  | 01-lines(B-record-range-10 4차), 02-json-ranges(B-record-range-10 4차), 03-range-read(B-record-range-10 4차) |
@@ -299,7 +299,7 @@
 |---|---|---|---|---|---|---|---|---|
 | [R-ai-agent-10](backend/ai-agent/cards/R-ai-agent-10-agent-loop.md) | 에이전트 루프와 도구 호출 | reading | tech-reading | 01-agent-loop | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-ai-agent-20](backend/ai-agent/cards/B-ai-agent-20-agent-runtime.md) | 에이전트 실행기 만들기 | build | agent-runtime | 01-loop, 02-schema, 03-parallel, 04-context, 05-guard | 완료(2026-10-10) | 2 | 없음 | R-ai-agent-10 |
-| [B-ai-agent-30](backend/ai-agent/cards/B-ai-agent-30-rag.md) | 검색 증강 파이프라인 만들기 | build | rag | 01-chunking, 02-retrieval, 03-hybrid, 04-eval | 제작 중 | 2 | 없음 |  |
+| [B-ai-agent-30](backend/ai-agent/cards/B-ai-agent-30-rag.md) | 검색 증강 파이프라인 만들기 | build | rag | 01-chunking, 02-retrieval, 03-hybrid, 04-eval | 완료(2026-11-05) | 2 | 없음 |  |
 | [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 후보 | 3 | 없음 | B-ai-agent-20 |
 | [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | real-model | 후보 | 5 | llm-api | B-ai-agent-20 |
 

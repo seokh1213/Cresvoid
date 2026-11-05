@@ -1,0 +1,571 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "evaluation-session",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.4",
+        "4.7",
+        "4.9",
+        "4.10",
+        "3.2"
+      ],
+      "quote": "`QRY<TAB>qid<TAB>text<TAB>vector`는 평가 질의를 추가하거나 같은 qid의 text와 vector를 통째로 대체하고 `OK`를 출력한다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "BUILD",
+        "QRY\t1\tred\t0",
+        "REL\t1\t1\t1",
+        "EVAL\t1\tBM25\t1"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "OK",
+        "1\t1.000000\t1.000000\t1.000000"
+      ]
+    },
+    {
+      "name": "cutoff-session",
+      "refs": [
+        "4.8",
+        "4.4",
+        "4.7"
+      ],
+      "quote": "RR은 k와 관계없이 전체 문서 목록에서 처음 R의 원소가 나타나는 순위를 r라 할 때 `1.0/r`이다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "DOC\t2\t\tred",
+        "DOC\t3\t\tred",
+        "BUILD",
+        "QRY\t1\tred\t0",
+        "REL\t1\t3\t1",
+        "EVAL\t1\tBM25\t1",
+        "EVAL\t1\tBM25\t3"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "1\t0.000000\t0.333333\t0.000000",
+        "1\t1.000000\t0.333333\t0.500000"
+      ]
+    },
+    {
+      "name": "grade-session",
+      "refs": [
+        "4.9",
+        "4.10",
+        "4.11"
+      ],
+      "quote": "등급 g의 이득은 `2^g-1`이다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "DOC\t2\t\tred",
+        "DOC\t3\t\tred",
+        "BUILD",
+        "QRY\t1\tred\t0",
+        "REL\t1\t1\t1",
+        "REL\t1\t2\t3",
+        "REL\t1\t3\t2",
+        "REL\t1\t9\t3",
+        "EVAL\t1\tBM25\t3",
+        "EVAL\t1\tBM25\t1000"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "1\t0.750000\t1.000000\t0.535478",
+        "1\t0.750000\t1.000000\t0.518200"
+      ]
+    },
+    {
+      "name": "document-session",
+      "refs": [
+        "4.6",
+        "4.4"
+      ],
+      "quote": "청크 목록을 앞에서부터 읽으며 같은 문서의 첫 청크만 남겨 문서 목록을 만든다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "QRY\t1\tred\t0",
+        "REL\t1\t2\t3",
+        "EVAL\t1\tBM25\t2"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t4",
+        "OK",
+        "OK",
+        "1\t1.000000\t0.500000\t0.630930"
+      ]
+    },
+    {
+      "name": "answer-session",
+      "refs": [
+        "4.7",
+        "4.2",
+        "4.3",
+        "4.10"
+      ],
+      "quote": "qid의 관련 문서 집합 R은 현재 정답 등급이 1 이상인 모든 문서 id다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "DOC\t2\t\tred",
+        "DOC\t3\tTitle\t",
+        "BUILD",
+        "QRY\t1\tred\t0",
+        "REL\t1\t1\t1",
+        "REL\t1\t2\t2",
+        "REL\t1\t3\t1",
+        "REL\t1\t9\t3",
+        "DEL\t2",
+        "BUILD",
+        "EVAL\t1\tBM25\t1000",
+        "REL\t1\t9\t0",
+        "REL\t1\t1\t3",
+        "QRY\t1\tRED\t1,0",
+        "EVAL\t1\tBM25\t1"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t2",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t1",
+        "1\t0.250000\t1.000000\t0.101797",
+        "OK",
+        "OK",
+        "OK",
+        "1\t0.333333\t1.000000\t1.000000"
+      ]
+    },
+    {
+      "name": "average-session",
+      "refs": [
+        "4.12",
+        "4.11",
+        "3.2"
+      ],
+      "quote": "`EVALALL<TAB>method<TAB>k`는 모든 등록 질의를 qid 오름차순으로 평가해 질의별 행을 출력한 뒤 평균 행을 하나 출력한다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "DOC\t2\t\tred",
+        "DOC\t3\t\tred",
+        "DOC\t4\t\tred",
+        "DOC\t5\t\tred",
+        "DOC\t6\t\tred",
+        "BUILD",
+        "QRY\t10\tred\t0",
+        "QRY\t2\tred\t0",
+        "REL\t2\t6\t1",
+        "EVALALL\tBM25\t6"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t6",
+        "OK",
+        "OK",
+        "OK",
+        "2\t1.000000\t0.166667\t0.356207",
+        "10\t0.000000\t0.000000\t0.000000",
+        "MEAN\t2\t0.500000\t0.083333\t0.178104"
+      ]
+    },
+    {
+      "name": "empty-session",
+      "refs": [
+        "4.12",
+        "4.7",
+        "4.8",
+        "4.10",
+        "5.2"
+      ],
+      "quote": "`EVALALL<TAB>method<TAB>k`는 모든 등록 질의를 qid 오름차순으로 평가해 질의별 행을 출력한 뒤 평균 행을 하나 출력한다.",
+      "input": [
+        "BUILD",
+        "EVALALL\tVECTOR\t1",
+        "QRY\t1\t\t0",
+        "EVAL\t1\tBM25\t1",
+        "EVAL\t1\tVECTOR\t1",
+        "REL\t1\t9\t3",
+        "EVAL\t1\tRRF\t1"
+      ],
+      "expected": [
+        "OK\t0",
+        "MEAN\t0\t0.000000\t0.000000\t0.000000",
+        "OK",
+        "1\t0.000000\t0.000000\t0.000000",
+        "1\t0.000000\t0.000000\t0.000000",
+        "OK",
+        "1\t0.000000\t0.000000\t0.000000"
+      ]
+    },
+    {
+      "name": "vector-session",
+      "refs": [
+        "4.4",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "`EVAL<TAB>qid<TAB>method<TAB>k`는 등록 질의 하나를 현재 생성 청크로 검색하여 질의별 평가 행 하나를 출력한다.",
+      "input": [
+        "CONFIG\t1\t0\tCHAR\tNONE",
+        "DOC\t1\t\txx",
+        "DOC\t2\t\tx",
+        "DOC\t3\t\tx",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "VEC\t3:0\t-1,0",
+        "QRY\t1\t\t1,0",
+        "REL\t1\t3\t1",
+        "EVAL\t1\tVECTOR\t2",
+        "EVAL\t1\tVECTOR\t3"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t4",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "1\t0.000000\t0.333333\t0.000000",
+        "1\t1.000000\t0.333333\t0.500000"
+      ]
+    },
+    {
+      "name": "fusion-session",
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "RRF 평가도 질의의 text와 vector를 사용한다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "DOC\t2\t\tred",
+        "DOC\t3\t\tblue",
+        "BUILD",
+        "VEC\t3:0\t1",
+        "QRY\t1\tred\t1",
+        "REL\t1\t3\t1",
+        "EVAL\t1\tRRF\t1",
+        "EVAL\t1\tRRF\t2"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1\t0.000000\t0.500000\t0.000000",
+        "1\t1.000000\t0.500000\t0.630930"
+      ]
+    },
+    {
+      "name": "comparison-session",
+      "refs": [
+        "4.13",
+        "4.14",
+        "4.15"
+      ],
+      "quote": "`COMPARE<TAB>k<TAB>sizeA<TAB>overlapA<TAB>modeA<TAB>contextA<TAB>sizeB<TAB>overlapB<TAB>modeB<TAB>contextB`는 A·B 두 설정으로 현재 문서들에서 각각 임시 청크를 만들고 전체 등록 질의를 BM25로 평가한다.",
+      "input": [
+        "CONFIG\t5\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred zz zz",
+        "DOC\t2\t\tred",
+        "QRY\t1\tred\t0",
+        "REL\t1\t1\t1",
+        "COMPARE\t1\t100\t0\tCHAR\tNONE\t4\t0\tCHAR\tNONE",
+        "CHUNKS",
+        "BUILD",
+        "VEC\t1:0\t1",
+        "VEC\t2:0\t-1",
+        "COMPARE\t1\t4\t0\tCHAR\tNONE\t100\t0\tCHAR\tNONE",
+        "VECTOR\t2\t1",
+        "CHUNKS",
+        "EVAL\t1\tBM25\t1",
+        "VECTOR\t1\t1,0",
+        "BUILD",
+        "CHUNKS",
+        "DOC\t2\t\tred zz zz",
+        "DOC\t3\t\tred zz zz",
+        "DOC\t4\t\tred zz",
+        "DOC\t5\t\tred zz",
+        "DOC\t6\t\tred zz",
+        "REL\t1\t1\t0",
+        "REL\t1\t3\t1",
+        "COMPARE\t1\t100\t0\tCHAR\tNONE\t4\t0\tCHAR\tNONE"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "A\t2\t0.000000\t0.500000\t0.000000",
+        "B\t4\t1.000000\t1.000000\t1.000000",
+        "DELTA\t1.000000\t0.500000\t1.000000",
+        "ERR NOT_BUILT",
+        "OK\t3",
+        "OK",
+        "OK",
+        "A\t4\t1.000000\t1.000000\t1.000000",
+        "B\t2\t0.000000\t0.500000\t0.000000",
+        "DELTA\t-1.000000\t-0.500000\t-1.000000",
+        "1:0\t1.000000",
+        "2:0\t-1.000000",
+        "1:0\t0\t5\tred z",
+        "1:1\t5\t9\tz zz",
+        "2:0\t0\t3\tred",
+        "1\t0.000000\t0.500000\t0.000000",
+        "ERR DIMENSION",
+        "OK\t3",
+        "1:0\t0\t5\tred z",
+        "1:1\t5\t9\tz zz",
+        "2:0\t0\t3\tred",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "A\t6\t0.000000\t0.166667\t0.000000",
+        "B\t15\t0.000000\t0.333333\t0.000000",
+        "DELTA\t0.000000\t0.166667\t0.000000"
+      ]
+    },
+    {
+      "name": "context-session",
+      "refs": [
+        "4.13",
+        "4.14",
+        "4.15"
+      ],
+      "quote": "`COMPARE<TAB>k<TAB>sizeA<TAB>overlapA<TAB>modeA<TAB>contextA<TAB>sizeB<TAB>overlapB<TAB>modeB<TAB>contextB`는 A·B 두 설정으로 현재 문서들에서 각각 임시 청크를 만들고 전체 등록 질의를 BM25로 평가한다.",
+      "input": [
+        "DOC\t1\tred\tblue",
+        "DOC\t2\t\tred",
+        "QRY\t1\tred\t0",
+        "REL\t1\t1\t3",
+        "COMPARE\t1\t100\t0\tSENTENCE\tNONE\t100\t0\tSENTENCE\tTITLE",
+        "CHUNKS"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "A\t2\t0.000000\t0.000000\t0.000000",
+        "B\t2\t0.000000\t0.500000\t0.000000",
+        "DELTA\t0.000000\t0.500000\t0.000000",
+        "ERR NOT_BUILT"
+      ]
+    },
+    {
+      "name": "snapshot-session",
+      "refs": [
+        "4.3",
+        "4.1",
+        "4.2",
+        "4.14"
+      ],
+      "quote": "QRY 대체는 그 qid의 정답 등급을 유지한다.",
+      "input": [
+        "DOC\t1\t\taa. bb!",
+        "COMPARE\t1\t3\t0\tSENTENCE\tNONE\t7\t3\tCHAR\tTITLE",
+        "QRY\t1\taa\t1,0",
+        "REL\t1\t1\t2",
+        "BUILD",
+        "VEC\t1:0\t1",
+        "EVAL\t1\tBM25\t1",
+        "QRY\t1\taa\t1",
+        "EVAL\t1\tVECTOR\t1",
+        "DOC\t1\t\taa. bb!",
+        "CONFIG\t3\t0\tSENTENCE\tNONE",
+        "BUILD",
+        "EVAL\t1\tBM25\t1"
+      ],
+      "expected": [
+        "OK",
+        "A\t2\t0.000000\t0.000000\t0.000000",
+        "B\t1\t0.000000\t0.000000\t0.000000",
+        "DELTA\t0.000000\t0.000000\t0.000000",
+        "OK",
+        "OK",
+        "OK\t1",
+        "OK",
+        "1\t1.000000\t1.000000\t1.000000",
+        "OK",
+        "1\t1.000000\t1.000000\t1.000000",
+        "OK",
+        "OK",
+        "OK\t2",
+        "1\t1.000000\t1.000000\t1.000000"
+      ]
+    },
+    {
+      "name": "request-session",
+      "refs": [
+        "5.1",
+        "5.2",
+        "3.1"
+      ],
+      "quote": "새 다섯 명령은 필드 수, 정수·실수·벡터 문법, 열거형과 범위를 먼저 검사하여 위반 시 `ERR BAD_ARGUMENT`를 출력한다.",
+      "input": [
+        "QRY\t01\tred\t0",
+        "QRY\t1\tred\t1e0",
+        "REL\t1\t1\t4",
+        "EVAL\t1\tMMR\t1",
+        "EVALALL\tBM25\t0",
+        "COMPARE\t1\t4\t4\tCHAR\tNONE\t4\t0\tCHAR\tNONE",
+        "COMPARE\t1\t4\t0\tCHAR\tNONE\t4\t0\tCHAR\tNONE\t",
+        "REL\t1\t1\t1",
+        "EVAL\t1\tBM25\t1",
+        "EVALALL\tVECTOR\t1",
+        "BUILD",
+        "EVAL\t1\tVECTOR\t1"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NOT_FOUND",
+        "ERR NOT_BUILT",
+        "ERR NOT_BUILT",
+        "OK\t0",
+        "ERR NOT_FOUND"
+      ]
+    },
+    {
+      "name": "dimension-session",
+      "refs": [
+        "5.2",
+        "4.1",
+        "4.3"
+      ],
+      "quote": "형식이 올바른 EVAL·EVALALL은 먼저 청크 생성 여부를 검사하여 미생성이면 `ERR NOT_BUILT`다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "QRY\t1\tred\t1,0",
+        "QRY\t2\tred\t1",
+        "REL\t1\t1\t1",
+        "REL\t2\t1\t1",
+        "EVALALL\tVECTOR\t1",
+        "EVALALL\tRRF\t1",
+        "EVAL\t2\tVECTOR\t1",
+        "EVALALL\tBM25\t1",
+        "BUILD",
+        "EVALALL\tVECTOR\t1"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "ERR DIMENSION",
+        "ERR DIMENSION",
+        "ERR DIMENSION",
+        "1\t1.000000\t1.000000\t1.000000",
+        "2\t1.000000\t1.000000\t1.000000",
+        "MEAN\t2\t1.000000\t1.000000\t1.000000",
+        "OK\t1",
+        "1\t0.000000\t0.000000\t0.000000",
+        "2\t0.000000\t0.000000\t0.000000",
+        "MEAN\t2\t0.000000\t0.000000\t0.000000"
+      ]
+    },
+    {
+      "name": "practice-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "대규모 테스트는 현재 또는 비교 설정별 청크 최대 50,000개, 차원 최대 32, 등록 질의 최대 100개, 정답 쌍 최대 10,000개다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "12",
+        "--rounds",
+        "12",
+        "--dimensions",
+        "8"
+      ],
+      "repeat": 2,
+      "timeout_sec": 10
+    },
+    {
+      "name": "archive-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "대규모 테스트는 현재 또는 비교 설정별 청크 최대 50,000개, 차원 최대 32, 등록 질의 최대 100개, 정답 쌍 최대 10,000개다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10000",
+        "--queries",
+        "12",
+        "--rounds",
+        "0",
+        "--dimensions",
+        "32"
+      ],
+      "repeat": 2,
+      "timeout_sec": 60
+    }
+  ]
+}

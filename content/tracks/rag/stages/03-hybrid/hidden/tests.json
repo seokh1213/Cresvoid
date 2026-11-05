@@ -1,0 +1,495 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "fusion-session",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "quote": "`RRF<TAB>k<TAB>depth<TAB>c<TAB>text<TAB>vector`는 BM25 상위 depth개와 VECTOR 상위 depth개를 결합하고 상위 k개 청크를 출력한다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1",
+        "RRF\t1\t1\t0\tred\t1"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "1:0\t2.000000"
+      ]
+    },
+    {
+      "name": "catalog-session",
+      "refs": [
+        "4.2",
+        "3.1",
+        "4.3"
+      ],
+      "quote": "잘린 두 목록의 합집합만 결합 후보다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "RRF\t3\t3\t0\tred\t1,0",
+        "RRF\t3\t3\t-\tred\t1,0",
+        "RRF\t3\t3\t60\tred\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t2.000000",
+        "1:1\t1.000000",
+        "2:0\t0.666667",
+        "1:0\t0.032787",
+        "1:1\t0.032258",
+        "2:0\t0.031746",
+        "1:0\t0.032787",
+        "1:1\t0.032258",
+        "2:0\t0.031746"
+      ]
+    },
+    {
+      "name": "selection-session",
+      "refs": [
+        "4.2",
+        "4.1",
+        "4.3"
+      ],
+      "quote": "잘린 두 목록의 합집합만 결합 후보다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "RRF\t1000\t1\t0\tred\t0,1",
+        "RRF\t1\t3\t0\tred\t0,1"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t1.000000",
+        "2:0\t1.000000",
+        "1:0\t1.500000"
+      ]
+    },
+    {
+      "name": "list-session",
+      "refs": [
+        "4.1",
+        "4.2",
+        "3.2"
+      ],
+      "quote": "`RRF<TAB>k<TAB>depth<TAB>c<TAB>text<TAB>vector`는 BM25 상위 depth개와 VECTOR 상위 depth개를 결합하고 상위 k개 청크를 출력한다.",
+      "input": [
+        "DOC\t10\t\tred",
+        "DOC\t2\t\tblue",
+        "DOC\t1\t\tgreen",
+        "BUILD",
+        "VEC\t10:0\t-1",
+        "VEC\t2:0\t0",
+        "RRF\t1000\t1000\t1000\t\t1",
+        "RRF\t3\t3\t0\tgreen\t1"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "2:0\t0.000999",
+        "10:0\t0.000998",
+        "1:0\t1.000000",
+        "2:0\t1.000000",
+        "10:0\t0.500000"
+      ]
+    },
+    {
+      "name": "diversity-session",
+      "refs": [
+        "4.4",
+        "4.5",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "`MMR<TAB>k<TAB>depth<TAB>c<TAB>lambda<TAB>text<TAB>vector`는 같은 결합 후보와 반올림한 RRF 점수를 구한 뒤 최대 k개를 차례로 고른다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "MMR\t3\t3\t0\t0.5\tred\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t0.500000",
+        "2:0\t0.166667",
+        "1:1\t-0.250000"
+      ]
+    },
+    {
+      "name": "weight-session",
+      "refs": [
+        "4.7",
+        "4.6"
+      ],
+      "quote": "MMR는 선택 순서대로 청크 id와 그 청크를 고르던 시점의 반올림한 선택 점수를 출력한다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "MMR\t1000\t3\t0\t1\tred\t1,0",
+        "MMR\t3\t3\t0\t0\tred\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t1.000000",
+        "1:1\t0.500000",
+        "2:0\t0.333334",
+        "1:0\t0.000000",
+        "2:0\t0.000000",
+        "1:1\t-1.000000"
+      ]
+    },
+    {
+      "name": "direction-session",
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "이미 선택한 집합을 S라 할 때 후보 x의 중복도 red(x,S)는 `max(0, sim(x,s): s∈S)`다.",
+      "input": [
+        "DOC\t1\t\tred",
+        "DOC\t2\t\tred",
+        "DOC\t3\t\tred",
+        "DOC\t4\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t2:0\t-1,0",
+        "VEC\t3:0\t0,0",
+        "MMR\t4\t4\t0\t0\tred\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK\t4",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t0.000000",
+        "2:0\t0.000000",
+        "3:0\t0.000000",
+        "4:0\t0.000000"
+      ]
+    },
+    {
+      "name": "priority-session",
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.3"
+      ],
+      "quote": "선택 점수는 `lambda*rel(x)-(1.0-lambda)*red(x,S)`다.",
+      "input": [
+        "DOC\t1\t\tblue",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t2:0\t0,1",
+        "RRF\t2\t2\t0\tred\t0,1",
+        "MMR\t2\t2\t0\t0\tred\t0,1"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK\t2",
+        "OK",
+        "OK",
+        "2:0\t2.000000",
+        "1:0\t0.500000",
+        "1:0\t0.000000",
+        "2:0\t0.000000"
+      ]
+    },
+    {
+      "name": "document-session",
+      "refs": [
+        "4.8",
+        "4.9",
+        "3.2"
+      ],
+      "quote": "`GROUP<TAB>k<TAB>depth<TAB>c<TAB>text<TAB>vector`는 4.3의 전체 결합 목록을 문서 id로 묶는다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "GROUP\t2\t3\t0\tred\t1,0",
+        "GROUP\t1\t3\t0\tred\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1\t2.000000\t1:0,1:1",
+        "2\t0.666667\t2:0",
+        "1\t2.000000\t1:0,1:1"
+      ]
+    },
+    {
+      "name": "member-session",
+      "refs": [
+        "4.9",
+        "4.8"
+      ],
+      "quote": "각 GROUP 행의 청크id목록은 해당 문서의 결합 후보를 결합 목록에서 나타난 순서로 전부 나열한다.",
+      "input": [
+        "CONFIG\t4\t0\tCHAR\tNONE",
+        "DOC\t1\t\tred red",
+        "DOC\t2\t\tred",
+        "BUILD",
+        "VEC\t1:0\t-1,0",
+        "VEC\t1:1\t1,0",
+        "VEC\t2:0\t0,1",
+        "GROUP\t1000\t3\t0\tred\t1,0",
+        "GROUP\t1000\t1\t0\tred\t1,0",
+        "GROUP\t1000\t1\t0\tred\t0,1"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1\t1.500000\t1:1,1:0",
+        "2\t0.833333\t2:0",
+        "1\t1.000000\t1:0,1:1",
+        "1\t1.000000\t1:0",
+        "2\t1.000000\t2:0"
+      ]
+    },
+    {
+      "name": "empty-session",
+      "refs": [
+        "4.4",
+        "3.2",
+        "5.1"
+      ],
+      "quote": "`MMR<TAB>k<TAB>depth<TAB>c<TAB>lambda<TAB>text<TAB>vector`는 같은 결합 후보와 반올림한 RRF 점수를 구한 뒤 최대 k개를 차례로 고른다.",
+      "input": [
+        "BUILD",
+        "RRF\t1\t1\t-\t\t1",
+        "MMR\t1\t1\t-\t0.5\t\t1",
+        "GROUP\t1\t1\t-\t\t1",
+        "DOC\t1\t\tred",
+        "BUILD",
+        "RRF\t1\t1\t0\tred\t1",
+        "MMR\t1\t1\t0\t0.5\tred\t1"
+      ],
+      "expected": [
+        "OK\t0",
+        "(none)",
+        "(none)",
+        "(none)",
+        "OK",
+        "OK\t1",
+        "1:0\t1.000000",
+        "1:0\t0.500000"
+      ]
+    },
+    {
+      "name": "request-session",
+      "refs": [
+        "5.1",
+        "3.1"
+      ],
+      "quote": "새 세 명령은 먼저 필드 수와 모든 필드의 문법·범위를 검사하여 틀리면 `ERR BAD_ARGUMENT`를 출력한다.",
+      "input": [
+        "RRF\t0\t1\t0\t\t1",
+        "RRF\t1\t0\t0\t\t1",
+        "RRF\t1\t1\t1001\t\t1",
+        "MMR\t1\t1\t0\t1.000001\t\t1",
+        "MMR\t1\t1\t0\t-0.000001\t\t1",
+        "GROUP\t1\t1\t01\t\t1",
+        "RRF\t1\t1\t0\t\t1e0",
+        "GROUP\t1\t1\t0\t\t1\t",
+        "RRF\t1\t1\t0\t\t1",
+        "MMR\t1\t1\t0\t0\t\t1",
+        "GROUP\t1\t1\t0\t\t1"
+      ],
+      "expected": [
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR BAD_ARGUMENT",
+        "ERR NOT_BUILT",
+        "ERR NOT_BUILT",
+        "ERR NOT_BUILT"
+      ]
+    },
+    {
+      "name": "state-session",
+      "refs": [
+        "5.1",
+        "4.1"
+      ],
+      "quote": "새 세 명령은 먼저 필드 수와 모든 필드의 문법·범위를 검사하여 틀리면 `ERR BAD_ARGUMENT`를 출력한다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "BUILD",
+        "VEC\t1:0\t1,0",
+        "RRF\t1\t1\t0\tmissing\t1",
+        "MMR\t1\t1\t0\t0.5\t\t1",
+        "GROUP\t1\t1\t0\t\t1",
+        "MMR\t1\t1\t0\t2\t\t1",
+        "RRF\t1\t1\t0\t\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK\t1",
+        "OK",
+        "ERR DIMENSION",
+        "ERR DIMENSION",
+        "ERR DIMENSION",
+        "ERR BAD_ARGUMENT",
+        "1:0\t1.000000"
+      ]
+    },
+    {
+      "name": "rounding-session",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4"
+      ],
+      "quote": "`RRF<TAB>k<TAB>depth<TAB>c<TAB>text<TAB>vector`는 BM25 상위 depth개와 VECTOR 상위 depth개를 결합하고 상위 k개 청크를 출력한다.",
+      "input": [
+        "DOC\t1\t\tx",
+        "DOC\t2\t\tx",
+        "DOC\t3\t\tx",
+        "BUILD",
+        "VEC\t1:0\t1,0.000001",
+        "VEC\t2:0\t1,0",
+        "VEC\t3:0\t0,1",
+        "RRF\t3\t3\t1\tx\t1,0",
+        "MMR\t3\t3\t1\t1\tx\t1,0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK\t3",
+        "OK",
+        "OK",
+        "OK",
+        "1:0\t1.000000",
+        "2:0\t0.666667",
+        "3:0\t0.500000",
+        "1:0\t1.000000",
+        "2:0\t0.666667",
+        "3:0\t0.500000"
+      ]
+    },
+    {
+      "name": "practice-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "대규모 테스트는 청크 최대 50,000개와 차원 최대 32를 사용한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "40",
+        "--queries",
+        "12",
+        "--rounds",
+        "12",
+        "--dimensions",
+        "8"
+      ],
+      "repeat": 2,
+      "timeout_sec": 10
+    },
+    {
+      "name": "archive-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "대규모 테스트는 청크 최대 50,000개와 차원 최대 32를 사용한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--docs",
+        "10000",
+        "--queries",
+        "21",
+        "--rounds",
+        "0",
+        "--dimensions",
+        "32"
+      ],
+      "repeat": 2,
+      "timeout_sec": 40
+    }
+  ]
+}
