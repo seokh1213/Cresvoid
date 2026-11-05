@@ -43,6 +43,18 @@ class LabIntegrationTest : FunSpec({
         }
     }
 
+    test("지표를 내기 전에 끝난 실험은 형식 오류가 아니라 실험 오류로 알린다") {
+        Sandbox(engineJar).use { sandbox ->
+            addLabTrack(sandbox)
+            sandbox.cresvoid("start", "mini-lab").expectExit(0, "시작")
+            sandbox.cresvoid("quiz", "mini-lab", input = "1\nready\n").expectExit(0, "문항")
+            sandbox.file("content/tracks/mini-lab/stages/01-observe/hidden/experiment.main.kts", "System.err.println(\"crashed\")\nkotlin.system.exitProcess(2)\n")
+            sandbox.cresvoid("test", "mini-lab").expectExit(1, "실험 오류")
+                .expectOutput("실험을 완료하지 못했습니다 (종료 코드 2)", "실험 오류 문구")
+                .expectNoOutput("형식이 잘못되었습니다", "형식 오류로 잘못 알림")
+        }
+    }
+
     test("lab 검증은 통과하는 must_fail 변형을 거절한다") {
         Sandbox(engineJar).use { sandbox ->
             addLabTrack(sandbox)

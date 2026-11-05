@@ -28,12 +28,12 @@ class LabHarness(private val runner: ProcessRunner) {
         if (result.startError != null) return LabRun(LabOutcome.Invalid("실험을 시작하지 못했습니다"), emptyList())
         if (result.timedOut) return LabRun(LabOutcome.Invalid("제한 시간 ${scenario.timeoutSec}초를 넘었습니다"), emptyList())
         if (result.truncated) return LabRun(LabOutcome.Invalid("지표 출력 제한을 넘었습니다"), emptyList())
-        val metrics = parseMetrics(result.stdout) ?: return LabRun(LabOutcome.Invalid("실험 지표 출력 형식이 잘못되었습니다"), emptyList())
-        val outcome = when (result.exitCode) {
-            0 -> LabOutcome.Passed
-            1 -> LabOutcome.InvariantFailed
-            else -> LabOutcome.Invalid("실험을 완료하지 못했습니다 (종료 코드 ${result.exitCode})")
+        // An experiment that crashes before reporting leaves stdout empty; say it crashed instead of blaming the format.
+        if (result.exitCode != 0 && result.exitCode != 1) {
+            return LabRun(LabOutcome.Invalid("실험을 완료하지 못했습니다 (종료 코드 ${result.exitCode})"), parseMetrics(result.stdout).orEmpty())
         }
+        val metrics = parseMetrics(result.stdout) ?: return LabRun(LabOutcome.Invalid("실험 지표 출력 형식이 잘못되었습니다"), emptyList())
+        val outcome = if (result.exitCode == 0) LabOutcome.Passed else LabOutcome.InvariantFailed
         return LabRun(outcome, metrics)
     }
 }
