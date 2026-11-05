@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "seller-catalog",
+      "refs": ["3", "6", "7", "8", "9", "10"],
+      "quote": "저장한 상품의 수와 검색 결과를 Elasticsearch에서 직접 확인한다.",
+      "timeout_sec": 480,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/object-pairs"]
+}

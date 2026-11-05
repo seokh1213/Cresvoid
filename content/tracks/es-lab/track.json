@@ -1,0 +1,11 @@
+{
+  "title": "검색 엔진 실험",
+  "kind": "lab",
+  "summary": "Docker 로 띄운 Elasticsearch 에서 매핑 폭증, 깊은 페이지 넘기기, 한글 분석, terms 집계 오차를 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-mapping-explosion", "title": "동적 매핑과 필드 폭증" },
+    { "dir": "02-deep-paging", "title": "깊은 페이지 넘기기" },
+    { "dir": "03-nori-analysis", "title": "nori 분석기와 상품명" },
+    { "dir": "04-terms-agg-accuracy", "title": "terms 집계의 오차" }
+  ]
+}

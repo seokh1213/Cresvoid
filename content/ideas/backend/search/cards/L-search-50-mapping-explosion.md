@@ -4,7 +4,7 @@ title: 동적 매핑과 필드 폭증
 kind: lab
 track: es-lab
 stage: 01-mapping-explosion
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: R-search-10

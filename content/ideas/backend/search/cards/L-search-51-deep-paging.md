@@ -4,7 +4,7 @@ title: 깊은 페이지 넘기기
 kind: lab
 track: es-lab
 stage: 02-deep-paging
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: B-search-20

@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "catalog-export",
+      "refs": ["1", "5", "7", "8", "9"],
+      "quote": "내보내기 시작 시 검색에 보이던 상품의 ID, revision, payload를 정확히 한 번씩 출력하라.",
+      "timeout_sec": 900,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/live-cursor"]
+}

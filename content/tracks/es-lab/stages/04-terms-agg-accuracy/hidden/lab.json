@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "brand-report",
+      "refs": ["4", "5", "6"],
+      "quote": "모든 응답은 같은 설정으로 Elasticsearch를 직접 조회한 결과와 일치해야 한다.",
+      "timeout_sec": 420,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/zero-errors"]
+}

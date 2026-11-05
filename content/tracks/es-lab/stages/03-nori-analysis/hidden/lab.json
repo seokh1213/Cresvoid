@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "catalog-session",
+      "refs": ["8", "9", "10", "11"],
+      "quote": "검색 결과에는 기대한 상품이 모두 있고 다른 상품은 없어야 한다.",
+      "timeout_sec": 360,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/without-brand-rule"]
+}

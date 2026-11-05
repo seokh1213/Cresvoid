@@ -1,0 +1,25 @@
+# terms 집계의 오차
+
+[1] 이 단계는 observe 모드의 Elasticsearch 입문 관찰 과제다. 수정 위치를 찾는 능력보다 샤드별 후보로부터 순위·개수·오차 상한을 예측하는 능력을 훈련한다. 집계 결과를 예측하는 문항에서는 현재 시작 코드의 응답이 아니라 서비스가 [4]의 계약대로 요청을 전달했을 때의 Elasticsearch 응답을 예측해라. 먼저 아래 데이터로 `size=10`과 `shard_size` 생략 시 빠질 브랜드, 반환된 브랜드의 누락 개수, 오차 상한을 예상해라. 그다음 시작 코드를 실행하고 요청 설정과 오차 정보를 그대로 전달하도록 관찰용 서비스를 고쳐라. 모든 집계를 정확하게 만드는 과제가 아니다.
+
+[2] 실험기는 고정 이미지의 Elasticsearch 단일 노드에 주 샤드 5개, 복제본 0개인 색인을 만든다. `brand`는 keyword다. 샤드 번호 s는 0~4다. 각 샤드에는 그 샤드에만 있는 브랜드 `local-s-01`부터 `local-s-30`까지 있고, 번호 j의 문서 수는 `110-j`다. `atlas`는 모든 샤드에 각각 79개 있다. `beacon`은 샤드 0에 120개, 나머지 샤드에 각각 30개 있다. 각 상품 문서는 브랜드 하나만 가진다. 서로 다른 브랜드는 152개, 문서는 14,810개다. 실험기는 `_search_shards?routing=...`으로 실제 샤드 번호를 확인한 라우팅 값을 써서 적재하고 bulk 항목별 성공·refresh·전체 문서 수를 확인한다. 측정 중에는 문서를 추가하거나 지우지 않는다.
+
+[3] 서비스는 JDK 21에서 `run.sh`로 시작한다. `PORT`가 지정한 루프백 포트에 바인딩하고 `GET /health`에 HTTP 200을 반환해라. `ES_URL`은 Elasticsearch의 HTTP 주소, `ES_INDEX`는 실험기가 만든 색인 이름이다. `GET /brands?size=N&shard_size=M`은 그 색인에 검색 한 번을 보내고 JSON 응답을 반환한다. `size`의 기본값은 10이고 1~100을 허용한다. `shard_size`는 선택이며 명시하면 1~256을 허용한다. 잘못된 정수·범위·파라미터에는 400을 반환한다. 이 실험의 유효 요청은 모두 200으로 완료되어야 한다.
+
+[3.1] 쿼리 문자열은 각 키가 한 번만 나타나는 `키=값` 쌍을 `&` 하나로 구분한 형식만 실험 입력으로 사용한다. 쿼리가 없는 요청도 허용한다. 빈 구간, 중복 키, URL 인코딩을 포함하는 요청은 평가 범위에서 제외한다. 예를 들어 `size=10&size=20`, `size=10&&`, `size=%31%30`은 평가하지 않는다. 이 제한 안에서 알 수 없는 키, 정수로 읽을 수 없는 값, 허용 범위 밖의 값에는 [3]의 400 규칙을 적용한다.
+
+[4] Elasticsearch 검색 본문은 검색 결과의 `size`를 0으로 두고, `aggs.brands.terms`에 `field=brand`, 요청한 집계 `size`, `order={"_count":"desc"}`, `show_term_doc_count_error=true`를 설정한다. 요청에 `shard_size`가 없으면 검색 본문에서도 생략해라. 명시한 값은 그대로 보내라. 응답의 `aggregations.brands`에서 순서 있는 `buckets`의 `key`·`doc_count`·`doc_count_error_upper_bound`, 집계 전체의 `doc_count_error_upper_bound`·`sum_other_doc_count`를 보존해라. 모든 응답은 같은 설정으로 Elasticsearch를 직접 조회한 결과와 일치해야 한다. `timed_out=false`, `_shards.total=5`, `_shards.successful=5`, `_shards.failed=0`, 빈 `hits.hits`도 확인한다. `took`처럼 실행마다 달라지는 값은 비교하지 않는다.
+
+[5] 실험기는 서비스를 한 번 띄우고 준비를 기다린 뒤, 초당 4개씩 3초 동안 총 12개 요청을 예정된 시각에 보낸다. 요청 순서는 `(size, shard_size)`가 `(10, 생략)`, `(10, 10)`, `(10, 64)`, `(20, 생략)`, `(20, 20)`, `(20, 64)`인 6개 묶음을 두 번 반복한다. 앞 요청의 완료 여부가 다음 요청의 도착 시각을 늦추지 않는다. 요청별 제한 시간은 20초다. p95 지연은 참고 지표이며 합격 임계값은 없다. Docker 준비를 포함한 실험 제한 시간은 420초다. 공유 기기의 일시적인 지연을 집계 정확성으로 판단하지 않는다.
+
+[6] 합격하려면 12개 응답이 모두 정상이고 원본 집계와 다른 응답 수가 0이어야 한다. 반환된 각 버킷은 `doc_count ≤ 실제 문서 수 ≤ doc_count + 버킷 오차 상한`을 만족하고, `0 ≤ 버킷 오차 상한 ≤ 집계 전체 오차 상한`이어야 한다. 후보가 모든 샤드의 브랜드를 포함하는 `(10, 64)`, `(20, 생략)`, `(20, 64)`에서는 실제 문서 수로 정렬한 상위 size개와 반환 버킷이 일치하고 모든 오차 상한이 0이어야 한다. 동점은 브랜드 키 오름차순으로 정한다. `sum_other_doc_count`는 이 경우에도 0일 필요가 없으며, 이 데이터에서는 반환된 개수 합과 더해 14,810이 된다. 작은 후보 수의 응답을 정확한 값으로 바꾸거나 오차를 0으로 덮어쓰면 관찰 계약 위반이다.
+
+[7] 지표 `requests`는 전송 수, `responses_ok`는 HTTP 200이며 계약 필드를 읽을 수 있는 응답 수다. `report_mismatches`는 원본 집계와 다른 응답 수이고 `bound_violations`는 버킷별 개수·오차 관계 위반 수다. 읽을 수 없는 응답도 각각 위반 1개로 센다. `default_missing`은 첫 기본 설정 응답에 atlas가 없으면 1, 있으면 0이다. `default_error`는 그 응답의 집계 전체 오차 상한이고, `wide_error`와 `wide_top_count`는 첫 `(10, 64)` 응답의 집계 전체 오차 상한과 첫 버킷 개수다. 해당 응답을 읽을 수 없으면 오차·개수에는 -1을 표시한다. `p95_ms`는 HTTP 요청 지연의 95백분위수다. 통과 지표만 보지 말고 기본 설정과 넓힌 후보의 차이를 [2]의 샤드별 분포로 설명해라.
+
+[7.1] `first_mismatch_setting`은 예정된 요청 순서에서 원본과 처음 달랐던 응답의 설정 번호다. 읽을 수 없는 응답도 불일치로 센다. 불일치가 없으면 0이다. 번호 1~6은 각각 [5]의 `(10, 생략)`, `(10, 10)`, `(10, 64)`, `(20, 생략)`, `(20, 20)`, `(20, 64)`에 대응한다. 두 번째 묶음도 같은 번호를 쓴다. 이 지표로 먼저 확인할 요청 설정을 좁혀라.
+
+[8] 수정 범위는 `src/main/kotlin/BrandQuery.kt`의 검색 본문과 응답 전달이다. `Main.kt`의 HTTP 접수·환경 변수·타임아웃, 빌드·실행 스크립트는 유지해라. 색인·매핑·데이터·실험기는 바꾸지 마라. hidden 파일을 열거나 정답 개수를 하드코딩하지 말고 실제 Elasticsearch 응답을 사용해라. `build.sh`로 실행 파일을 만든 뒤 `run.sh`로 실행한다. 의존성을 추가하지 않는다. 실험 뒤에는 실행기가 서비스·컨테이너·볼륨·네트워크를 정리한다.
+
+[9] 공식 근거는 Elastic의 [Terms aggregation](https://www.elastic.co/docs/reference/aggregations/search-aggregations-bucket-terms-aggregation)과 [Search shards API](https://www.elastic.co/docs/api/doc/elasticsearch/operation/operation-search-shards)다. 개수 내림차순 terms에서 샤드별 후보 수의 기본값은 `size × 1.5 + 10`이고 `size=10`이면 25다. `shard_size < size`는 Elasticsearch가 size로 올린다. `show_term_doc_count_error=true`일 때 버킷 오차 상한은 그 브랜드의 개수가 빠졌을 수 있는 샤드의 잘린 후보 경계로 계산한다. 집계 전체 오차 상한과 개별 버킷 상한을 구분해라. 이 수는 실제 누락 개수 자체가 아니다. `sum_other_doc_count`는 반환 버킷 밖으로 빠진 문서 수다. 오차 상한 0이 모든 브랜드를 반환했다는 뜻은 아니다. 이 단계의 상한 해석은 개수 내림차순에 한정하며 키 정렬이나 개수 오름차순에 그대로 적용하지 않는다.
+
+[9.1] 이 고정 이미지에서 후보가 잘린 샤드의 경계값은 그 샤드가 반환한 후보 중 가장 작은 `doc_count`다. 후보 수보다 브랜드 수가 적어 모두 반환한 샤드의 경계값은 0이다. 브랜드 수와 후보 수가 같으면 모두 반환했더라도 최소 `doc_count`를 경계값으로 쓴다. 이 데이터에서 `shard_size=32`이면 샤드 0의 경계는 79, 나머지 샤드의 경계는 각각 30이므로 집계 전체 상한은 199다. 반환 개수는 모두 정확하지만 atlas·beacon의 버킷 상한만 0이고, 반환된 local-0-* 버킷은 120, 다른 local 버킷은 169다. 그 브랜드가 실제로 없는 샤드도 후보를 보내지 않은 샤드에 포함되기 때문이다. 집계 전체 상한은 샤드별 경계값의 합이고, 개별 버킷 상한은 그 버킷을 후보로 보내지 않은 샤드들의 경계값 합이다. 정확한 상한을 예상할 때는 이 경계 규칙을 써라. 공식 문서의 누락 버킷 설명을 실제로 빠진 브랜드의 개수와 동일시하지 마라. 경계값 선택은 Elastic의 [v9.5.5 AbstractInternalTerms 구현](https://github.com/elastic/elasticsearch/blob/v9.5.5/server/src/main/java/org/elasticsearch/search/aggregations/bucket/terms/AbstractInternalTerms.java#L119-L132)의 `getDocCountError`와 이 단계의 실제 실행으로 확인했다.

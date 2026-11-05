@@ -4,7 +4,7 @@ title: terms 집계의 오차
 kind: lab
 track: es-lab
 stage: 04-terms-agg-accuracy
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq: B-search-20

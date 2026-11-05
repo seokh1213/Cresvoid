@@ -23,11 +23,11 @@
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [OLAP](backend/olap/README.md) | 6 | 1 | 0 | 5 | 0 |
 | [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
-| [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 4 | 5 | 0 |
+| [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 0 | 9 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 5 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 13 | 0 | 4 | 0 |
-| 합계 | 185 | 42 | 33 | 108 | 2 |
+| 합계 | 185 | 42 | 29 | 112 | 2 |
 
 ## 다음 후보
 
@@ -106,7 +106,7 @@
 | dedup-candidates | build | 없음 | 04 |  | 01-exact(B-pipeline-80 5차), 02-candidates(B-pipeline-80 5차), 03-components(B-pipeline-80 5차) |
 | doc-editor | build | 없음 | 05 |  | 01-edit(B-design-patterns-80 5차), 02-undo(B-design-patterns-80 5차), 03-macro(B-design-patterns-80 5차), 04-snapshot(B-design-patterns-80 5차) |
 | es-cluster | build | 있음 | 04 | 01-routing(B-search-20 완료), 02-terms-agg(B-search-20 완료), 03-paging(B-search-20 완료) |  |
-| es-lab | lab | 없음 | 05 | 01-mapping-explosion(L-search-50 제작 중), 02-deep-paging(L-search-51 제작 중), 03-nori-analysis(L-search-52 제작 중), 04-terms-agg-accuracy(L-search-53 제작 중) |  |
+| es-lab | lab | 있음 | 05 | 01-mapping-explosion(L-search-50 완료), 02-deep-paging(L-search-51 완료), 03-nori-analysis(L-search-52 완료), 04-terms-agg-accuracy(L-search-53 완료) |  |
 | geo-index | build | 없음 | 04 |  | 01-geohash(B-system-design-100 4차), 02-radius-search(B-system-design-100 4차), 03-quadtree(B-system-design-100 4차) |
 | history-rollover | build | 없음 | 04 |  | 01-materialize(B-pipeline-10 4차), 02-baseline(B-pipeline-10 4차), 03-retention(B-pipeline-10 4차) |
 | id-generator | build | 있음 | 04 | 01-snowflake(B-system-design-30 완료), 02-sharded-ids(B-system-design-30 완료), 03-ordering(B-system-design-30 완료) |  |
@@ -422,10 +422,10 @@
 | [B-search-20](backend/search/cards/B-search-20-es-cluster.md) | 분산 검색 조정 노드 만들기 | build | es-cluster | 01-routing, 02-terms-agg, 03-paging | 완료(2026-10-10) | 2 | 없음 | R-search-10 |
 | [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 후보 | 3 | 없음 | R-search-10 |
 | [F-search-40](backend/search/cards/F-search-40-hangul-normalization.md) | 한글 정규화가 어긋난 상품 검색 | fix | bug-fix | 16-hangul-normalization | 완료(2026-11-06) | 4 | 없음 |  |
-| [L-search-50](backend/search/cards/L-search-50-mapping-explosion.md) | 동적 매핑과 필드 폭증 | lab | es-lab | 01-mapping-explosion | 제작 중 | 4 | docker | R-search-10 |
-| [L-search-51](backend/search/cards/L-search-51-deep-paging.md) | 깊은 페이지 넘기기 | lab | es-lab | 02-deep-paging | 제작 중 | 4 | docker | B-search-20 |
-| [L-search-52](backend/search/cards/L-search-52-nori-analysis.md) | nori 분석기와 상품명 | lab | es-lab | 03-nori-analysis | 제작 중 | 4 | docker | R-search-10 |
-| [L-search-53](backend/search/cards/L-search-53-terms-agg-accuracy.md) | terms 집계의 오차 | lab | es-lab | 04-terms-agg-accuracy | 제작 중 | 5 | docker | B-search-20 |
+| [L-search-50](backend/search/cards/L-search-50-mapping-explosion.md) | 동적 매핑과 필드 폭증 | lab | es-lab | 01-mapping-explosion | 완료(2026-11-06) | 4 | docker | R-search-10 |
+| [L-search-51](backend/search/cards/L-search-51-deep-paging.md) | 깊은 페이지 넘기기 | lab | es-lab | 02-deep-paging | 완료(2026-11-06) | 4 | docker | B-search-20 |
+| [L-search-52](backend/search/cards/L-search-52-nori-analysis.md) | nori 분석기와 상품명 | lab | es-lab | 03-nori-analysis | 완료(2026-11-06) | 4 | docker | R-search-10 |
+| [L-search-53](backend/search/cards/L-search-53-terms-agg-accuracy.md) | terms 집계의 오차 | lab | es-lab | 04-terms-agg-accuracy | 완료(2026-11-06) | 5 | docker | B-search-20 |
 | [B-search-60](backend/search/cards/B-search-60-result-placement.md) | 제약을 만족하는 검색 결과 배치기 만들기 | build | result-placement | 01-ordered, 02-constraints, 03-exact-search | 후보 | 4 | 없음 |  |
 | [F-search-70](backend/search/cards/F-search-70-fallback-constraints.md) | 대체 배치 경로의 노출 상한 누락 | fix | bug-fix | 17-fallback-constraints | 완료(2026-11-06) | 4 | 없음 | B-search-60 |
 | [C-search-80](backend/search/cards/C-search-80-stable-diversity.md) | 재조회해도 유지되는 추천 다양성 | code | code-reading | 15-stable-diversity | 완료(2026-11-05) | 5 | 없음 | B-search-60 |
