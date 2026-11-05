@@ -6,6 +6,7 @@
     {"dir": "01-price-rules", "title": "가격 규칙 계산", "target_minutes": 20},
     {"dir": "02-coroutine-order", "title": "코루틴 실행 순서와 디스패처", "target_minutes": 25},
     {"dir": "03-flow-semantics", "title": "StateFlow 와 SharedFlow 의 의미", "target_minutes": 25},
-    {"dir": "04-stock-reservation", "title": "재고 예약과 만료", "target_minutes": 25}
+    {"dir": "04-stock-reservation", "title": "재고 예약과 만료", "target_minutes": 25},
+    {"dir": "05-order-events", "title": "주문 이벤트 처리", "target_minutes": 30}
   ]
 }

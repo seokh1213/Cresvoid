@@ -4,7 +4,7 @@ title: 주문 이벤트 처리
 kind: code
 track: code-reading
 stage: 05-order-events
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 1
 env: 없음
 prereq:

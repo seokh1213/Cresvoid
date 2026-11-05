@@ -7,7 +7,7 @@
 | 도메인 | 카드 | 후보 | 제작 중 | 완료 | 보류 |
 |---|---|---|---|---|---|
 | [읽기](reading/README.md) | 15 | 12 | 0 | 3 | 0 |
-| [구현](implementation/README.md) | 32 | 22 | 1 | 9 | 0 |
+| [구현](implementation/README.md) | 32 | 22 | 0 | 10 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 1 | 2 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 6 | 0 | 2 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 133 | 5 | 45 | 2 |
+| 합계 | 185 | 133 | 4 | 46 | 2 |
 
 ## 다음 후보
 
@@ -184,7 +184,7 @@
 | batch-workflow | build | 없음 | 04 |  | 01-markers(B-pipeline-30 4차), 02-resume(B-pipeline-30 4차), 03-seal(B-pipeline-30 4차) |
 | bug-fix | fix | 있음 | 08 | 01-cursor-pagination(F-kotlin-10 완료), 02-order-deadline(F-coroutines-31 완료), 03-skipped-subscriber(F-design-patterns-60 완료), 04-stale-redo(F-design-patterns-70 완료), 05-instant-finish(F-coroutines-34 완료), 06-point-accrual(F-kotlin-20 완료), 07-daily-limit(F-kotlin-30 완료) | late-lock-release(F-distributed-70 4차), option-equality(F-kotlin-40 4차), comparator-contract(F-kotlin-50 4차), byte-offset(F-kotlin-130 4차), short-read(F-kotlin-140 4차), rollover-delete-scope(F-pipeline-20 4차), missing-chunk(F-pipeline-40 4차), replay-regression(F-pipeline-60 4차), hangul-normalization(F-search-40 4차), fallback-constraints(F-search-70 4차), double-start(F-design-patterns-100 5차), unchecked-wakeup(F-design-patterns-110 5차), sublist-view(F-kotlin-60 5차), locale-format(F-kotlin-70 5차), code-pattern(F-kotlin-80 5차), retry-duplicate(F-kotlin-90 5차), cache-key(F-kotlin-100 5차), float-threshold(F-kotlin-110 5차), sale-window(F-kotlin-120 5차) |
 | chat | build | 없음 | 04 |  | 01-sequencing(B-system-design-80 4차), 02-sync(B-system-design-80 4차), 03-presence(B-system-design-80 4차) |
-| code-reading | code | 있음 | 06 | 01-price-rules(C-kotlin-10 완료), 02-coroutine-order(C-coroutines-30 완료), 03-flow-semantics(C-coroutines-32 완료), 04-stock-reservation(C-kotlin-20 완료), 05-order-events(C-kotlin-30 제작 중) | decorated-client(C-design-patterns-40 4차), state-observers(C-design-patterns-50 4차), lru-cache(C-kotlin-40 4차), retry-policy(C-kotlin-50 4차), consumer-commit(C-messaging-30 4차), notification-queue(C-design-patterns-90 5차), search-query-parser(C-kotlin-60 5차), settlement-batch(C-kotlin-70 5차), csv-import(C-kotlin-80 5차), stable-diversity(C-search-80 5차) |
+| code-reading | code | 있음 | 06 | 01-price-rules(C-kotlin-10 완료), 02-coroutine-order(C-coroutines-30 완료), 03-flow-semantics(C-coroutines-32 완료), 04-stock-reservation(C-kotlin-20 완료), 05-order-events(C-kotlin-30 완료) | decorated-client(C-design-patterns-40 4차), state-observers(C-design-patterns-50 4차), lru-cache(C-kotlin-40 4차), retry-policy(C-kotlin-50 4차), consumer-commit(C-messaging-30 4차), notification-queue(C-design-patterns-90 5차), search-query-parser(C-kotlin-60 5차), settlement-batch(C-kotlin-70 5차), csv-import(C-kotlin-80 5차), stable-diversity(C-search-80 5차) |
 | columnar | build | 없음 | 04 |  | 01-encode(B-lakehouse-20 4차), 02-pruning(B-lakehouse-20 4차), 03-nested(B-lakehouse-20 4차) |
 | consistent-hashing | build | 없음 | 04 |  | 01-ring(B-distributed-40 4차), 02-rebalance(B-distributed-40 4차), 03-replication(B-distributed-40 4차) |
 | coroutine-lab | lab | 있음 | 02 | 01-dispatcher-starvation(L-coroutines-50 완료) |  |
@@ -277,7 +277,7 @@
 | [F-kotlin-10](implementation/cards/F-kotlin-10-cursor-pagination.md) | 커서 페이지네이션 | fix | bug-fix | 01-cursor-pagination | 완료(2026-10-08) | 1 | 없음 |  |
 | [C-kotlin-20](implementation/cards/C-kotlin-20-stock-reservation.md) | 재고 예약과 만료 | code | code-reading | 04-stock-reservation | 완료(2026-11-05) | 1 | 없음 |  |
 | [F-kotlin-20](implementation/cards/F-kotlin-20-point-accrual.md) | 포인트 적립 계산 | fix | bug-fix | 06-point-accrual | 완료(2026-11-05) | 1 | 없음 |  |
-| [C-kotlin-30](implementation/cards/C-kotlin-30-order-events.md) | 주문 이벤트 처리 | code | code-reading | 05-order-events | 제작 중 | 1 | 없음 |  |
+| [C-kotlin-30](implementation/cards/C-kotlin-30-order-events.md) | 주문 이벤트 처리 | code | code-reading | 05-order-events | 완료(2026-11-05) | 1 | 없음 |  |
 | [F-kotlin-30](implementation/cards/F-kotlin-30-daily-limit.md) | 일일 사용 한도 | fix | bug-fix | 07-daily-limit | 완료(2026-11-05) | 1 | 없음 |  |
 | [C-kotlin-40](implementation/cards/C-kotlin-40-lru-cache.md) | 상품 상세 로컬 캐시 | code | code-reading | lru-cache | 후보 | 4 | 없음 |  |
 | [F-kotlin-40](implementation/cards/F-kotlin-40-option-equality.md) | 장바구니 상품 옵션 비교 | fix | bug-fix | option-equality | 후보 | 4 | 없음 |  |

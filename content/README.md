@@ -31,7 +31,7 @@
 | `coroutine-lab` | lab | 1 |
 | `reading` | reading | 3 |
 | `tech-reading` | reading | 12 |
-| `code-reading` | code | 4 |
+| `code-reading` | code | 5 |
 | `bug-fix` | fix | 7 |
 
 ## 채점용 파일

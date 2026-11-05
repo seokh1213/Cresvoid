@@ -1,0 +1,146 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "EVENT A 1 PAY 80",
+        "EVENT B 2 SHIP 20",
+        "EVENT A 1 PAY 10",
+        "EVENT A 2 PAY 15",
+        "EVENT A 3 SHIP 25",
+        "EVENT A 3 REFUND 30",
+        "EVENT C 1 CANCEL 100",
+        "REPORT 30 A"
+      ],
+      "answers": [
+        "A|SHIPPED@25|applied=1,3|rejected=2:already-paid|next=4|pending=0|first=B#2|reads=9|builds=1"
+      ],
+      "refs": [
+        "EventInbox.kt:8-17",
+        "OrderTransitions.kt:8-20",
+        "OrderTransitions.kt:43-56",
+        "OrderReport.kt:4-17"
+      ],
+      "quote": "        val first = eligible.firstOrNull()",
+      "explanation": "EventInbox.kt:10-13에서 먼저 시각으로 거른 뒤 식별자로 중복을 제거한다. A#1의 PAY@80은 제외되고 PAY@10이 남으며 A#3은 SHIP@25가 남는다. 14행의 firstOrNull은 첫 후보인 B#2를 찾을 때까지 원시 수신 2건을 읽는다. 16행의 toList는 같은 Sequence를 처음부터 다시 순회하며 원시 수신 7건을 모두 읽는다. 두 최종 연산에서 onEach가 반복 실행되므로 reads=2+7=9다. OrderTransitions.kt:43-54에서 A의 순번 1은 결제, 2는 already-paid로 거부, 3은 배송으로 처리된다. 거부한 2도 순번을 소비하므로 next=4이며 미검사 이벤트는 없다. B#2가 전체 선택의 첫 이벤트이므로 first=B#2다. OrderReport.kt:4-17의 projection은 첫 접근 때 만들어진 뒤 재사용되므로 builds=1이다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "EVENT B 1 SHIP 3",
+        "EVENT B 2 PAY 8",
+        "EVENT B 4 CANCEL 9",
+        "EVENT B 5 SHIP 10",
+        "EVENT B 2 REFUND 11",
+        "REPORT 20 B"
+      ],
+      "answers": [
+        "B|PAID@8|applied=2|rejected=1:unpaid|next=3|pending=2|first=B#1|reads=6|builds=1"
+      ],
+      "refs": [
+        "EventInbox.kt:8-17",
+        "OrderTransitions.kt:1-6",
+        "OrderTransitions.kt:27-57",
+        "OrderReport.kt:14-17"
+      ],
+      "quote": "        if (event.sequence != nextSequence) return result()",
+      "explanation": "EventInbox.kt:13에서 B#2의 첫 수신인 PAY@8이 남는다. OrderTransitions.kt:43-54에서 순번 1의 SHIP은 unpaid로 거부되지만 nextSequence는 이미 2가 되었고 return@forEach는 다음 이벤트로 넘어간다. 순번 2의 PAY가 상태를 PAID@8로 바꾼다. 다음 이벤트의 순번은 4이므로 45행의 return이 replayOrder를 끝낸다. 순번 4와 5는 거부 목록에도 들어가지 않으며, 40행에 따라 pending=4-1-1=2다. next는 3이다. 후보 조회의 firstOrNull은 첫 수신 1건을 읽고 toList는 처음부터 5건을 읽으므로 reads=6이며 projection은 한 번 만들어진다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "EVENT C 1 PAY 3",
+        "EVENT C 2 SHIP 9",
+        "EVENT A 1 PAY 1",
+        "EVENT A 2 SHIP 4",
+        "EVENT B 1 SHIP 2",
+        "EVENT B 2 PAY 5",
+        "EVENT B 3 SHIP 6",
+        "EVENT D 1 PAY 1",
+        "EVENT D 2 REFUND 7",
+        "PLAN 20 2"
+      ],
+      "answers": [
+        "checks=A+B/B+C|batches=A+B/C|reads=10|builds=1"
+      ],
+      "refs": [
+        "OrderReport.kt:4-12",
+        "OrderReport.kt:20-25",
+        "OrderReport.kt:55-59",
+        "OrderTransitions.kt:1-24",
+        "OrderTransitions.kt:43-56",
+        "EventInbox.kt:8-17"
+      ],
+      "quote": "        val checks = shipments.windowed(size).formatGroups()",
+      "explanation": "OrderTransitions.kt:43-54에서 B의 첫 SHIP은 거부되지만 뒤의 PAY와 SHIP은 반영되어 B도 배송 완료가 된다. D는 결제 뒤 환불을 반영해 Refunded 상태가 되므로 배송 목록에 없다. OrderReport.kt:8-10의 주문 ID 정렬과 21-22행의 필터를 거친 목록은 [A,B,C]다. 23행의 windowed(2)는 기본 step=1, partialWindows=false이므로 [A,B]와 [B,C]만 만든다. 24행의 chunked(2)는 [A,B]와 마지막 작은 묶음 [C]를 만든다. 58-59행이 이를 +와 /로 잇는다. 후보 조회의 firstOrNull은 첫 수신 1건을 읽고 toList는 처음부터 9건을 읽으므로 reads=10이며 같은 projection에 다시 접근해도 builds는 늘지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "다음 입력에서 RECEIPTS의 두 목록과 REPORT의 최종 상태를 옳게 짝지은 것은?",
+      "context": "EVENT A 2 SHIP 12\nEVENT A 1 PAY 8\nEVENT A 2 REFUND 20\nEVENT A 1 CANCEL 4\nRECEIPTS A\nREPORT 15 A",
+      "choices": [
+        "canonical=1:CANCEL@4,2:REFUND@20 / latest=1:CANCEL@4,2:REFUND@20 / 최종 상태 REFUNDED@20",
+        "canonical=1:PAY@8,2:SHIP@12 / latest=1:PAY@8,2:SHIP@12 / 최종 상태 SHIPPED@12",
+        "canonical=1:PAY@8,2:SHIP@12 / latest=1:CANCEL@4,2:REFUND@20 / 최종 상태 CANCELLED@4",
+        "canonical=1:PAY@8,2:SHIP@12 / latest=1:CANCEL@4,2:REFUND@20 / 최종 상태 SHIPPED@12"
+      ],
+      "answer": 4,
+      "refs": [
+        "EventInbox.kt:8-29",
+        "OrderTransitions.kt:1-24",
+        "OrderTransitions.kt:27-54"
+      ],
+      "quote": "        val latest = deliveries.associateBy { it.key }.values.sortedBy { it.sequence }",
+      "explanation": "④가 정답이다. EventInbox.kt:22의 distinctBy는 같은 식별자의 첫 수신을 남기고 23행의 associateBy는 마지막 수신을 값으로 남긴다. 두 결과는 순번으로 정렬되므로 canonical은 PAY@8,SHIP@12이고 latest는 CANCEL@4,REFUND@20이다. REPORT는 12행에서 관찰 시각 15까지의 수신을 고른 뒤 13행에서 첫 수신을 남긴다. OrderTransitions.kt:32의 순번 정렬을 거쳐 PAY@8 다음 SHIP@12를 반영한다. ①은 distinctBy도 마지막 값을 남긴다고 보았고 관찰 시각 밖의 REFUND@20까지 반영했다. ②는 associateBy도 첫 값을 남긴다고 보았다. ③은 수신 점검용 latest의 CANCEL@4를 재계산에 사용했다. 실제 재계산에서는 먼저 들어온 PAY@8이 같은 식별자의 CANCEL@4보다 우선한다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "지정한 반환문만 바꿨을 때 다음 입력의 출력은?",
+      "context": "OrderTransitions.kt:50의 return@forEach를 return result()로 바꾼다. 나머지 코드는 그대로 둔다.\n\nEVENT A 1 PAY 10\nEVENT A 2 PAY 11\nEVENT A 3 SHIP 12\nEVENT A 4 REFUND 13\nREPORT 20 A",
+      "choices": [
+        "A|PAID@10|applied=1|rejected=2:already-paid|next=3|pending=2|first=A#1|reads=5|builds=1",
+        "A|SHIPPED@12|applied=1,3|rejected=2:already-paid,4:shipped|next=5|pending=0|first=A#1|reads=5|builds=1",
+        "A|PAID@10|applied=1|rejected=2:already-paid|next=2|pending=2|first=A#1|reads=5|builds=1",
+        "A|PAID@10|applied=1|rejected=2:already-paid,3:already-paid,4:already-paid|next=5|pending=0|first=A#1|reads=5|builds=1"
+      ],
+      "answer": 1,
+      "refs": [
+        "OrderTransitions.kt:27-57",
+        "EventInbox.kt:8-17",
+        "OrderReport.kt:14-17"
+      ],
+      "quote": "                return@forEach",
+      "explanation": "①이 정답이다. OrderTransitions.kt:43의 forEach는 inline 함수이므로 바꾼 return result()는 replayOrder를 끝낸다. 순번 1의 결제 뒤 순번 2가 already-paid로 거부되는 순간 반환하며, 46행의 nextSequence++와 49행의 거부 기록은 이미 끝났으므로 next=3, pending=4-1-1=2다. ②는 원래 return@forEach를 유지했을 때의 결과다. ③은 반환 전에 순번이 증가했다는 사실을 놓쳤다. ④는 거부 분기에서 반환해도 뒤의 이벤트를 계속 같은 거부 사유로 검사한다고 보았다. 실제로 순번 3과 4는 검사하지 않는다. 후보 조회의 firstOrNull은 첫 수신 1건을 읽고 toList는 처음부터 4건을 읽는다. 이 읽기는 상태 재계산 전에 끝났으므로 반환문 변경에도 reads=5이며 builds=1이다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "다음 입력에서 내보내기 실패와 진단 기록을 함께 추적한 출력은?",
+      "context": "EVENT A 1 PAY 5\nEVENT A 2 SHIP 8\nEVENT B 1 SHIP 1\nEVENT B 3 PAY 2\nEXPORT 10",
+      "choices": [
+        "ERROR|gap:B:2|audit=open,close,project,failed|reads=5|builds=1",
+        "ERROR|gap:B:2|audit=open,project,failed,close|reads=5|builds=1",
+        "ERROR|gap:B:2|audit=open,project,close,failed|reads=5|builds=1",
+        "ERROR|gap:B:2|audit=open,project,close,failed,project|reads=5|builds=2"
+      ],
+      "answer": 3,
+      "refs": [
+        "OrderReport.kt:4-12",
+        "OrderReport.kt:28-47",
+        "OrderReport.kt:55-56",
+        "OrderTransitions.kt:43-56",
+        "EventInbox.kt:8-17"
+      ],
+      "quote": "                audit += \"close\"",
+      "explanation": "③이 정답이다. OrderReport.kt:29에서 open을 기록한 뒤 32행의 projection 접근이 lazy 초기화를 실행해 project를 기록한다. A는 배송 완료이며 B는 첫 SHIP을 거부한 뒤 순번 2가 비어 순번 3을 보류하므로 pending=1, next=2다. 34행의 check가 gap:B:2로 실패한다. 40-44행에서 finally의 close가 먼저 실행되고 runCatching이 실패를 담은 뒤 onFailure의 failed가 기록된다. ①은 projection을 처음 읽는 32행보다 finally가 먼저 실행된다고 보았다. ②는 onFailure가 finally보다 먼저 실행된다고 보았다. ④는 check 실패가 이미 성공한 lazy 초기화를 무효화한다고 보았다. check는 초기화 블록 밖에 있으므로 55-56행에서 다시 접근해도 project가 추가되지 않는다. 후보 조회의 firstOrNull은 첫 수신 1건을 읽고 toList는 처음부터 4건을 읽으므로 reads=5다."
+    }
+  ]
+}

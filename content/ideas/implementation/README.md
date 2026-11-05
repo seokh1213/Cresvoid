@@ -46,6 +46,7 @@ Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 �
 |---|---|---|
 | C-kotlin-10 | code-reading / 01-price-rules | 장바구니 할인 계산 코드. BigDecimal 의 반올림 모드와 scale, 규칙 적용 순서, 안정 정렬, data class copy 의 얕은 복사 |
 | C-kotlin-20 | code-reading / 04-stock-reservation | 재고 예약과 만료 코드. 만료 시각 경계 비교, 서울 날짜 경계, PriorityQueue 의 동점 순서, 순회 중 제거 |
+| C-kotlin-30 | code-reading / 05-order-events | 주문 이벤트 처리 코드. Sequence 재순회와 부수효과, distinctBy 와 associateBy, windowed 와 chunked, 람다 안의 return, runCatching 과 finally, lazy |
 
 ## 3. fix: 버그를 재현하고 고친다
 
