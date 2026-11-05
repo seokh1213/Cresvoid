@@ -19,10 +19,10 @@
 
 | 분야 | 세부 | 지금까지 |
 |---|---|---|
-| 사회 | 경제, 법, 정치, 행정, 사회학, 심리학 | 경제 R-economics-10, 법 R-law-10, 법 R-society-10 |
-| 인문 | 철학, 역사, 언어학, 논리학 | 철학 R-philosophy-10, 언어학 R-humanities-10 |
-| 과학 | 물리, 화학, 생명, 지구과학 | 생명·화학 R-science-10 |
-| 기술 | 컴퓨터, 네트워크, 암호, 공학 | 암호 R-technology-10 |
+| 사회 | 경제, 법, 정치, 행정, 사회학, 심리학 | 경제 R-economics-10, 법 R-law-10, 법 R-society-10, 경제 R-society-20, 심리 R-society-30 |
+| 인문 | 철학, 역사, 언어학, 논리학 | 철학 R-philosophy-10, 언어학 R-humanities-10, 역사 R-humanities-20 |
+| 과학 | 물리, 화학, 생명, 지구과학 | 생명·화학 R-science-10, 물리 R-science-20, 지구과학 R-science-30 |
+| 기술 | 컴퓨터, 네트워크, 암호, 공학 | 암호 R-technology-10, 네트워크 R-technology-20 |
 | 예술 | 미술, 음악, 건축, 영화 | 미술 R-art-10 |
 | 융합 | 과학철학, 법경제학, 기술윤리 | 과학철학 R-interdisciplinary-10 |
 
@@ -39,6 +39,12 @@
 | R-humanities-10 | 07-saussure | 언어학 | 소쉬르의 기호 이론 | 2,889 | 6 | 15분 |
 | R-art-10 | 08-perspective | 미술 | 원근법과 시점 | 3,012 | 6 | 15분 |
 | R-interdisciplinary-10 | 09-falsification | 과학철학 | 반증주의와 뒤엠-콰인 논제 | 3,186 | 6 | 15분 |
+| R-science-20 | 10-carnot | 물리 | 카르노 기관과 열역학 제2법칙 | 2,836 | 6 | 15분 |
+| R-society-20 | 11-monetary-policy | 경제 | 통화정책의 전달 경로와 테일러 준칙 | 2,951 | 6 | 15분 |
+| R-technology-20 | 12-congestion-control | 네트워크 | TCP 혼잡 제어 | 3,036 | 6 | 15분 |
+| R-humanities-20 | 13-source-criticism | 역사 | 사료 비판 | 2,868 | 6 | 15분 |
+| R-science-30 | 14-plate-tectonics | 지구과학 | 판 구조론 | 2,896 | 6 | 15분 |
+| R-society-30 | 15-prospect-theory | 심리 | 전망 이론과 프레이밍 | 2,703 | 6 | 15분 |
 
 ## 4. 카드
 

@@ -6,7 +6,7 @@
 
 | 도메인 | 카드 | 후보 | 제작 중 | 완료 | 보류 |
 |---|---|---|---|---|---|
-| [읽기](reading/README.md) | 15 | 0 | 6 | 9 | 0 |
+| [읽기](reading/README.md) | 15 | 0 | 0 | 15 | 0 |
 | [구현](implementation/README.md) | 32 | 22 | 0 | 10 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 113 | 6 | 64 | 2 |
+| 합계 | 185 | 113 | 0 | 70 | 2 |
 
 ## 다음 후보
 
@@ -208,7 +208,7 @@
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
 | rag | build | 있음 | 05 | 01-chunking(B-ai-agent-30 완료), 02-retrieval(B-ai-agent-30 완료), 03-hybrid(B-ai-agent-30 완료), 04-eval(B-ai-agent-30 완료) |  |
 | rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료) | 04-client-throttle(B-system-design-25 4차) |
-| reading | reading | 있음 | 16 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 완료), 05-key-exchange(R-technology-10 완료), 06-rescission(R-society-10 완료), 07-saussure(R-humanities-10 완료), 08-perspective(R-art-10 완료), 09-falsification(R-interdisciplinary-10 완료), 10-carnot(R-science-20 제작 중), 11-monetary-policy(R-society-20 제작 중), 12-congestion-control(R-technology-20 제작 중), 13-source-criticism(R-humanities-20 제작 중), 14-plate-tectonics(R-science-30 제작 중), 15-prospect-theory(R-society-30 제작 중) |  |
+| reading | reading | 있음 | 16 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 완료), 05-key-exchange(R-technology-10 완료), 06-rescission(R-society-10 완료), 07-saussure(R-humanities-10 완료), 08-perspective(R-art-10 완료), 09-falsification(R-interdisciplinary-10 완료), 10-carnot(R-science-20 완료), 11-monetary-policy(R-society-20 완료), 12-congestion-control(R-technology-20 완료), 13-source-criticism(R-humanities-20 완료), 14-plate-tectonics(R-science-30 완료), 15-prospect-theory(R-society-30 완료) |  |
 | record-range | build | 없음 | 04 |  | 01-lines(B-record-range-10 4차), 02-json-ranges(B-record-range-10 4차), 03-range-read(B-record-range-10 4차) |
 | regex | build | 없음 | 04 |  | 01-basic(B-regex-10 5차), 02-classes(B-regex-10 5차), 03-linear(B-regex-10 5차) |
 | reservation | build | 없음 | 04 |  | 01-inventory(B-system-design-120 4차), 02-idempotency(B-system-design-120 4차), 03-concurrency(B-system-design-120 4차) |
@@ -233,18 +233,18 @@
 | [R-art-10](reading/cards/R-art-10-perspective.md) | 원근법과 시점 | reading | reading | 08-perspective | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-economics-10](reading/cards/R-economics-10-auction.md) | 경매의 설계 | reading | reading | 01-auction | 완료(2026-10-07) | 1 | 없음 |  |
 | [R-humanities-10](reading/cards/R-humanities-10-saussure.md) | 소쉬르의 기호 이론 | reading | reading | 07-saussure | 완료(2026-11-05) | 4 | 없음 |  |
-| [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | 13-source-criticism | 제작 중 | 5 | 없음 |  |
+| [R-humanities-20](reading/cards/R-humanities-20-source-criticism.md) | 사료 비판 | reading | reading | 13-source-criticism | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-interdisciplinary-10](reading/cards/R-interdisciplinary-10-falsification.md) | 반증주의와 뒤엠-콰인 논제 | reading | reading | 09-falsification | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-law-10](reading/cards/R-law-10-agency.md) | 대리와 표현대리 | reading | reading | 02-agency | 완료(2026-10-07) | 1 | 없음 |  |
 | [R-philosophy-10](reading/cards/R-philosophy-10-grue.md) | 귀납의 새로운 수수께끼 | reading | reading | 03-grue | 완료(2026-10-07) | 1 | 없음 |  |
 | [R-science-10](reading/cards/R-science-10-enzyme.md) | 효소 반응 속도와 저해 | reading | reading | 04-enzyme | 완료(2026-11-05) | 4 | 없음 |  |
-| [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | 10-carnot | 제작 중 | 5 | 없음 |  |
-| [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | 14-plate-tectonics | 제작 중 | 5 | 없음 |  |
+| [R-science-20](reading/cards/R-science-20-carnot.md) | 카르노 기관과 열역학 제2법칙 | reading | reading | 10-carnot | 완료(2026-11-05) | 5 | 없음 |  |
+| [R-science-30](reading/cards/R-science-30-plate-tectonics.md) | 판 구조론 | reading | reading | 14-plate-tectonics | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-society-10](reading/cards/R-society-10-rescission.md) | 계약의 해제와 원상회복 | reading | reading | 06-rescission | 완료(2026-11-05) | 5 | 없음 |  |
-| [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | 11-monetary-policy | 제작 중 | 5 | 없음 |  |
-| [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | 15-prospect-theory | 제작 중 | 5 | 없음 |  |
+| [R-society-20](reading/cards/R-society-20-monetary-policy.md) | 통화정책의 전달 경로와 테일러 준칙 | reading | reading | 11-monetary-policy | 완료(2026-11-05) | 5 | 없음 |  |
+| [R-society-30](reading/cards/R-society-30-prospect-theory.md) | 전망 이론과 프레이밍 | reading | reading | 15-prospect-theory | 완료(2026-11-05) | 5 | 없음 |  |
 | [R-technology-10](reading/cards/R-technology-10-key-exchange.md) | 공개키 암호와 디피-헬먼 키 교환 | reading | reading | 05-key-exchange | 완료(2026-11-05) | 4 | 없음 |  |
-| [R-technology-20](reading/cards/R-technology-20-congestion-control.md) | TCP 혼잡 제어 | reading | reading | 12-congestion-control | 제작 중 | 5 | 없음 |  |
+| [R-technology-20](reading/cards/R-technology-20-congestion-control.md) | TCP 혼잡 제어 | reading | reading | 12-congestion-control | 완료(2026-11-05) | 5 | 없음 |  |
 
 ### 구현
 

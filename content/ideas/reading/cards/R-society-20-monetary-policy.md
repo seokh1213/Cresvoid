@@ -4,7 +4,7 @@ title: 통화정책의 전달 경로와 테일러 준칙
 kind: reading
 track: reading
 stage: 11-monetary-policy
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

@@ -4,7 +4,7 @@ title: TCP 혼잡 제어
 kind: reading
 track: reading
 stage: 12-congestion-control
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

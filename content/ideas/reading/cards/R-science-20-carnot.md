@@ -4,7 +4,7 @@ title: 카르노 기관과 열역학 제2법칙
 kind: reading
 track: reading
 stage: 10-carnot
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

@@ -4,7 +4,7 @@ title: 전망 이론과 프레이밍
 kind: reading
 track: reading
 stage: 15-prospect-theory
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

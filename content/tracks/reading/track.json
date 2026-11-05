@@ -11,6 +11,12 @@
     { "dir": "06-rescission", "title": "계약의 해제와 원상회복", "target_minutes": 15 },
     { "dir": "07-saussure", "title": "소쉬르의 기호 이론", "target_minutes": 15 },
     { "dir": "08-perspective", "title": "원근법과 시점", "target_minutes": 15 },
-    { "dir": "09-falsification", "title": "반증주의와 뒤엠-콰인 논제", "target_minutes": 15 }
+    { "dir": "09-falsification", "title": "반증주의와 뒤엠-콰인 논제", "target_minutes": 15 },
+    { "dir": "10-carnot", "title": "카르노 기관과 열역학 제2법칙", "target_minutes": 15 },
+    { "dir": "11-monetary-policy", "title": "통화정책의 전달 경로와 테일러 준칙", "target_minutes": 15 },
+    { "dir": "12-congestion-control", "title": "TCP 혼잡 제어", "target_minutes": 15 },
+    { "dir": "13-source-criticism", "title": "사료 비판", "target_minutes": 15 },
+    { "dir": "14-plate-tectonics", "title": "판 구조론", "target_minutes": 15 },
+    { "dir": "15-prospect-theory", "title": "전망 이론과 프레이밍", "target_minutes": 15 }
   ]
 }

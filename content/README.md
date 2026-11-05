@@ -30,7 +30,7 @@
 | `coroutine-patterns` | build | 6 |
 | `coroutine-runtime` | build | 8 |
 | `coroutine-lab` | lab | 1 |
-| `reading` | reading | 9 |
+| `reading` | reading | 15 |
 | `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |
 | `code-reading` | code | 5 |
