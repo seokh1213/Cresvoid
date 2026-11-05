@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "request-window",
+      "refs": ["6", "7", "8", "9"],
+      "quote": "모든 불변식을 함께 만족해야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/entry-only", "variants/normal-return"]
+}

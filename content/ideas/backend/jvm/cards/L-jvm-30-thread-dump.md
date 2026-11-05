@@ -4,7 +4,7 @@ title: 스레드 덤프로 교착 찾기
 kind: lab
 track: jvm-lab
 stage: 03-thread-dump
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

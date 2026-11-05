@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "paired-arrivals",
+      "refs": ["7", "9", "10", "11"],
+      "quote": "모든 요청의 완료와 정확한 잔액을 함께 만족해야 한다.",
+      "timeout_sec": 120,
+      "repeat": 1
+    },
+    {
+      "name": "mixed-arrivals",
+      "refs": ["8", "9", "10", "11"],
+      "quote": "모든 요청의 완료와 정확한 잔액을 함께 만족해야 한다.",
+      "timeout_sec": 120,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/skip-contended"]
+}

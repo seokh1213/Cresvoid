@@ -4,7 +4,7 @@ title: 스레드 풀과 ThreadLocal
 kind: lab
 track: jvm-lab
 stage: 02-threadlocal-leak
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

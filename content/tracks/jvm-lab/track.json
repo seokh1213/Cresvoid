@@ -1,0 +1,10 @@
+{
+  "title": "JVM 운영 실험",
+  "kind": "lab",
+  "summary": "컨테이너 메모리 한도, 스레드 풀과 ThreadLocal, 스레드 덤프 같은 JVM 운영 현상을 실험으로 재현하고 불변식을 지키도록 고친다.",
+  "stages": [
+    { "dir": "01-container-heap", "title": "메모리 한도와 기본 힙 크기" },
+    { "dir": "02-threadlocal-leak", "title": "스레드 풀과 ThreadLocal" },
+    { "dir": "03-thread-dump", "title": "스레드 덤프로 교착 찾기" }
+  ]
+}

@@ -4,7 +4,7 @@ title: 메모리 한도와 기본 힙 크기
 kind: lab
 track: jvm-lab
 stage: 01-container-heap
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:
