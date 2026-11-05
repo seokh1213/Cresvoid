@@ -4,7 +4,7 @@ title: 필드 하나가 모자랐던 콘텐츠 갱신
 kind: reading
 track: incident-reading
 stage: 04-crowdstrike-channel-file
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 3
 env: 없음
 prereq:

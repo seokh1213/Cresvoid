@@ -4,7 +4,7 @@ title: 기능 플래그 없는 코드 경로와 빈 필드
 kind: reading
 track: incident-reading
 stage: 05-gcp-service-control
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 3
 env: 없음
 prereq:

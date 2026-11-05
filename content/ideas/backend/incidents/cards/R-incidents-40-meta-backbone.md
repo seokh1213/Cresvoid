@@ -4,7 +4,7 @@ title: 스스로 사라진 DNS
 kind: reading
 track: incident-reading
 stage: 06-meta-backbone
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq:

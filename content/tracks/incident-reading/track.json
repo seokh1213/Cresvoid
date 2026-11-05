@@ -5,6 +5,10 @@
   "stages": [
     { "dir": "01-cloudflare-regex", "title": "정규식 하나가 멈춘 전 세계 프록시", "target_minutes": 15 },
     { "dir": "02-github-split-writes", "title": "43초 분할이 만든 하루 동안의 장애", "target_minutes": 15 },
-    { "dir": "03-s3-capacity-removal", "title": "잘못 입력한 용량 제거 명령", "target_minutes": 15 }
+    { "dir": "03-s3-capacity-removal", "title": "잘못 입력한 용량 제거 명령", "target_minutes": 15 },
+    { "dir": "04-crowdstrike-channel-file", "title": "필드 하나가 모자랐던 콘텐츠 갱신", "target_minutes": 15 },
+    { "dir": "05-gcp-service-control", "title": "기능 플래그 없는 코드 경로와 빈 필드", "target_minutes": 15 },
+    { "dir": "06-meta-backbone", "title": "스스로 사라진 DNS", "target_minutes": 15 },
+    { "dir": "07-slack-cold-start", "title": "연휴 뒤 첫 월요일의 급증", "target_minutes": 15 }
   ]
 }

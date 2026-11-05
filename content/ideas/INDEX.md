@@ -14,7 +14,7 @@
 | [설계 패턴](backend/design-patterns/README.md) | 11 | 6 | 3 | 2 | 0 |
 | [분산 시스템](backend/distributed/README.md) | 8 | 6 | 0 | 2 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
-| [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 4 | 3 | 0 |
+| [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [JVM](backend/jvm/README.md) | 4 | 4 | 0 | 0 | 0 |
 | [레이크하우스: 파일 포맷과 테이블 포맷](backend/lakehouse/README.md) | 3 | 1 | 0 | 2 | 0 |
 | [부하 엣지 케이스](backend/load/README.md) | 12 | 10 | 0 | 0 | 2 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 5 | 0 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 10 | 0 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 119 | 14 | 50 | 2 |
+| 합계 | 185 | 119 | 10 | 54 | 2 |
 
 ## 다음 후보
 
@@ -187,7 +187,7 @@
 | geo-index | build | 없음 | 04 |  | 01-geohash(B-system-design-100 4차), 02-radius-search(B-system-design-100 4차), 03-quadtree(B-system-design-100 4차) |
 | history-rollover | build | 없음 | 04 |  | 01-materialize(B-pipeline-10 4차), 02-baseline(B-pipeline-10 4차), 03-retention(B-pipeline-10 4차) |
 | id-generator | build | 없음 | 04 |  | 01-snowflake(B-system-design-30 3차), 02-sharded-ids(B-system-design-30 3차), 03-ordering(B-system-design-30 3차) |
-| incident-reading | reading | 있음 | 08 | 01-cloudflare-regex(R-incidents-10 완료), 02-github-split-writes(R-incidents-20 완료), 03-s3-capacity-removal(R-incidents-30 완료), 04-crowdstrike-channel-file(R-incidents-50 제작 중), 05-gcp-service-control(R-incidents-60 제작 중), 06-meta-backbone(R-incidents-40 제작 중), 07-slack-cold-start(R-incidents-70 제작 중) |  |
+| incident-reading | reading | 있음 | 08 | 01-cloudflare-regex(R-incidents-10 완료), 02-github-split-writes(R-incidents-20 완료), 03-s3-capacity-removal(R-incidents-30 완료), 04-crowdstrike-channel-file(R-incidents-50 완료), 05-gcp-service-control(R-incidents-60 완료), 06-meta-backbone(R-incidents-40 완료), 07-slack-cold-start(R-incidents-70 완료) |  |
 | index-overlay | build | 없음 | 05 |  | 01-current-state(B-pipeline-50 4차), 02-round-merge(B-pipeline-50 4차), 03-replay(B-pipeline-50 4차), 04-reconcile(B-pipeline-70 5차) |
 | jvm-lab | lab | 없음 | 01 |  | container-heap(L-jvm-10 4차), threadlocal-leak(L-jvm-20 4차), thread-dump(L-jvm-30 4차), jit-warmup(L-jvm-40 5차) |
 | kafka-lab | lab | 없음 | 01 |  | rebalance(L-messaging-40 5차), durability(L-messaging-41 5차) |
@@ -385,10 +385,10 @@
 | [R-incidents-10](backend/incidents/cards/R-incidents-10-cloudflare-regex.md) | 정규식 하나가 멈춘 전 세계 프록시 | reading | incident-reading | 01-cloudflare-regex | 완료(2026-11-05) | 3 | 없음 |  |
 | [R-incidents-20](backend/incidents/cards/R-incidents-20-github-split-writes.md) | 43초 분할이 만든 하루 동안의 장애 | reading | incident-reading | 02-github-split-writes | 완료(2026-11-05) | 3 | 없음 |  |
 | [R-incidents-30](backend/incidents/cards/R-incidents-30-s3-capacity-removal.md) | 잘못 입력한 용량 제거 명령 | reading | incident-reading | 03-s3-capacity-removal | 완료(2026-11-05) | 3 | 없음 |  |
-| [R-incidents-40](backend/incidents/cards/R-incidents-40-meta-backbone.md) | 스스로 사라진 DNS | reading | incident-reading | 06-meta-backbone | 제작 중 | 4 | 없음 |  |
-| [R-incidents-50](backend/incidents/cards/R-incidents-50-crowdstrike-channel-file.md) | 필드 하나가 모자랐던 콘텐츠 갱신 | reading | incident-reading | 04-crowdstrike-channel-file | 제작 중 | 3 | 없음 |  |
-| [R-incidents-60](backend/incidents/cards/R-incidents-60-gcp-service-control.md) | 기능 플래그 없는 코드 경로와 빈 필드 | reading | incident-reading | 05-gcp-service-control | 제작 중 | 3 | 없음 |  |
-| [R-incidents-70](backend/incidents/cards/R-incidents-70-slack-cold-start.md) | 연휴 뒤 첫 월요일의 급증 | reading | incident-reading | 07-slack-cold-start | 제작 중 | 4 | 없음 |  |
+| [R-incidents-40](backend/incidents/cards/R-incidents-40-meta-backbone.md) | 스스로 사라진 DNS | reading | incident-reading | 06-meta-backbone | 완료(2026-11-05) | 4 | 없음 |  |
+| [R-incidents-50](backend/incidents/cards/R-incidents-50-crowdstrike-channel-file.md) | 필드 하나가 모자랐던 콘텐츠 갱신 | reading | incident-reading | 04-crowdstrike-channel-file | 완료(2026-11-05) | 3 | 없음 |  |
+| [R-incidents-60](backend/incidents/cards/R-incidents-60-gcp-service-control.md) | 기능 플래그 없는 코드 경로와 빈 필드 | reading | incident-reading | 05-gcp-service-control | 완료(2026-11-05) | 3 | 없음 |  |
+| [R-incidents-70](backend/incidents/cards/R-incidents-70-slack-cold-start.md) | 연휴 뒤 첫 월요일의 급증 | reading | incident-reading | 07-slack-cold-start | 완료(2026-11-05) | 4 | 없음 |  |
 
 ### JVM
 
