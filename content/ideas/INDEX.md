@@ -22,12 +22,12 @@
 | [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [OLAP](backend/olap/README.md) | 6 | 1 | 3 | 2 | 0 |
-| [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 4 | 0 | 0 |
+| [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 3 | 1 | 0 |
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 6 | 3 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 5 | 2 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 15 | 0 | 2 | 0 |
-| 합계 | 185 | 44 | 59 | 80 | 2 |
+| 합계 | 185 | 44 | 58 | 81 | 2 |
 
 ## 다음 후보
 
@@ -135,7 +135,7 @@
 | nrt-index | build | 없음 | 04 |  | 01-refresh(B-search-30 3차), 02-durability(B-search-30 3차), 03-concurrency(B-search-30 3차) |
 | object-store | build | 없음 | 04 |  | 01-versioning(B-system-design-160 5차), 02-multipart(B-system-design-160 5차), 03-durability(B-system-design-160 5차) |
 | olap-lab | lab | 없음 | 04 | 01-sorting-key(L-olap-40 제작 중), 02-replacing-merge(L-olap-41 제작 중), 03-too-many-parts(L-olap-42 제작 중) |  |
-| pipeline-lab | lab | 없음 | 02 | 01-candidate-recall(L-pipeline-90 제작 중) |  |
+| pipeline-lab | lab | 있음 | 02 | 01-candidate-recall(L-pipeline-90 완료) |  |
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
 | rag | build | 있음 | 05 | 01-chunking(B-ai-agent-30 완료), 02-retrieval(B-ai-agent-30 완료), 03-hybrid(B-ai-agent-30 완료), 04-eval(B-ai-agent-30 완료) |  |
 | rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료) | 04-client-throttle(B-system-design-25 4차) |
@@ -412,7 +412,7 @@
 | [F-pipeline-60](backend/pipeline/cards/F-pipeline-60-replay-regression.md) | 과거 회차 재실행이 최신 결과를 되돌리는 버그 | fix | bug-fix | 15-replay-regression | 제작 중 | 4 | 없음 | B-pipeline-50 |
 | [B-pipeline-70](backend/pipeline/cards/B-pipeline-70-experiment-recovery.md) | 실험 종료 뒤 운영 상태로 복구하는 도구 만들기 | build | index-overlay | 04-reconcile | 후보 | 5 | 없음 | B-pipeline-50 |
 | [B-pipeline-80](backend/pipeline/cards/B-pipeline-80-dedup-candidates.md) | 중복 후보 생성과 대표 선택기 만들기 | build | dedup-candidates | 01-exact, 02-candidates, 03-components | 후보 | 5 | 없음 |  |
-| [L-pipeline-90](backend/pipeline/cards/L-pipeline-90-candidate-recall.md) | 비교 비용과 놓친 중복쌍 측정 | lab | pipeline-lab | 01-candidate-recall | 제작 중 | 5 | 없음 | B-pipeline-80 |
+| [L-pipeline-90](backend/pipeline/cards/L-pipeline-90-candidate-recall.md) | 비교 비용과 놓친 중복쌍 측정 | lab | pipeline-lab | 01-candidate-recall | 완료(2026-11-05) | 5 | 없음 | B-pipeline-80 |
 
 ### 검색: Elasticsearch
 

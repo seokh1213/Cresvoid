@@ -4,7 +4,7 @@ title: 비교 비용과 놓친 중복쌍 측정
 kind: lab
 track: pipeline-lab
 stage: 01-candidate-recall
-status: 제작 중
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq: B-pipeline-80

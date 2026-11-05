@@ -1,0 +1,8 @@
+{
+  "scenarios": [
+    {"name": "collection-a", "refs": ["9", "13", "17", "20"], "quote": "모든 요청에서 기준 정답 집합과 응답 쌍 집합이 같아야 한다.", "timeout_sec": 90, "repeat": 3},
+    {"name": "collection-b", "refs": ["9", "14", "17", "20"], "quote": "모든 요청에서 기준 정답 집합과 응답 쌍 집합이 같아야 한다.", "timeout_sec": 90, "repeat": 3},
+    {"name": "collection-c", "refs": ["9", "15", "17", "20"], "quote": "모든 요청에서 기준 정답 집합과 응답 쌍 집합이 같아야 한다.", "timeout_sec": 90, "repeat": 3}
+  ],
+  "must_fail": ["variants/random-partitions", "variants/length-bands", "variants/recent-window", "variants/full-scan"]
+}
