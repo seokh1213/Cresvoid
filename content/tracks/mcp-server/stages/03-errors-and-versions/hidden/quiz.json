@@ -1,0 +1,78 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 요청에 대해 먼저 선택해야 하는 처리는?",
+      "context": "{\"jsonrpc\":\"2.0\",\"id\":\"\",\"method\":\"unknown\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"old\",\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"unused\":false}}}}}",
+      "choices": [
+        "버전 old를 지원하지 않으므로 -32022와 버전 data를 반환한다.",
+        "experimental 안의 값이 객체가 아니므로 -32602를 반환하며 문자열 id는 빈 문자열로 보존한다.",
+        "메서드 unknown을 모르므로 -32601을 반환한다.",
+        "견적 기능이 선언되지 않았으므로 -32021과 필요한 기능 data를 반환한다.",
+        "id가 빈 문자열이므로 알림으로 취급하여 출력하지 않는다."
+      ],
+      "answer": 2,
+      "refs": ["3.2", "3.4", "4.1", "4.2", "4.3", "4.4", "4.6"],
+      "quote": "experimental에 알려지지 않은 키가 있더라도 값이 객체이면 무시한다.",
+      "explanation": "②가 옳다. 빈 문자열 id는 유효하고 메타데이터 타입 검사는 버전과 메서드 검사보다 앞선다. 알려지지 않은 experimental 키도 값은 객체여야 하므로 false가 -32602를 일으킨다. ①과 ③은 더 뒤의 버전·메서드 검사를 먼저 적용해 틀리다. ④는 이 요청이 cart_quote도 아니며 기능 검사 전에 메타데이터 타입에서 실패하므로 틀리다. ⑤는 빈 문자열 id와 id 부재를 혼동했으므로 틀리다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 두 입력 줄에 대한 오류와 id 처리로 옳은 것은?",
+      "context": "{\"jsonrpc\":\"2.0\",\"id\":\"broken\",\n{\"jsonrpc\":\"2.0\",\"id\":4e0,\"method\":7,\"params\":{}}",
+      "choices": [
+        "두 줄 모두 _meta가 없으므로 -32602이며 id는 각각 문자열 \"broken\"과 정수 4다.",
+        "첫 줄은 -32700이며 id는 null이고 둘째 줄은 -32600이며 id는 정수 4다.",
+        "첫 줄은 -32700, 둘째 줄은 -32600이며 두 줄 모두 id를 생략한다.",
+        "첫 줄은 -32700이며 id를 생략하고 둘째 줄은 -32600이며 id는 정수 4다.",
+        "첫 줄은 -32700이며 id는 문자열 \"broken\"이고 둘째 줄은 -32600이며 id는 정수 4다."
+      ],
+      "answer": 4,
+      "refs": ["1.1", "2.4", "3.1", "3.2", "3.4", "4.1", "5.1", "5.2"],
+      "quote": "파싱에는 성공했지만 외형이 잘못된 객체라면 그 안의 id가 유효한 문자열 또는 정수일 때만 그 id를 돌려준다.",
+      "explanation": "④가 옳다. 첫 줄은 잘린 JSON이므로 -32700이며 id를 복구하지 않는다. 다음 줄도 계속 처리하며 숫자인 method 때문에 -32600을 선택한다. 4e0은 수학적으로 정수인 유효한 id여서 4로 돌려준다. ①은 JSON 문법과 외형 검사보다 메타데이터 검사를 먼저 적용해 틀리다. ②는 이 과제에서 출력하지 않는 null id를 만들어 틀리다. ③은 외형 오류라도 유효한 id는 돌려주며 지수 표기의 정수도 유효하므로 틀리다. ⑤는 파싱에 실패한 줄에서 보이는 id를 복구하려 했으므로 틀리다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 세 cart_quote 요청을 순서대로 보냈을 때 각 요청의 처리 결과를 바르게 나열한 것은?",
+      "context": "세 요청은 서로 다른 유효한 id를 가지며 버전 2026-07-28과 올바른 타입의 필수 메타데이터를 매번 보낸다. 첫 요청은 견적 기능 선언이 없고 lines가 빈 배열이다. 둘째 요청은 견적 기능을 선언하며 lines는 [{\"productId\":\"p-999\",\"quantity\":1}]이다. 셋째 요청은 둘째와 인자가 같지만 clientCapabilities는 빈 객체다.",
+      "choices": [
+        "-32602, isError:true인 complete 도구 결과, -32021이다.",
+        "-32021, isError:true인 complete 도구 결과, -32021이다.",
+        "-32602, isError:true인 complete 도구 결과, 앞 요청의 기능을 이어받은 같은 도구 결과다.",
+        "-32602, -32602, -32021이다.",
+        "-32602, isError:true인 complete 도구 결과, 기능 검사 전에 상품 부재를 보고한 같은 도구 결과다."
+      ],
+      "answer": 1,
+      "refs": ["4.1", "4.5", "4.6", "4.7"],
+      "quote": "인자 형식이 유효하고 모르는 상품이 들어 있지만 기능이 없으면 `-32021`이다.",
+      "explanation": "①이 옳다. 첫 요청은 인자 검사에서 빈 lines가 걸린다. 둘째는 기능을 선언했으므로 상품 부재를 도구 실행 오류로 반환한다. 셋째는 앞 요청의 기능을 물려받지 않아 도메인 실행 전에 -32021이다. ②는 인자 오류보다 기능 누락을 먼저 검사해 틀리다. ③은 요청 간 기능을 이어받아 틀리다. ④는 형식이 유효한 인자의 상품 부재를 프로토콜 오류로 바꿔 틀리다. ⑤는 기능 검사보다 도메인 실행을 먼저 적용해 틀리다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": [
+        "{\"jsonrpc\":\"2.0\",\"method\":\"unknown\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"old\"}}}",
+        "{\"jsonrpc\":\"2.0\",\"id\":3e0,\"method\":\"unknown\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\" 2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}}}}"
+      ],
+      "answers": ["{\"error\":{\"code\":-32022,\"data\":{\"requested\":\" 2026-07-28\",\"supported\":[\"2026-07-28\"]},\"message\":\"Unsupported protocol version\"},\"id\":3,\"jsonrpc\":\"2.0\"}"],
+      "refs": ["1.1", "3.3", "3.4", "4.1", "4.3", "4.4", "5.1", "5.2"],
+      "quote": "다른 문자열은 빈 문자열을 포함해 `-32022`이며 앞뒤 공백을 제거하거나 날짜 형태를 추측하지 않는다.",
+      "explanation": "첫 줄은 외형이 유효한 알림이라 메타데이터 오류를 검사하지 않고 버린다. 둘째 줄은 버전 문자열 앞의 공백을 그대로 판단하므로 메서드 unknown 검사 전에 -32022를 선택한다. data에는 입력 버전과 지원 버전을 넣고 숫자 id 3e0은 3으로 정규화한다. 공백을 제거해 -32601로 응답하거나 버전 data를 빼면 틀리다. 알림에도 응답하여 두 줄을 쓰는 것도 틀리다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": ["{\"jsonrpc\":\"2.0\",\"id\":\"cap\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}},\"name\":\"cart_quote\",\"arguments\":{\"lines\":[{\"productId\":\"p-999\",\"quantity\":1}]}}}"],
+      "answers": ["{\"error\":{\"code\":-32021,\"data\":{\"requiredCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}}},\"message\":\"Missing required client capability\"},\"id\":\"cap\",\"jsonrpc\":\"2.0\"}"],
+      "refs": ["3.4", "4.1", "4.5", "4.6", "4.7", "5.1", "5.2"],
+      "quote": "이 오류의 data는 `requiredCapabilities:{\"experimental\":{\"com.cresvoid/quote-preview\":{}}}`만 가진 객체다.",
+      "explanation": "lines와 각 인자의 형식은 유효하다. 상품을 조회하기 전에 현재 요청의 견적 기능 선언을 검사하여 -32021을 선택하고 requiredCapabilities를 data에 넣는다. 문자열 id는 그대로 돌려주며 모든 객체 키를 정렬한다. UNKNOWN_PRODUCT를 담은 도구 결과는 기능을 선언한 요청에서만 가능하다. 모르는 상품이라는 이유로 -32602를 쓰거나 필요한 기능 data를 생략해도 틀리다."
+    }
+  ]
+}

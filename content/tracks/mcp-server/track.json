@@ -1,0 +1,10 @@
+{
+  "title": "MCP 서버",
+  "kind": "build",
+  "summary": "표준 입출력으로 JSON-RPC 2.0 메시지를 주고받는 MCP 서버를 고정한 명세 판을 읽고 도구, 리소스와 프롬프트, 오류와 버전 순으로 구현한다.",
+  "stages": [
+    { "dir": "01-tools", "title": "메시지 구분과 도구 호출" },
+    { "dir": "02-resources-prompts", "title": "리소스·프롬프트와 페이지 나누기" },
+    { "dir": "03-errors-and-versions", "title": "오류 응답과 프로토콜 버전" }
+  ]
+}

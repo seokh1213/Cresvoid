@@ -1,0 +1,10 @@
+{
+  "title": "실시간 순위표",
+  "kind": "build",
+  "summary": "점수 갱신과 순위 조회가 빠른 순위표를 만들고 범위 조회와 기간별 초기화를 더한 뒤 샤딩 방식별 전체 순위 비용을 비교한다.",
+  "stages": [
+    { "dir": "01-sorted-set", "title": "점수 갱신과 순위" },
+    { "dir": "02-range-queries", "title": "상위 N, 주변 순위, 기간별 순위표" },
+    { "dir": "03-sharding", "title": "샤딩과 전체 순위 비용" }
+  ]
+}

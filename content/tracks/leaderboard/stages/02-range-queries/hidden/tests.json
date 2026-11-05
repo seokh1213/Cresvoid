@@ -1,0 +1,533 @@
+{
+  "timeout_sec": 30,
+  "tests": [
+    {
+      "name": "top-session",
+      "refs": [
+        "1.2",
+        "3.3",
+        "4.4"
+      ],
+      "quote": "`TOP <개수>`는 all의 상위 개수 명을 반환한다.",
+      "input": [
+        "SET 8 20",
+        "TOP 1"
+      ],
+      "expected": [
+        "1:8:20"
+      ]
+    },
+    {
+      "name": "listing-session",
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.4"
+      ],
+      "quote": "개수가 0이면 순위표가 비어 있지 않아도 `(none)`이다.",
+      "input": [
+        "TOP 1",
+        "TOP 0",
+        "SET 9 -1",
+        "SET 2 0",
+        "SET 7 0",
+        "TOP 0",
+        "TOP 1000",
+        "TOP 2"
+      ],
+      "expected": [
+        "(none)",
+        "(none)",
+        "(none)",
+        "1:2:0 2:7:0 3:9:-1",
+        "1:2:0 2:7:0"
+      ]
+    },
+    {
+      "name": "nearby-session",
+      "refs": [
+        "2.1",
+        "3.3",
+        "4.5"
+      ],
+      "quote": "양 끝에서 잘린 수만큼 반대편을 더 채우지 않는다.",
+      "input": [
+        "SET 1 50",
+        "SET 2 40",
+        "SET 3 30",
+        "SET 4 20",
+        "SET 5 10",
+        "AROUND 1 1",
+        "AROUND 5 1",
+        "AROUND 3 1",
+        "AROUND 4 0",
+        "AROUND 99 500"
+      ],
+      "expected": [
+        "1:1:50 2:2:40",
+        "4:4:20 5:5:10",
+        "2:2:40 3:3:30 4:4:20",
+        "4:4:20",
+        "(none)"
+      ]
+    },
+    {
+      "name": "range-session",
+      "refs": [
+        "2.1",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "quote": "주변에 동점자가 있더라도 점수 구간으로 넓히지 않고 도달 순서까지 적용한 개별 순위를 기준으로 자른다.",
+      "input": [
+        "CREATE cup 0",
+        "BSET cup 9 8",
+        "BSET cup 3 8",
+        "BSET cup 7 8",
+        "BSET cup 1 8",
+        "BSET cup 8 8",
+        "BTOP cup 2",
+        "BAROUND cup 7 1",
+        "BAROUND cup 9 0",
+        "BAROUND cup 8 500",
+        "BAROUND cup 12 0"
+      ],
+      "expected": [
+        "1:9:8 2:3:8",
+        "2:3:8 3:7:8 4:1:8",
+        "1:9:8",
+        "1:9:8 2:3:8 3:7:8 4:1:8 5:8:8",
+        "(none)"
+      ]
+    },
+    {
+      "name": "boards-session",
+      "refs": [
+        "1.2",
+        "3.3",
+        "4.3"
+      ],
+      "quote": "같은 사용자 ID가 여러 순위표에 있어도 점수, 등록 여부, 도달 순서는 순위표마다 독립적이다.",
+      "input": [
+        "CREATE cup 0",
+        "CREATE duel 0",
+        "SET 9 40",
+        "BSET cup 2 40",
+        "BSET cup 9 40",
+        "BSET duel 9 -2",
+        "BADD all 2 40",
+        "TOP 4",
+        "BTOP cup 4",
+        "BRANK duel 9",
+        "BRANK duel 2",
+        "BADD cup 9 -1",
+        "RANK 9",
+        "BRANK cup 9",
+        "BRANK all 2"
+      ],
+      "expected": [
+        "1:9:40 2:2:40",
+        "1:2:40 2:9:40",
+        "1 -2",
+        "(none)",
+        "1 40",
+        "2 39",
+        "2 40"
+      ]
+    },
+    {
+      "name": "clock-session",
+      "refs": [
+        "2.2",
+        "2.3",
+        "4.1",
+        "4.2"
+      ],
+      "quote": "고정 기간의 원점은 각 순위표를 만든 시각이 아니라 가상 시각 0이다.",
+      "input": [
+        "TICK 7",
+        "CREATE cup 10",
+        "BSET cup 7 10",
+        "TICK 9",
+        "BRANK cup 7",
+        "TICK 10",
+        "BRANK cup 7",
+        "BADD cup 7 1",
+        "TICK 19",
+        "BRANK cup 7",
+        "TICK 20",
+        "BRANK cup 7"
+      ],
+      "expected": [
+        "1 10",
+        "(none)",
+        "1 1",
+        "(none)"
+      ]
+    },
+    {
+      "name": "season-session",
+      "refs": [
+        "1.2",
+        "2.2",
+        "4.1",
+        "4.2"
+      ],
+      "quote": "기간초 0인 순위표와 all은 TICK으로 초기화하지 않는다.",
+      "input": [
+        "CREATE short 7",
+        "CREATE long 10",
+        "CREATE forever 0",
+        "SET 1 3",
+        "BSET short 1 4",
+        "BSET long 1 5",
+        "BSET forever 1 6",
+        "TICK 7",
+        "BRANK short 1",
+        "BRANK long 1",
+        "BRANK forever 1",
+        "BADD short 1 2",
+        "TICK 100",
+        "BRANK short 1",
+        "BRANK long 1",
+        "BRANK forever 1",
+        "RANK 1"
+      ],
+      "expected": [
+        "(none)",
+        "1 5",
+        "1 6",
+        "(none)",
+        "(none)",
+        "1 6",
+        "1 3"
+      ]
+    },
+    {
+      "name": "restart-session",
+      "refs": [
+        "2.3",
+        "4.2",
+        "4.6"
+      ],
+      "quote": "이름과 기간초, 가상 시각은 유지하며 기간 경계의 원점을 옮기지 않는다.",
+      "input": [
+        "TICK 7",
+        "CREATE cup 10",
+        "BSET cup 9 100",
+        "TICK 9",
+        "RESET cup",
+        "RESET cup",
+        "BADD cup 2 5",
+        "BADD cup 9 5",
+        "BTOP cup 5",
+        "TICK 10",
+        "BTOP cup 5",
+        "BADD cup 9 0",
+        "BRANK cup 9",
+        "TICK 20",
+        "BRANK cup 9"
+      ],
+      "expected": [
+        "1:2:5 2:9:5",
+        "(none)",
+        "1 0",
+        "(none)"
+      ]
+    },
+    {
+      "name": "reset-session",
+      "refs": [
+        "1.2",
+        "4.3",
+        "4.6"
+      ],
+      "quote": "다시 등록된 사용자는 그때의 명령 순서에 따라 새 도달 순서를 받는다.",
+      "input": [
+        "CREATE cup 0",
+        "SET 9 5",
+        "SET 2 5",
+        "BSET cup 9 15",
+        "RESET all",
+        "RANK 9",
+        "TOP 2",
+        "BADD all 2 0",
+        "ADD 9 0",
+        "TOP 3",
+        "BRANK cup 9",
+        "RESET cup",
+        "BRANK cup 9",
+        "RANK 2"
+      ],
+      "expected": [
+        "(none)",
+        "(none)",
+        "1:2:0 2:9:0",
+        "1 15",
+        "(none)",
+        "1 0"
+      ]
+    },
+    {
+      "name": "observation-session",
+      "refs": [
+        "2.3",
+        "4.3",
+        "4.7"
+      ],
+      "quote": "조회 명령은 점수와 도달 순서를 바꾸지 않는다.",
+      "input": [
+        "CREATE cup 10",
+        "BSET cup 9 6",
+        "BSET cup 2 6",
+        "BTOP cup 1",
+        "BAROUND cup 9 1",
+        "BRANK cup 9",
+        "TICK 0",
+        "TICK 8",
+        "BSET cup 9 6",
+        "BADD cup 9 0",
+        "BTOP cup 2",
+        "TICK 8",
+        "BADD cup 9 -1",
+        "BADD cup 9 1",
+        "BTOP cup 2"
+      ],
+      "expected": [
+        "1:9:6",
+        "1:9:6 2:2:6",
+        "1 6",
+        "1:9:6 2:2:6",
+        "1:2:6 2:9:6"
+      ]
+    },
+    {
+      "name": "creation-session",
+      "refs": [
+        "3.2",
+        "4.1",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "CREATE all은 중복 생성 오류다.",
+      "input": [
+        "CREATE a_01234567890123 0",
+        "BADD a_01234567890123 1 2",
+        "BRANK a_01234567890123 1",
+        "CREATE a_012345678901234 0",
+        "CREATE _cup 0",
+        "CREATE Cup 0",
+        "CREATE 7cup 0",
+        "CREATE all 10",
+        "CREATE a_01234567890123 1",
+        "TICK 100",
+        "BRANK a_01234567890123 1"
+      ],
+      "expected": [
+        "1 2",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "1 2"
+      ]
+    },
+    {
+      "name": "validation-session",
+      "refs": [
+        "3.2",
+        "4.2",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "TICK이 실패하면 기간 만료도 일어나지 않는다.",
+      "input": [
+        "CREATE cup 10",
+        "BSET cup 9 4",
+        "TICK 9",
+        "TICK 8",
+        "TICK 10 extra",
+        "TICK 1000000000001",
+        "TICK +10",
+        "TOP 1001",
+        "TOP -1",
+        "TOP 01",
+        "AROUND 9 501",
+        "AROUND 9 -1",
+        "CREATE bad -1",
+        "CREATE bad 1000000000001",
+        "CREATE bad 01",
+        "BRANK cup 9",
+        "TICK 10",
+        "BRANK cup 9",
+        "CREATE horizon 1000000000000",
+        "BSET horizon 4 1",
+        "TICK 999999999999",
+        "BRANK horizon 4",
+        "TICK 1000000000000",
+        "BRANK horizon 4"
+      ],
+      "expected": [
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "1 4",
+        "(none)",
+        "1 1",
+        "(none)"
+      ]
+    },
+    {
+      "name": "request-session",
+      "refs": [
+        "3.1",
+        "3.2",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "존재하지 않는 순위표의 BTOP 개수가 0이어도 오류다.",
+      "input": [
+        "BADD missing 1 1",
+        "BSET missing 1 1",
+        "BRANK missing 1",
+        "BTOP missing 0",
+        "BAROUND missing 1 0",
+        "RESET missing",
+        "CREATE cup",
+        "CREATE cup 0 extra",
+        "CREATE cup 0",
+        "BSET cup 1",
+        "BADD cup 1 1 extra",
+        "BRANK cup",
+        "BTOP cup",
+        "BAROUND cup 1",
+        "RESET cup extra",
+        "TOP 1 extra",
+        "AROUND 1",
+        "BTOP cup 0",
+        "BRANK cup 1"
+      ],
+      "expected": [
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "(none)",
+        "(none)"
+      ]
+    },
+    {
+      "name": "continuation-session",
+      "refs": [
+        "3.2",
+        "4.3",
+        "4.6",
+        "5.1",
+        "5.2",
+        "7.1"
+      ],
+      "quote": "실패한 BADD나 BSET은 새 사용자를 남기지 않는다.",
+      "input": [
+        "CREATE cup 0",
+        "BSET cup 9 1000000000000",
+        "BSET cup 2 1000000000000",
+        "BADD cup 9 1",
+        "BSET cup 7 -1000000000001",
+        "BADD cup 7 01",
+        "BRANK cup 7",
+        "BSET cup 9 3 extra",
+        "BSET cup 0 4",
+        "BSET cup 2147483648 4",
+        "BTOP cup 1000",
+        "BAROUND cup 2 500",
+        "BRANK cup 2147483647",
+        "RESET cup",
+        "BADD cup 2147483647 -1000000000000",
+        "BRANK cup 2147483647"
+      ],
+      "expected": [
+        "ERR",
+        "ERR",
+        "ERR",
+        "(none)",
+        "ERR",
+        "ERR",
+        "ERR",
+        "1:9:1000000000000 2:2:1000000000000",
+        "1:9:1000000000000 2:2:1000000000000",
+        "(none)",
+        "1 -1000000000000"
+      ]
+    },
+    {
+      "name": "mixed-session",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "4.4",
+        "5.1",
+        "5.2",
+        "4.5",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "실패한 명령은 모든 순위표와 가상 시각을 그대로 유지한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--users",
+        "200",
+        "--commands",
+        "1000",
+        "--profile",
+        "mixed"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "extended-session",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "범위의 시작 순위가 순위표 뒤쪽에 있는 주변 조회도 포함한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--users",
+        "1999900",
+        "--commands",
+        "60000",
+        "--profile",
+        "scale"
+      ],
+      "repeat": 2,
+      "timeout_sec": 120
+    }
+  ]
+}

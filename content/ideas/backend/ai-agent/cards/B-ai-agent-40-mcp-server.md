@@ -4,7 +4,7 @@ title: MCP 서버 만들기
 kind: build
 track: mcp-server
 stage: 01-tools, 02-resources-prompts, 03-errors-and-versions
-status: 후보
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq: B-ai-agent-20

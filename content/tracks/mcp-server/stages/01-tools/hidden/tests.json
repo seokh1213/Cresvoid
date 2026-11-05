@@ -1,0 +1,421 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "catalog-query",
+      "refs": [
+        "4.5",
+        "4.8",
+        "3.5",
+        "3.6"
+      ],
+      "quote": "`product_get`은 해당 상품을 찾으면 텍스트 `id=<상품 id>`, `name=<이름>`, `price=<가격>`, `stock=<재고>`를 LF로 이어 반환한다.",
+      "input": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-100\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-100\\nname=머그 \\\"밤\\\"\\nprice=12000\\nstock=8\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "tool-directory",
+      "refs": [
+        "4.2",
+        "4.3",
+        "2.3",
+        "2.4"
+      ],
+      "quote": "`tools/list`는 `resultType:\"complete\"`, `ttlMs:0`, `cacheScope:\"public\"`, `tools` 배열을 반환한다.",
+      "input": [
+        "{\"id\":\"list\",\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}"
+      ],
+      "expected": [
+        "{\"id\":\"list\",\"jsonrpc\":\"2.0\",\"result\":{\"cacheScope\":\"public\",\"resultType\":\"complete\",\"tools\":[{\"description\":\"장바구니의 재고와 합계를 확인한다.\",\"inputSchema\":{\"additionalProperties\":false,\"properties\":{\"lines\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"productId\":{\"type\":\"string\"},\"quantity\":{\"maximum\":1000,\"minimum\":1,\"type\":\"integer\"}},\"required\":[\"productId\",\"quantity\"],\"type\":\"object\"},\"maxItems\":20,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"lines\"],\"type\":\"object\"},\"name\":\"cart_quote\"},{\"description\":\"상품 한 개를 조회한다.\",\"inputSchema\":{\"additionalProperties\":false,\"properties\":{\"productId\":{\"type\":\"string\"}},\"required\":[\"productId\"],\"type\":\"object\"},\"name\":\"product_get\"}],\"ttlMs\":0}}"
+      ]
+    },
+    {
+      "name": "product-queries",
+      "refs": [
+        "4.1",
+        "4.5",
+        "4.8"
+      ],
+      "quote": "카탈로그는 다섯 상품으로 고정한다.",
+      "input": [
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-200\"},\"name\":\"product_get\"}}",
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-300\"},\"name\":\"product_get\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-400\"},\"name\":\"product_get\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"P-100\"},\"name\":\"product_get\"}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"\"},\"name\":\"product_get\"}}",
+        "{\"id\":6,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\" p-100\"},\"name\":\"product_get\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-999\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-200\\nname=드립 필터\\nprice=4500\\nstock=0\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-300\\nname=원두\\n중배전\\nprice=18000\\nstock=5\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-400\\nname=서버\\\\유리\\nprice=24000\\nstock=3\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT P-100\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT \",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":6,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT  p-100\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT p-999\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "message-stream",
+      "refs": [
+        "3.3",
+        "2.1",
+        "3.5"
+      ],
+      "quote": "`jsonrpc:\"2.0\"`과 문자열 `method`가 있고 `id`, `result`, `error`가 없는 객체는 알림이다.",
+      "input": [
+        "{\"jsonrpc\":\"2.0\",\"method\":\"tools/call\"}",
+        "{\"jsonrpc\":\"2.0\",\"method\":\"unknown\",\"params\":{\"name\":null}}",
+        "{\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"other\"}}}",
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"result\":{}}",
+        "{\"error\":{\"code\":-32600,\"message\":\"peer\"},\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":1,\"message\":\"peer\"},\"id\":\"peer\",\"jsonrpc\":\"2.0\"}",
+        "{\"id\":\"after\",\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":\"after\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "request-routing",
+      "refs": [
+        "3.2",
+        "3.6"
+      ],
+      "quote": "요청은 `jsonrpc:\"2.0\"`, `id`, 문자열 `method`를 가진 객체이며 `result`와 `error`는 없다.",
+      "input": [
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":\"7\",\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":\"\",\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":-0,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":9.007199254740991e15,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":-9007199254740991,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":42.000e0,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":\"7\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":\"\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":9007199254740991,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":-9007199254740991,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":42,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "request-metadata",
+      "refs": [
+        "3.4",
+        "2.3",
+        "5.1"
+      ],
+      "quote": "요청의 `params`와 그 안의 `_meta`는 객체여야 한다.",
+      "input": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-100\"},\"name\":\"product_get\"}}",
+        "{\"id\":10,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\"}",
+        "{\"id\":11,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":null}",
+        "{\"id\":12,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":[]}",
+        "{\"id\":13,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":0}",
+        "{\"id\":14,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{}}",
+        "{\"id\":15,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":null}}",
+        "{\"id\":16,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":[]}}",
+        "{\"id\":17,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{}}}",
+        "{\"id\":18,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}",
+        "{\"id\":19,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{}}}}",
+        "{\"id\":20,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":null}}}",
+        "{\"id\":21,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":7}}}",
+        "{\"id\":22,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":{}}}}",
+        "{\"id\":23,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":null,\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}",
+        "{\"id\":24,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":[],\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-100\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-100\\nname=머그 \\\"밤\\\"\\nprice=12000\\nstock=8\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":10,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":11,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":12,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":13,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":14,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":15,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":16,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":17,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":18,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":19,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":20,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":21,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":22,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":23,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":24,\"jsonrpc\":\"2.0\"}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-100\\nname=머그 \\\"밤\\\"\\nprice=12000\\nstock=8\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "call-contract",
+      "refs": [
+        "4.4",
+        "4.3",
+        "5.1"
+      ],
+      "quote": "`tools/call`의 `params.name`은 문자열이며 두 도구 이름 중 하나여야 한다.",
+      "input": [
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}",
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{},\"name\":null}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{},\"name\":7}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-100\"},\"name\":\"PRODUCT_GET\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"name\":\"product_get\"}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":null,\"name\":\"product_get\"}}",
+        "{\"id\":6,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":[],\"name\":\"product_get\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{},\"name\":\"product_get\"}}",
+        "{\"id\":8,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":3},\"name\":\"product_get\"}}",
+        "{\"id\":9,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":null},\"name\":\"product_get\"}}",
+        "{\"id\":10,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"extra\":false,\"productId\":\"p-100\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":0,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":1,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":2,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":3,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":4,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":5,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":6,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":7,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":8,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":9,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":10,\"jsonrpc\":\"2.0\"}"
+      ]
+    },
+    {
+      "name": "cart-contract",
+      "refs": [
+        "4.3",
+        "4.4"
+      ],
+      "quote": "각 도구 객체에는 `name`, `description`, `inputSchema`만 넣는다.",
+      "input": [
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":null},\"name\":\"cart_quote\"}}",
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":{}},\"name\":\"cart_quote\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[]},\"name\":\"cart_quote\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[null]},\"name\":\"cart_quote\"}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":6,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\"}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":8,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":null,\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":9,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":\"1\"}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":10,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":true}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":11,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":null}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":12,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":0}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":13,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":-1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":14,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1.5}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":15,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1001}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":16,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1,\"x\":0}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":50,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{},\"name\":\"cart_quote\"}}",
+        "{\"id\":51,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1}],\"x\":0},\"name\":\"cart_quote\"}}"
+      ],
+      "expected": [
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":0,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":1,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":2,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":3,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":4,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":5,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":6,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":7,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":8,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":9,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":10,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":11,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":12,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":13,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":14,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":15,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":16,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":50,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":51,\"jsonrpc\":\"2.0\"}"
+      ]
+    },
+    {
+      "name": "cart-estimates",
+      "refs": [
+        "4.7",
+        "4.1",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "`cart_quote`는 먼저 같은 productId의 quantity를 합친다.",
+      "input": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-100\",\"quantity\":2},{\"productId\":\"p-300\",\"quantity\":5},{\"productId\":\"p-100\",\"quantity\":6}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-100\",\"quantity\":8},{\"productId\":\"p-300\",\"quantity\":5},{\"productId\":\"p-400\",\"quantity\":3},{\"productId\":\"p-500\",\"quantity\":20}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-100\",\"quantity\":8},{\"productId\":\"p-300\",\"quantity\":5},{\"productId\":\"p-400\",\"quantity\":3},{\"productId\":\"p-500\",\"quantity\":20}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-100\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=186000\\nitems=2\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=398000\\nitems=4\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=398000\\nitems=4\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-100\\nname=머그 \\\"밤\\\"\\nprice=12000\\nstock=8\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "cart-outcomes",
+      "refs": [
+        "4.7",
+        "4.8"
+      ],
+      "quote": "`cart_quote`는 먼저 같은 productId의 quantity를 합친다.",
+      "input": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"z\",\"quantity\":1},{\"productId\":\"a\",\"quantity\":1},{\"productId\":\"p-200\",\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-400\",\"quantity\":4},{\"productId\":\"p-200\",\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-100\",\"quantity\":4},{\"productId\":\"p-100\",\"quantity\":5}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"\",\"quantity\":1},{\"productId\":\"𐀀\",\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-200\",\"quantity\":1},{\"productId\":\"\",\"quantity\":1}]},\"name\":\"cart_quote\"}}"
+      ],
+      "expected": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT a\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"OUT_OF_STOCK p-200\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"OUT_OF_STOCK p-100\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT 𐀀\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT \",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "directory-requests",
+      "refs": [
+        "4.2",
+        "5.1"
+      ],
+      "quote": "`tools/list`는 `resultType:\"complete\"`, `ttlMs:0`, `cacheScope:\"public\"`, `tools` 배열을 반환한다.",
+      "input": [
+        "{\"id\":0,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":\"\"}}",
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":null}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":0}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":false}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":{}}}",
+        "{\"id\":5,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":[]}}",
+        "{\"id\":6,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":\"resources:2\"}}",
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":\"tools:2\"}}",
+        "{\"id\":10,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}"
+      ],
+      "expected": [
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":0,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":1,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":2,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":3,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":4,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":5,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":6,\"jsonrpc\":\"2.0\"}",
+        "{\"error\":{\"code\":-32602,\"message\":\"Invalid params\"},\"id\":7,\"jsonrpc\":\"2.0\"}",
+        "{\"id\":10,\"jsonrpc\":\"2.0\",\"result\":{\"cacheScope\":\"public\",\"resultType\":\"complete\",\"tools\":[{\"description\":\"장바구니의 재고와 합계를 확인한다.\",\"inputSchema\":{\"additionalProperties\":false,\"properties\":{\"lines\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"productId\":{\"type\":\"string\"},\"quantity\":{\"maximum\":1000,\"minimum\":1,\"type\":\"integer\"}},\"required\":[\"productId\",\"quantity\"],\"type\":\"object\"},\"maxItems\":20,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"lines\"],\"type\":\"object\"},\"name\":\"cart_quote\"},{\"description\":\"상품 한 개를 조회한다.\",\"inputSchema\":{\"additionalProperties\":false,\"properties\":{\"productId\":{\"type\":\"string\"}},\"required\":[\"productId\"],\"type\":\"object\"},\"name\":\"product_get\"}],\"ttlMs\":0}}"
+      ]
+    },
+    {
+      "name": "extension-fields",
+      "refs": [
+        "3.4",
+        "4.6",
+        "4.2"
+      ],
+      "quote": "요청의 `params`와 그 안의 `_meta`는 객체여야 한다.",
+      "input": [
+        "{\"extension\":[1,null,{\"method\":\"ignored\"}],\"id\":\"extensions\",\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"clientInfo\":null,\"custom\":[1],\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"unrecognized\":{\"x\":[]}},\"tools\":false},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-500\"},\"extension\":{\"x\":true},\"name\":\"product_get\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{\"nested\":[1,null]}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"}}}"
+      ],
+      "expected": [
+        "{\"id\":\"extensions\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-500\\nname=계량 스푼\\nprice=7000\\nstock=20\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=7000\\nitems=1\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"result\":{\"cacheScope\":\"public\",\"resultType\":\"complete\",\"tools\":[{\"description\":\"장바구니의 재고와 합계를 확인한다.\",\"inputSchema\":{\"additionalProperties\":false,\"properties\":{\"lines\":{\"items\":{\"additionalProperties\":false,\"properties\":{\"productId\":{\"type\":\"string\"},\"quantity\":{\"maximum\":1000,\"minimum\":1,\"type\":\"integer\"}},\"required\":[\"productId\",\"quantity\"],\"type\":\"object\"},\"maxItems\":20,\"minItems\":1,\"type\":\"array\"}},\"required\":[\"lines\"],\"type\":\"object\"},\"name\":\"cart_quote\"},{\"description\":\"상품 한 개를 조회한다.\",\"inputSchema\":{\"additionalProperties\":false,\"properties\":{\"productId\":{\"type\":\"string\"}},\"required\":[\"productId\"],\"type\":\"object\"},\"name\":\"product_get\"}],\"ttlMs\":0}}"
+      ]
+    },
+    {
+      "name": "text-exchange",
+      "refs": [
+        "3.1",
+        "3.6",
+        "3.7",
+        "4.5"
+      ],
+      "quote": "입력은 UTF-8이며 물리적인 한 줄이 메시지 하나다.",
+      "input": [
+        " \t{\"id\":\"\\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u0001\\u000b\\u001f\\/\\ud55c\\uae00😀\",\"jsonrpc\":\"2.0\",\"method\":\"tools\\/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol\\/clientCapabilities\":{},\"io.modelcontextprotocol\\/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"\\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u0001\\u000b\\u001f\\/\\ud55c\\uae00😀\"},\"name\":\"product_get\"}}\r",
+        "{\"id\":\"next\",\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"productId\":\"p-400\"},\"name\":\"product_get\"}}"
+      ],
+      "expected": [
+        "{\"id\":\"\\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u0001\\u000b\\u001f/한글😀\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"UNKNOWN_PRODUCT \\\"\\\\\\b\\f\\n\\r\\t\\u0000\\u0001\\u000b\\u001f/한글😀\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":\"next\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-400\\nname=서버\\\\유리\\nprice=24000\\nstock=3\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "cart-requests",
+      "refs": [
+        "4.3",
+        "4.4",
+        "4.7"
+      ],
+      "quote": "각 도구 객체에는 `name`, `description`, `inputSchema`만 넣는다.",
+      "input": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1.00e0}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1},{\"productId\":\"p-500\",\"quantity\":1}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1000}]},\"name\":\"cart_quote\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"arguments\":{\"lines\":[{\"productId\":\"p-500\",\"quantity\":1000},{\"productId\":\"p-500\",\"quantity\":1000}]},\"name\":\"cart_quote\"}}"
+      ],
+      "expected": [
+        "{\"id\":1,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=7000\\nitems=1\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":2,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=140000\\nitems=1\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}",
+        "{\"id\":3,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"OUT_OF_STOCK p-500\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}",
+        "{\"id\":4,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"OUT_OF_STOCK p-500\",\"type\":\"text\"}],\"isError\":true,\"resultType\":\"complete\"}}"
+      ]
+    },
+    {
+      "name": "mixed-requests",
+      "refs": [
+        "7.2",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.4",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "고정 테스트 10~14개와 생성 테스트 2~3개로 메시지 구분, id 보존, 메타데이터 독립성, 입력 스키마, 도구 실패와 프로토콜 실패, 중복 상품과 문자열 이스케이프를 조합한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--messages",
+        "240"
+      ],
+      "repeat": 3,
+      "timeout_sec": 15
+    },
+    {
+      "name": "extended-session",
+      "refs": [
+        "7.2",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.4",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "고정 테스트 10~14개와 생성 테스트 2~3개로 메시지 구분, id 보존, 메타데이터 독립성, 입력 스키마, 도구 실패와 프로토콜 실패, 중복 상품과 문자열 이스케이프를 조합한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--messages",
+        "2000"
+      ],
+      "repeat": 3,
+      "timeout_sec": 15
+    }
+  ]
+}

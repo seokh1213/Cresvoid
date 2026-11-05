@@ -1,0 +1,114 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "resources/list에 pageSize 3과 namePrefix p-를 보내 받은 nextCursor로 다음 페이지를 요청하려 한다. 설명으로 옳은 것은?",
+      "choices": [
+        "커서만 보내면 기본 크기 2를 적용하므로 -32602다.",
+        "커서와 pageSize 2를 함께 보내면 크기만 바꿔 다음 페이지를 반환한다.",
+        "커서를 prompts/list에 보내면 같은 위치부터 프롬프트를 반환한다.",
+        "커서만 보내면 조건을 복원해 p-400과 p-500을 반환하며 캐시 필드를 유지하고 nextCursor는 생략한다.",
+        "마지막 페이지에는 nextCursor를 빈 문자열로 넣고 resources 배열은 생략한다."
+      ],
+      "answer": 4,
+      "refs": [
+        "3.2",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "cursor가 있으면 생략한 pageSize와 namePrefix는 커서에서 복원한다.",
+      "explanation": "④가 옳다. 커서는 크기 3과 접두어 p- 및 위치 3을 담고 있어 남은 두 상품을 반환한다. ①은 생략한 조건을 기본값이 아닌 커서에서 복원하므로 틀리다. ②는 명시한 크기가 커서와 다르면 오류다. ③은 목록 종류가 다르므로 오류다. ⑤는 마지막 페이지에도 목록 배열과 캐시 필드를 유지하고 nextCursor만 생략하므로 틀리다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "유효한 메타데이터로 compare_products에 leftId:p-400, rightId:p-100을 전달했을 때의 결과 설명으로 옳은 것은?",
+      "choices": [
+        "비교 지시 텍스트, p-400 내장 리소스, p-100 내장 리소스 순서이며 각 메시지의 content는 객체 하나다.",
+        "비교 지시 텍스트 다음에 상품 id 사전순으로 p-100, p-400 내장 리소스를 넣는다.",
+        "요청한 상품 순서를 유지하되 각 메시지의 content는 콘텐츠 객체 하나를 담은 배열이다.",
+        "요청한 상품 순서를 유지하고 내장 리소스마다 ttlMs, cacheScope, resultType을 넣는다.",
+        "두 상품이 모두 존재하면 leftId와 rightId가 같을 때만 오류이며 성공 결과에는 캐시 필드 두 개를 넣는다."
+      ],
+      "answer": 1,
+      "refs": [
+        "2.2",
+        "3.2",
+        "4.6",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "메시지 순서를 상품 id 순서로 바꾸지 않는다.",
+      "explanation": "①이 옳다. 텍스트 뒤에 leftId, rightId 순서로 내장 리소스를 넣고 content는 객체 하나다. ②는 상품 id 순서로 재정렬해 틀리다. ③은 도구 결과의 content 배열과 프롬프트 메시지의 content 객체를 혼동했다. ④는 내장 리소스에 넣지 않는 캐시 필드와 resultType을 추가해 틀리다. ⑤는 같은 id도 허용하며 prompts/get 결과에 캐시 필드를 넣지 않으므로 두 규칙에 어긋난다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "유효한 메타데이터를 갖춘 리소스·프롬프트 요청의 인자 처리에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "shop://products/p-100/은 끝의 슬래시를 제거하면 같은 URI이므로 resources/read가 성공한다.",
+        "resources/read로 모르는 상품 URI를 읽으면 product_get과 같은 isError:true 결과를 반환한다.",
+        "summarize_catalog의 arguments:null은 인자를 생략한 것과 같아 성공한다.",
+        "inspect_product에 productId가 p-200이고 question이 빈 문자열인 인자를 주면 재고가 0이므로 오류이며 question도 기본 문구로 바꾼다.",
+        "inspect_product에 productId가 p-200이고 question이 빈 문자열인 인자를 주면 빈 텍스트 메시지와 재고 0인 상품의 내장 리소스를 반환한다."
+      ],
+      "answer": 5,
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.6",
+        "4.9",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "question이 빈 문자열이면 기본값으로 바꾸지 않는다.",
+      "explanation": "⑤가 옳다. question이 제공됐으므로 빈 문자열을 보존하며 재고 0인 상품도 존재하는 상품이어서 내장할 수 있다. ①은 URI의 다른 표기를 같은 리소스로 취급하지 않으므로 틀리다. ②는 리소스 부재를 -32602인 프로토콜 오류로 처리해야 하므로 틀리다. ③은 null을 생략으로 취급하지 않으므로 틀리다. ④는 재고 0을 상품 부재로 간주하고 제공된 빈 question을 기본값으로 바꾸므로 두 규칙에 어긋난다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": [
+        "{\"jsonrpc\":\"2.0\",\"method\":\"resources/list\",\"params\":{\"cursor\":\"prompts:2\"}}",
+        "{\"id\":\"tail\",\"jsonrpc\":\"2.0\",\"method\":\"resources/list\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/clientCapabilities\":{},\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\"},\"cursor\":\"resources:3:3:p-\"}}"
+      ],
+      "answers": [
+        "{\"id\":\"tail\",\"jsonrpc\":\"2.0\",\"result\":{\"cacheScope\":\"public\",\"resources\":[{\"mimeType\":\"text/plain\",\"name\":\"p-400\",\"uri\":\"shop://products/p-400\"},{\"mimeType\":\"text/plain\",\"name\":\"p-500\",\"uri\":\"shop://products/p-500\"}],\"resultType\":\"complete\",\"ttlMs\":0}}"
+      ],
+      "refs": [
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "cursor가 있으면 생략한 pageSize와 namePrefix는 커서에서 복원한다.",
+      "explanation": "첫 줄은 알림이므로 다른 목록의 커서가 있어도 무시한다. 둘째 줄은 커서에서 크기 3과 접두어 p-를 복원하고 위치 3부터 남은 p-400과 p-500을 반환한다. 캐시 필드와 resultType을 포함하되 마지막 페이지이므로 nextCursor는 생략한다. 현재 요청에 생략한 조건을 기본값으로 바꾸거나 이전 페이지 기록을 요구하면 틀리다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": [
+        "{\"jsonrpc\":\"2.0\",\"id\":12,\"method\":\"prompts/get\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}},\"name\":\"inspect_product\",\"arguments\":{\"productId\":\"p-300\",\"question\":\"\"}}}"
+      ],
+      "answers": [
+        "{\"id\":12,\"jsonrpc\":\"2.0\",\"result\":{\"description\":\"상품에 대한 질문을 작성한다.\",\"messages\":[{\"content\":{\"text\":\"\",\"type\":\"text\"},\"role\":\"user\"},{\"content\":{\"resource\":{\"mimeType\":\"text/plain\",\"text\":\"id=p-300\\nname=원두\\n중배전\\nprice=18000\\nstock=5\",\"uri\":\"shop://products/p-300\"},\"type\":\"resource\"},\"role\":\"user\"}],\"resultType\":\"complete\"}}"
+      ],
+      "refs": [
+        "1.1",
+        "3.1",
+        "3.2",
+        "4.3",
+        "4.4",
+        "4.7",
+        "4.9"
+      ],
+      "quote": "첫 메시지의 텍스트는 question이 제공됐으면 그 값 그대로이고 생략됐으면 `구매 전에 확인할 점을 설명하라.`다.",
+      "explanation": "question은 제공된 빈 문자열이므로 첫 메시지의 text도 빈 문자열이다. 둘째 메시지에는 p-300의 URI, MIME 형식, 상품 텍스트를 담은 리소스를 내장한다. 이름 안의 LF까지 JSON 문자열에서 이스케이프하며 두 메시지의 content는 각각 객체 하나다. 빈 question을 기본값으로 바꾸거나 이름의 LF를 없애면 틀리다. 결과나 내장 리소스에 캐시 필드를 추가하거나 메시지 content를 배열로 감싸도 틀리다."
+    }
+  ]
+}

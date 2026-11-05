@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 상태에서 REPLICAS alpha 02의 출력으로 옳은 것은?",
+      "context": "현재 물리 노드는 a, b, c뿐이며 VADD로 지정한 용량은 각각 1, 2, 1이다. 키 alpha는 등록되어 있다. alpha의 소유 토큰부터 시계 방향으로 진행하면 a의 토큰 여러 개를 만난 뒤 처음으로 다른 물리 노드 b의 토큰을 만난다.",
+      "choices": [
+        "REPLICAS alpha a,a MISSING 0",
+        "REPLICAS alpha b,a MISSING 0",
+        "REPLICAS alpha a,b MISSING 0",
+        "REPLICAS alpha a,b MISSING 1",
+        "ERROR INPUT"
+      ],
+      "answer": 3,
+      "refs": ["2.1", "3.1", "3.2", "3.3", "3.4", "4.1"],
+      "quote": "물리 노드가 목록에 없을 때만 그 식별자를 뒤에 넣는다.",
+      "explanation": "③이 옳다. 02는 N=2이며 첫 소유 노드 a도 총개수에 포함한다. a의 중복 토큰을 건너뛰어 a,b를 선택 순서대로 출력하고 부족 수는 0이다. ①은 같은 물리 노드의 토큰 두 개를 복제본 두 개로 셌다. ②는 중복은 제거했지만 선택 순서를 뒤집었다. ④는 N을 첫 소유 노드 외에 추가할 개수로 오해했다. ⑤는 허용된 선행 0을 오류로 처리했다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 조건에서 FAIL b 1의 전체 응답으로 옳은 것은?",
+      "context": "등록된 키는 b 하나다. 현재 물리 노드는 ADD로 만든 a와 b뿐이다. 제거 전 P(b, 1)은 [b]이고 b를 제거한 뒤 P(b, 1)은 [a]다. 선지의 줄바꿈은 실제 출력 줄바꿈을 뜻한다.",
+      "choices": [
+        "FAILED b REPAIRS 0",
+        "FAILED b REPAIRS 1\nREPAIR b LIVE - COPY - MISSING 1",
+        "FAILED b REPAIRS 1\nREPAIR b LIVE a COPY - MISSING 0",
+        "MOVED 1 MOD 1\nMOVE b b a",
+        "FAILED b REPAIRS 1\nREPAIR b LIVE - COPY a MISSING 0"
+      ],
+      "answer": 5,
+      "refs": ["3.6", "4.2", "4.3", "4.4", "4.5"],
+      "quote": "LIVE가 비어 있어도 COPY 대상을 계산한다.",
+      "explanation": "⑤가 옳다. B=[b]에서 b를 제외하면 S는 비어 있어 보충 전 부족으로 보고한다. Q=[a]이므로 COPY는 a이고 보충 후 부족 수는 1-0-1=0이다. ①은 보충 후 부족이 0이라는 이유로 보충 전 보고 대상을 누락했다. ②는 LIVE가 비었을 때도 COPY를 계산한다는 규칙을 놓쳤다. ③은 새 대상 a를 제거 직후 생존 복제본으로 잘못 넣었다. ④는 FAIL 응답을 기존 REMOVE의 이동 응답으로 바꿨다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 조건에서 FAIL b 3의 처리에 대한 설명으로 옳은 것은?",
+      "context": "현재 물리 노드는 a와 b이며 등록된 키는 apple 하나다. 먼저 REPLICAS apple 1을 실행했다. 그 뒤 노드나 키를 바꾸지 않았고 FAIL 직전 P(apple, 3)은 [a,b]다.",
+      "choices": [
+        "apple을 보고하며 LIVE a COPY - MISSING 2를 출력한다. 뒤의 LOAD는 apple을 a의 키 1개로 센다.",
+        "앞선 조회의 N=1이 유지되므로 apple은 보고하지 않는다.",
+        "제거 전부터 복제본이 3개보다 적었으므로 apple은 보고하지 않는다.",
+        "apple을 보고하며 LIVE a COPY a MISSING 1을 출력한다.",
+        "apple을 보고하며 LIVE a COPY - MISSING 2를 출력한다. 뒤의 LOAD는 목표 복제본 수에 따라 키 3개를 센다."
+      ],
+      "answer": 1,
+      "refs": ["3.5", "4.2", "4.3", "4.4", "4.8"],
+      "quote": "N은 그 명령에만 적용하는 비교 조건이다.",
+      "explanation": "①이 옳다. 이번 N=3으로 B=[a,b]에서 b를 빼면 S=[a]다. 제거 전부터 부족했던 키도 보고하며 Q=[a]에서 S를 제외하면 COPY는 빈 목록이고 부족 수는 2다. LOAD는 1차 소유 키만 세므로 a에 1개다. ②는 조회의 N을 다음 명령에 저장했다. ③은 제거 전부터 부족했던 키를 보고 대상에서 뺐다. ④는 이미 살아 있는 a를 COPY에 다시 넣어 부족 수까지 잘못 계산했다. ⑤는 실제 키 한 개를 목표 복제본 수만큼 LOAD에 중복 집계했다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["REPLICAS apple 09"],
+      "answers": ["ERROR INPUT"],
+      "refs": ["1.1", "3.1", "5.1", "5.2"],
+      "quote": "형식과 범위는 키나 노드의 존재 여부보다 먼저 검사한다.",
+      "explanation": "선행 0 자체는 허용하지만 09는 N=9이므로 1~8 범위 밖이다. 미등록 키 검사보다 먼저 ERROR INPUT 한 줄을 출력한다. ERROR KEY_MISSING은 검사 순서를 뒤집은 답이며 REPLICAS apple - MISSING 9는 범위 밖의 N과 미등록 키를 모두 허용한 답이다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 상태에서 FAIL a 3을 실행할 때 alpha의 REPAIR 줄은 무엇인가? FAILED 헤더를 제외하고 한 줄만 쓴다.",
+      "context": "현재 물리 노드는 ADD로 만든 a, b, c, d뿐이고 등록된 키는 alpha 하나다. 토큰 위치는 d=59251, a=60556, c=61426, b=61861이며 H(alpha)=8235다.",
+      "answers": ["REPAIR alpha LIVE d,c COPY b MISSING 0"],
+      "refs": ["3.2", "3.3", "3.4", "4.2", "4.3", "4.4", "4.5"],
+      "quote": "새 배치 대상 C는 Q에서 S에 이미 들어 있는 노드를 제외한 목록이며 Q의 순서를 유지한다.",
+      "explanation": "alpha부터 시계 방향으로 고른 제거 전 선호 목록 B는 [d,a,c]다. a를 빼면 LIVE는 [d,c]이고 길이가 3보다 작으므로 보고 대상이다. 제거 후 선호 목록 Q는 [d,c,b]다. 살아남은 d와 c를 제외하면 COPY는 [b]이고 보충 후 부족 수는 3-2-1=0이다. LIVE를 사전순 c,d로 바꾸거나 새 대상 b를 LIVE에 넣지 않는다."
+    }
+  ]
+}

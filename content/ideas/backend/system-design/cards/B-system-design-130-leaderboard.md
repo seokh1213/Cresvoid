@@ -4,7 +4,7 @@ title: 실시간 순위표 만들기
 kind: build
 track: leaderboard
 stage: 01-sorted-set, 02-range-queries, 03-sharding
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

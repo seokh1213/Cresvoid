@@ -1,0 +1,608 @@
+{
+  "timeout_sec": 30,
+  "tests": [
+    {
+      "name": "session-01",
+      "refs": [
+        "1.1",
+        "2.1",
+        "4.1"
+      ],
+      "input": [
+        "ADD a",
+        "PUT a",
+        "REPLICAS a 1"
+      ],
+      "quote": "`REPLICAS <키> <N>`은 등록된 키에 대해 `REPLICAS 키 목록 MISSING d` 한 줄을 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY a a MOD a",
+        "REPLICAS a a MISSING 0"
+      ]
+    },
+    {
+      "name": "session-02",
+      "refs": [
+        "3.3",
+        "3.4",
+        "3.6",
+        "4.1"
+      ],
+      "input": [
+        "PUT apple",
+        "REPLICAS apple 1",
+        "REPLICAS apple 08",
+        "OWNER apple",
+        "LOAD",
+        "VADD a 1",
+        "REPLICAS apple 8"
+      ],
+      "quote": "`REPLICAS <키> <N>`은 등록된 키에 대해 `REPLICAS 키 목록 MISSING d` 한 줄을 출력한다.",
+      "expected": [
+        "KEY apple - MOD -",
+        "REPLICAS apple - MISSING 1",
+        "REPLICAS apple - MISSING 8",
+        "KEY apple - MOD -",
+        "LOAD 0 1",
+        "RATIO 0.000000",
+        "MOVED 1 MOD 1",
+        "MOVE apple - a",
+        "REPLICAS apple a MISSING 7"
+      ]
+    },
+    {
+      "name": "session-03",
+      "refs": [
+        "2.2",
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.1",
+        "6.1"
+      ],
+      "input": [
+        "VADD a 1",
+        "VADD b 2",
+        "VADD c 1",
+        "PUT alpha",
+        "PUT gamma",
+        "PUT b",
+        "REPLICAS alpha 2",
+        "REPLICAS gamma 2",
+        "REPLICAS b 3",
+        "REPLICAS gamma 8",
+        "LOAD"
+      ],
+      "quote": "`REPLICAS <키> <N>`은 등록된 키에 대해 `REPLICAS 키 목록 MISSING d` 한 줄을 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY alpha a MOD a",
+        "KEY gamma c MOD c",
+        "KEY b b MOD b",
+        "REPLICAS alpha a,b MISSING 0",
+        "REPLICAS gamma c,b MISSING 0",
+        "REPLICAS b b,a,c MISSING 0",
+        "REPLICAS gamma c,b,a MISSING 5",
+        "LOAD 3 3",
+        "NODE a 1",
+        "NODE b 1",
+        "NODE c 1",
+        "RATIO 1.000000"
+      ]
+    },
+    {
+      "name": "session-04",
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.1"
+      ],
+      "input": [
+        "ADD node309",
+        "ADD node1120",
+        "ADD z",
+        "PUT node309",
+        "PUT node1120",
+        "PUT z",
+        "REPLICAS node309 3",
+        "REPLICAS node1120 2",
+        "REPLICAS z 3",
+        "REMOVE node1120",
+        "REPLICAS node309 3"
+      ],
+      "quote": "`REPLICAS <키> <N>`은 등록된 키에 대해 `REPLICAS 키 목록 MISSING d` 한 줄을 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY node309 node1120 MOD z",
+        "KEY node1120 node1120 MOD z",
+        "KEY z z MOD node1120",
+        "REPLICAS node309 node1120,node309,z MISSING 0",
+        "REPLICAS node1120 node1120,node309 MISSING 0",
+        "REPLICAS z z,node1120,node309 MISSING 0",
+        "MOVED 2 MOD 1",
+        "MOVE node1120 node1120 node309",
+        "MOVE node309 node1120 node309",
+        "REPLICAS node309 node309,z MISSING 1"
+      ]
+    },
+    {
+      "name": "session-05",
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.1"
+      ],
+      "input": [
+        "ADD edge5577",
+        "ADD edge26470",
+        "ADD a",
+        "PUT edge5577",
+        "PUT edge8403",
+        "PUT edge26470",
+        "PUT edge188131",
+        "REPLICAS edge5577 3",
+        "REPLICAS edge8403 3",
+        "REPLICAS edge26470 3",
+        "REPLICAS edge188131 3"
+      ],
+      "quote": "`REPLICAS <키> <N>`은 등록된 키에 대해 `REPLICAS 키 목록 MISSING d` 한 줄을 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY edge5577 edge5577 MOD a",
+        "KEY edge8403 a MOD edge26470",
+        "KEY edge26470 edge26470 MOD a",
+        "KEY edge188131 edge26470 MOD edge5577",
+        "REPLICAS edge5577 edge5577,a,edge26470 MISSING 0",
+        "REPLICAS edge8403 a,edge26470,edge5577 MISSING 0",
+        "REPLICAS edge26470 edge26470,edge5577,a MISSING 0",
+        "REPLICAS edge188131 edge26470,edge5577,a MISSING 0"
+      ]
+    },
+    {
+      "name": "session-06",
+      "refs": [
+        "2.3",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.6"
+      ],
+      "input": [
+        "VADD a 1",
+        "VADD b 2",
+        "VADD c 1",
+        "VADD d 1",
+        "PUT gamma",
+        "PUT b",
+        "PUT alpha",
+        "FAIL b 3",
+        "REPLICAS gamma 3",
+        "REPLICAS b 3",
+        "REPLICAS alpha 3",
+        "LOAD"
+      ],
+      "quote": "`FAIL <노드> <N>`은 있는 물리 노드의 모든 토큰을 제거한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY gamma d MOD c",
+        "KEY b b MOD b",
+        "KEY alpha a MOD d",
+        "FAILED b REPAIRS 3",
+        "REPAIR alpha LIVE a,c COPY d MISSING 0",
+        "REPAIR b LIVE a,c COPY d MISSING 0",
+        "REPAIR gamma LIVE d,c COPY a MISSING 0",
+        "REPLICAS gamma d,c,a MISSING 0",
+        "REPLICAS b a,c,d MISSING 0",
+        "REPLICAS alpha a,c,d MISSING 0",
+        "LOAD 3 3",
+        "NODE a 2",
+        "NODE c 0",
+        "NODE d 1",
+        "RATIO 2.000000"
+      ]
+    },
+    {
+      "name": "session-07",
+      "refs": [
+        "3.6",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "input": [
+        "ADD a",
+        "ADD b",
+        "ADD c",
+        "PUT b",
+        "PUT a",
+        "PUT c",
+        "FAIL b 1",
+        "REPLICAS b 1",
+        "OWNER a",
+        "LOAD"
+      ],
+      "quote": "`FAIL <노드> <N>`은 있는 물리 노드의 모든 토큰을 제거한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY b b MOD b",
+        "KEY a a MOD b",
+        "KEY c c MOD b",
+        "FAILED b REPAIRS 1",
+        "REPAIR b LIVE - COPY a MISSING 0",
+        "REPLICAS b a MISSING 0",
+        "KEY a a MOD a",
+        "LOAD 2 3",
+        "NODE a 2",
+        "NODE c 1",
+        "RATIO 1.333333"
+      ]
+    },
+    {
+      "name": "session-08",
+      "refs": [
+        "3.3",
+        "3.5",
+        "4.3",
+        "4.4",
+        "4.5"
+      ],
+      "input": [
+        "ADD a",
+        "ADD b",
+        "PUT apple",
+        "PUT b",
+        "REPLICAS apple 1",
+        "FAIL b 8",
+        "REPLICAS apple 8",
+        "REPLICAS b 2",
+        "OWNER b"
+      ],
+      "quote": "FAIL의 보고 대상은 S의 길이가 N보다 작은 모든 등록 키다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY apple a MOD b",
+        "KEY b b MOD b",
+        "REPLICAS apple a MISSING 0",
+        "FAILED b REPAIRS 2",
+        "REPAIR apple LIVE a COPY - MISSING 7",
+        "REPAIR b LIVE a COPY - MISSING 7",
+        "REPLICAS apple a MISSING 7",
+        "REPLICAS b a MISSING 1",
+        "KEY b a MOD a"
+      ]
+    },
+    {
+      "name": "session-09",
+      "refs": [
+        "3.5",
+        "3.6",
+        "4.6",
+        "4.7"
+      ],
+      "input": [
+        "ADD a",
+        "PUT z",
+        "PUT apple",
+        "FAIL a 8",
+        "REPLICAS z 2",
+        "LOAD",
+        "OWNER apple",
+        "ADD b",
+        "REPLICAS z 1",
+        "FAIL b 1"
+      ],
+      "quote": "FAIL의 출력은 제거 직후의 S와 보충 대상으로 정한 C를 담는다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY z a MOD a",
+        "KEY apple a MOD a",
+        "FAILED a REPAIRS 2",
+        "REPAIR apple LIVE - COPY - MISSING 8",
+        "REPAIR z LIVE - COPY - MISSING 8",
+        "REPLICAS z - MISSING 2",
+        "LOAD 0 2",
+        "RATIO 0.000000",
+        "KEY apple - MOD -",
+        "MOVED 2 MOD 2",
+        "MOVE apple - b",
+        "MOVE z - b",
+        "REPLICAS z b MISSING 0",
+        "FAILED b REPAIRS 2",
+        "REPAIR apple LIVE - COPY - MISSING 1",
+        "REPAIR z LIVE - COPY - MISSING 1"
+      ]
+    },
+    {
+      "name": "session-10",
+      "refs": [
+        "1.2",
+        "4.5",
+        "4.7"
+      ],
+      "input": [
+        "VADD a 8",
+        "FAIL a 8",
+        "ADD a",
+        "FAIL a 1",
+        "VADD a 1",
+        "LOAD"
+      ],
+      "quote": "FAIL 성공 응답의 첫 줄은 `FAILED 노드 REPAIRS r`이다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "FAILED a REPAIRS 0",
+        "MOVED 0 MOD 0",
+        "FAILED a REPAIRS 0",
+        "MOVED 0 MOD 0",
+        "LOAD 1 0",
+        "NODE a 0",
+        "RATIO 0.000000"
+      ]
+    },
+    {
+      "name": "session-11",
+      "refs": [
+        "3.5",
+        "4.1",
+        "4.2",
+        "4.6"
+      ],
+      "input": [
+        "ADD a",
+        "ADD b",
+        "ADD c",
+        "ADD d",
+        "PUT c",
+        "REPLICAS c 1",
+        "REPLICAS c 3",
+        "REPLICAS c 2",
+        "REPLICAS c 8",
+        "FAIL a 2",
+        "REPLICAS c 1",
+        "REPLICAS c 3",
+        "FAIL d 1",
+        "REPLICAS c 2"
+      ],
+      "quote": "`REPLICAS <키> <N>`은 등록된 키에 대해 `REPLICAS 키 목록 MISSING d` 한 줄을 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY c c MOD c",
+        "REPLICAS c c MISSING 0",
+        "REPLICAS c c,b,d MISSING 0",
+        "REPLICAS c c,b MISSING 0",
+        "REPLICAS c c,b,d,a MISSING 4",
+        "FAILED a REPAIRS 0",
+        "REPLICAS c c MISSING 0",
+        "REPLICAS c c,b,d MISSING 0",
+        "FAILED d REPAIRS 0",
+        "REPLICAS c c,b MISSING 0"
+      ]
+    },
+    {
+      "name": "session-12",
+      "refs": [
+        "3.1",
+        "5.1",
+        "5.2"
+      ],
+      "input": [
+        "ADD a",
+        "PUT a",
+        "FAIL a 0",
+        "FAIL absent 9",
+        "FAIL a 2 extra",
+        "FAIL a +1",
+        "FAIL a -1",
+        "FAIL a 1.0",
+        "FAIL a 1e0",
+        "FAIL a １",
+        "FAIL a 99999999999999999999",
+        "REPLICAS absent 0",
+        "REPLICAS absent 2",
+        "FAIL absent 2",
+        "REPLICAS a 000000000000000000000000000000000008",
+        "OWNER a",
+        "FAIL a 01",
+        "OWNER a"
+      ],
+      "quote": "이 문서는 이전 단계에 추가되는 규칙만 정의한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY a a MOD a",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR KEY_MISSING",
+        "ERROR NODE_MISSING",
+        "REPLICAS a a MISSING 7",
+        "KEY a a MOD a",
+        "FAILED a REPAIRS 1",
+        "REPAIR a LIVE - COPY - MISSING 1",
+        "KEY a - MOD -"
+      ]
+    },
+    {
+      "name": "session-13",
+      "refs": [
+        "3.1",
+        "3.5",
+        "4.8",
+        "5.1",
+        "5.2"
+      ],
+      "input": [
+        "VADD a 1",
+        "VADD b 2",
+        "PUT alpha",
+        "REPLICAS alpha 2",
+        "REPLICAS alpha",
+        "REPLICAS A 1",
+        "REPLICAS alpha 2 extra",
+        "FAIL a",
+        "FAIL A 1",
+        "FAIL a 1 ",
+        "FAIL a 1\u000b",
+        "replicas alpha 1",
+        "\tREPLICAS\t alpha\t02\r",
+        "\tFAIL\t b\t01\r",
+        "LOAD",
+        "OWNER alpha"
+      ],
+      "quote": "기존 REMOVE는 계속 노드 제거에 따른 1차 소유 노드의 MOVE와 나머지 이동 수만 출력하고 복제본 보고를 덧붙이지 않는다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY alpha a MOD b",
+        "REPLICAS alpha a,b MISSING 0",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "REPLICAS alpha a,b MISSING 0",
+        "FAILED b REPAIRS 0",
+        "LOAD 1 1",
+        "NODE a 1",
+        "RATIO 1.000000",
+        "KEY alpha a MOD a"
+      ]
+    },
+    {
+      "name": "session-14",
+      "refs": [
+        "1.2",
+        "3.2",
+        "3.3",
+        "4.2",
+        "4.4",
+        "4.6",
+        "4.8"
+      ],
+      "input": [
+        "VADD a 1",
+        "VADD b 2",
+        "VADD c 1",
+        "PUT gamma",
+        "PUT alpha",
+        "REPLICAS gamma 2",
+        "WEIGHT b 1",
+        "REPLICAS gamma 2",
+        "REMOVE c",
+        "REPLICAS gamma 2",
+        "FAIL b 2",
+        "ADD b",
+        "REPLICAS gamma 2",
+        "WEIGHT b 2",
+        "REPLICAS gamma 2",
+        "LOAD"
+      ],
+      "quote": "`FAIL <노드> <N>`은 있는 물리 노드의 모든 토큰을 제거한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY gamma c MOD c",
+        "KEY alpha a MOD a",
+        "REPLICAS gamma c,b MISSING 0",
+        "MOVED 0 MOD 0",
+        "REPLICAS gamma c,b MISSING 0",
+        "MOVED 1 MOD 2",
+        "MOVE gamma c b",
+        "REPLICAS gamma b,a MISSING 0",
+        "FAILED b REPAIRS 2",
+        "REPAIR alpha LIVE a COPY - MISSING 1",
+        "REPAIR gamma LIVE a COPY - MISSING 1",
+        "MOVED 0 MOD 1",
+        "REPLICAS gamma a,b MISSING 0",
+        "MOVED 1 MOD 0",
+        "MOVE gamma a b",
+        "REPLICAS gamma b,a MISSING 0",
+        "LOAD 2 2",
+        "NODE a 1",
+        "NODE b 1",
+        "RATIO 1.000000"
+      ]
+    },
+    {
+      "name": "practice-session",
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.8"
+      ],
+      "quote": "새 배치 대상 C는 Q에서 S에 이미 들어 있는 노드를 제외한 목록이며 Q의 순서를 유지한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--nodes",
+        "12",
+        "--keys",
+        "80",
+        "--commands",
+        "600",
+        "--changes",
+        "128"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    },
+    {
+      "name": "extended-session",
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "4.8"
+      ],
+      "quote": "새 배치 대상 C는 Q에서 S에 이미 들어 있는 노드를 제외한 목록이며 Q의 순서를 유지한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--nodes",
+        "64",
+        "--keys",
+        "512",
+        "--commands",
+        "4096",
+        "--changes",
+        "256"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    }
+  ]
+}

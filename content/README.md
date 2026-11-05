@@ -33,6 +33,9 @@
 | `ledger` | build | 3 |
 | `matching-engine` | build | 3 |
 | `nrt-index` | build | 3 |
+| `mcp-server` | build | 3 |
+| `consistent-hashing` | build | 3 |
+| `leaderboard` | build | 3 |
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
 | `jvm-lab` | lab | 3 |

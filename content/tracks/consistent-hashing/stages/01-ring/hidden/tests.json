@@ -1,0 +1,583 @@
+{
+  "timeout_sec": 30,
+  "tests": [
+    {
+      "name": "session-01",
+      "refs": [
+        "1.2",
+        "3.6",
+        "4.2",
+        "4.3"
+      ],
+      "input": [
+        "ADD a",
+        "PUT a",
+        "OWNER a"
+      ],
+      "quote": "`PUT <키>`는 키를 등록하고 현재 링 배정과 나머지 배정을 `KEY 키 소유노드 MOD 나머지노드` 한 줄로 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY a a MOD a",
+        "KEY a a MOD a"
+      ]
+    },
+    {
+      "name": "session-02",
+      "refs": [
+        "3.2",
+        "3.3",
+        "3.4",
+        "4.1"
+      ],
+      "input": [
+        "HASH a",
+        "HASH b",
+        "HASH apple",
+        "HASH alpha",
+        "HASH gamma",
+        "HASH a-b",
+        "HASH a_b",
+        "HASH abcdefghijklmnopqrstuvwx",
+        "HASH edge5577",
+        "HASH edge26470"
+      ],
+      "quote": "`HASH <식별자>`는 `HASH h` 한 줄을 출력한다.",
+      "expected": [
+        "HASH 60556",
+        "HASH 61861",
+        "HASH 64959",
+        "HASH 8235",
+        "HASH 43370",
+        "HASH 18563",
+        "HASH 44369",
+        "HASH 44509",
+        "HASH 0",
+        "HASH 65535"
+      ]
+    },
+    {
+      "name": "session-03",
+      "refs": [
+        "3.6",
+        "4.2",
+        "4.4",
+        "4.5",
+        "4.6"
+      ],
+      "input": [
+        "PUT z",
+        "PUT apple",
+        "PUT z",
+        "OWNER z",
+        "ADD a",
+        "REMOVE a",
+        "OWNER apple",
+        "ADD b",
+        "OWNER z"
+      ],
+      "quote": "`PUT <키>`는 키를 등록하고 현재 링 배정과 나머지 배정을 `KEY 키 소유노드 MOD 나머지노드` 한 줄로 출력한다.",
+      "expected": [
+        "KEY z - MOD -",
+        "KEY apple - MOD -",
+        "KEY z - MOD -",
+        "KEY z - MOD -",
+        "MOVED 2 MOD 2",
+        "MOVE apple - a",
+        "MOVE z - a",
+        "MOVED 2 MOD 2",
+        "MOVE apple a -",
+        "MOVE z a -",
+        "KEY apple - MOD -",
+        "MOVED 2 MOD 2",
+        "MOVE apple - b",
+        "MOVE z - b",
+        "KEY z b MOD b"
+      ]
+    },
+    {
+      "name": "session-04",
+      "refs": [
+        "2.2",
+        "3.5",
+        "3.6",
+        "3.7",
+        "4.3"
+      ],
+      "input": [
+        "ADD edge26470",
+        "ADD edge5577",
+        "PUT edge5577",
+        "PUT edge8403",
+        "PUT edge26470",
+        "PUT edge188131",
+        "PUT apple",
+        "OWNER edge5577",
+        "REMOVE edge5577",
+        "OWNER edge26470"
+      ],
+      "quote": "`OWNER <키>`는 이미 등록된 키의 현재 배정을 `KEY 키 소유노드 MOD 나머지노드` 한 줄로 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY edge5577 edge5577 MOD edge26470",
+        "KEY edge8403 edge26470 MOD edge5577",
+        "KEY edge26470 edge26470 MOD edge5577",
+        "KEY edge188131 edge26470 MOD edge26470",
+        "KEY apple edge26470 MOD edge5577",
+        "KEY edge5577 edge5577 MOD edge26470",
+        "MOVED 1 MOD 3",
+        "MOVE edge5577 edge5577 edge26470",
+        "KEY edge26470 edge26470 MOD edge26470"
+      ]
+    },
+    {
+      "name": "session-05",
+      "refs": [
+        "3.5",
+        "3.6",
+        "3.7",
+        "4.4",
+        "4.5"
+      ],
+      "input": [
+        "ADD node309",
+        "PUT node309",
+        "PUT node1120",
+        "ADD node1120",
+        "OWNER node309",
+        "REMOVE node309",
+        "OWNER node1120",
+        "ADD node309",
+        "REMOVE node1120",
+        "OWNER node309"
+      ],
+      "quote": "`ADD <노드>`는 없는 노드를 토큰 하나와 함께 추가한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY node309 node309 MOD node309",
+        "KEY node1120 node309 MOD node309",
+        "MOVED 2 MOD 0",
+        "MOVE node1120 node309 node1120",
+        "MOVE node309 node309 node1120",
+        "KEY node309 node1120 MOD node309",
+        "MOVED 0 MOD 2",
+        "KEY node1120 node1120 MOD node1120",
+        "MOVED 0 MOD 2",
+        "MOVED 2 MOD 0",
+        "MOVE node1120 node1120 node309",
+        "MOVE node309 node1120 node309",
+        "KEY node309 node309 MOD node309"
+      ]
+    },
+    {
+      "name": "session-06",
+      "refs": [
+        "2.3",
+        "3.8",
+        "4.4",
+        "4.5"
+      ],
+      "input": [
+        "ADD z",
+        "PUT apple",
+        "PUT alpha",
+        "PUT b",
+        "PUT gamma",
+        "ADD a",
+        "ADD m",
+        "OWNER alpha",
+        "REMOVE a",
+        "OWNER gamma",
+        "ADD a"
+      ],
+      "quote": "`ADD <노드>`는 없는 노드를 토큰 하나와 함께 추가한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY apple z MOD z",
+        "KEY alpha z MOD z",
+        "KEY b z MOD z",
+        "KEY gamma z MOD z",
+        "MOVED 2 MOD 1",
+        "MOVE alpha z a",
+        "MOVE gamma z a",
+        "MOVED 1 MOD 4",
+        "MOVE b z m",
+        "KEY alpha a MOD a",
+        "MOVED 2 MOD 4",
+        "MOVE alpha a m",
+        "MOVE gamma a m",
+        "KEY gamma m MOD m",
+        "MOVED 2 MOD 4",
+        "MOVE alpha m a",
+        "MOVE gamma m a"
+      ]
+    },
+    {
+      "name": "session-07",
+      "refs": [
+        "3.2",
+        "4.2",
+        "4.5"
+      ],
+      "input": [
+        "PUT aa",
+        "PUT a_",
+        "PUT a0",
+        "PUT a-",
+        "PUT a",
+        "ADD z",
+        "REMOVE z"
+      ],
+      "quote": "`PUT <키>`는 키를 등록하고 현재 링 배정과 나머지 배정을 `KEY 키 소유노드 MOD 나머지노드` 한 줄로 출력한다.",
+      "expected": [
+        "KEY aa - MOD -",
+        "KEY a_ - MOD -",
+        "KEY a0 - MOD -",
+        "KEY a- - MOD -",
+        "KEY a - MOD -",
+        "MOVED 5 MOD 5",
+        "MOVE a - z",
+        "MOVE a- - z",
+        "MOVE a0 - z",
+        "MOVE a_ - z",
+        "MOVE aa - z",
+        "MOVED 5 MOD 5",
+        "MOVE a z -",
+        "MOVE a- z -",
+        "MOVE a0 z -",
+        "MOVE a_ z -",
+        "MOVE aa z -"
+      ]
+    },
+    {
+      "name": "session-08",
+      "refs": [
+        "3.1",
+        "3.9",
+        "4.1",
+        "4.2",
+        "4.3"
+      ],
+      "input": [
+        "",
+        " \t ",
+        "\tADD\t a \r",
+        "  PUT\t apple\t",
+        " \tOWNER  apple\r",
+        "HASH\t a",
+        "owner apple",
+        "OWNER apple",
+        ""
+      ],
+      "quote": "`HASH <식별자>`는 `HASH h` 한 줄을 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY apple a MOD a",
+        "KEY apple a MOD a",
+        "HASH 60556",
+        "ERROR INPUT",
+        "KEY apple a MOD a"
+      ]
+    },
+    {
+      "name": "session-09",
+      "refs": [
+        "3.2",
+        "5.1",
+        "5.2"
+      ],
+      "input": [
+        "ADD a",
+        "ADD a extra",
+        "REMOVE a extra",
+        "OWNER absent extra",
+        "HASH",
+        "PUT",
+        "REMOVE",
+        "ADD A",
+        "ADD _a",
+        "PUT 0a",
+        "HASH a#0",
+        "HASH a.b",
+        "HASH -",
+        "PUT abcdefghijklmnopqrstuvwxy",
+        "PUT a b",
+        "PUT a\u000bb",
+        "PUT 한글",
+        "OWNER a",
+        "ADD a",
+        "PUT a"
+      ],
+      "quote": "노드 식별자와 키 식별자는 모두 정규식 `[a-z][a-z0-9_-]{0,23}`에 맞는 문자열이다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR KEY_MISSING",
+        "ERROR NODE_EXISTS",
+        "KEY a a MOD a"
+      ]
+    },
+    {
+      "name": "session-10",
+      "refs": [
+        "4.3",
+        "5.1",
+        "5.2"
+      ],
+      "input": [
+        "OWNER absent",
+        "HASH absent",
+        "ADD a",
+        "OWNER absent",
+        "PUT a",
+        "REMOVE absent",
+        "ADD a",
+        "OWNER a",
+        "REMOVE a",
+        "OWNER a"
+      ],
+      "quote": "`OWNER <키>`는 이미 등록된 키의 현재 배정을 `KEY 키 소유노드 MOD 나머지노드` 한 줄로 출력한다.",
+      "expected": [
+        "ERROR KEY_MISSING",
+        "HASH 46744",
+        "MOVED 0 MOD 0",
+        "ERROR KEY_MISSING",
+        "KEY a a MOD a",
+        "ERROR NODE_MISSING",
+        "ERROR NODE_EXISTS",
+        "KEY a a MOD a",
+        "MOVED 1 MOD 1",
+        "MOVE a a -",
+        "KEY a - MOD -"
+      ]
+    },
+    {
+      "name": "session-11",
+      "refs": [
+        "4.2",
+        "4.4",
+        "4.5",
+        "4.6"
+      ],
+      "input": [
+        "ADD b",
+        "PUT b",
+        "PUT alpha",
+        "ADD a",
+        "PUT gamma",
+        "REMOVE b",
+        "ADD b",
+        "OWNER b",
+        "REMOVE a",
+        "ADD a",
+        "OWNER alpha"
+      ],
+      "quote": "`PUT <키>`는 키를 등록하고 현재 링 배정과 나머지 배정을 `KEY 키 소유노드 MOD 나머지노드` 한 줄로 출력한다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "KEY b b MOD b",
+        "KEY alpha b MOD b",
+        "MOVED 1 MOD 0",
+        "MOVE alpha b a",
+        "KEY gamma a MOD a",
+        "MOVED 1 MOD 2",
+        "MOVE b b a",
+        "MOVED 1 MOD 2",
+        "MOVE b a b",
+        "KEY b b MOD b",
+        "MOVED 2 MOD 1",
+        "MOVE alpha a b",
+        "MOVE gamma a b",
+        "MOVED 2 MOD 1",
+        "MOVE alpha b a",
+        "MOVE gamma b a",
+        "KEY alpha a MOD b"
+      ]
+    },
+    {
+      "name": "session-12",
+      "refs": [
+        "3.3",
+        "3.4",
+        "3.8",
+        "4.1"
+      ],
+      "input": [
+        "HASH node309",
+        "HASH node1120",
+        "ADD node309",
+        "ADD node1120",
+        "PUT node1120",
+        "PUT node309",
+        "HASH node309",
+        "OWNER node309"
+      ],
+      "quote": "`HASH <식별자>`는 `HASH h` 한 줄을 출력한다.",
+      "expected": [
+        "HASH 20069",
+        "HASH 20069",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY node1120 node1120 MOD node309",
+        "KEY node309 node1120 MOD node309",
+        "HASH 20069",
+        "KEY node309 node1120 MOD node309"
+      ]
+    },
+    {
+      "name": "session-13",
+      "refs": [
+        "3.1",
+        "3.2",
+        "3.5",
+        "3.8",
+        "4.5"
+      ],
+      "input": [
+        "ADD a_",
+        "ADD a0",
+        "ADD a-",
+        "ADD a",
+        "PUT a_",
+        "PUT a0",
+        "PUT a-",
+        "PUT a",
+        "PUT aa",
+        "REMOVE a0",
+        "REMOVE a-",
+        "REMOVE a_",
+        "REMOVE a"
+      ],
+      "quote": "ADD와 REMOVE의 성공 응답은 첫 줄 `MOVED r MOD m`과, 이어지는 r개의 `MOVE 키 이전노드 새노드` 줄이다.",
+      "expected": [
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "MOVED 0 MOD 0",
+        "KEY a_ a_ MOD a-",
+        "KEY a0 a0 MOD a",
+        "KEY a- a- MOD a_",
+        "KEY a a MOD a",
+        "KEY aa a MOD a_",
+        "MOVED 1 MOD 4",
+        "MOVE a0 a0 a_",
+        "MOVED 1 MOD 4",
+        "MOVE a- a- a_",
+        "MOVED 3 MOD 3",
+        "MOVE a- a_ a",
+        "MOVE a0 a_ a",
+        "MOVE a_ a_ a",
+        "MOVED 5 MOD 5",
+        "MOVE a a -",
+        "MOVE a- a -",
+        "MOVE a0 a -",
+        "MOVE a_ a -",
+        "MOVE aa a -"
+      ]
+    },
+    {
+      "name": "session-14",
+      "refs": [
+        "2.2",
+        "2.3",
+        "4.4",
+        "4.5",
+        "4.6",
+        "6.1"
+      ],
+      "input": [
+        "PUT apple",
+        "ADD b",
+        "PUT a",
+        "PUT b",
+        "ADD a",
+        "OWNER apple",
+        "REMOVE b",
+        "REMOVE a",
+        "OWNER apple"
+      ],
+      "quote": "`ADD <노드>`는 없는 노드를 토큰 하나와 함께 추가한다.",
+      "expected": [
+        "KEY apple - MOD -",
+        "MOVED 1 MOD 1",
+        "MOVE apple - b",
+        "KEY a b MOD b",
+        "KEY b b MOD b",
+        "MOVED 2 MOD 1",
+        "MOVE a b a",
+        "MOVE apple b a",
+        "KEY apple a MOD b",
+        "MOVED 1 MOD 2",
+        "MOVE b b a",
+        "MOVED 3 MOD 3",
+        "MOVE a a -",
+        "MOVE apple a -",
+        "MOVE b a -",
+        "KEY apple - MOD -"
+      ]
+    },
+    {
+      "name": "practice-session",
+      "refs": [
+        "3.6",
+        "3.8",
+        "4.4",
+        "4.5"
+      ],
+      "quote": "링 배정에서 소유 노드 문자열이 달라진 키 수를 r, 나머지 배정에서 소유 노드 문자열이 달라진 키 수를 m이라고 한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--nodes",
+        "12",
+        "--keys",
+        "80",
+        "--commands",
+        "600",
+        "--changes",
+        "128"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    },
+    {
+      "name": "extended-session",
+      "refs": [
+        "3.6",
+        "3.8",
+        "4.4",
+        "4.5"
+      ],
+      "quote": "링 배정에서 소유 노드 문자열이 달라진 키 수를 r, 나머지 배정에서 소유 노드 문자열이 달라진 키 수를 m이라고 한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--nodes",
+        "64",
+        "--keys",
+        "512",
+        "--commands",
+        "4096",
+        "--changes",
+        "256"
+      ],
+      "repeat": 2,
+      "timeout_sec": 30
+    }
+  ]
+}

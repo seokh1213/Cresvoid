@@ -4,7 +4,7 @@ title: 일관 해싱 만들기
 kind: build
 track: consistent-hashing
 stage: 01-ring, 02-rebalance, 03-replication
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

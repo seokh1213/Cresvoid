@@ -1,0 +1,111 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력을 모두 처리한 뒤 서버가 쓰는 출력에 대한 설명으로 옳은 것은?",
+      "context": "{\"jsonrpc\":\"2.0\",\"method\":\"notifications/unknown\",\"params\":{}}\n{\"jsonrpc\":\"2.0\",\"id\":99,\"result\":{\"resultType\":\"complete\"}}\n{\"jsonrpc\":\"2.0\",\"id\":\"7\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}},\"name\":\"product_get\",\"arguments\":{\"productId\":\"p-999\"}}}",
+      "choices": [
+        "알림의 _meta 누락 오류와 마지막 도구 결과를 각각 출력하므로 두 줄이다.",
+        "한 줄이며 id는 문자열 \"7\"이고 result에 resultType:\"complete\"와 isError:true가 있다.",
+        "한 줄이며 id는 정수 7이고 result에 resultType:\"complete\"와 isError:true가 있다.",
+        "한 줄이며 id는 문자열 \"7\"이고 최상위 error의 code는 -32602다.",
+        "한 줄이며 id는 문자열 \"7\"이고 도구 실행 오류이므로 resultType을 생략한다."
+      ],
+      "answer": 2,
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.5",
+        "4.8"
+      ],
+      "quote": "알림에는 요청용 `_meta`가 없어도 되며, 모르는 메서드나 잘못된 메서드 인자가 있어도 응답하지 않는다.",
+      "explanation": "②가 옳다. 첫 줄은 알림이고 둘째 줄은 유효한 응답이므로 둘 다 무시한다. 마지막 줄만 처리하며 문자열 id를 보존하고 상품 부재를 isError:true인 complete 결과로 돌려준다. ①은 알림에도 요청용 메타데이터 검사를 적용해 틀리다. ③은 문자열 id를 숫자로 바꿔 틀리다. ④는 도구 실행 오류를 프로토콜 오류로 바꿔 틀리다. ⑤는 도구 실행 오류에도 필요한 resultType을 생략해 틀리다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "tools/list 요청의 메타데이터와 페이지 처리에 대한 설명으로 옳은 것은?",
+      "choices": [
+        "앞 요청에 올바른 _meta가 있었다면 다음 tools/list의 params는 빈 객체여도 된다.",
+        "cursor를 생략해도 클라이언트가 tools 기능을 선언하지 않으면 -32602다.",
+        "올바른 _meta와 최상위 cursor:\"\"가 있고 params 안에는 cursor가 없으면 -32602다.",
+        "cursor를 생략하면 두 도구와 nextCursor:null을 반환한다.",
+        "현재 요청에 올바른 _meta와 빈 clientCapabilities 객체가 있고 cursor가 없으면 cart_quote, product_get 순서로 둘 다 반환한다."
+      ],
+      "answer": 5,
+      "refs": [
+        "2.3",
+        "3.4",
+        "4.2"
+      ],
+      "quote": "클라이언트 기능에 따라 목록을 거르지 않는다.",
+      "explanation": "⑤가 옳다. 현재 요청에 필수 메타데이터가 있으면 빈 기능 객체로도 목록을 받을 수 있고 도구 순서는 고정이다. ①은 _meta를 요청마다 보내야 하므로 틀리다. ②는 tools 기능 선언을 요구하지 않으므로 틀리다. ③은 정의하지 않은 최상위 필드를 무시하는 규칙과 params의 cursor가 없으면 목록을 반환하는 규칙을 함께 적용해야 한다. 이 경우 최상위 cursor를 무시하고 두 도구를 반환하므로 오류라는 설명은 틀리다. ④는 마지막 페이지에서 nextCursor를 null로 넣는 대신 생략해야 하므로 틀리다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 장바구니를 유효한 메타데이터와 견적 기능 선언을 갖춰 cart_quote로 호출했을 때의 결과는?",
+      "context": "lines는 입력 순서대로 [{\"productId\":\"p-200\",\"quantity\":1},{\"productId\":\"zzz\",\"quantity\":1},{\"productId\":\"aaa\",\"quantity\":1},{\"productId\":\"p-100\",\"quantity\":8},{\"productId\":\"p-100\",\"quantity\":1}]이다.",
+      "choices": [
+        "입력에서 먼저 만난 품절 상품에 대해 OUT_OF_STOCK p-200인 도구 실행 오류를 반환한다.",
+        "입력에서 먼저 만난 모르는 상품에 대해 UNKNOWN_PRODUCT zzz인 도구 실행 오류를 반환한다.",
+        "UNKNOWN_PRODUCT aaa인 도구 실행 오류를 반환하며 카탈로그와 재고는 바뀌지 않는다.",
+        "중복 수량을 합친 뒤 사전순으로 앞선 재고 부족 상품을 골라 OUT_OF_STOCK p-100을 반환한다.",
+        "모르는 상품이 있으므로 -32602인 프로토콜 오류를 반환하고 앞에서 확인한 p-200의 재고를 차감한다."
+      ],
+      "answer": 3,
+      "refs": [
+        "4.1",
+        "4.7",
+        "4.8",
+        "2.2",
+        "4.4"
+      ],
+      "quote": "알 수 없는 상품이 하나라도 있으면 그 id들을 문자열 사전순으로 정렬했을 때 첫 id에 대해 `UNKNOWN_PRODUCT <id>`를 반환한다.",
+      "explanation": "③이 옳다. 모르는 상품 aaa와 zzz 중 사전순으로 앞선 aaa를 고르며 모든 도구는 읽기 전용이다. ①과 ④는 모르는 상품 검사가 재고 검사보다 앞선다는 규칙을 어겼다. ②는 입력 순서가 아니라 모르는 id의 사전순으로 골라야 하므로 틀리다. ⑤는 올바른 문자열 인자가 가리키는 상품 부재를 프로토콜 오류로 바꾼 데다 읽기 전용 재고까지 바꾸므로 틀리다. 이 과제에서 입력 스키마 위반을 -32602로 분류하는 것은 과제 전용 규칙이다. MCP 원문은 범위 밖 값 같은 도구 입력값 검증 실패를 isError:true로 돌려주도록 권고한다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": [
+        "{\"jsonrpc\":\"2.0\",\"method\":\"notifications/ignored\",\"params\":{}}",
+        "{\"jsonrpc\":\"2.0\",\"id\":7e0,\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{\"experimental\":{\"com.cresvoid/quote-preview\":{}}}},\"name\":\"cart_quote\",\"arguments\":{\"lines\":[{\"productId\":\"p-100\",\"quantity\":3},{\"productId\":\"p-300\",\"quantity\":5},{\"productId\":\"p-100\",\"quantity\":5}]}}}"
+      ],
+      "answers": [
+        "{\"id\":7,\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"total=186000\\nitems=2\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ],
+      "refs": [
+        "3.2",
+        "3.3",
+        "3.6",
+        "4.1",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "재고와 수량이 같으면 성공한다.",
+      "explanation": "알림은 무시한다. p-100의 수량은 3+5=8, p-300은 5여서 각각 재고와 같으므로 성공한다. 합계는 12000×8+18000×5=186000이고 상품 종류는 2개다. 숫자 id 7e0은 정수 7로 출력하고 LF는 JSON 이스케이프로 쓴다. 중복 줄을 따로 세어 items=3으로 쓰거나 재고와 같은 수량을 품절로 판단하면 틀리다. 알림에 대한 줄을 더하거나 지수 표기 id를 그대로 쓰는 것도 틀리다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": [
+        "{\"jsonrpc\":\"2.0\",\"id\":\"7\",\"method\":\"tools/call\",\"params\":{\"_meta\":{\"io.modelcontextprotocol/protocolVersion\":\"2026-07-28\",\"io.modelcontextprotocol/clientCapabilities\":{}},\"name\":\"product_get\",\"arguments\":{\"productId\":\"p-400\"}}}"
+      ],
+      "answers": [
+        "{\"id\":\"7\",\"jsonrpc\":\"2.0\",\"result\":{\"content\":[{\"text\":\"id=p-400\\nname=서버\\\\유리\\nprice=24000\\nstock=3\",\"type\":\"text\"}],\"isError\":false,\"resultType\":\"complete\"}}"
+      ],
+      "refs": [
+        "3.2",
+        "3.6",
+        "4.1",
+        "4.5",
+        "4.8"
+      ],
+      "quote": "상품 이름 자체의 LF와 역슬래시는 보존한다.",
+      "explanation": "p-400의 상품 정보를 정해진 순서의 텍스트로 만들고 필드 사이의 LF와 이름의 역슬래시를 각각 JSON에서 이스케이프한다. 문자열 id는 문자열 그대로이며 성공 결과에는 isError:false와 resultType:complete를 넣는다. 이름의 역슬래시를 지우거나 실제 줄바꿈으로 출력을 여러 줄로 나누면 틀리다. id를 숫자로 바꾸거나 text 끝에 LF를 더해도 틀리다."
+    }
+  ]
+}

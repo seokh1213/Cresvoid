@@ -8,11 +8,11 @@
 |---|---|---|---|---|---|
 | [읽기](reading/README.md) | 15 | 0 | 0 | 15 | 0 |
 | [구현](implementation/README.md) | 32 | 6 | 0 | 26 | 0 |
-| [AI 에이전트](backend/ai-agent/README.md) | 5 | 2 | 0 | 3 | 0 |
+| [AI 에이전트](backend/ai-agent/README.md) | 5 | 1 | 0 | 4 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 1 | 4 | 3 | 0 |
 | [설계 패턴](backend/design-patterns/README.md) | 11 | 1 | 0 | 10 | 0 |
-| [분산 시스템](backend/distributed/README.md) | 8 | 5 | 0 | 3 | 0 |
+| [분산 시스템](backend/distributed/README.md) | 8 | 4 | 0 | 4 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [JVM](backend/jvm/README.md) | 4 | 1 | 0 | 3 | 0 |
@@ -26,8 +26,8 @@
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 1 | 0 | 10 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
-| [시스템 설계](backend/system-design/README.md) | 17 | 12 | 0 | 5 | 0 |
-| 합계 | 185 | 39 | 24 | 120 | 2 |
+| [시스템 설계](backend/system-design/README.md) | 17 | 11 | 0 | 6 | 0 |
+| 합계 | 185 | 36 | 24 | 123 | 2 |
 
 ## 다음 후보
 
@@ -35,9 +35,7 @@
 
 | 차수 | 카드 | 제목 | 종류 | 트랙 | 단계 | 환경 |
 |---|---|---|---|---|---|---|
-| 3 | [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 없음 |
 | 4 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 없음 |
-| 4 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 없음 |
 | 4 | [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 없음 |
 | 4 | [B-kv-store-10](implementation/cards/B-kv-store-10-kv-store.md) | 키-값 저장소 | build | kv-store | 01-basic, 02-log, 03-transactions | 없음 |
 | 4 | [B-lakehouse-20](backend/lakehouse/cards/B-lakehouse-20-columnar.md) | 열 지향 파일 만들기 | build | columnar | 01-encode, 02-pruning, 03-nested | 없음 |
@@ -55,7 +53,6 @@
 | 4 | [B-system-design-100](backend/system-design/cards/B-system-design-100-geo-index.md) | 근처 장소 검색 만들기 | build | geo-index | 01-geohash, 02-radius-search, 03-quadtree | 없음 |
 | 4 | [B-system-design-110](backend/system-design/cards/B-system-design-110-ad-click-aggregator.md) | 광고 클릭 집계기 만들기 | build | ad-click-aggregator | 01-windows, 02-late-events, 03-exactly-once | 없음 |
 | 4 | [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 없음 |
-| 4 | [B-system-design-130](backend/system-design/cards/B-system-design-130-leaderboard.md) | 실시간 순위표 만들기 | build | leaderboard | 01-sorted-set, 02-range-queries, 03-sharding | 없음 |
 | 5 | [B-algorithm-drills-10](implementation/cards/B-algorithm-drills-10-algorithm-drills.md) | 주제별 알고리즘 문제 묶음 | build | algorithm-drills | 01-strings, 02-arrays, 03-sort-search, 04-structures, 05-grids-recursion | 없음 |
 | 5 | [B-design-patterns-80](backend/design-patterns/cards/B-design-patterns-80-doc-editor.md) | 되돌리기를 지원하는 문서 편집기 만들기 | build | doc-editor | 01-edit, 02-undo, 03-macro, 04-snapshot | 없음 |
 | 5 | [B-distributed-30](backend/distributed/cards/B-distributed-30-crdt.md) | 복제 자료형 만들기 | build | crdt | 01-counters, 02-sets-and-registers, 03-convergence | 없음 |
@@ -92,7 +89,7 @@
 | chat | build | 없음 | 04 |  | 01-sequencing(B-system-design-80 4차), 02-sync(B-system-design-80 4차), 03-presence(B-system-design-80 4차) |
 | code-reading | code | 있음 | 16 | 01-price-rules(C-kotlin-10 완료), 02-coroutine-order(C-coroutines-30 완료), 03-flow-semantics(C-coroutines-32 완료), 04-stock-reservation(C-kotlin-20 완료), 05-order-events(C-kotlin-30 완료), 06-lru-cache(C-kotlin-40 완료), 07-retry-policy(C-kotlin-50 완료), 08-decorated-client(C-design-patterns-40 완료), 09-state-observers(C-design-patterns-50 완료), 10-consumer-commit(C-messaging-30 완료), 11-search-query-parser(C-kotlin-60 완료), 12-settlement-batch(C-kotlin-70 완료), 13-csv-import(C-kotlin-80 완료), 14-notification-queue(C-design-patterns-90 완료), 15-stable-diversity(C-search-80 완료) |  |
 | columnar | build | 없음 | 04 |  | 01-encode(B-lakehouse-20 4차), 02-pruning(B-lakehouse-20 4차), 03-nested(B-lakehouse-20 4차) |
-| consistent-hashing | build | 없음 | 04 |  | 01-ring(B-distributed-40 4차), 02-rebalance(B-distributed-40 4차), 03-replication(B-distributed-40 4차) |
+| consistent-hashing | build | 있음 | 04 | 01-ring(B-distributed-40 완료), 02-rebalance(B-distributed-40 완료), 03-replication(B-distributed-40 완료) |  |
 | coroutine-lab | lab | 있음 | 02 | 01-dispatcher-starvation(L-coroutines-50 완료) |  |
 | coroutine-patterns | build | 있음 | 07 | 01-fan-out(B-coroutines-20 완료), 02-limits(B-coroutines-20 완료), 03-channels(B-coroutines-20 완료), 04-flow(B-coroutines-20 완료), 05-batching(B-coroutines-35 완료), 06-single-flight(B-coroutines-35 완료) |  |
 | coroutine-runtime | build | 있음 | 09 | 01-event-loop(B-coroutines-40 완료), 02-structured(B-coroutines-40 완료), 03-cancellation(B-coroutines-40 완료), 04-exceptions(B-coroutines-40 완료), 05-channels(B-coroutines-40 완료), 06-flow(B-coroutines-40 완료), 07-sequence(B-coroutines-40 완료), 08-manual-state-machine(B-coroutines-40 완료) |  |
@@ -112,12 +109,12 @@
 | jvm-lab | lab | 있음 | 04 | 01-container-heap(L-jvm-10 완료), 02-threadlocal-leak(L-jvm-20 완료), 03-thread-dump(L-jvm-30 완료) | jit-warmup(L-jvm-40 5차) |
 | kafka-lab | lab | 없음 | 01 |  | rebalance(L-messaging-40 5차), durability(L-messaging-41 5차) |
 | kv-store | build | 없음 | 04 |  | 01-basic(B-kv-store-10 4차), 02-log(B-kv-store-10 4차), 03-transactions(B-kv-store-10 4차) |
-| leaderboard | build | 없음 | 04 |  | 01-sorted-set(B-system-design-130 4차), 02-range-queries(B-system-design-130 4차), 03-sharding(B-system-design-130 4차) |
+| leaderboard | build | 있음 | 04 | 01-sorted-set(B-system-design-130 완료), 02-range-queries(B-system-design-130 완료), 03-sharding(B-system-design-130 완료) |  |
 | lease-lock | build | 없음 | 04 |  | 01-acquisition(B-distributed-60 4차), 02-expiry(B-distributed-60 4차), 03-fenced-writes(B-distributed-80 5차) |
 | ledger | build | 있음 | 04 | 01-double-entry(B-system-design-40 완료), 02-psp-idempotency(B-system-design-40 완료), 03-reconciliation(B-system-design-40 완료) |  |
 | lsm | build | 없음 | 04 |  | 01-memtable(B-database-30 4차), 02-compaction(B-database-30 4차), 03-bloom-and-range(B-database-30 4차) |
 | matching-engine | build | 있음 | 04 | 01-order-book(B-system-design-50 완료), 02-order-types(B-system-design-50 완료), 03-replay(B-system-design-50 완료) |  |
-| mcp-server | build | 없음 | 04 |  | 01-tools(B-ai-agent-40 3차), 02-resources-prompts(B-ai-agent-40 3차), 03-errors-and-versions(B-ai-agent-40 3차) |
+| mcp-server | build | 있음 | 04 | 01-tools(B-ai-agent-40 완료), 02-resources-prompts(B-ai-agent-40 완료), 03-errors-and-versions(B-ai-agent-40 완료) |  |
 | metrics | build | 있음 | 04 | 01-counters(B-observability-20 완료), 02-histograms(B-observability-20 완료), 03-slo-alerts(B-observability-20 완료) |  |
 | mini-dfs | build | 있음 | 04 | 01-namespace(B-hdfs-20 완료), 02-placement(B-hdfs-20 완료), 03-recovery(B-hdfs-20 완료) |  |
 | mini-log | build | 있음 | 05 | 01-partitions(B-messaging-20 완료), 02-idempotence(B-messaging-20 완료), 03-groups(B-messaging-20 완료), 04-compaction(B-messaging-20 완료) |  |
@@ -220,7 +217,7 @@
 | [R-ai-agent-10](backend/ai-agent/cards/R-ai-agent-10-agent-loop.md) | 에이전트 루프와 도구 호출 | reading | tech-reading | 01-agent-loop | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-ai-agent-20](backend/ai-agent/cards/B-ai-agent-20-agent-runtime.md) | 에이전트 실행기 만들기 | build | agent-runtime | 01-loop, 02-schema, 03-parallel, 04-context, 05-guard | 완료(2026-10-10) | 2 | 없음 | R-ai-agent-10 |
 | [B-ai-agent-30](backend/ai-agent/cards/B-ai-agent-30-rag.md) | 검색 증강 파이프라인 만들기 | build | rag | 01-chunking, 02-retrieval, 03-hybrid, 04-eval | 완료(2026-11-05) | 2 | 없음 |  |
-| [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 후보 | 3 | 없음 | B-ai-agent-20 |
+| [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 완료(2026-11-06) | 3 | 없음 | B-ai-agent-20 |
 | [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | real-model | 후보 | 5 | llm-api | B-ai-agent-20 |
 
 ### Kotlin 코루틴
@@ -281,7 +278,7 @@
 | [R-distributed-10](backend/distributed/cards/R-distributed-10-raft.md) | Raft 의 선출과 커밋 | reading | tech-reading | 09-raft | 완료(2026-10-10) | 4 | 없음 |  |
 | [B-distributed-20](backend/distributed/cards/B-distributed-20-raft-build.md) | Raft 시뮬레이터 만들기 | build | raft | 01-election, 02-replication, 03-commit | 완료(2026-10-11) | 4 | 없음 | R-distributed-10 |
 | [B-distributed-30](backend/distributed/cards/B-distributed-30-crdt.md) | 복제 자료형 만들기 | build | crdt | 01-counters, 02-sets-and-registers, 03-convergence | 후보 | 5 | 없음 |  |
-| [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 후보 | 4 | 없음 |  |
+| [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 후보 | 5 | 없음 | B-distributed-20 |
 | [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 후보 | 4 | 없음 |  |
 | [F-distributed-70](backend/distributed/cards/F-distributed-70-late-lock-release.md) | 늦은 해제가 새 잠금을 지우는 버그 | fix | bug-fix | 12-late-lock-release | 완료(2026-11-06) | 4 | 없음 | B-distributed-60 |
@@ -477,7 +474,7 @@
 | [B-system-design-100](backend/system-design/cards/B-system-design-100-geo-index.md) | 근처 장소 검색 만들기 | build | geo-index | 01-geohash, 02-radius-search, 03-quadtree | 후보 | 4 | 없음 |  |
 | [B-system-design-110](backend/system-design/cards/B-system-design-110-ad-click-aggregator.md) | 광고 클릭 집계기 만들기 | build | ad-click-aggregator | 01-windows, 02-late-events, 03-exactly-once | 후보 | 4 | 없음 |  |
 | [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 후보 | 4 | 없음 |  |
-| [B-system-design-130](backend/system-design/cards/B-system-design-130-leaderboard.md) | 실시간 순위표 만들기 | build | leaderboard | 01-sorted-set, 02-range-queries, 03-sharding | 후보 | 4 | 없음 |  |
+| [B-system-design-130](backend/system-design/cards/B-system-design-130-leaderboard.md) | 실시간 순위표 만들기 | build | leaderboard | 01-sorted-set, 02-range-queries, 03-sharding | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-system-design-140](backend/system-design/cards/B-system-design-140-url-shortener.md) | URL 단축기 만들기 | build | url-shortener | 01-base62, 02-collisions, 03-expiry | 후보 | 5 | 없음 | B-system-design-30 |
 | [B-system-design-150](backend/system-design/cards/B-system-design-150-notifier.md) | 알림 발송기 만들기 | build | notifier | 01-dispatch, 02-reliability, 03-throttling | 후보 | 5 | 없음 |  |
 | [B-system-design-160](backend/system-design/cards/B-system-design-160-object-store.md) | 객체 저장소 만들기 | build | object-store | 01-versioning, 02-multipart, 03-durability | 후보 | 5 | 없음 |  |
