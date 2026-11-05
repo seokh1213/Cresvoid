@@ -1,0 +1,118 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "invoice-session",
+      "refs": ["1.2", "2.4", "4.2", "4.4", "4.5"],
+      "quote": "유효한 `STATUS <key>`는 키가 비어 있으면 `FREE`, 차 있으면 `HELD <acquisition_id> <client> <expires_at>`을 출력한다.",
+      "input": ["STATUS invoice", "ACQUIRE invoice workerA 10", "STATUS invoice", "RELEASE invoice 1", "STATUS invoice"],
+      "expected": ["FREE", "ACQUIRED 1 10", "HELD 1 workerA 10", "RELEASED", "FREE"]
+    },
+    {
+      "name": "queue-session",
+      "refs": ["2.1", "2.3", "4.1", "4.3", "4.5", "4.6"],
+      "quote": "요청 클라이언트가 현재 클라이언트와 같아도 BUSY다.",
+      "input": ["ACQUIRE queue alpha 8", "ACQUIRE queue beta 99", "ACQUIRE queue alpha 2", "STATUS queue", "ACQUIRE report beta 3", "STATUS queue", "STATUS report"],
+      "expected": ["ACQUIRED 1 8", "BUSY 1 alpha 8", "BUSY 1 alpha 8", "HELD 1 alpha 8", "ACQUIRED 2 3", "HELD 1 alpha 8", "HELD 2 beta 3"]
+    },
+    {
+      "name": "worker-session",
+      "refs": ["2.2", "4.1", "4.4", "4.6", "6.1"],
+      "quote": "키가 비거나 모든 잠금이 없어져도 번호를 초기화하거나 재사용하지 않는다.",
+      "input": ["ACQUIRE task worker 3", "RELEASE task 1", "ACQUIRE task worker 9", "RELEASE task 1", "STATUS task", "RELEASE task 2", "RELEASE task 2", "ACQUIRE task worker 4", "STATUS task"],
+      "expected": ["ACQUIRED 1 3", "RELEASED", "ACQUIRED 2 9", "DENIED", "HELD 2 worker 9", "RELEASED", "DENIED", "ACQUIRED 3 4", "HELD 3 worker 4"]
+    },
+    {
+      "name": "report-session",
+      "refs": ["2.1", "4.1", "4.4", "4.5"],
+      "quote": "다른 키에서 발급된 번호로 해제할 수 없다.",
+      "input": ["ACQUIRE report agent 6", "ACQUIRE invoice agent 7", "RELEASE invoice 1", "RELEASE report 2", "STATUS report", "STATUS invoice", "RELEASE report 1", "ACQUIRE archive agent 8", "STATUS invoice", "STATUS archive"],
+      "expected": ["ACQUIRED 1 6", "ACQUIRED 2 7", "DENIED", "DENIED", "HELD 1 agent 6", "HELD 2 agent 7", "RELEASED", "ACQUIRED 3 8", "HELD 2 agent 7", "HELD 3 agent 8"]
+    },
+    {
+      "name": "archive-session",
+      "refs": ["3.4", "4.1", "4.4", "5.2", "6.2"],
+      "quote": "범위 안이지만 발급된 적 없는 양수 획득 번호도 유효한 요청 인자다.",
+      "input": ["RELEASE archive 1", "RELEASE archive 9223372036854775807", "STATUS archive", "ACQUIRE archive a 1", "RELEASE archive 99", "STATUS archive", "RELEASE archive 1", "RELEASE archive 1", "ACQUIRE archive b 2"],
+      "expected": ["DENIED", "DENIED", "FREE", "ACQUIRED 1 1", "DENIED", "HELD 1 a 1", "RELEASED", "DENIED", "ACQUIRED 2 2"]
+    },
+    {
+      "name": "console-session",
+      "refs": ["3.1", "3.2", "3.5", "4.2", "4.4"],
+      "quote": "빈 줄과 공백·탭만 있는 줄은 무시하고 출력하지 않는다.",
+      "input": ["", " \t ", " \tACQUIRE\t task \tagent\t0007 \t", "\tSTATUS\t task\t", "", " RELEASE  task\t0001 ", "\tSTATUS task ", "\t"],
+      "expected": ["ACQUIRED 1 7", "HELD 1 agent 7", "RELEASED", "FREE"]
+    },
+    {
+      "name": "catalog-session",
+      "refs": ["3.1", "3.3", "4.1", "4.3", "4.5"],
+      "quote": "이름 사이에 정규화나 별칭 처리는 없다.",
+      "input": ["ACQUIRE A z 1", "ACQUIRE a Z 2", "ACQUIRE task_9-X Agent_2-Y 3", "ACQUIRE ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef 4", "STATUS A", "STATUS a", "ACQUIRE a z 7", "STATUS task_9-X", "STATUS ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef"],
+      "expected": ["ACQUIRED 1 1", "ACQUIRED 2 2", "ACQUIRED 3 3", "ACQUIRED 4 4", "HELD 1 z 1", "HELD 2 Z 2", "BUSY 2 Z 2", "HELD 3 Agent_2-Y 3", "HELD 4 ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef 4"]
+    },
+    {
+      "name": "ledger-session",
+      "refs": ["2.5", "3.4", "3.5", "4.2", "4.4", "7.3"],
+      "quote": "TTL과 만료 시각은 32비트 정수 범위를 넘을 수 있다.",
+      "input": ["ACQUIRE ledger a 0002147483648", "ACQUIRE audit b 1000000000000", "STATUS ledger", "STATUS audit", "RELEASE ledger 9223372036854775807", "RELEASE ledger 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001", "ACQUIRE ledger c 0001", "STATUS audit"],
+      "expected": ["ACQUIRED 1 2147483648", "ACQUIRED 2 1000000000000", "HELD 1 a 2147483648", "HELD 2 b 1000000000000", "DENIED", "RELEASED", "ACQUIRED 3 1", "HELD 2 b 1000000000000"]
+    },
+    {
+      "name": "dispatch-session",
+      "refs": ["3.3", "5.1", "5.2"],
+      "quote": "ERROR인 줄은 저장소, 획득 번호 발급 상태, 현재 시각을 전혀 바꾸지 않는다.",
+      "input": ["ACQUIRE task agent 8", "ACQUIRE _bad agent 1", "ACQUIRE 1bad agent 1", "ACQUIRE -bad agent 1", "ACQUIRE a.b agent 1", "ACQUIRE abcdefghijklmnopqrstuvwxyzabcdefg agent 1", "ACQUIRE task _agent 1", "ACQUIRE task agent.bad 1", "ACQUIRE task abcdefghijklmnopqrstuvwxyzabcdefg 1", "STATUS task#", "RELEASE task/ 1", "STATUS task", "ACQUIRE report agent 2"],
+      "expected": ["ACQUIRED 1 8", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "HELD 1 agent 8", "ACQUIRED 2 2"]
+    },
+    {
+      "name": "terminal-session",
+      "refs": ["3.1", "3.2", "5.1", "5.2"],
+      "quote": "명령 토큰까지 포함한 토큰 수는 각각 4개, 3개, 2개여야 한다.",
+      "input": ["ACQUIRE", "ACQUIRE task agent", "ACQUIRE task agent 1 extra", "STATUS", "STATUS task extra", "RELEASE", "RELEASE task", "RELEASE task 1 extra", "acquire task agent 1", "status task", "release task 1", "UNKNOWN", "# comment", "ACQUIRE task agent 2", "STATUS task #", "STATUS task"],
+      "expected": ["ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ACQUIRED 1 2", "ERROR", "HELD 1 agent 2"]
+    },
+    {
+      "name": "import-session",
+      "refs": ["3.4", "5.1", "5.2"],
+      "quote": "TTL은 1 이상 1,000,000,000,000 이하여야 한다.",
+      "input": ["ACQUIRE task a 0", "ACQUIRE task a -0", "ACQUIRE task a -1", "ACQUIRE task a 1000000000001", "ACQUIRE task a 9223372036854775807", "ACQUIRE task a 9223372036854775808", "ACQUIRE task a -9223372036854775808", "ACQUIRE task a -9223372036854775809", "ACQUIRE task a +1", "ACQUIRE task a 1.0", "ACQUIRE task a 1e2", "ACQUIRE task a --1", "ACQUIRE task a 1x", "STATUS task", "ACQUIRE task a 1"],
+      "expected": ["ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "FREE", "ACQUIRED 1 1"]
+    },
+    {
+      "name": "cleanup-session",
+      "refs": ["3.4", "4.4", "5.1", "5.2"],
+      "quote": "요청 획득 번호는 1 이상 9,223,372,036,854,775,807 이하여야 한다.",
+      "input": ["ACQUIRE task a 12", "RELEASE task 0", "RELEASE task -0", "RELEASE task -1", "RELEASE task +1", "RELEASE task 1.0", "RELEASE task 1e0", "RELEASE task --1", "RELEASE task 9223372036854775808", "RELEASE task -9223372036854775808", "RELEASE task -9223372036854775809", "RELEASE task 1x", "STATUS task", "RELEASE task 0001", "ACQUIRE next a 1"],
+      "expected": ["ACQUIRED 1 12", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "HELD 1 a 12", "RELEASED", "ACQUIRED 2 1"]
+    },
+    {
+      "name": "recovery-session",
+      "refs": ["1.2", "4.1", "4.3", "4.5", "5.1", "5.2"],
+      "quote": "따라서 이미 차 있는 키의 ACQUIRE라도 TTL이 잘못되면 BUSY가 아니라 ERROR다.",
+      "input": ["ACQUIRE task worker 1", "ACQUIRE task other 0", "ACQUIRE task _other 9", "ACQUIRE task other 2 extra", "STATUS task", "STATUS task", "ACQUIRE task other 1000000000001", "RELEASE task 0", "ACQUIRE task other 2", "RELEASE task 1", "ACQUIRE task other 4", "RELEASE task 1", "STATUS task"],
+      "expected": ["ACQUIRED 1 1", "ERROR", "ERROR", "ERROR", "HELD 1 worker 1", "HELD 1 worker 1", "ERROR", "ERROR", "BUSY 1 worker 1", "RELEASED", "ACQUIRED 2 4", "DENIED", "HELD 2 other 4"]
+    },
+    {
+      "name": "empty-session",
+      "refs": ["3.1", "3.5", "7.1"],
+      "quote": "입력이 비어 있으면 출력도 없다.",
+      "input": [],
+      "expected": []
+    },
+    {
+      "name": "generated-session",
+      "refs": ["4.1", "4.3", "4.4", "5.1", "5.2", "7.4"],
+      "quote": "실패한 획득, 조회, 해제, 잘못된 입력은 번호를 소비하지 않는다.",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "mixed", "--keys", "40", "--commands", "3000"],
+      "repeat": 3
+    },
+    {
+      "name": "workload-session",
+      "refs": ["4.1", "4.2", "4.4", "4.5", "7.2", "7.3", "7.4"],
+      "quote": "마지막 생성 테스트는 서로 다른 키의 획득 120,000회, 그 키들의 조회 120,000회, 그중 60,000개 키의 해제를 합친 총 300,000개 명령이다.",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "scale", "--keys", "120000"],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

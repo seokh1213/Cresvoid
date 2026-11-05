@@ -1,0 +1,118 @@
+{
+  "timeout_sec": 15,
+  "tests": [
+    {
+      "name": "time-session",
+      "refs": ["1.1", "3.1", "3.2", "4.1", "4.3", "4.4"],
+      "quote": "만료 시각을 현재 시각 더하기 TTL로 교체하고 `RENEWED <acquisition_id> <expires_at>`을 출력한다.",
+      "input": ["ADVANCE 0", "ACQUIRE task agent 4", "RENEW task 1 6", "STATUS task", "ADVANCE 6", "STATUS task"],
+      "expected": ["ADVANCED 0 0", "ACQUIRED 1 4", "RENEWED 1 6", "HELD 1 agent 6", "ADVANCED 6 1", "FREE"]
+    },
+    {
+      "name": "invoice-session",
+      "refs": ["2.1", "2.2", "2.3", "4.1", "4.3", "4.6", "4.7", "6.1"],
+      "quote": "만료 시각과 현재 시각이 같으면 이미 만료된 상태다.",
+      "input": ["ACQUIRE invoice worker 10", "ADVANCE 9", "RENEW invoice 1 5", "ADVANCE 10", "STATUS invoice", "ADVANCE 13", "STATUS invoice", "ADVANCE 14", "RENEW invoice 1 4", "RELEASE invoice 1", "ADVANCE 15", "STATUS invoice", "ACQUIRE invoice worker 3", "STATUS invoice"],
+      "expected": ["ACQUIRED 1 10", "ADVANCED 9 0", "RENEWED 1 14", "ADVANCED 10 0", "HELD 1 worker 14", "ADVANCED 13 0", "HELD 1 worker 14", "ADVANCED 14 1", "DENIED", "DENIED", "ADVANCED 15 0", "FREE", "ACQUIRED 2 18", "HELD 2 worker 18"]
+    },
+    {
+      "name": "report-session",
+      "refs": ["2.2", "2.3", "4.2", "4.4", "4.5", "4.6", "6.2"],
+      "quote": "새 만료 시각이 이전보다 작거나 같아도 갱신은 성공한다.",
+      "input": ["ACQUIRE report a 20", "ADVANCE 3", "RENEW report 1 1", "RENEW report 1 1", "STATUS report", "ADVANCE 4", "ADVANCE 4", "ADVANCE 20", "STATUS report", "ACQUIRE report a 1"],
+      "expected": ["ACQUIRED 1 20", "ADVANCED 3 0", "RENEWED 1 4", "RENEWED 1 4", "HELD 1 a 4", "ADVANCED 4 1", "ADVANCED 4 0", "ADVANCED 20 0", "FREE", "ACQUIRED 2 21"]
+    },
+    {
+      "name": "archive-session",
+      "refs": ["2.3", "4.3", "4.4", "4.6"],
+      "quote": "해제 또는 만료 뒤 재획득한 키에서도 이전 획득의 해제, 갱신, 만료는 새 획득을 바꾸지 않는다.",
+      "input": ["ACQUIRE archive worker 5", "RELEASE archive 1", "ACQUIRE archive worker 20", "RELEASE archive 1", "RENEW archive 1 1", "ADVANCE 5", "STATUS archive", "RENEW archive 2 15", "ADVANCE 20", "ADVANCE 21", "STATUS archive"],
+      "expected": ["ACQUIRED 1 5", "RELEASED", "ACQUIRED 2 20", "DENIED", "DENIED", "ADVANCED 5 0", "HELD 2 worker 20", "RENEWED 2 20", "ADVANCED 20 1", "ADVANCED 21 0", "FREE"]
+    },
+    {
+      "name": "worker-session",
+      "refs": ["2.1", "2.3", "4.1", "4.3", "4.4", "4.6"],
+      "quote": "새 획득의 클라이언트 이름이 이전과 같아도 이 규칙을 적용한다.",
+      "input": ["ACQUIRE task agent 4", "ADVANCE 4", "RENEW task 1 10", "ACQUIRE task agent 10", "RELEASE task 1", "RENEW task 1 1", "ADVANCE 5", "STATUS task", "RENEW task 2 2", "ADVANCE 7", "ACQUIRE task other 20", "RELEASE task 2", "RENEW task 2 1", "ADVANCE 14", "STATUS task", "ADVANCE 27", "STATUS task"],
+      "expected": ["ACQUIRED 1 4", "ADVANCED 4 1", "DENIED", "ACQUIRED 2 14", "DENIED", "DENIED", "ADVANCED 5 0", "HELD 2 agent 14", "RENEWED 2 7", "ADVANCED 7 1", "ACQUIRED 3 27", "DENIED", "DENIED", "ADVANCED 14 0", "HELD 3 other 27", "ADVANCED 27 1", "FREE"]
+    },
+    {
+      "name": "batch-session",
+      "refs": ["2.3", "4.1", "4.2", "4.3", "4.5", "4.6"],
+      "quote": "expired_count는 이 명령 때문에 실제로 제거된 현재 잠금의 개수다.",
+      "input": ["ACQUIRE a worker 5", "ACQUIRE b worker 5", "ACQUIRE c worker 5", "ACQUIRE d worker 8", "RENEW a 1 5", "RENEW a 1 5", "RENEW b 2 7", "RELEASE c 3", "ADVANCE 5", "STATUS b", "STATUS d", "ADVANCE 8", "ADVANCE 8", "ADVANCE 100", "STATUS a", "STATUS b", "STATUS c", "STATUS d", "ACQUIRE e worker 2"],
+      "expected": ["ACQUIRED 1 5", "ACQUIRED 2 5", "ACQUIRED 3 5", "ACQUIRED 4 8", "RENEWED 1 5", "RENEWED 1 5", "RENEWED 2 7", "RELEASED", "ADVANCED 5 1", "HELD 2 worker 7", "HELD 4 worker 8", "ADVANCED 8 2", "ADVANCED 8 0", "ADVANCED 100 0", "FREE", "FREE", "FREE", "FREE", "ACQUIRED 5 102"]
+    },
+    {
+      "name": "renewal-session",
+      "refs": ["2.2", "4.3", "4.4", "4.5"],
+      "quote": "획득 번호와 클라이언트 이름은 유지하며 새 번호를 발급하지 않는다.",
+      "input": ["RENEW absent 1 5", "ACQUIRE a worker 10", "ACQUIRE b worker 12", "RENEW a 2 4", "RENEW b 1 4", "RENEW a 9223372036854775807 4", "ADVANCE 2", "RENEW a 0001 5", "STATUS a", "STATUS b", "ACQUIRE c worker 1", "RELEASE a 1", "RENEW a 1 5", "ADVANCE 7", "STATUS b"],
+      "expected": ["DENIED", "ACQUIRED 1 10", "ACQUIRED 2 12", "DENIED", "DENIED", "DENIED", "ADVANCED 2 0", "RENEWED 1 7", "HELD 1 worker 7", "HELD 2 worker 12", "ACQUIRED 3 3", "RELEASED", "DENIED", "ADVANCED 7 1", "HELD 2 worker 12"]
+    },
+    {
+      "name": "clock-session",
+      "refs": ["3.1", "3.2", "4.2", "4.7", "5.1", "5.2"],
+      "quote": "현재 시각은 성공한 ADVANCE만 바꿀 수 있다.",
+      "input": ["ADVANCE -0", "ADVANCE 0000", "ACQUIRE a worker 8", "ADVANCE 0005", "ADVANCE 4", "ACQUIRE b worker 2", "STATUS a", "ADVANCE 5", "RENEW a 1 3", "ADVANCE 7", "STATUS a", "ADVANCE 8", "ADVANCE 8", "STATUS b", "ACQUIRE c worker 1"],
+      "expected": ["ADVANCED 0 0", "ADVANCED 0 0", "ACQUIRED 1 8", "ADVANCED 5 0", "ERROR", "ACQUIRED 2 7", "HELD 1 worker 8", "ADVANCED 5 0", "RENEWED 1 8", "ADVANCED 7 1", "HELD 1 worker 8", "ADVANCED 8 1", "ADVANCED 8 0", "FREE", "ACQUIRED 3 9"]
+    },
+    {
+      "name": "ledger-session",
+      "refs": ["3.1", "3.2", "4.1", "4.4", "5.1", "5.2"],
+      "quote": "두 피연산자의 허용 범위상 만료 시각은 최대 2,000,000,000,000이며 이 값도 유효하다.",
+      "input": ["ADVANCE 2147483648", "ACQUIRE a worker 2147483648", "STATUS a", "ADVANCE 1000000000000", "ACQUIRE a worker 1000000000000", "RENEW a 2 1000000000000", "STATUS a", "ADVANCE 1000000000001", "RENEW a 2 1000000000001", "ADVANCE 1000000000000", "STATUS a", "RELEASE a 2", "ACQUIRE b worker 0001", "RENEW b 3 0001", "STATUS b"],
+      "expected": ["ADVANCED 2147483648 0", "ACQUIRED 1 4294967296", "HELD 1 worker 4294967296", "ADVANCED 1000000000000 1", "ACQUIRED 2 2000000000000", "RENEWED 2 2000000000000", "HELD 2 worker 2000000000000", "ERROR", "ERROR", "ADVANCED 1000000000000 0", "HELD 2 worker 2000000000000", "RELEASED", "ACQUIRED 3 1000000000001", "RENEWED 3 1000000000001", "HELD 3 worker 1000000000001"]
+    },
+    {
+      "name": "console-session",
+      "refs": ["1.1", "3.1", "3.2", "4.4", "4.6"],
+      "quote": "프로세스 시작 시각 0과 앞 단계의 입력 형식, 획득 번호, 오류 처리, 기존 명령의 출력 형식을 유지한다.",
+      "input": ["", " \t ", "\tADVANCE\t0002 \t", " ACQUIRE A Client_9-X 3 ", "ACQUIRE a client_9-X 4", "\tRENEW\tA\t0001\t0005\t", "\tSTATUS\tA\t", "STATUS a", "ADVANCE 5", "STATUS A", "ADVANCE 6", "STATUS a", "ADVANCE 7", "STATUS A", ""],
+      "expected": ["ADVANCED 2 0", "ACQUIRED 1 5", "ACQUIRED 2 6", "RENEWED 1 7", "HELD 1 Client_9-X 7", "HELD 2 client_9-X 6", "ADVANCED 5 0", "HELD 1 Client_9-X 7", "ADVANCED 6 1", "FREE", "ADVANCED 7 1", "FREE"]
+    },
+    {
+      "name": "request-session",
+      "refs": ["3.1", "5.1", "5.2"],
+      "quote": "ADVANCE의 숫자 형식 또는 범위가 잘못되거나 요청 시각이 현재 시각보다 작으면 ERROR다.",
+      "input": ["ACQUIRE task a 5", "ADVANCE", "ADVANCE 1 extra", "ADVANCE -1", "ADVANCE +1", "ADVANCE 1.0", "ADVANCE 1e1", "ADVANCE --1", "ADVANCE 1x", "ADVANCE 9223372036854775808", "ADVANCE -9223372036854775808", "ADVANCE -9223372036854775809", "ADVANCE 1000000000001", "advance 1", "STATUS task", "ADVANCE 4", "STATUS task", "ADVANCE 5"],
+      "expected": ["ACQUIRED 1 5", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "HELD 1 a 5", "ADVANCED 4 0", "HELD 1 a 5", "ADVANCED 5 1"]
+    },
+    {
+      "name": "retry-session",
+      "refs": ["3.1", "4.4", "5.1", "5.2"],
+      "quote": "없는 키의 RENEW라도 TTL이 0이면 DENIED가 아니라 ERROR다.",
+      "input": ["ACQUIRE task a 9", "RENEW absent 1 0", "RENEW absent 0 1", "RENEW task 1 0", "RENEW task 1 -0", "RENEW task 1 -1", "RENEW task 1 1000000000001", "RENEW task 1 +1", "RENEW task 1 1.0", "RENEW task 1 1e1", "RENEW task 1 9223372036854775808", "RENEW task 1 -9223372036854775809", "RENEW task 0 1", "RENEW task -1 1", "RENEW task +1 1", "RENEW task 1.0 1", "RENEW task 9223372036854775808 1", "RENEW task -9223372036854775808 1", "STATUS task", "ADVANCE 9", "STATUS task", "ACQUIRE next b 2"],
+      "expected": ["ACQUIRED 1 9", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "HELD 1 a 9", "ADVANCED 9 1", "FREE", "ACQUIRED 2 11"]
+    },
+    {
+      "name": "dispatch-session",
+      "refs": ["1.1", "3.1", "4.4", "5.1", "5.2"],
+      "quote": "RENEW의 이름, 획득 번호, TTL, 토큰 수가 잘못되어도 ERROR다.",
+      "input": ["ACQUIRE ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef A 8", "RENEW ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef 0001 0009", "RENEW _bad 1 2", "RENEW 1bad 1 2", "RENEW a.b 1 2", "RENEW abcdefghijklmnopqrstuvwxyzabcdefg 1 2", "RENEW", "RENEW task", "RENEW task 1", "RENEW task 1 2 extra", "renew task 1 2", "STATUS ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef", "ADVANCE 8", "STATUS ABCDEFGHIJKLMNOPQRSTUVWXYZabcdef", "ADVANCE 9", "ACQUIRE task A 1"],
+      "expected": ["ACQUIRED 1 8", "RENEWED 1 9", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "ERROR", "HELD 1 A 9", "ADVANCED 8 0", "HELD 1 A 9", "ADVANCED 9 1", "ACQUIRED 2 10"]
+    },
+    {
+      "name": "recovery-session",
+      "refs": ["3.2", "4.1", "4.2", "4.3", "4.6", "5.1", "5.2"],
+      "quote": "잘못된 ADVANCE를 일부 적용하거나, 잘못된 RENEW로 기존 만료를 취소하지 않는다.",
+      "input": ["ACQUIRE task a 10", "ACQUIRE report b 20", "ADVANCE 3", "RENEW report 2 7", "ADVANCE 1000000000001", "RENEW task 1 0", "RENEW report 2 1 extra", "ACQUIRE task c 0", "STATUS task", "STATUS report", "ACQUIRE audit c 1", "ADVANCE 4", "ADVANCE 10", "ADVANCE 20", "ACQUIRE task a 2", "RENEW task 1 1", "RELEASE task 1", "STATUS task", "ADVANCE 22"],
+      "expected": ["ACQUIRED 1 10", "ACQUIRED 2 20", "ADVANCED 3 0", "RENEWED 2 10", "ERROR", "ERROR", "ERROR", "ERROR", "HELD 1 a 10", "HELD 2 b 10", "ACQUIRED 3 4", "ADVANCED 4 1", "ADVANCED 10 2", "ADVANCED 20 0", "ACQUIRED 4 22", "DENIED", "DENIED", "HELD 4 a 22", "ADVANCED 22 1"]
+    },
+    {
+      "name": "generated-session",
+      "refs": ["2.2", "4.1", "4.3", "4.4", "4.5", "4.6", "5.1", "5.2", "7.2"],
+      "quote": "갱신, 해제, 재획득 이후에는 현재 레코드를 기준으로 효력을 판정한다.",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "mixed", "--keys", "40", "--commands", "5000"],
+      "repeat": 3
+    },
+    {
+      "name": "workload-session",
+      "refs": ["3.2", "4.1", "4.2", "4.4", "4.6", "7.1", "7.3"],
+      "quote": "가장 이른 만료 시각에 도달했을 때만 전체 잠금을 훑어도 10,000,000,000번의 레코드 검사가 필요하다.",
+      "gen": ["kotlin", "gen.main.kts", "--mode", "scale", "--keys", "100000"],
+      "repeat": 2,
+      "timeout_sec": 15
+    }
+  ]
+}

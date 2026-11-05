@@ -1,0 +1,537 @@
+{
+  "timeout_sec": 20,
+  "tests": [
+    {
+      "name": "basic-storage",
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.7"
+      ],
+      "quote": "어디에도 없으면 `NOT_FOUND`를 출력한다.",
+      "input": [
+        "RESET 3",
+        "PUT a A",
+        "GET a",
+        "GET b"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "VALUE A",
+        "NOT_FOUND"
+      ]
+    },
+    {
+      "name": "memory-updates",
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.8"
+      ],
+      "quote": "같은 키의 새 레코드는 메모리 테이블의 기존 레코드를 교체한다.",
+      "input": [
+        "RESET 2",
+        "PUT a A",
+        "PUT a A",
+        "PUT a NEW",
+        "LAYOUT",
+        "GET a"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "MEM 1",
+        "END",
+        "VALUE NEW"
+      ]
+    },
+    {
+      "name": "deletion-cycle",
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.7"
+      ],
+      "quote": "존재하지 않는 키를 삭제하거나 같은 값을 다시 써도 새 갱신이다.",
+      "input": [
+        "RESET 3",
+        "DEL ghost",
+        "DEL ghost",
+        "GET ghost",
+        "PUT ghost BACK",
+        "GET ghost",
+        "DEL ghost",
+        "LAYOUT",
+        "GET ghost"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "NOT_FOUND",
+        "OK",
+        "VALUE BACK",
+        "OK",
+        "MEM 1",
+        "END",
+        "NOT_FOUND"
+      ]
+    },
+    {
+      "name": "file-creation",
+      "refs": [
+        "3.2",
+        "4.4",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "flush는 현재 레코드를 키 오름차순으로 정렬한 파일 하나를 레벨 0에 만들고 메모리 테이블을 비운다.",
+      "input": [
+        "RESET 3",
+        "PUT a2 TWO",
+        "DEL a10",
+        "PUT a A",
+        "LAYOUT",
+        "GET a10",
+        "GET a2"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "MEM 0",
+        "FILE 1 0 3 a a2",
+        "END",
+        "NOT_FOUND",
+        "VALUE TWO"
+      ]
+    },
+    {
+      "name": "manual-flush",
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.8"
+      ],
+      "quote": "비어 있으면 파일을 만들지 않고 `OK`만 출력한다.",
+      "input": [
+        "RESET 4",
+        "FLUSH",
+        "PUT z Z",
+        "FLUSH",
+        "FLUSH",
+        "DEL a",
+        "FLUSH",
+        "FLUSH",
+        "PUT m M",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "MEM 1",
+        "FILE 1 0 1 z z",
+        "FILE 2 0 1 a a",
+        "END"
+      ]
+    },
+    {
+      "name": "file-reads",
+      "refs": [
+        "4.4",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "키를 처음 발견한 레코드가 값이면 `VALUE <value>`, 툼스톤이면 `NOT_FOUND`를 출력하고 조회를 끝낸다.",
+      "input": [
+        "RESET 2",
+        "PUT a OLD",
+        "PUT b B",
+        "DEL a",
+        "PUT c C",
+        "GET a",
+        "GET b",
+        "PUT a NEW",
+        "GET a",
+        "FLUSH",
+        "GET a",
+        "GET c",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "NOT_FOUND",
+        "VALUE B",
+        "OK",
+        "VALUE NEW",
+        "OK",
+        "VALUE NEW",
+        "VALUE C",
+        "MEM 0",
+        "FILE 1 0 2 a b",
+        "FILE 2 0 2 a c",
+        "FILE 3 0 1 a a",
+        "END"
+      ]
+    },
+    {
+      "name": "storage-reset",
+      "refs": [
+        "4.1",
+        "4.6"
+      ],
+      "quote": "파일 번호와 갱신 번호는 별개이며 RESET은 둘 다 초기화한다.",
+      "input": [
+        "RESET 1",
+        "PUT a OLD",
+        "DEL b",
+        "RESET 2",
+        "GET a",
+        "LAYOUT",
+        "PUT z Z",
+        "FLUSH",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "NOT_FOUND",
+        "MEM 0",
+        "END",
+        "OK",
+        "OK",
+        "MEM 0",
+        "FILE 1 0 1 z z",
+        "END"
+      ]
+    },
+    {
+      "name": "input-stream",
+      "refs": [
+        "3.1",
+        "3.4",
+        "3.5"
+      ],
+      "quote": "토큰이 없는 줄은 출력 없이 무시한다.",
+      "input": [
+        "",
+        " \t ",
+        " \tRESET\t 2\r",
+        "PUT\t a\tA                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ",
+        "\tGET  a \t\r",
+        "\tLAYOUT\t",
+        ""
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "VALUE A",
+        "MEM 1",
+        "END"
+      ]
+    },
+    {
+      "name": "initial-commands",
+      "refs": [
+        "4.1",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "저장소는 프로그램 시작 시에는 없다.",
+      "input": [
+        "GET a",
+        "PUT a A",
+        "DEL a",
+        "FLUSH",
+        "LAYOUT",
+        "RESET 0",
+        "GET a",
+        "RESET 1",
+        "GET a"
+      ],
+      "expected": [
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "OK",
+        "NOT_FOUND"
+      ]
+    },
+    {
+      "name": "capacity-validation",
+      "refs": [
+        "3.3",
+        "4.1",
+        "5.2"
+      ],
+      "quote": "이미 존재하는 저장소에 잘못된 RESET을 입력해도 기존 상태를 유지한다.",
+      "input": [
+        "RESET 2",
+        "PUT a A",
+        "RESET 0",
+        "RESET 4097",
+        "RESET -1",
+        "RESET +2",
+        "RESET 1.0",
+        "RESET 1e2",
+        "RESET 999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999",
+        "GET a",
+        "PUT b B",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "VALUE A",
+        "OK",
+        "MEM 0",
+        "FILE 1 0 2 a b",
+        "END"
+      ]
+    },
+    {
+      "name": "command-validation",
+      "refs": [
+        "3.2",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "입력 전체를 미리 거절하지 않고 줄마다 성공과 실패를 결정한다.",
+      "input": [
+        "RESET 2",
+        "PUT a A",
+        "PUT a B EXTRA",
+        "PUT A B",
+        "PUT a1_ B",
+        "PUT 0a B",
+        "PUT a bad-value",
+        "PUT a \"B\"",
+        "DEL a extra",
+        "GET",
+        "FLUSH extra",
+        "LAYOUT extra",
+        "reset 1",
+        "UNKNOWN",
+        "RESET 1 extra",
+        "GET a",
+        "PUT b B",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "ERROR",
+        "VALUE A",
+        "OK",
+        "MEM 0",
+        "FILE 1 0 2 a b",
+        "END"
+      ]
+    },
+    {
+      "name": "token-limits",
+      "refs": [
+        "3.2",
+        "3.3",
+        "4.1",
+        "4.2",
+        "5.2"
+      ],
+      "quote": "별도의 자리수 상한은 없고 정수의 유효성은 표기의 길이와 관계없이 수학적 값으로 판정한다.",
+      "input": [
+        "RESET 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004096",
+        "PUT aaaaaaaaaaaaaaaa ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "PUT aaaaaaaaaaaaaaaaa B",
+        "PUT b ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "GET aaaaaaaaaaaaaaaa",
+        "LAYOUT",
+        "RESET 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+        "PUT z Z",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERROR",
+        "ERROR",
+        "VALUE ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ",
+        "MEM 1",
+        "END",
+        "OK",
+        "OK",
+        "MEM 0",
+        "FILE 1 0 1 z z",
+        "END"
+      ]
+    },
+    {
+      "name": "empty-stream",
+      "refs": [
+        "3.1",
+        "3.4",
+        "4.5"
+      ],
+      "quote": "EOF에서는 자동 flush를 하지 않는다.",
+      "input": [
+        "",
+        " \t",
+        "\r"
+      ],
+      "expected": []
+    },
+    {
+      "name": "version-sequence",
+      "refs": [
+        "4.3",
+        "4.4",
+        "4.6",
+        "4.7",
+        "4.8"
+      ],
+      "quote": "키를 처음 발견한 레코드가 값이면 `VALUE <value>`, 툼스톤이면 `NOT_FOUND`를 출력하고 조회를 끝낸다.",
+      "input": [
+        "RESET 1",
+        "PUT a OLD",
+        "DEL a",
+        "DEL a",
+        "GET a",
+        "PUT a BACK",
+        "GET a",
+        "DEL z",
+        "GET z",
+        "GET a",
+        "LAYOUT",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "NOT_FOUND",
+        "OK",
+        "VALUE BACK",
+        "OK",
+        "NOT_FOUND",
+        "VALUE BACK",
+        "MEM 0",
+        "FILE 1 0 1 a a",
+        "FILE 2 0 1 a a",
+        "FILE 3 0 1 a a",
+        "FILE 4 0 1 a a",
+        "FILE 5 0 1 z z",
+        "END",
+        "MEM 0",
+        "FILE 1 0 1 a a",
+        "FILE 2 0 1 a a",
+        "FILE 3 0 1 a a",
+        "FILE 4 0 1 a a",
+        "FILE 5 0 1 z z",
+        "END"
+      ]
+    },
+    {
+      "name": "mixed-commands",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "생성 입력의 GET 결과는 PUT과 DEL을 바로 반영하는 단순한 맵 모형과 대조한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--mode",
+        "mixed",
+        "--commands",
+        "4000",
+        "--keys",
+        "80",
+        "--capacity",
+        "4"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "mixed-storage",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "생성 입력의 GET 결과는 PUT과 DEL을 바로 반영하는 단순한 맵 모형과 대조한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--mode",
+        "mixed",
+        "--commands",
+        "4000",
+        "--keys",
+        "32",
+        "--capacity",
+        "1"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "large-workload",
+      "refs": [
+        "7.3"
+      ],
+      "quote": "대규모 입력은 RESET 1줄, 서로 다른 키를 쓰는 PUT 100,000줄, GET 90,000줄로 총 190,001줄이며 capacity는 1,024이다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--mode",
+        "scale",
+        "--writes",
+        "100000",
+        "--gets",
+        "90000",
+        "--keys",
+        "100000",
+        "--capacity",
+        "1024"
+      ],
+      "repeat": 2,
+      "timeout_sec": 60
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "title": "LSM 저장소",
+  "kind": "build",
+  "summary": "메모리 테이블과 정렬 파일, 레벨 압축, 블룸 필터로 이뤄진 LSM 키-값 저장소를 만들고 쓰기·공간 증폭과 거짓 양성을 센다.",
+  "stages": [
+    { "dir": "01-memtable", "title": "메모리 테이블과 툼스톤" },
+    { "dir": "02-compaction", "title": "레벨 압축과 증폭" },
+    { "dir": "03-bloom-and-range", "title": "블룸 필터와 범위 조회" }
+  ]
+}

@@ -152,7 +152,7 @@
 
 ## 5. 오류 규칙
 
-[5.1] 1단계와 2단계의 오류 규칙을 그대로 따른다. 명령어 목록에 GATEWAY, RW, ATOMIC, LOCAL, CALL, PEEK, DOWN, UP 이 더해진다. 이제 명령어가 이 트랙의 열세 명령 가운데 어느 것과도 정확히 같지 않으면 언제나 `ERR UNKNOWN_COMMAND` 다.
+[5.1] 1단계와 2단계의 오류 규칙을 그대로 따른다. 명령어 목록에 GATEWAY, RW, ATOMIC, LOCAL, CALL, PEEK, DOWN, UP 이 더해진다. CLIENT, TRY, CSTAT 은 4단계에서 명령이 되므로 이 문서는 1단계 5.2 와 같이 명령어가 이 세 가지 가운데 하나인 줄이 처음 나온 곳부터 입력 끝까지 모든 줄의 출력을 정하지 않는다. 그 밖에 명령어가 이 트랙의 열세 명령 가운데 어느 것과도 정확히 같지 않으면 언제나 `ERR UNKNOWN_COMMAND` 다.
 
 [5.2] 인자 수는 GATEWAY 4, RW 3, ATOMIC 3, LOCAL 4, CALL 5, PEEK 3, DOWN 1, UP 1 이다. 인자 수가 맞지 않거나 인자가 형식에 맞지 않으면 `ERR BAD_ARGUMENT` 다. 게이트웨이 자리는 3.2 의 이름이어야 하고 등급 자리는 3.3 의 등급이어야 한다.
 

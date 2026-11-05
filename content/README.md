@@ -21,7 +21,7 @@
 | `es-cluster` | build | 3 |
 | `mini-olap` | build | 5 |
 | `dataflow` | build | 4 |
-| `rate-limiter` | build | 3 |
+| `rate-limiter` | build | 4 |
 | `mvcc` | build | 3 |
 | `raft` | build | 3 |
 | `table-format` | build | 3 |
@@ -36,6 +36,8 @@
 | `mcp-server` | build | 3 |
 | `consistent-hashing` | build | 3 |
 | `leaderboard` | build | 3 |
+| `lsm` | build | 3 |
+| `lease-lock` | build | 2 |
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
 | `jvm-lab` | lab | 3 |

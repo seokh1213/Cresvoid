@@ -10,9 +10,9 @@
 | [구현](implementation/README.md) | 32 | 6 | 0 | 26 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 1 | 0 | 4 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
-| [데이터베이스](backend/database/README.md) | 8 | 1 | 4 | 3 | 0 |
+| [데이터베이스](backend/database/README.md) | 8 | 0 | 4 | 4 | 0 |
 | [설계 패턴](backend/design-patterns/README.md) | 11 | 1 | 0 | 10 | 0 |
-| [분산 시스템](backend/distributed/README.md) | 8 | 4 | 0 | 4 | 0 |
+| [분산 시스템](backend/distributed/README.md) | 8 | 3 | 0 | 5 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [JVM](backend/jvm/README.md) | 4 | 1 | 0 | 3 | 0 |
@@ -26,8 +26,8 @@
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 1 | 0 | 10 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
-| [시스템 설계](backend/system-design/README.md) | 17 | 11 | 0 | 6 | 0 |
-| 합계 | 185 | 34 | 24 | 125 | 2 |
+| [시스템 설계](backend/system-design/README.md) | 17 | 10 | 0 | 7 | 0 |
+| 합계 | 185 | 31 | 24 | 128 | 2 |
 
 ## 다음 후보
 
@@ -35,8 +35,6 @@
 
 | 차수 | 카드 | 제목 | 종류 | 트랙 | 단계 | 환경 |
 |---|---|---|---|---|---|---|
-| 4 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 없음 |
-| 4 | [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 없음 |
 | 4 | [B-kv-store-10](implementation/cards/B-kv-store-10-kv-store.md) | 키-값 저장소 | build | kv-store | 01-basic, 02-log, 03-transactions | 없음 |
 | 4 | [B-lakehouse-20](backend/lakehouse/cards/B-lakehouse-20-columnar.md) | 열 지향 파일 만들기 | build | columnar | 01-encode, 02-pruning, 03-nested | 없음 |
 | 4 | [L-network-10](backend/network/cards/L-network-10-keepalive-race.md) | keep-alive 수명의 경합 | lab | net-lab | keepalive-race | 없음 |
@@ -45,7 +43,6 @@
 | 4 | [B-pipeline-50](backend/pipeline/cards/B-pipeline-50-index-overlay.md) | 운영과 실험의 변경을 합치는 병합기 만들기 | build | index-overlay | 01-current-state, 02-round-merge, 03-replay | 없음 |
 | 4 | [B-record-range-10](implementation/cards/B-record-range-10-record-range.md) | 레코드 경계를 지키는 파일 분할기 만들기 | build | record-range | 01-lines, 02-json-ranges, 03-range-read | 없음 |
 | 4 | [B-search-60](backend/search/cards/B-search-60-result-placement.md) | 제약을 만족하는 검색 결과 배치기 만들기 | build | result-placement | 01-ordered, 02-constraints, 03-exact-search | 없음 |
-| 4 | [B-system-design-25](backend/system-design/cards/B-system-design-25-client-throttling.md) | 호출자 쪽 적응형 쓰로틀링 | build | rate-limiter | 04-client-throttle | 없음 |
 | 4 | [B-system-design-60](backend/system-design/cards/B-system-design-60-crawler.md) | 웹 크롤러 만들기 | build | crawler | 01-frontier, 02-dedup, 03-politeness | 없음 |
 | 4 | [B-system-design-70](backend/system-design/cards/B-system-design-70-news-feed.md) | 뉴스 피드 팬아웃 만들기 | build | news-feed | 01-fanout-on-write, 02-fanout-on-read, 03-hybrid | 없음 |
 | 4 | [B-system-design-80](backend/system-design/cards/B-system-design-80-chat.md) | 채팅 순서와 동기화 만들기 | build | chat | 01-sequencing, 02-sync, 03-presence | 없음 |
@@ -108,9 +105,9 @@
 | kafka-lab | lab | 있음 | 03 | 01-rebalance(L-messaging-40 완료), 02-durability(L-messaging-41 완료) |  |
 | kv-store | build | 없음 | 04 |  | 01-basic(B-kv-store-10 4차), 02-log(B-kv-store-10 4차), 03-transactions(B-kv-store-10 4차) |
 | leaderboard | build | 있음 | 04 | 01-sorted-set(B-system-design-130 완료), 02-range-queries(B-system-design-130 완료), 03-sharding(B-system-design-130 완료) |  |
-| lease-lock | build | 없음 | 04 |  | 01-acquisition(B-distributed-60 4차), 02-expiry(B-distributed-60 4차), 03-fenced-writes(B-distributed-80 5차) |
+| lease-lock | build | 있음 | 04 | 01-acquisition(B-distributed-60 완료), 02-expiry(B-distributed-60 완료) | 03-fenced-writes(B-distributed-80 5차) |
 | ledger | build | 있음 | 04 | 01-double-entry(B-system-design-40 완료), 02-psp-idempotency(B-system-design-40 완료), 03-reconciliation(B-system-design-40 완료) |  |
-| lsm | build | 없음 | 04 |  | 01-memtable(B-database-30 4차), 02-compaction(B-database-30 4차), 03-bloom-and-range(B-database-30 4차) |
+| lsm | build | 있음 | 04 | 01-memtable(B-database-30 완료), 02-compaction(B-database-30 완료), 03-bloom-and-range(B-database-30 완료) |  |
 | matching-engine | build | 있음 | 04 | 01-order-book(B-system-design-50 완료), 02-order-types(B-system-design-50 완료), 03-replay(B-system-design-50 완료) |  |
 | mcp-server | build | 있음 | 04 | 01-tools(B-ai-agent-40 완료), 02-resources-prompts(B-ai-agent-40 완료), 03-errors-and-versions(B-ai-agent-40 완료) |  |
 | metrics | build | 있음 | 04 | 01-counters(B-observability-20 완료), 02-histograms(B-observability-20 완료), 03-slo-alerts(B-observability-20 완료) |  |
@@ -128,7 +125,7 @@
 | pipeline-lab | lab | 있음 | 02 | 01-candidate-recall(L-pipeline-90 완료) |  |
 | raft | build | 있음 | 04 | 01-election(B-distributed-20 완료), 02-replication(B-distributed-20 완료), 03-commit(B-distributed-20 완료) |  |
 | rag | build | 있음 | 05 | 01-chunking(B-ai-agent-30 완료), 02-retrieval(B-ai-agent-30 완료), 03-hybrid(B-ai-agent-30 완료), 04-eval(B-ai-agent-30 완료) |  |
-| rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료) | 04-client-throttle(B-system-design-25 4차) |
+| rate-limiter | build | 있음 | 05 | 01-buckets(B-system-design-20 완료), 02-windows(B-system-design-20 완료), 03-distributed(B-system-design-20 완료), 04-client-throttle(B-system-design-25 완료) |  |
 | reading | reading | 있음 | 16 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 완료), 05-key-exchange(R-technology-10 완료), 06-rescission(R-society-10 완료), 07-saussure(R-humanities-10 완료), 08-perspective(R-art-10 완료), 09-falsification(R-interdisciplinary-10 완료), 10-carnot(R-science-20 완료), 11-monetary-policy(R-society-20 완료), 12-congestion-control(R-technology-20 완료), 13-source-criticism(R-humanities-20 완료), 14-plate-tectonics(R-science-30 완료), 15-prospect-theory(R-society-30 완료) |  |
 | record-range | build | 없음 | 04 |  | 01-lines(B-record-range-10 4차), 02-json-ranges(B-record-range-10 4차), 03-range-read(B-record-range-10 4차) |
 | regex | build | 없음 | 04 |  | 01-basic(B-regex-10 5차), 02-classes(B-regex-10 5차), 03-linear(B-regex-10 5차) |
@@ -242,7 +239,7 @@
 |---|---|---|---|---|---|---|---|---|
 | [R-database-10](backend/database/cards/R-database-10-mvcc-isolation.md) | MVCC 와 격리 수준 | reading | tech-reading | 08-mvcc-isolation | 완료(2026-10-10) | 4 | 없음 |  |
 | [B-database-20](backend/database/cards/B-database-20-mvcc.md) | 트랜잭션 격리 엔진 만들기 | build | mvcc | 01-snapshot, 02-locking, 03-serializable | 완료(2026-10-10) | 3 | 없음 | R-database-10 |
-| [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 후보 | 4 | 없음 |  |
+| [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 완료(2026-11-06) | 4 | 없음 |  |
 | [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | 13-online-resharding | 완료(2026-11-05) | 4 | 없음 | R-database-10 |
 | [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | 01-gap-lock | 제작 중 | 4 | docker | R-database-10 |
 | [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | 02-metadata-lock | 제작 중 | 4 | docker | R-database-10 |
@@ -278,7 +275,7 @@
 | [B-distributed-30](backend/distributed/cards/B-distributed-30-crdt.md) | 복제 자료형 만들기 | build | crdt | 01-counters, 02-sets-and-registers, 03-convergence | 후보 | 5 | 없음 |  |
 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 후보 | 5 | 없음 | B-distributed-20 |
-| [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 후보 | 4 | 없음 |  |
+| [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 완료(2026-11-06) | 4 | 없음 |  |
 | [F-distributed-70](backend/distributed/cards/F-distributed-70-late-lock-release.md) | 늦은 해제가 새 잠금을 지우는 버그 | fix | bug-fix | 12-late-lock-release | 완료(2026-11-06) | 4 | 없음 | B-distributed-60 |
 | [B-distributed-80](backend/distributed/cards/B-distributed-80-fenced-writes.md) | 저장소가 검사하는 펜싱 토큰 만들기 | build | lease-lock | 03-fenced-writes | 후보 | 5 | 없음 | B-distributed-60 |
 
@@ -461,7 +458,7 @@
 |---|---|---|---|---|---|---|---|---|
 | [R-system-design-10](backend/system-design/cards/R-system-design-10-capacity-estimation.md) | 규모 추정 | reading | tech-reading | 07-capacity-estimation | 완료(2026-10-10) | 3 | 없음 |  |
 | [B-system-design-20](backend/system-design/cards/B-system-design-20-rate-limiter.md) | 처리율 제한기 만들기 | build | rate-limiter | 01-buckets, 02-windows, 03-distributed | 완료(2026-10-10) | 3 | 없음 |  |
-| [B-system-design-25](backend/system-design/cards/B-system-design-25-client-throttling.md) | 호출자 쪽 적응형 쓰로틀링 | build | rate-limiter | 04-client-throttle | 후보 | 4 | 없음 | B-system-design-20 |
+| [B-system-design-25](backend/system-design/cards/B-system-design-25-client-throttling.md) | 호출자 쪽 적응형 쓰로틀링 | build | rate-limiter | 04-client-throttle | 완료(2026-11-06) | 4 | 없음 | B-system-design-20 |
 | [B-system-design-30](backend/system-design/cards/B-system-design-30-id-generator.md) | 분산 고유 ID 생성기 만들기 | build | id-generator | 01-snowflake, 02-sharded-ids, 03-ordering | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-40](backend/system-design/cards/B-system-design-40-ledger.md) | 결제 원장 만들기 | build | ledger | 01-double-entry, 02-psp-idempotency, 03-reconciliation | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 완료(2026-11-06) | 3 | 없음 |  |

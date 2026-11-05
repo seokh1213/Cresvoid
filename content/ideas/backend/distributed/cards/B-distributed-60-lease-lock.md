@@ -4,7 +4,7 @@ title: 가상 시간의 lease 잠금 만들기
 kind: build
 track: lease-lock
 stage: 01-acquisition, 02-expiry
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

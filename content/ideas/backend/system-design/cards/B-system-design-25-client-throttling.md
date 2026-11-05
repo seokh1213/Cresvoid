@@ -4,7 +4,7 @@ title: 호출자 쪽 적응형 쓰로틀링
 kind: build
 track: rate-limiter
 stage: 04-client-throttle
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq: B-system-design-20
