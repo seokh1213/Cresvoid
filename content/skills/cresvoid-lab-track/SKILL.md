@@ -14,7 +14,7 @@ description: cresvoid lab 트랙의 실험 단계를 만든다. 스펙, Kotlin H
 3. 교차 검증자가 참조 풀이, 시작 코드, 실패 변형, 블라인드 구현을 실험하고 `cresvoid validate <트랙>`을 실행한다. 스펙을 기준으로 차이를 고친다. 공개 스펙이나 시작 코드를 고쳤으면 새로운 블라인드 구현으로 다시 확인한다.
 4. 학습자 검토자가 설명, 코드 수정 범위, 지표와 문항의 이해 가능성을 검토한다. 수정 담당자는 타당한 지적을 반영한 뒤 같은 검증을 다시 실행한다. 완료 전 공통 확인과 기록은 `cresvoid-content`를 따른다.
 
-`hidden/experiment.main.kts`는 `hidden/`을 작업 디렉터리로 삼아 `kotlin <스크립트> <프로그램 절대 경로> <시나리오 이름>`으로 실행된다. 이 스크립트가 서비스를 띄우고 종료하며 HTTP 부하를 보내고 통계를 모은다. 표준 출력은 고유한 `METRIC <이름> <유한한 숫자>` 줄 최대 10개다. 종료 코드 0은 통과, 1은 불변식 실패, 그 밖은 실험 오류다. 시나리오마다 `refs`, 해당 문단의 정확한 `quote`, 양수 `timeout_sec`와 `repeat`를 `lab.json`에 적는다. `must_fail`은 `variants/<slug>` 경로 목록이다. 새 의존성을 요구하지 않는다. JDK 21과 이미 승인된 Kotlin·kotlinx.coroutines만 쓴다.
+`hidden/experiment.main.kts`는 `hidden/`을 작업 디렉터리로 삼아 `kotlin <스크립트> <프로그램 절대 경로> <시나리오 이름>`으로 실행된다. 이 스크립트가 서비스를 띄우고 종료하며 HTTP 부하를 보내고 통계를 모은다. 표준 출력은 고유한 `METRIC <이름> <유한한 숫자>` 줄 최대 10개다. 종료 코드 0은 통과, 1은 불변식 실패, 그 밖은 실험 오류다. 시나리오마다 `refs`, 해당 문단의 정확한 `quote`, 양수 `timeout_sec`와 `repeat`를 `lab.json`에 적는다. `must_fail`은 `variants/<slug>` 경로 목록이다. 새 의존성을 요구하지 않는다. JDK 21과 이미 승인된 Kotlin·kotlinx.coroutines만 쓴다. 부하와 측정은 `content/lab-env/load.main.kts`를, 외부 서비스는 `content/lab-env/`의 고정 Docker 이미지와 `docker.main.kts`를 쓴다. 계약은 `content/lab-env/README.md`에 있다.
 
 ## 워크플로우 인자
 

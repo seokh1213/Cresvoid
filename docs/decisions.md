@@ -132,3 +132,9 @@ Codex 에는 Workflow 도구가 없다. 실행기는 workflow.js 를 고치지 �
 
 문항 화면은 `stty` 와 ANSI 순서열로 만든 전체 화면이다. 엔진 실행 코드는 Kotlin 표준 라이브러리와 JDK 만 쓰므로 TUI 라이브러리를 들이지 않았다. 터미널 설정은 닫을 때와 JVM 종료 훅에서 되돌린다. 파이프 입력이나 `stty` 를 쓸 수 없는 환경에서는 줄 입력 방식을 그대로 쓴다.
 
+## D33. lab 의 외부 서비스는 digest 로 고정한 Docker 이미지로 띄우고 부하는 Kotlin 으로 만든다 (2026-11-05)
+
+외부 서비스가 필요한 lab 은 학습자 기기에 Redis 같은 서비스를 설치하게 하지 않고 Docker 로 띄운다. 사용자가 일관된 실습 환경을 위해 이미지에 환경을 담자고 정했다. 이미지는 `content/lab-env/docker.main.kts`의 `LAB_IMAGES`에 digest 로 고정하고, 단계의 `hidden/compose.yaml`이 healthcheck 와 CPU·메모리 한도를 정한다. 실행마다 다른 compose 프로젝트 이름과 임의 포트를 써서 동시 실행이 겹치지 않고, 끝나거나 중단될 때 컨테이너와 볼륨을 지운다.
+
+카드가 적은 k6 는 쓰지 않는다. k6 스크립트는 JavaScript 라 프로젝트 코드 언어 규칙(D19)과 맞지 않고, 코루틴 lab 이 이미 JDK HTTP 클라이언트로 개방형 부하를 만들었다. 공용 부하 도구는 `content/lab-env/load.main.kts`다. 학습자 프로그램이 서비스에 붙는 클라이언트도 새 라이브러리 대신 `content/lab-env/kotlin/`의 JDK 전용 구현을 쓴다. 엔진은 바꾸지 않았다. 실험 스크립트가 서비스 시작과 정리를 맡는 기존 계약 안에서 동작한다.
+

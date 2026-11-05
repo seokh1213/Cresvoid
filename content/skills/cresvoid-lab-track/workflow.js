@@ -94,6 +94,8 @@ const COMMON = [
   'Kotlin 코드를 쓰기 전에 설치된 kotlin-core-best-practices 스킬과 세션 코드 규칙을 읽는다.',
   '한국어 문서는 해라체로 쓰고 초안 완성 후 korean-writing-guide 를 정확히 한 번 적용한다.',
   '새 의존성은 요구하거나 설치하지 않는다. JDK 21과 기존 Kotlin 템플릿, 이미 승인된 kotlinx.coroutines만 사용한다.',
+  '부하와 측정은 ' + ROOT + '/content/lab-env/load.main.kts 를 @file:Import 로 불러 쓴다. k6 같은 외부 부하 도구는 쓰지 않는다.',
+  'Redis 같은 외부 서비스가 필요하면 ' + ROOT + '/content/lab-env/README.md 를 읽고 그 계약대로 hidden/compose.yaml 과 docker.main.kts 를 쓴다. 이미지는 docker.main.kts 의 LAB_IMAGES 에 고정된 것만 쓰고, 새 이미지가 필요하면 만들지 말고 remaining 에 적는다.',
 ].join('\n')
 
 function stageDir(stage) { return TRACK_DIR + '/stages/' + stage.dir }
