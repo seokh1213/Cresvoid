@@ -23,6 +23,7 @@
 | 기반 | JVM | [jvm](jvm/README.md) | 힙 크기, ThreadLocal, JIT, 스레드 덤프 |
 | 기반 | 네트워크 | [network](network/README.md) | keep-alive, 타임아웃 |
 | 기반 | 코루틴 | [coroutines](coroutines/README.md) | 중단과 재개, 구조적 동시성, 취소, 예외 전파, 디스패처, Flow |
+| 기반 | 설계 패턴 | [design-patterns](design-patterns/README.md) | GoF 생성·구조·행위 패턴, 스레드 동시성 패턴 |
 | 운영 | 장애 보고서 | [incidents](incidents/README.md) | 공개 사후 보고서의 원인 사슬, 회복 지연, 재발 방지책 |
 
 ## 2. 도메인 하나를 배우는 순서

@@ -6,6 +6,8 @@ Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 �
 
 파일 구간 처리 후보는 [B-record-range-10](cards/B-record-range-10-record-range.md), [F-kotlin-130](cards/F-kotlin-130-byte-offset.md), [F-kotlin-140](cards/F-kotlin-140-short-read.md)에 추가했다. 전체 실무 학습 경로와 기존 카드의 연결은 [실무 문제 학습 계획](../engineering-practice.md)에 있다. 세 카드는 아직 후보이며 실제 단계는 없다.
 
+짧은 알고리즘 문제는 주제별 명령 묶음으로 [B-algorithm-drills-10](cards/B-algorithm-drills-10-algorithm-drills.md)에 모았다. 문제 하나가 단계 하나가 되지 않도록 묶는 기준은 D30을 따른다.
+
 ## 1. build: 스펙을 읽고 끝까지 구현한다
 
 ### 1.1 주제 선정 기준

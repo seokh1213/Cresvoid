@@ -54,7 +54,7 @@
 ## 3. 학습 경로
 
 1. R-system-design-10 기술 지문으로 규모 추정을 익힌다.
-2. 구성 요소 구현은 서로 독립적이다. 처리율 제한기(B-system-design-20), ID 생성기(B-system-design-30), 원장(B-system-design-40), 매칭 엔진(B-system-design-50)을 먼저 권한다. 나머지는 관심 순서로 한다.
+2. 구성 요소 구현은 서로 독립적이다. 처리율 제한기(B-system-design-20, 호출자 쪽은 B-system-design-25), ID 생성기(B-system-design-30), 원장(B-system-design-40), 매칭 엔진(B-system-design-50)을 먼저 권한다. 나머지는 관심 순서로 한다.
 
 ## 4. 환경
 

@@ -41,7 +41,7 @@ Kotlin 코루틴의 실행 원리, 구조적 동시성, 취소, 예외 전파, �
 
 1. R-coroutines-10 기술 지문으로 상태 기계, 구조적 동시성, 취소, 예외 전파를 익힌다.
 2. B-coroutines-20 `coroutine-patterns` 트랙에서 kotlinx.coroutines 로 동시 호출, 동시 실행 상한, Channel 파이프라인, Flow 처리를 직접 짠다.
-3. C-coroutines-30·C-coroutines-32 코드 읽기와 F-coroutines-31 버그 수정으로 남이 짠 코루틴 코드의 실행 순서와 함정을 만난다.
+3. C-coroutines-30·C-coroutines-32 코드 읽기와 F-coroutines-31·F-coroutines-34 버그 수정으로 남이 짠 코루틴 코드의 실행 순서와 함정을 만난다.
 4. B-coroutines-35 `coroutine-patterns` 05·06 단계에서 묶음 저장과 요청 합치기를 실험 표시 없는 API 로 직접 설계한다.
 5. B-coroutines-40 `coroutine-runtime` 01~08단계에서 표준 라이브러리의 기본 요소로 작은 실행기, pull 시퀀스와 수동 상태 기계를 만들어 앞에서 쓴 의미론을 안쪽부터 확인한다.
 6. L-coroutines-50 `coroutine-lab` 실험에서 블로킹 호출이 빠른 요청을 지연시키는 과정을 측정하고 고친다.
@@ -49,7 +49,7 @@ Kotlin 코루틴의 실행 원리, 구조적 동시성, 취소, 예외 전파, �
 ## 3. 환경
 
 - R-coroutines-10, B-coroutines-40 은 추가 도구가 필요 없다.
-- B-coroutines-20, C-coroutines-30, F-coroutines-31, C-coroutines-32, B-coroutines-35, L-coroutines-50 은 kotlinx-coroutines-core 를 쓰고 가상 시간이 필요한 카드는 kotlinx-coroutines-test 도 쓴다(`env: kotlinx-coroutines`). 사용자가 두 의존성을 허용했다(D16).
+- B-coroutines-20, C-coroutines-30, F-coroutines-31, C-coroutines-32, F-coroutines-34, B-coroutines-35, L-coroutines-50 은 kotlinx-coroutines-core 를 쓰고 가상 시간이 필요한 카드는 kotlinx-coroutines-test 도 쓴다(`env: kotlinx-coroutines`). 사용자가 두 의존성을 허용했다(D16).
 - 버전은 1.11.0 으로 고정했다. jar 원본은 `content/templates/kotlin/lib/` 에 있고, kotlinx.coroutines 를 쓰는 프로젝트는 `lib/` 를 두면 sync 가 jar 를 복사한다(D21).
 - 1.11.0 에서 실험 표시가 붙은 API 는 학습자에게 요구하지 않는다. `chunked`, `flatMapMerge`, `flatMapConcat`, `flatMapLatest`, `mapLatest`, `produce`, `select` 의 `onTimeout` 은 `@ExperimentalCoroutinesApi` 다. `debounce`, `sample`, Flow 의 `timeout` 은 `@FlowPreview`, `actor`, `ticker` 는 `@ObsoleteCoroutinesApi`, `GlobalScope` 는 `@DelicateCoroutinesApi` 다. `select` 와 `onReceive`, `channelFlow`, `callbackFlow`, `shareIn`, `stateIn`, `merge`, `Mutex`, `Semaphore`, `CompletableDeferred`, `SupervisorJob`, `withTimeoutOrNull` 에는 표시가 없다. 2026-10-12 에 1.11.0 jar 로 컴파일해 경고로 확인했다.
 - 가상 스레드와의 비교는 JDK 21 만으로 할 수 있다.
