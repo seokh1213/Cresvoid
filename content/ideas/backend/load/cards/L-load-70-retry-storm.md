@@ -3,10 +3,10 @@ id: L-load-70
 title: 타임아웃, 재시도, 백오프
 kind: lab
 track: backend-lab
-stage: retry-storm
-status: 후보
+stage: 07-retry-storm
+status: 제작 중
 wave: 5
-env: k6
+env: 없음
 prereq:
 ---
 

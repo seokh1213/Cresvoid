@@ -1,0 +1,82 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": ["PARSE 모자 OR 셔츠 NOT 세일 OR 신발 AND 양말"],
+      "answers": ["TREE OR(OR(TERM(모자),AND(TERM(셔츠),NOT(TERM(세일)))),AND(TERM(신발),TERM(양말))) | QUERY ((모자 OR (셔츠 AND NOT 세일)) OR (신발 AND 양말))"],
+      "refs": ["QueryParser.kt:10-30", "QueryParser.kt:90-100", "QueryOutput.kt:26-41"],
+      "quote": "query = SearchQuery.Or(query, parseAnd())",
+      "explanation": "QueryParser.kt:18-30에서 셔츠 다음의 NOT은 새 피연산자의 시작이므로 셔츠 AND NOT 세일이 된다. 신발 AND 양말도 각각의 parseAnd 호출 안에서 묶인다. 10-15줄의 OR 반복문은 기존 query를 왼쪽 자식으로 넣으므로 OR(OR(모자, 셔츠 AND NOT 세일), 신발 AND 양말) 구조다. NOT이 앞선 셔츠까지 감싸거나 OR가 오른쪽으로 결합한다고 읽으면 트리가 달라진다. QueryOutput.kt:26-41은 이 구조를 그대로 두 출력 형식으로 옮긴다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력의 출력 한 줄은?",
+      "input": ["PARSE NOT (모자 OR (셔츠 price:..5000)) 신발 OR NOT NOT 양말"],
+      "answers": ["TREE OR(AND(NOT(OR(TERM(모자),AND(TERM(셔츠),PRICE(*,5000)))),TERM(신발)),NOT(NOT(TERM(양말)))) | QUERY ((NOT (모자 OR (셔츠 AND price:..5000)) AND 신발) OR NOT NOT 양말)"],
+      "refs": ["QueryParser.kt:18-30", "QueryParser.kt:53-79", "QueryParser.kt:82-87", "QueryOutput.kt:26-41"],
+      "quote": "val lowerText = range.substring(0, separator)",
+      "explanation": "QueryParser.kt:53-57의 안쪽 괄호 호출에서 셔츠와 가격 조건을 AND로 묶고 RIGHT를 소비한다. 바깥 괄호는 모자와 그 AND를 OR로 묶은 뒤 닫힌다. 첫 NOT은 그 괄호 전체만 감싼다. 이어지는 신발은 18-24줄에서 암묵적 AND로 붙는다. 64-72줄에서 범위 문자열은 ..5000이고 separator는 0이다. substring의 끝 인덱스는 제외되므로 lowerText는 빈 문자열, upperText는 5000이다. 83줄이 빈 하한을 null로 바꾸므로 PRICE(*,5000)이다. 마지막 NOT 두 개는 29-30줄의 재귀 호출로 보존되며 서로 상쇄되지 않는다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "마지막 큰따옴표가 닫히지 않은 다음 입력의 출력 한 줄은?",
+      "input": ["PARSE NOT (\" 봄   세일 \" OR 모자) \"여름   신상"],
+      "answers": ["TREE AND(NOT(OR(PHRASE(\"봄 세일\"),TERM(모자))),PHRASE(\"여름 신상\")) | QUERY (NOT (\"봄 세일\" OR 모자) AND \"여름 신상\")"],
+      "refs": ["QueryTokenizer.kt:56-63", "QueryParser.kt:18-30", "QueryParser.kt:39-57", "QueryOutput.kt:26-41"],
+      "quote": "val end = if (closingQuote == -1) source.length else closingQuote",
+      "explanation": "QueryTokenizer.kt:58-62에서 첫 구문은 닫는 따옴표 직전까지만 잘라 내고 그 다음 문자부터 토큰화를 계속한다. 마지막 구문에서는 indexOf가 -1이므로 문자열 끝까지 잘라 PHRASE 토큰을 만든다. QueryParser.kt:41-43은 앞뒤 공백에서 생긴 빈 요소를 제거하고 내부 공백도 단어 목록으로 정리한다. 53-57줄이 괄호를 닫은 뒤 29-30줄의 NOT이 반환된다. 마지막 PHRASE는 23줄의 암묵적 AND로 붙는다. 닫는 따옴표가 없다고 예외를 던지거나 마지막 구문까지 NOT 안에 넣지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "다음 입력을 처리한 뒤 만들어지는 트리에 대한 설명으로 옳은 것은?",
+      "context": "PARSE 모자 OR 셔츠 AND NOT (신발 OR 양말) price:1000..",
+      "choices": [
+        "루트는 AND이고, 왼쪽 자식은 모자와 셔츠를 묶은 OR다. 마지막 가격 조건은 트리 전체에 적용된다.",
+        "루트는 OR이고, 오른쪽 자식은 AND(셔츠, AND(NOT(OR(신발, 양말)), PRICE(1000,*))) 구조다.",
+        "루트는 OR이고, 오른쪽 자식은 AND(AND(셔츠, NOT(OR(신발, 양말))), PRICE(1000,*)) 구조다.",
+        "루트는 OR이고, 오른쪽 AND의 NOT은 OR(신발, 양말)과 PRICE(1000,*)를 함께 감싼다."
+      ],
+      "answer": 3,
+      "refs": ["QueryParser.kt:10-30", "QueryParser.kt:53-87"],
+      "quote": "startsOperand(current().kind) -> SearchQuery.And(query, parseUnary())",
+      "explanation": "③이 맞다. QueryParser.kt:18-25에서 명시적 AND와 암묵적 AND가 같은 반복문의 기존 query를 왼쪽 자식으로 삼아 새 AND를 만든다. ①은 10-15줄의 parseOr가 오른쪽 parseAnd를 끝까지 받은 뒤 OR를 만든다는 점을 놓쳤다. ②는 AND를 오른쪽 결합으로 읽었다. ④는 29-30줄의 NOT이 괄호 하나를 파싱한 뒤 반환한다는 점을 놓쳤다. 69-83줄의 빈 상한은 null이다. 실행 출력은 TREE OR(TERM(모자),AND(AND(TERM(셔츠),NOT(OR(TERM(신발),TERM(양말)))),PRICE(1000,*))) | QUERY (모자 OR ((셔츠 AND NOT (신발 OR 양말)) AND price:1000..)) 이다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "QueryParser.kt의 구문 단어 처리에서 .filter { it.isNotEmpty() } 한 줄만 제거한 뒤 다음 입력을 처리했을 때의 변화로 옳은 것은?",
+      "context": "PARSE NOT (모자 OR \"   봄   신상\") 양말\n큰따옴표 바로 뒤에는 공백 3개가 있고, 신상 바로 뒤에 닫는 큰따옴표가 있다.",
+      "choices": [
+        "트리의 연산자 배치는 그대로이고 PHRASE의 내용과 정규화한 구문 앞에 공백 1개가 남는다.",
+        "split이 앞 공백을 버리므로 트리와 정규화한 검색어가 모두 기존과 같다.",
+        "빈 요소가 생기므로 empty-phrase 오류가 발생하고 트리는 출력되지 않는다.",
+        "구문 앞의 빈 요소가 별도 TERM이 되어 NOT 바깥에서 양말과 AND로 묶인다."
+      ],
+      "answer": 1,
+      "refs": ["QueryParser.kt:39-47", "QueryParser.kt:18-30", "QueryOutput.kt:26-41"],
+      "quote": ".filter { it.isNotEmpty() }",
+      "explanation": "①이 맞다. QueryParser.kt:41의 split 결과는 [빈 문자열, 봄, 신상]이고 43줄의 lowercase는 빈 문자열도 유지한다. QueryOutput.kt:28,37에서 공백으로 연결하면 구문 앞에 공백 하나가 남는다. ②는 Regex split이 앞쪽 빈 요소를 보존한다는 점을 놓쳤다. ③의 검사는 words.isEmpty()이며, 빈 문자열을 포함한 세 요소 목록은 비어 있지 않다. ④는 Phrase 하나를 만드는 47줄을 낱말마다 Term을 만드는 코드로 오독했다. 원본 출력은 TREE AND(NOT(OR(TERM(모자),PHRASE(\"봄 신상\"))),TERM(양말)) | QUERY (NOT (모자 OR \"봄 신상\") AND 양말) 이다. 변경 후 출력은 TREE AND(NOT(OR(TERM(모자),PHRASE(\" 봄 신상\"))),TERM(양말)) | QUERY (NOT (모자 OR \" 봄 신상\") AND 양말) 이다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "원본 프로그램에 다음 두 줄을 순서대로 입력했을 때의 처리 결과와 원인으로 옳은 것은?",
+      "context": "PARSE NOT (한글 OR 세일) price:..\nPARSE NOT (한글 OR 세일) price:..5000",
+      "choices": [
+        "두 줄 모두 한글을 낱말로 시작할 수 없으므로 character 오류가 난다.",
+        "첫 줄은 오류 없이 PRICE(*,*)가 붙은 AND 트리를, 둘째 줄은 PRICE(*,5000)이 붙은 AND 트리를 출력한다.",
+        "첫 줄은 price-range 오류가 나고, 처리되지 않은 첫 줄의 가격 토큰 때문에 둘째 줄도 price-range 오류가 난다.",
+        "첫 줄은 ERROR price-range@15를 출력하고, 둘째 줄은 NOT(OR(한글, 세일))과 PRICE(*,5000)을 묶은 AND 트리를 출력한다."
+      ],
+      "answer": 4,
+      "refs": ["QueryTokenizer.kt:27-37", "QueryParser.kt:53-87", "Main.kt:1-20"],
+      "quote": "if (lower == null && upper == null) {",
+      "explanation": "④가 맞다. QueryTokenizer.kt:36,81-82의 isLetterOrDigit은 한글 음절에도 true이므로 ①의 오류는 나지 않는다. QueryParser.kt:53-57에서 괄호를 끝내고 반환한 NOT 뒤에 가격 조건이 암묵적 AND로 붙는다. 69-74줄에서 첫 줄의 양쪽 경계가 모두 null이므로 PRICE(*,*)를 만들기 전에 실패한다. 따라서 ②는 틀리다. Main.kt:14-15는 매 줄 새 토크나이저와 파서를 만들고 17-18줄에서 오류를 출력 문자열로 바꾸므로 ③처럼 토큰 상태가 다음 줄로 넘어가지 않는다. 실제 첫 줄 출력은 ERROR price-range@15이며 트리가 없다. 둘째 줄 출력은 TREE AND(NOT(OR(TERM(한글),TERM(세일))),PRICE(*,5000)) | QUERY (NOT (한글 OR 세일) AND price:..5000) 이다."
+    }
+  ]
+}

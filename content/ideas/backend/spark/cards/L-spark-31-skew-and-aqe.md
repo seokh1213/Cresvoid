@@ -3,10 +3,10 @@ id: L-spark-31
 title: 데이터 쏠림과 적응 실행
 kind: lab
 track: spark-lab
-stage: skew-and-aqe
-status: 후보
+stage: 02-skew-and-aqe
+status: 제작 중
 wave: 4
-env: spark
+env: docker
 prereq: B-spark-20
 ---
 

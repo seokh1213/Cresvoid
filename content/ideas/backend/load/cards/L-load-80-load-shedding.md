@@ -3,10 +3,10 @@ id: L-load-80
 title: 과부하와 load shedding
 kind: lab
 track: backend-lab
-stage: load-shedding
-status: 후보
+stage: 08-load-shedding
+status: 제작 중
 wave: 5
-env: k6
+env: 없음
 prereq:
 ---
 

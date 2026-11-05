@@ -3,8 +3,8 @@ id: F-search-40
 title: 한글 정규화가 어긋난 상품 검색
 kind: fix
 track: bug-fix
-stage: hangul-normalization
-status: 후보
+stage: 16-hangul-normalization
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

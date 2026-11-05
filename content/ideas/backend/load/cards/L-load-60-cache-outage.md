@@ -3,10 +3,10 @@ id: L-load-60
 title: 캐시 장애와 원천 보호
 kind: lab
 track: backend-lab
-stage: cache-outage
-status: 후보
+stage: 06-cache-outage
+status: 제작 중
 wave: 3
-env: k6, redis
+env: redis
 prereq:
 ---
 

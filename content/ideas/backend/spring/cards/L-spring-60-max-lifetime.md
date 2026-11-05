@@ -3,10 +3,10 @@ id: L-spring-60
 title: maxLifetime 과 끊긴 연결
 kind: lab
 track: spring-lab
-stage: max-lifetime
-status: 후보
+stage: 06-max-lifetime
+status: 제작 중
 wave: 5
-env: maven
+env: docker
 prereq:
 ---
 

@@ -3,10 +3,10 @@ id: L-load-40
 title: 캐시 관통과 동시 만료
 kind: lab
 track: backend-lab
-stage: penetration-avalanche
-status: 후보
+stage: 04-penetration-avalanche
+status: 제작 중
 wave: 3
-env: k6, redis
+env: redis
 prereq:
 ---
 

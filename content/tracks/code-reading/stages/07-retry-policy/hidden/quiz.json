@@ -1,0 +1,105 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력을 새 프로세스에 주었을 때 출력되는 한 줄은?",
+      "input": [
+        "POLICY recovery 3 4000000000 40 NONE",
+        "OPEN pay recovery 17 32 3221225480",
+        "CALL pay HTTP503"
+      ],
+      "answers": [
+        "pay attempt=33 result=RETRY reason=HTTP503 wait=3221225472 remaining=8"
+      ],
+      "refs": [
+        "Backoff.kt:6-15",
+        "RetryPolicy.kt:39-61",
+        "PaymentGateway.kt:38-50"
+      ],
+      "quote": "val exponent = minOf(failedAttempt - 1, 30)",
+      "explanation": "RetryPolicy.kt:40-42에서 완료 시도 수 32가 33으로 증가한다. HTTP503은 PaymentGateway.kt:38-50에서 재시도할 수 있는 오류로 분류된다. Backoff.kt:9-12의 exponent는 32가 아니라 30이고 multiplier는 1073741824다. baseMs가 Double이므로 곱은 3221225472.0이며 Long 변환 뒤에도 3221225472다. 상한 4000000000보다 작고 NONE이므로 그대로 예약한다. RetryPolicy.kt:55-61에서 예산 3221225480에서 이를 빼면 8이다. 시도 횟수를 그대로 시프트하거나 Int끼리 곱한다고 읽으면 이 결과가 나오지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력을 새 프로세스에 주었을 때 출력되는 한 줄은?",
+      "input": [
+        "POLICY boundary 1e30 101 3 EQUAL",
+        "OPEN pay boundary 7 1 100",
+        "CALL pay HTTP503"
+      ],
+      "answers": [
+        "pay attempt=2 result=RETRY reason=HTTP503 wait=99 remaining=1"
+      ],
+      "refs": [
+        "Backoff.kt:9-19",
+        "RetryPolicy.kt:39-61"
+      ],
+      "quote": "val expandedMs = (policy.baseMs * multiplier).toLong()",
+      "explanation": "RetryPolicy.kt:41에서 이번 호출은 2회차가 된다. Backoff.kt:9-11에서 multiplier는 2이고 곱은 2e30이다. toLong()은 Long 범위를 넘는 이 양수를 Long.MAX_VALUE로 변환한다. Backoff.kt:12에서 101로 제한한 뒤 17-18에서 floorMs = 101 / 2 = 50을 계산한다. nextLong의 인자는 51이며 guide.md [8]의 첫 값 49를 더하면 대기 시간은 99다. RetryPolicy.kt:55-61에서 99는 예산 100 이하이므로 RETRY가 되고 남은 예산은 1이다. 변환 시 예외가 발생하거나 상한 101을 그대로 기다린다는 예측은 맞지 않는다. 지터도 상한을 적용한 뒤에 계산한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "Backoff.kt에서 exponent의 대입만 바꾼 별도 사본에 다음 입력을 주었을 때 출력은?",
+      "context": "변경한 줄은 `val exponent = failedAttempt - 1`이다. 다른 코드는 그대로 둔다. 입력은 다음과 같다.\nPOLICY recovery 5 999 40 NONE\nOPEN pay recovery 17 32 1000\nCALL pay HTTP503",
+      "choices": [
+        "pay attempt=33 result=RETRY reason=HTTP503 wait=999 remaining=1",
+        "pay attempt=33 result=RETRY reason=HTTP503 wait=0 remaining=1000",
+        "pay attempt=33 result=STOP reason=LIMIT:HTTP503 wait=0 remaining=1000",
+        "pay attempt=33 result=RETRY reason=HTTP503 wait=5 remaining=995",
+        "시프트 거리가 Int의 비트 수 이상이므로 산술 예외로 종료하고 출력하지 않는다."
+      ],
+      "answer": 4,
+      "refs": [
+        "Backoff.kt:9-15",
+        "RetryPolicy.kt:39-61"
+      ],
+      "quote": "val multiplier = 1 shl exponent",
+      "explanation": "④가 옳다. RetryPolicy.kt:41에서 attempts는 33이 되고 변경한 exponent는 32다. Backoff.kt:10의 Int.shl은 거리의 하위 5비트만 사용하므로 1 shl 32는 1이다. 11-15에서 대기 시간은 5가 되고 남은 예산은 1000 - 5 = 995다. ①은 시프트를 Long으로 수행하거나 기존의 30 제한이 남아 있다고 읽은 결과다. ②는 32비트 시프트로 모든 비트가 밀려나 0이 된다고 읽은 결과다. ③은 33회차에 최대 40회에 도달했다고 판단했지만 RetryPolicy.kt:51의 조건을 만족하지 않는다. ⑤와 같은 산술 예외는 발생하지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "다음 입력에서 두 번째와 세 번째 CALL이 출력하는 두 줄의 조합은?",
+      "context": "POLICY checkout 8 20 3 NONE\nOPEN pay checkout 17 0 24\nCALL pay HTTP429\nCALL pay HTTP400\nCALL pay TIMEOUT",
+      "choices": [
+        "pay attempt=2 result=RETRY reason=HTTP400 wait=16 remaining=0\npay attempt=3 result=STOP reason=LIMIT:TIMEOUT wait=0 remaining=0",
+        "pay attempt=2 result=STOP reason=HTTP400 wait=0 remaining=16\npay attempt=2 result=IGNORED reason=CLOSED wait=0 remaining=16",
+        "pay attempt=2 result=STOP reason=HTTP400 wait=0 remaining=16\npay attempt=3 result=STOP reason=LIMIT:TIMEOUT wait=0 remaining=16",
+        "pay attempt=1 result=IGNORED reason=CLOSED wait=0 remaining=24\npay attempt=1 result=IGNORED reason=CLOSED wait=0 remaining=24",
+        "pay attempt=2 result=RETRY reason=CONNECT wait=16 remaining=0\npay attempt=3 result=STOP reason=LIMIT:CONNECT wait=0 remaining=0"
+      ],
+      "answer": 2,
+      "refs": [
+        "PaymentGateway.kt:24-50",
+        "RetryPolicy.kt:39-61",
+        "Backoff.kt:9-15"
+      ],
+      "quote": "failure.status == 429 -> true",
+      "explanation": "②가 옳다. GatewayHttpException은 IOException의 하위 타입이지만 PaymentGateway.kt:38의 catch에서 먼저 처리한다. 45-48의 when도 429를 400..499보다 먼저 판정하므로 첫 CALL은 8을 예약하고 예산을 16으로 줄인다. HTTP400은 재시도할 수 없어 RetryPolicy.kt:47-49에서 2회차에 종료한다. 다음 CALL은 40에서 반환하므로 시도 횟수와 예산이 그대로다. ①은 HTTP400도 재시도할 수 있다고 읽은 결과다. ③은 종료 여부를 확인하기 전에 시도 횟수를 늘린다고 읽은 결과다. ④는 429가 400..499 분기에 먼저 들어간다고 읽은 결과다. ⑤는 IOException의 catch가 하위 타입보다 먼저 처리한다고 읽어 HTTP 오류와 TIMEOUT을 모두 CONNECT로 분류한 결과다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 두 CALL이 출력하는 두 줄의 조합은?",
+      "context": "POLICY checkout 10 10 4 FULL\nOPEN a checkout 17 0 10\nOPEN b checkout 17 0 10\nCALL a TIMEOUT\nCALL b CONNECT\nCALL a HTTP503\nCALL b HTTP503\nCALL a TIMEOUT\nCALL a TIMEOUT",
+      "choices": [
+        "a attempt=2 result=IGNORED reason=CLOSED wait=0 remaining=3\na attempt=2 result=IGNORED reason=CLOSED wait=0 remaining=3",
+        "a attempt=3 result=STOP reason=BUDGET:TIMEOUT wait=0 remaining=1\na attempt=3 result=IGNORED reason=CLOSED wait=0 remaining=1",
+        "a attempt=3 result=STOP reason=BUDGET:TIMEOUT wait=0 remaining=2\na attempt=3 result=IGNORED reason=CLOSED wait=0 remaining=2",
+        "a attempt=3 result=RETRY reason=TIMEOUT wait=1 remaining=0\na attempt=4 result=STOP reason=BUDGET:TIMEOUT wait=0 remaining=0",
+        "a attempt=3 result=RETRY reason=TIMEOUT wait=1 remaining=0\na attempt=4 result=STOP reason=LIMIT:TIMEOUT wait=0 remaining=0"
+      ],
+      "answer": 5,
+      "refs": [
+        "Main.kt:43-56",
+        "Backoff.kt:3-18",
+        "RetryPolicy.kt:29-61"
+      ],
+      "quote": "if (waitMs > remainingMs) {",
+      "explanation": "⑤가 옳다. Main.kt:50-56은 OPEN마다 RetrySession을 새로 만들며 Backoff.kt:3-4의 Random도 세션마다 하나씩 유지한다. 같은 시드에서 nextLong(10)을 호출하므로 a와 b의 첫 두 대기 시간은 각각 7, 2다. 인자 10은 선택 범위의 끝값에 포함되지 않는다. a의 남은 예산은 3, 1로 변하고 세 번째 대기 시간 1은 남은 예산과 같다. RetryPolicy.kt:56의 중단 조건에 해당하지 않으므로 남은 예산 0으로 RETRY가 된다. 네 번째 호출은 51-53에서 최대 시도 횟수에 도달해 난수를 고르기 전에 LIMIT로 끝난다. ①은 매번 Random(17)을 다시 만들어 두 번째에도 7을 선택한다고 읽은 결과다. 이 경우 두 번째 호출에서 예산을 초과해 종료한다고 예측하게 된다. ②는 예산 비교를 >=로 읽은 결과다. ③은 두 세션이 난수 생성기를 공유해 a에 7, 1, 4가 배정된다고 읽은 결과다. ④는 최대 시도 횟수를 확인하기 전에 대기 시간과 예산을 확인한다고 읽은 결과다."
+    }
+  ]
+}

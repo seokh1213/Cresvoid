@@ -6,7 +6,7 @@ track: backend-lab
 stage: idempotent-consumer
 status: 보류(메시지 브로커 실행 방식 결정 필요)
 wave: 5
-env: docker, k6
+env: docker
 prereq:
 ---
 

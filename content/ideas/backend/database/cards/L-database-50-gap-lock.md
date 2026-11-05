@@ -3,10 +3,10 @@ id: L-database-50
 title: 갭 잠금과 삽입 교착
 kind: lab
 track: db-lab
-stage: gap-lock
-status: 후보
+stage: 01-gap-lock
+status: 제작 중
 wave: 4
-env: docker, maven
+env: docker
 prereq: R-database-10
 ---
 

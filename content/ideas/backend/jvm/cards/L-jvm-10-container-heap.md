@@ -3,8 +3,8 @@ id: L-jvm-10
 title: 메모리 한도와 기본 힙 크기
 kind: lab
 track: jvm-lab
-stage: container-heap
-status: 후보
+stage: 01-container-heap
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

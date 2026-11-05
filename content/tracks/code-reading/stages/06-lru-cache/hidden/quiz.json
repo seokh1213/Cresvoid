@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력을 처리한 프로그램의 출력은?",
+      "input": ["CACHE 3", "PUT mug v1 30", "PUT lamp v2 30", "PUT rug v3 30", "GET mug", "PROBE lamp", "REVISION rug", "PUT chair v4 30", "GET lamp", "PROBE mug", "REPORT"],
+      "answers": ["time=0 hits=1 misses=1 evictions=1 last=PRESENT:mug order=[mug@v1:30,rug@v3:30,chair@v4:30]"],
+      "refs": ["ProductCache.kt:13-18", "ProductCache.kt:25-48", "ProductCache.kt:80"],
+      "quote": "last = if (productId in entries) \"PRESENT:$productId\" else \"ABSENT:$productId\"",
+      "explanation": "ProductCache.kt:13은 접근 순서 맵을 만든다. read의 entries[productId](26행)은 mug를 뒤로 옮겨 lamp,rug,mug가 된다. probe의 in(41행)은 lamp를 옮기지 않는다. revision의 entries[productId](45행)은 rug를 뒤로 옮겨 lamp,mug,rug가 된다. chair를 넣으면 14~18행의 용량 정책으로 lamp가 퇴출된다. GET lamp는 실패하고 맵 순서는 바뀌지 않는다. 마지막 PROBE mug는 PRESENT:mug를 남기며 순서를 바꾸지 않는다. 따라서 적중 1회, 실패 1회, 퇴출 1회이고 남은 순서는 mug,rug,chair다. 시각은 0이고 세 항목의 만료 시각은 모두 30이다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력을 처리한 프로그램의 출력은?",
+      "input": ["CACHE 2", "PUT mug v1 4", "PUT lamp v1 20", "ADVANCE 4", "WARM mug v2 8", "WARM lamp v9 1", "PROBE mug", "PUT rug v3 5", "GET mug", "GET lamp", "REPORT"],
+      "answers": ["time=4 hits=1 misses=1 evictions=1 last=HIT:lamp@v1 order=[rug@v3:9,lamp@v1:20]"],
+      "refs": ["ProductCache.kt:25-37", "ProductCache.kt:50-57", "CacheModel.kt:8-9", "CacheModel.kt:23-25"],
+      "quote": "val cached = entries.getOrPut(productId) {",
+      "explanation": "ProductCache.kt:50~57의 getOrPut은 기존 값을 먼저 조회한다. mug는 먼저 뒤로 옮겨지고 시각 4에 만료 상태이므로 v2와 만료 시각 12로 교체된다. lamp도 getOrPut의 조회로 뒤로 옮겨지지만 아직 유효하므로 v9와 ttl 1은 저장되지 않는다. 순서는 mug,lamp이고 lamp의 리비전과 만료 시각은 v1과 20이다. PROBE mug는 순서를 바꾸지 않는다. rug를 넣으면 mug가 퇴출되고 rug의 만료 시각은 4+5=9가 된다. GET mug는 실패하고 GET lamp는 적중해 lamp를 뒤로 옮긴다. 최종 순서는 rug,lamp이며 적중과 실패는 각각 1회다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력의 REPORT 출력으로 옳은 것은?",
+      "context": "CACHE 2\nPUT mug v1 3\nPUT lamp v1 50\nADVANCE 3\nPUT lamp v2 20\nREVISION mug\nPUT rug v1 30\nREPORT",
+      "choices": [
+        "time=3 hits=0 misses=0 evictions=1 last=REVISION:mug@v1 order=[lamp@v2:23,rug@v1:33]",
+        "time=3 hits=0 misses=0 evictions=0 last=REVISION:mug@v1 order=[lamp@v2:23,rug@v1:33]",
+        "time=3 hits=0 misses=0 evictions=0 last=REVISION:mug@v1 order=[lamp@v2:23,mug@v1:3,rug@v1:33]",
+        "time=3 hits=0 misses=0 evictions=1 last=REVISION:mug@v1 order=[mug@v1:3,rug@v1:33]",
+        "time=3 hits=0 misses=0 evictions=2 last=REVISION:mug@- order=[rug@v1:33]"
+      ],
+      "answer": 4,
+      "refs": ["ProductCache.kt:13-22", "ProductCache.kt:44-48", "CacheModel.kt:23-25"],
+      "quote": "if (size <= capacity) return false",
+      "explanation": "④가 옳다. ProductCache.kt:21~22의 PUT lamp는 기존 매핑의 값을 바꾸며 만료 시각을 3+20=23으로 만든다. 기존 키의 갱신에는 새 항목 삽입 후의 removeEldestEntry 호출이 없고 퇴출도 없다. 44~48행의 REVISION mug는 만료 검사 없이 entries[productId]로 mug를 뒤로 옮긴다. 순서는 lamp,mug다. PUT rug가 새 항목을 넣은 뒤 size는 3이므로 14~18행이 lamp를 퇴출한다. mug는 만료 시각 3인 채 남고 rug의 만료 시각은 33이다. ①은 REVISION이 접근 순서를 바꾸지 않는다고 본 오답이다. ②는 PUT이 만료된 mug를 먼저 정리한다고 본 오답이다. put에는 그런 처리가 없고 콜백도 만료를 검사하지 않는다. ③은 removeEldestEntry가 삽입 전에 size 2를 본다고 가정한 오답이다. 실제 호출은 새 항목을 넣은 뒤다. ⑤는 용량과 같은 크기에서도 항목을 제거한다고 본 오답이다. 15행은 size가 capacity 이하이면 false를 반환하므로 lamp를 처음 등록할 때와 기존 lamp를 갱신할 때 퇴출이 생기지 않는다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "다음 입력을 모두 처리한 뒤의 상태를 설명한 것으로 옳은 것은?",
+      "context": "CACHE 3\nPUT mug v1 2\nPUT lamp v1 10\nPUT rug v1 4\nADVANCE 2\nPROBE mug\nGET mug\nWARM lamp v9 1\nPUT chair v1 3\nADVANCE 2\nSWEEP\nINVALIDATE chair\nGET lamp\nREPORT",
+      "choices": [
+        "시각은 4이고 적중 1회·실패 1회·퇴출 0회다. last는 HIT:lamp@v1이고 order는 [lamp@v1:10]이다.",
+        "시각은 4이고 적중 2회·실패 0회·퇴출 0회다. last는 HIT:lamp@v1이고 order는 [lamp@v1:10]이다.",
+        "시각은 4이고 적중 0회·실패 2회·퇴출 0회다. last는 MISS:lamp이고 order는 []이다.",
+        "시각은 4이고 적중 1회·실패 1회·퇴출 2회다. last는 HIT:lamp@v1이고 order는 [lamp@v1:10]이다.",
+        "시각은 4이고 적중 1회·실패 1회·퇴출 0회다. last는 HIT:lamp@v1이고 order는 [rug@v1:4,lamp@v1:10]이다."
+      ],
+      "answer": 1,
+      "refs": ["ProductCache.kt:25-42", "ProductCache.kt:50-69", "CacheModel.kt:8-9"],
+      "quote": "if (cached.isExpired(clock.now)) {",
+      "explanation": "①이 옳다. 시각 2의 PROBE mug는 저장 여부를 확인한다. ProductCache.kt:26~34에서는 GET mug가 먼저 mug에 접근한 뒤 CacheModel.kt:9의 now >= expiresAt으로 만료를 확인해 제거하고 실패를 기록한다. WARM lamp는 51행의 getOrPut으로 기존 lamp에 접근하므로 순서가 rug,lamp가 되며 아직 유효한 v1과 만료 시각 10을 유지한다. chair의 등록 후 순서는 rug,lamp,chair이고 크기는 3이므로 퇴출은 없다. 시각 4에 63~69행의 SWEEP이 rug를 제거하고 INVALIDATE가 chair를 제거한다. 마지막 GET lamp가 적중하므로 lamp 하나가 남는다. ②는 만료 시각과 현재 시각이 같을 때도 GET이 적중한다고 본 오답이다. ③은 WARM이 유효한 lamp까지 v9와 만료 시각 3으로 덮어쓴다고 본 오답이다. ④는 SWEEP과 INVALIDATE의 제거를 용량 퇴출 통계에 더한 오답이다. evictions는 14~18행의 용량 콜백에서만 증가한다. ⑤는 SWEEP이 만료 시각과 현재 시각이 같은 rug를 남긴다고 본 오답이다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "snapshot을 보기처럼 바꾸고 다음 입력을 실행했을 때의 동작으로 옳은 것은?",
+      "context": "변경할 함수:\nprivate fun snapshot(): List<String> = entries.keys.map { productId ->\n    entries.getValue(productId).describe()\n}\n\n입력:\nCACHE 3\nPUT mug v1 20\nPUT lamp v2 20\nPUT rug v3 20\nGET mug\nPROBE rug\nREVISION lamp\nREPORT",
+      "choices": [
+        "REPORT는 정상 출력되며 order는 [rug@v3:20,mug@v1:20,lamp@v2:20]이다. 조회는 키 순회를 무효화하지 않는다.",
+        "REPORT는 정상 출력되며 order는 [mug@v1:20,rug@v3:20,lamp@v2:20]이다. PROBE rug가 rug를 뒤로 옮긴다.",
+        "REPORT 한 줄이 출력되기 전에 ConcurrentModificationException이 발생한다. rug의 값을 읽은 뒤 다음 키를 가져올 때 실패하며, 그 시점의 맵 순서는 mug,lamp,rug다.",
+        "REPORT 한 줄이 출력되기 전에 ConcurrentModificationException이 발생한다. 첫 키 lamp의 값을 읽은 직후 실패하며, 그 시점의 맵 순서는 rug,mug,lamp다.",
+        "REPORT 한 줄이 출력되기 전에 NoSuchElementException이 발생한다. 첫 조회가 해당 키를 맵에서 제거하기 때문이다."
+      ],
+      "answer": 3,
+      "refs": ["ProductCache.kt:13-18", "ProductCache.kt:25-48", "ProductCache.kt:71-80", "Main.kt:61-72"],
+      "quote": "private fun snapshot(): List<String> = entries.entries.map { it.value.describe() }",
+      "explanation": "③이 옳다. ProductCache.kt:26의 GET mug 뒤 순서는 lamp,rug,mug다. 41행의 PROBE rug는 순서를 바꾸지 않고 45행의 REVISION lamp는 lamp를 뒤로 옮기므로 REPORT 직전 순서는 rug,mug,lamp다. 보기의 entries.keys.map은 이 맵의 키 반복자를 쓴다. 첫 키 rug에 대한 getValue는 get으로 값을 읽으며 접근 순서를 mug,lamp,rug로 바꾼다. JDK 21에서는 다음 키를 얻는 iterator.next()에서 ConcurrentModificationException이 발생한다. snapshot이 끝나지 않아 CacheReport 생성과 Main.kt의 println도 완료되지 않는다. ①은 접근 순서 맵의 get이 순서를 바꿀 수 있는 구조 변경임을 놓친 오답이다. ②는 in을 사용하는 PROBE까지 접근으로 센 데다 반복자 무효화도 놓쳤다. ④는 REPORT 직전 첫 키를 lamp로 잘못 잡고 예외가 getValue 직후에 발생한다고 본 오답이다. 실제로 rug의 조회는 완료되고 다음 키 요청이 실패한다. ⑤는 getValue가 조회한 키를 제거한다고 본 오답이다. 키는 존재하며 제거되지 않는다. 원래 80행은 엔트리의 value를 직접 읽으므로 이 조회에 따른 순서 변경이 없다."
+    }
+  ]
+}

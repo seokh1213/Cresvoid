@@ -3,10 +3,10 @@ id: L-spring-80
 title: N+1 과 페이징
 kind: lab
 track: spring-lab
-stage: n-plus-one
-status: 후보
+stage: 08-n-plus-one
+status: 제작 중
 wave: 5
-env: gradle, maven, k6
+env: docker
 prereq:
 ---
 

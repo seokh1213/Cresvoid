@@ -3,8 +3,8 @@ id: F-pipeline-60
 title: 과거 회차 재실행이 최신 결과를 되돌리는 버그
 kind: fix
 track: bug-fix
-stage: replay-regression
-status: 후보
+stage: 15-replay-regression
+status: 제작 중
 wave: 4
 env: 없음
 prereq: B-pipeline-50

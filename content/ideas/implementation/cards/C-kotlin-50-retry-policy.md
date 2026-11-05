@@ -3,8 +3,8 @@ id: C-kotlin-50
 title: 외부 결제 호출 재시도 정책
 kind: code
 track: code-reading
-stage: retry-policy
-status: 후보
+stage: 07-retry-policy
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq:

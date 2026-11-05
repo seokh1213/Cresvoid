@@ -3,10 +3,10 @@ id: L-database-51
 title: 긴 트랜잭션과 스키마 변경 대기
 kind: lab
 track: db-lab
-stage: metadata-lock
-status: 후보
+stage: 02-metadata-lock
+status: 제작 중
 wave: 4
-env: docker, maven, k6
+env: docker
 prereq: R-database-10
 ---
 

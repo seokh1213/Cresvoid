@@ -3,8 +3,8 @@ id: C-kotlin-60
 title: 검색어 파서
 kind: code
 track: code-reading
-stage: search-query-parser
-status: 후보
+stage: 11-search-query-parser
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

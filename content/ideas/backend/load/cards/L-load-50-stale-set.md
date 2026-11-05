@@ -3,10 +3,10 @@ id: L-load-50
 title: 캐시와 원천의 불일치
 kind: lab
 track: backend-lab
-stage: stale-set
-status: 후보
+stage: 05-stale-set
+status: 제작 중
 wave: 3
-env: k6, redis
+env: redis
 prereq:
 ---
 

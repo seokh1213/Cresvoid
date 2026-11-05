@@ -3,10 +3,10 @@ id: L-database-53
 title: 직렬화 실패와 재시도
 kind: lab
 track: db-lab
-stage: serializable-retry
-status: 후보
+stage: 04-serializable-retry
+status: 제작 중
 wave: 5
-env: docker, maven
+env: docker
 prereq: B-database-20
 ---
 

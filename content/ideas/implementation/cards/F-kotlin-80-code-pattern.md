@@ -3,8 +3,8 @@ id: F-kotlin-80
 title: 상품 코드 검증
 kind: fix
 track: bug-fix
-stage: code-pattern
-status: 후보
+stage: 20-code-pattern
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

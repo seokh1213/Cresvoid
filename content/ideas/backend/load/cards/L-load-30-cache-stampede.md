@@ -3,10 +3,10 @@ id: L-load-30
 title: 캐시 스탬피드
 kind: lab
 track: backend-lab
-stage: cache-stampede
-status: 후보
+stage: 03-cache-stampede
+status: 제작 중
 wave: 3
-env: k6, redis
+env: redis
 prereq:
 ---
 

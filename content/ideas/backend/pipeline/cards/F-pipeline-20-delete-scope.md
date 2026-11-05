@@ -3,8 +3,8 @@ id: F-pipeline-20
 title: 다시 적재하지 않은 키까지 지우는 정리 작업
 kind: fix
 track: bug-fix
-stage: rollover-delete-scope
-status: 후보
+stage: 13-rollover-delete-scope
+status: 제작 중
 wave: 4
 env: 없음
 prereq: B-pipeline-10

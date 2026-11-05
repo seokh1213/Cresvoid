@@ -3,8 +3,8 @@ id: F-kotlin-60
 title: 페이지 단위 일괄 처리
 kind: fix
 track: bug-fix
-stage: sublist-view
-status: 후보
+stage: 18-sublist-view
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

@@ -3,8 +3,8 @@ id: F-kotlin-50
 title: 추천 점수 정렬
 kind: fix
 track: bug-fix
-stage: comparator-contract
-status: 후보
+stage: 09-comparator-contract
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

@@ -3,8 +3,8 @@ id: F-kotlin-40
 title: 장바구니 상품 옵션 비교
 kind: fix
 track: bug-fix
-stage: option-equality
-status: 후보
+stage: 08-option-equality
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

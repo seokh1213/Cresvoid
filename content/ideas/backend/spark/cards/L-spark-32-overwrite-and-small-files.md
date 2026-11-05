@@ -3,10 +3,10 @@ id: L-spark-32
 title: 파티션 덮어쓰기와 작은 파일
 kind: lab
 track: spark-lab
-stage: overwrite-and-small-files
-status: 후보
+stage: 03-overwrite-and-small-files
+status: 제작 중
 wave: 4
-env: spark
+env: docker
 prereq: R-spark-10
 ---
 

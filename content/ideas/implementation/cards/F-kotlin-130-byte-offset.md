@@ -3,8 +3,8 @@ id: F-kotlin-130
 title: 한글에서 어긋나는 파일 구간 위치
 kind: fix
 track: bug-fix
-stage: byte-offset
-status: 후보
+stage: 10-byte-offset
+status: 제작 중
 wave: 4
 env: 없음
 prereq: B-record-range-10

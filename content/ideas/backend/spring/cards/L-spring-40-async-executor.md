@@ -3,10 +3,10 @@ id: L-spring-40
 title: @Async 실행기와 큐
 kind: lab
 track: spring-lab
-stage: async-executor
-status: 후보
+stage: 04-async-executor
+status: 제작 중
 wave: 4
-env: maven
+env: docker
 prereq:
 ---
 

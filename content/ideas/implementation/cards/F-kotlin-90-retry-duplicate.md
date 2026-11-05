@@ -3,8 +3,8 @@ id: F-kotlin-90
 title: 주문 상태 변경 기록
 kind: fix
 track: bug-fix
-stage: retry-duplicate
-status: 후보
+stage: 21-retry-duplicate
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

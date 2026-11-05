@@ -3,8 +3,8 @@ id: L-search-52
 title: nori 분석기와 상품명
 kind: lab
 track: es-lab
-stage: nori-analysis
-status: 후보
+stage: 03-nori-analysis
+status: 제작 중
 wave: 4
 env: docker
 prereq: R-search-10

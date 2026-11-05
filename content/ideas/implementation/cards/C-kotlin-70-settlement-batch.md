@@ -3,8 +3,8 @@ id: C-kotlin-70
 title: 정산 배치
 kind: code
 track: code-reading
-stage: settlement-batch
-status: 후보
+stage: 12-settlement-batch
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

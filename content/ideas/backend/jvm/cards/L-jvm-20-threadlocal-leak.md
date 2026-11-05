@@ -3,8 +3,8 @@ id: L-jvm-20
 title: 스레드 풀과 ThreadLocal
 kind: lab
 track: jvm-lab
-stage: threadlocal-leak
-status: 후보
+stage: 02-threadlocal-leak
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

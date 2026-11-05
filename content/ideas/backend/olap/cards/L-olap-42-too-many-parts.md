@@ -3,10 +3,10 @@ id: L-olap-42
 title: 작은 삽입과 파트 폭증
 kind: lab
 track: olap-lab
-stage: too-many-parts
-status: 후보
+stage: 03-too-many-parts
+status: 제작 중
 wave: 5
-env: docker, k6
+env: docker
 prereq: L-olap-40
 ---
 

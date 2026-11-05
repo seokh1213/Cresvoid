@@ -3,8 +3,8 @@ id: F-kotlin-120
 title: 타임세일 시작과 끝
 kind: fix
 track: bug-fix
-stage: sale-window
-status: 후보
+stage: 24-sale-window
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

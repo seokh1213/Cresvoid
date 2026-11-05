@@ -3,8 +3,8 @@ id: C-design-patterns-40
 title: 겹겹이 감싼 상품 조회 클라이언트
 kind: code
 track: code-reading
-stage: decorated-client
-status: 후보
+stage: 08-decorated-client
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-design-patterns-20

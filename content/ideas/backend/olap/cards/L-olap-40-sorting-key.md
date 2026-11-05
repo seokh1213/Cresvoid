@@ -3,8 +3,8 @@ id: L-olap-40
 title: 정렬 키와 읽는 그래뉼 수
 kind: lab
 track: olap-lab
-stage: sorting-key
-status: 후보
+stage: 01-sorting-key
+status: 제작 중
 wave: 4
 env: docker
 prereq: R-olap-10

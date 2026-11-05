@@ -47,6 +47,11 @@ Kotlin 언어·표준 라이브러리·컴파일러의 릴리스별 기능을 �
 | C-kotlin-10 | code-reading / 01-price-rules | 장바구니 할인 계산 코드. BigDecimal 의 반올림 모드와 scale, 규칙 적용 순서, 안정 정렬, data class copy 의 얕은 복사 |
 | C-kotlin-20 | code-reading / 04-stock-reservation | 재고 예약과 만료 코드. 만료 시각 경계 비교, 서울 날짜 경계, PriorityQueue 의 동점 순서, 순회 중 제거 |
 | C-kotlin-30 | code-reading / 05-order-events | 주문 이벤트 처리 코드. Sequence 재순회와 부수효과, distinctBy 와 associateBy, windowed 와 chunked, 람다 안의 return, runCatching 과 finally, lazy |
+| C-kotlin-40 | code-reading / 06-lru-cache | 상품 상세 로컬 캐시. LinkedHashMap 접근 순서와 removeEldestEntry, get 과 containsKey 의 순서 차이 |
+| C-kotlin-50 | code-reading / 07-retry-policy | 외부 결제 호출 재시도 정책. 재시도 횟수와 지연 계산, 예외 분류 |
+| C-kotlin-60 | code-reading / 11-search-query-parser | 검색어 파서. 토큰화, 따옴표와 연산자 우선순위, 정규식 동작 |
+| C-kotlin-70 | code-reading / 12-settlement-batch | 정산 배치. 묶음 처리, 집계 순서, 실패 행의 처리 |
+| C-kotlin-80 | code-reading / 13-csv-import | 상품 일괄 등록. CSV 파싱 경계, 검증 오류 누적, 부분 성공 |
 
 ## 3. fix: 버그를 재현하고 고친다
 

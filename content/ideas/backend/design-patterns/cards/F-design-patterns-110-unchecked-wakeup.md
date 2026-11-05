@@ -3,8 +3,8 @@ id: F-design-patterns-110
 title: 빈 대기열에서 꺼내는 작업자
 kind: fix
 track: bug-fix
-stage: unchecked-wakeup
-status: 후보
+stage: 26-unchecked-wakeup
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

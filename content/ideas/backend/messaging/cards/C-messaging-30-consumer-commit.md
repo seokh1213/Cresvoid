@@ -3,8 +3,8 @@ id: C-messaging-30
 title: 오프셋 커밋 시점과 중복 처리
 kind: code
 track: code-reading
-stage: consumer-commit
-status: 후보
+stage: 10-consumer-commit
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-messaging-10

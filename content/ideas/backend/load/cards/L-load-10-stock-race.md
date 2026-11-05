@@ -3,10 +3,10 @@ id: L-load-10
 title: 재고 차감과 동시 주문
 kind: lab
 track: backend-lab
-stage: stock-race
-status: 후보
+stage: 01-stock-race
+status: 제작 중
 wave: 3
-env: k6
+env: 없음
 prereq:
 ---
 

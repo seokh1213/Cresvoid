@@ -3,10 +3,10 @@ id: L-load-20
 title: 중복 요청과 멱등 키
 kind: lab
 track: backend-lab
-stage: idempotency
-status: 후보
+stage: 02-idempotency
+status: 제작 중
 wave: 3
-env: k6
+env: 없음
 prereq:
 ---
 

@@ -3,8 +3,8 @@ id: F-kotlin-100
 title: 회원 등급별 가격 캐시
 kind: fix
 track: bug-fix
-stage: cache-key
-status: 후보
+stage: 22-cache-key
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

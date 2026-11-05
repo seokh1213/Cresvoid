@@ -3,10 +3,10 @@ id: L-spark-33
 title: 재실행과 부수효과
 kind: lab
 track: spark-lab
-stage: retries-and-side-effects
-status: 후보
+stage: 04-retries-and-side-effects
+status: 제작 중
 wave: 5
-env: spark
+env: docker
 prereq: R-spark-10
 ---
 

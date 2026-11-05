@@ -3,10 +3,10 @@ id: L-spring-100
 title: @Scheduled 단일 스레드
 kind: lab
 track: spring-lab
-stage: scheduler
-status: 후보
+stage: 10-scheduler
+status: 제작 중
 wave: 5
-env: maven
+env: docker
 prereq:
 ---
 

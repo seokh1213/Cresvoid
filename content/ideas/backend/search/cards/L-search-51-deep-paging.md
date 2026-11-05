@@ -3,8 +3,8 @@ id: L-search-51
 title: 깊은 페이지 넘기기
 kind: lab
 track: es-lab
-stage: deep-paging
-status: 후보
+stage: 02-deep-paging
+status: 제작 중
 wave: 4
 env: docker
 prereq: B-search-20

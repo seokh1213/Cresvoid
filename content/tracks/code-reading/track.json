@@ -7,6 +7,16 @@
     {"dir": "02-coroutine-order", "title": "코루틴 실행 순서와 디스패처", "target_minutes": 25},
     {"dir": "03-flow-semantics", "title": "StateFlow 와 SharedFlow 의 의미", "target_minutes": 25},
     {"dir": "04-stock-reservation", "title": "재고 예약과 만료", "target_minutes": 25},
-    {"dir": "05-order-events", "title": "주문 이벤트 처리", "target_minutes": 30}
+    {"dir": "05-order-events", "title": "주문 이벤트 처리", "target_minutes": 30},
+    {"dir": "06-lru-cache", "title": "상품 상세 로컬 캐시", "target_minutes": 25},
+    {"dir": "07-retry-policy", "title": "외부 결제 호출 재시도 정책", "target_minutes": 25},
+    {"dir": "08-decorated-client", "title": "겹겹이 감싼 상품 조회 클라이언트", "target_minutes": 25},
+    {"dir": "09-state-observers", "title": "주문 상태 객체와 구독자 알림", "target_minutes": 25},
+    {"dir": "10-consumer-commit", "title": "오프셋 커밋 시점과 중복 처리", "target_minutes": 25},
+    {"dir": "11-search-query-parser", "title": "검색어 파서", "target_minutes": 30},
+    {"dir": "12-settlement-batch", "title": "정산 배치", "target_minutes": 30},
+    {"dir": "13-csv-import", "title": "상품 일괄 등록", "target_minutes": 30},
+    {"dir": "14-notification-queue", "title": "알림 발송 작업 큐", "target_minutes": 25},
+    {"dir": "15-stable-diversity", "title": "재조회해도 유지되는 추천 다양성", "target_minutes": 30}
   ]
 }

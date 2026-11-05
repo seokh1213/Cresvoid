@@ -1,0 +1,101 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "ROW zeta 2025-02-03 2 101 333 a1",
+        "ROW alpha 2025-01-10 1 1000 1000 a2",
+        "ROW zeta 2025-01-20 3 101 333 a3",
+        "ROW zeta 2025-02-15 1 101 333 a4",
+        "ROW alpha 2025-01-30 1 9 1000 a5",
+        "REPORT GROUP"
+      ],
+      "answers": ["zeta/2025-02=2,303,9,294;alpha/2025-01=2,1009,100,909;zeta/2025-01=1,303,10,293"],
+      "refs": ["Settlement.kt:20-25", "Settlement.kt:33-45", "Settlement.kt:64-69", "Output.kt:2-5"],
+      "quote": "val rowsBySettlement = rows.groupBy { it.key }",
+      "explanation": "Settlement.kt:20-25에서 키는 판매자와 주문월이고 수수료는 각 행의 정수 나눗셈으로 구한다. Settlement.kt:64-69의 groupBy는 키가 처음 등장한 zeta/02, alpha/01, zeta/01 순서를 유지하고 mapValues도 그 순서를 유지한다. zeta/02는 202+101=303, 수수료 6+3=9이므로 지급액은 294다. alpha/01은 1000+9=1009, 수수료 100+0=100으로 지급액 909다. zeta/01은 매출 303, 수수료 10, 지급액 293이다. Output.kt:2-5는 이 순서로 행수와 금액을 출력한다. 판매자나 월로 정렬하면 순서가 달라진다. zeta/02의 합산 매출에 수수료율을 한 번 적용하면 수수료를 10으로 잘못 계산한다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "ROW cedar 2025-01-01 50000 50000 100 b1",
+        "ROW oak 2025-01-02 1 700 0 b2",
+        "ROW cedar 2025-02-01 60000 50000 0 b3",
+        "AUDIT cedar"
+      ],
+      "answers": ["cedar exact=5500000000 legacy=-3089934592 wire=1205032704"],
+      "refs": ["Settlement.kt:23-28", "Settlement.kt:71-79", "Output.kt:7-9"],
+      "quote": "fun legacyGross(): Long = (quantity * unitPrice).toLong()",
+      "explanation": "Settlement.kt:71-79는 월과 관계없이 cedar 행만 고른다. gross는 Settlement.kt:23에서 두 피연산자를 먼저 Long으로 바꾸므로 exact는 5,500,000,000이다. legacyGross는 Settlement.kt:28에서 Int 곱셈을 끝낸 뒤 Long으로 바꾼다. 두 행은 각각 -1,794,967,296과 -1,294,967,296이 된다. 이를 Long 누산기에 더한 legacy는 -3,089,934,592다. 마지막 exactGross.toInt()는 합계의 하위 32비트를 남기므로 wire는 5,500,000,000-4,294,967,296=1,205,032,704다. 뒤의 toLong은 앞선 Int 오버플로를 복구하지 않으며 toInt는 범위 초과 예외나 최댓값 포화를 일으키지 않는다. 수수료는 이 대조값 계산에 참여하지 않는다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "ROW ivy 2025-01-01 1 100 10000 c1",
+        "ROW zeta 2025-02-02 1 400 0 c2",
+        "ROW alpha 2025-01-03 1 250 0 c3",
+        "ROW zeta 2025-02-04 1 100 0 c4",
+        "ROW birch 2025-01-05 1 700 0 c5",
+        "PLAN GROUP 2025-01-31 3:1 east,west"
+      ],
+      "answers": ["candidates=3 windows=2 zeta/2025-02=500@2025-03-28#east;alpha/2025-01=250@2025-04-28#west"],
+      "refs": ["Settlement.kt:64-69", "Payout.kt:31-55", "Output.kt:11-17"],
+      "quote": "scheduledOn = scheduledOn.plusMonths(1)",
+      "explanation": "Payout.kt:48-55는 직전에 계산한 날짜에 한 달씩 더한다. 1월 31일 다음은 2월 28일이다. 이를 보류한 뒤 날짜 후보는 3월 28일, 4월 28일, 5월 28일이다. 은행 슬롯은 송금 한 건의 예약이며 월별로 나누어 배정한다. Payout.kt:43-45에서 날짜 후보와 은행 슬롯 두 개를 zip으로 결합하므로 지급 창구는 앞의 두 날짜만 남는다. 예약이 없는 나머지 날짜에는 창구를 만들지 않는다. Settlement.kt:64-69가 만든 순서에서 ivy는 지급액 0이므로 Payout.kt:36에서 제외된다. 나머지 지급 후보는 zeta/02 500, alpha/01 250, birch/01 700 순서로 세 개다. Payout.kt:37-40의 두 번째 zip은 앞의 두 후보만 배정한다. 후보수는 3, 창구수는 2이며 birch는 출력되지 않는다. Output.kt:11-17은 배정된 두 항목을 한 줄로 출력한다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "보기의 배치에서 REPORT GROUP을 REPORT FOLD로 바꿨을 때 출력과 집계 과정에 대한 설명으로 옳은 것은?",
+      "context": "ROW zeta 2025-02-03 2 101 250 d1\nROW alpha 2025-01-10 1 1000 1000 d2\nROW zeta 2025-02-15 1 101 250 d3\nROW alpha 2025-02-01 1 9 1000 d4\nREPORT GROUP",
+      "choices": [
+        "FOLD의 초기 SettlementTotals가 모든 키에 공유되어 마지막에는 세 키의 매출이 모두 1312가 된다.",
+        "두 출력은 같다. GROUP은 키별 주문 리스트를 만든 뒤 합산한다. FOLD는 키별 주문 리스트를 만드는 단계 없이 키별 SettlementTotals를 누적한다.",
+        "매출과 수수료는 같지만 FOLD는 alpha/2025-01을 먼저 출력하므로 전체 출력 문자열은 다르다.",
+        "두 출력은 같다. 두 경로 모두 먼저 Map<SettlementKey, List<OrderRow>>를 만든 뒤 각 리스트를 합산한다."
+      ],
+      "answer": 2,
+      "refs": ["Settlement.kt:33-45", "Settlement.kt:59-69", "Output.kt:2-5"],
+      "quote": "rows.groupingBy { it.key }.fold(SettlementTotals()) { totals, row ->",
+      "explanation": "②가 옳다. Settlement.kt:59-69의 두 경로는 같은 add를 키별로 적용하므로 zeta/02의 매출 303·수수료 7, alpha/01의 1000·100, alpha/02의 9·0과 출력 순서가 같다. GROUP의 rowsBySettlement에는 키별 주문 리스트가 있지만 FOLD의 Grouping은 원본 순회와 키 선택을 제공하고 fold가 키별 누산값을 만든다. ①은 Settlement.kt:41-45가 기존 값을 수정하지 않고 새 SettlementTotals를 반환하므로 틀리다. 같은 불변 초기값을 받아도 키별 값이 섞이지 않는다. ③은 FOLD도 입력에서 키가 처음 나온 zeta/02, alpha/01, alpha/02 순서를 따르므로 틀리다. ④는 GROUP에만 키별 주문 리스트를 만드는 단계가 있으므로 틀리다. 두 경로의 모든 객체 할당이 같다는 뜻은 아니다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "보기의 입력을 처리한 뒤 TOP GROUP이 출력하는 한 줄은?",
+      "context": "ROW cedar 2025-01-01 1 1200 2500 e1\nROW birch 2025-02-01 1 1000 1000 e2\nROW cedar 2025-02-01 1 400 0 e3\nROW birch 2025-02-02 1 100 0 e4\nROW cedar 2025-01-03 1 100 0 e5\nTOP GROUP",
+      "choices": [
+        "birch/2025-02=1000",
+        "cedar/2025-01=1300",
+        "cedar/2025-02=400",
+        "cedar/2025-01=1000"
+      ],
+      "answer": 4,
+      "refs": ["Settlement.kt:20-25", "Settlement.kt:33-45", "Settlement.kt:64-69", "Payout.kt:58-61", "Output.kt:20-23"],
+      "quote": "settlements.entries.maxByOrNull { it.value.payable }",
+      "explanation": "④가 옳다. Settlement.kt:20-25, 33-45에서 cedar/01은 매출 1300·수수료 300·지급액 1000, birch/02는 매출 1100·수수료 100·지급액 1000, cedar/02는 지급액 400이다. Settlement.kt:64-69는 키가 처음 나온 cedar/01, birch/02, cedar/02 순서를 유지한다. Payout.kt:58-61의 maxByOrNull은 최댓값이 같으면 앞의 원소를 고른다. ①은 동점인 뒤의 birch를 고른 예측이므로 틀리다. ②는 Output.kt:20-23이 매출 대신 지급액을 출력하므로 틀리다. ③은 최근 주문월을 우선하는 처리가 없고 지급액도 최대가 아니므로 틀리다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "보기에서 두 PLAN 명령이 만드는 미리보기의 관계로 옳은 것은?",
+      "context": "ROW zeta 2024-01-01 1 300 0 f1\nROW alpha 2024-01-02 1 200 0 f2\nROW birch 2024-01-03 1 100 0 f3\nPLAN FOLD 2024-01-31 2:0 east,west,north\nPLAN FOLD 2024-01-31 3:0 east,west,north",
+      "choices": [
+        "첫 미리보기는 창구 2개에 zeta를 2월 29일, alpha를 3월 29일로 배정한다. 두 번째는 같은 두 배정에 birch의 4월 29일 배정을 더한다. 두 미리보기의 후보수는 모두 3이다.",
+        "첫 미리보기는 zeta를 2월 29일, alpha를 3월 31일로 배정한다. 두 번째는 birch의 4월 30일 배정을 더하며 후보수는 모두 3이다.",
+        "첫 미리보기는 은행 목록 길이에 맞춰 세 창구를 만들고 세 후보를 모두 배정한다. 두 번째도 같은 세 배정을 출력한다.",
+        "첫 미리보기가 zeta와 alpha의 주문을 소진하므로 두 번째 미리보기의 후보수는 1이며 birch만 east에 배정한다."
+      ],
+      "answer": 1,
+      "refs": ["Main.kt:42-45", "Payout.kt:31-55"],
+      "quote": "return dates.zip(request.banks) { date, bank -> PaymentWindow(date, bank) }",
+      "explanation": "①이 옳다. Payout.kt:48-55는 2024년 1월 31일에 한 달을 더해 윤년의 2월 29일을 얻는다. 다음 달은 그 결과에 더하므로 3월 29일, 4월 29일이다. 은행 슬롯은 이번 미리보기에서 한 번씩 배정할 송금 예약이다. 첫 명령은 날짜 두 개와 은행 슬롯 세 개를 Payout.kt:43-45에서 zip으로 결합하므로 창구 두 개만 만든다. 남은 예약에 쓸 날짜를 추가로 생성하지는 않는다. Payout.kt:36-40에서 세 지급 후보 중 zeta와 alpha만 배정한다. 두 번째 명령은 창구가 세 개여서 birch까지 배정한다. ②는 매번 원래 기준일의 일자를 복원한다고 본 예측이므로 틀리다. ③은 zip이 긴 쪽의 길이를 따른다고 본 예측이므로 틀리다. ④는 Main.kt:42-45와 Payout.kt:31-40이 조회 결과를 만들어 반환할 뿐 주문을 삭제하지 않으므로 틀리다."
+    }
+  ]
+}

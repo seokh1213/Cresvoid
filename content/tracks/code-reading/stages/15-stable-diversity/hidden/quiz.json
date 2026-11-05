@@ -1,0 +1,102 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력으로 재조회했을 때 출력되는 한 줄은?",
+      "context": "Random(6501) 하나에서 nextInt(4), nextInt(3), nextInt(2)를 차례로 호출하면 반환값은 1, 0, 0이다. 난수 내부 계산은 하지 않는다.",
+      "input": [
+        "POOL shelf d:80 c:81 a:101 e:100 b:81",
+        "PICK first shelf A 1 3 80",
+        "PICK other shelf B 2 2 0",
+        "PICK again shelf A 1 3 80",
+        "SHOW first again"
+      ],
+      "answers": ["e,a,b | e,a,b"],
+      "refs": ["RequestSeed.kt:19-24", "CandidatePool.kt:15-29", "Recommendation.kt:4-21", "Main.kt:62-75"],
+      "quote": "val random = Random(RequestSeed.forRequest(request))",
+      "explanation": "RequestSeed.kt:19-24에서 A와 페이지 1의 시드는 6501이다. CandidatePool.kt:15-29에서 최소 점수는 (101×80+99)/100=81이고 추첨 목록은 [a,e,b,c]다. Recommendation.kt:17-19에서 인덱스 1로 e를 제거한 뒤 [a,b,c]의 인덱스 0으로 a, [b,c]의 인덱스 0으로 b를 뽑는다. Recommendation.kt:6에서 PICK마다 생성기를 새로 만들므로 other 요청은 재조회의 난수 상태에 영향을 주지 않는다. Main.kt:68-72는 결과만 보관하고 후보 묶음을 소모하지 않는다. 따라서 두 결과 모두 e,a,b다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "후보 입력 순서만 바꾼 두 묶음에 대해 다음 입력이 출력하는 한 줄은?",
+      "context": "Random(9407) 하나에서 nextInt(4), nextInt(3), nextInt(2), nextInt(1)을 차례로 호출하면 반환값은 3, 0, 1, 0이다.",
+      "input": [
+        "POOL forward c:90 a:90 e:70 d:90 b:90",
+        "POOL reverse b:90 d:90 e:70 a:90 c:90",
+        "PICK left forward Aa 7 4 90",
+        "PICK right reverse Aa 7 4 90",
+        "SHOW left right"
+      ],
+      "answers": ["d,a,c,b | d,a,c,b"],
+      "refs": ["CandidatePool.kt:15-29", "Recommendation.kt:4-21", "RequestSeed.kt:19-24"],
+      "quote": "return byId.sortedByDescending { it.score }",
+      "explanation": "RequestSeed.kt:19-24에서 Aa의 누적값은 65, 94이며 시드는 9407이다. CandidatePool.kt:24에서 먼저 ID 순으로 정렬하고 25행의 안정 정렬이 같은 점수의 ID 순서를 유지한다. 품질 하한은 81이므로 e를 제외한 [a,b,c,d]가 두 묶음의 공통 추첨 목록이다. Recommendation.kt:17-19에서 d를 제거한 뒤 [a,b,c]에서 a, [b,c]에서 c, [b]에서 b를 뽑는다. 입력 순서를 동점 해소 기준으로 삼거나 제거 전 목록의 인덱스를 계속 사용하면 이 출력을 얻지 못한다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "미리보기를 포함한 입력에서 같은 시드의 생성기를 공유하도록 바꿨을 때 SHOW 출력에 관한 설명으로 옳은 것은?",
+      "context": "입력은 POOL shelf d:80 c:81 a:101 e:100 b:81 / PICK preview shelf A 1 1 80 / PICK first shelf A 1 3 80 / PICK again shelf A 1 3 80 / SHOW first again 순서다. 슬래시는 줄바꿈이다. 변경안은 RecommendationSelector에 private val randoms = mutableMapOf<Long, Random>()를 추가하고 select의 생성기 선언만 val seed = RequestSeed.forRequest(request); val random = randoms.getOrPut(seed) { Random(seed) }로 바꾼다. 새 Random(6501)에서 nextInt의 상한이 4,3,2이면 반환값은 1,0,0이다. 다른 Random(6501) 하나에서 상한이 4,4,3,2,4,3,2이면 반환값은 1,0,1,1,1,0,1이다.",
+      "choices": [
+        "현재 코드와 변경안 모두 a,b,c | e,a,c를 출력한다. 생성기는 원래도 RecommendationSelector의 수명 동안 유지되기 때문이다.",
+        "현재 코드와 변경안 모두 e,a,b | e,a,b를 출력한다. getOrPut은 조회할 때마다 같은 시드로 생성기를 초기화하기 때문이다.",
+        "현재 코드는 e,a,b | e,a,b를, 변경안은 a,b,c | (none)을 출력한다. 공유 생성기를 쓰면 미리보기와 첫 조회가 후보 묶음까지 소모하기 때문이다.",
+        "현재 코드는 e,a,b | e,a,b를, 변경안은 a,b,c | e,a,c를 출력한다. 변경안에서는 목록만 새로 만들고 생성기는 미리보기 이후의 상태를 이어 쓴다."
+      ],
+      "answer": 4,
+      "refs": ["Recommendation.kt:3-21", "CandidatePool.kt:15-25", "Main.kt:79-85"],
+      "quote": "val remaining = eligible.toMutableList()",
+      "explanation": "④가 옳다. CandidatePool.kt:15-25의 추첨 목록은 요청마다 [a,e,b,c]이며 Recommendation.kt:6은 현재 코드에서 생성기도 새로 만든다. 현재 코드의 미리보기는 다른 요청에 영향을 주지 않아 first와 again 모두 e,a,b다. 변경안에서는 Main.kt:81-85에서 조립한 selector를 계속 사용한다. 미리보기가 인덱스 1을 소비한 뒤 first는 새 목록에 인덱스 0,1,1을 적용해 a,b,c를 선택한다. again은 다시 만든 목록에 1,0,1을 적용해 e,a,c를 선택한다. ①은 현재 코드의 지역 생성기를 공유 상태로 오해했다. ②는 getOrPut의 기존 값 반환을 재초기화로 오해했다. ③은 Recommendation.kt:15에서 복사한 remaining의 제거를 저장된 후보 묶음의 제거로 오해했다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "세션과 후보 묶음을 바꿔 조회한 다음 입력의 SHOW 출력으로 옳은 것은?",
+      "context": "입력은 POOL shelf d:80 c:81 a:101 e:100 b:81 / PICK r1 shelf Aa 7 3 80 / PICK r2 shelf BB 7 3 80 / POOL shelf d:80 c:80 a:101 e:100 b:81 / PICK r3 shelf BB 7 3 80 / PICK r4 shelf A 2 3 80 / SHOW r1 r2 r3 r4 순서다. 슬래시는 줄바꿈이다. 문자 코드는 A=65, B=66, a=97이다. 다음 호출열은 각각 새 생성기에서 시작한다. Random(9407)에서 상한 4,3,2의 반환값은 3,0,1이고, 별도의 Random(9407)에서 상한 3,2,1의 반환값은 1,0,0이다. Random(6502)에서 상한 3,2,1의 반환값은 0,0,0이다.",
+      "choices": [
+        "c,a,b | c,a,b | e,a,b | a,e,b",
+        "c,a,e | c,a,e | e,a,b | a,e,b",
+        "c,a,b | b,e,c | e,a,b | a,e,b",
+        "c,a,b | c,a,b | a,e,b | e,a,b"
+      ],
+      "answer": 1,
+      "refs": ["RequestSeed.kt:15-24", "CandidatePool.kt:15-29", "Recommendation.kt:4-21", "Main.kt:64-71"],
+      "quote": "return sessionBucket * PAGE_SLOTS + request.page",
+      "explanation": "①이 옳다. RequestSeed.kt:20-23에서 Aa와 BB의 누적값은 각각 (65×31+97)%1009와 (66×31+66)%1009로 모두 94다. r1·r2·r3의 시드는 9407이고 r4는 6502다. 하한은 (101×80+99)/100=81이다. r1과 r2는 [a,e,b,c]에서 인덱스 3,0,1로 c,a,b를 뽑는다. PICK마다 생성기를 새로 만들므로 r2는 r1의 난수 상태를 이어 쓰지 않는다. 묶음 교체 뒤에는 c가 하한에 못 미쳐 목록이 [a,e,b]가 된다. r3는 인덱스 1,0,0으로 e,a,b를, r4는 0,0,0으로 a,e,b를 뽑는다. ②는 r1·r2의 마지막 인덱스 1을 처음 목록 [a,e,b,c]에 적용했다. ③은 요청 사이에 생성기 상태를 공유한다고 보았다. ④는 r3·r4에 적용할 난수열을 뒤바꿨다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "품질 하한 계산에서 +99만 제거했을 때 후보 추가 전후의 SHOW 출력으로 옳은 것은?",
+      "context": "입력은 POOL shelf a:101 e:100 b:81 c:81 d:80 / PICK first shelf A 1 3 80 / POOL shelf a:101 e:100 b:81 c:81 z:80 d:80 / PICK added shelf A 1 3 80 / SHOW first added 순서다. 슬래시는 줄바꿈이다. 변경안은 CandidatePool.minimumScore의 반환식에서 +99만 제거한다. 다음 세 호출열은 각각 새 Random(6501)에서 시작한다. 상한 4,3,2의 반환값은 1,0,0이고 상한 5,4,3의 반환값은 2,0,1이며 상한 6,5,4의 반환값은 4,1,1이다.",
+      "choices": [
+        "현재 코드와 변경안 모두 e,a,b | e,a,b를 출력한다.",
+        "현재 코드는 e,a,b | e,a,b를, 변경안은 b,a,c | b,a,c를 출력한다.",
+        "현재 코드는 e,a,b | e,a,b를, 변경안은 b,a,c | d,e,b를 출력한다.",
+        "현재 코드는 e,a,b | e,a,b를, 변경안은 b,a,c | z,e,b를 출력한다."
+      ],
+      "answer": 3,
+      "refs": ["CandidatePool.kt:15-29", "Recommendation.kt:15-21"],
+      "quote": "return ((bestScore.toLong() * qualityPercent + 99) / 100).toInt()",
+      "explanation": "③이 옳다. CandidatePool.kt:29의 현재 하한은 (8080+99)/100=81이므로 두 요청 모두 [a,e,b,c]에서 e,a,b를 선택한다. 변경안은 하한 80을 포함하므로 첫 요청의 목록 [a,e,b,c,d]에 인덱스 2,0,1을 적용해 b,a,c를 선택한다. 후보 추가 뒤에는 CandidatePool.kt:24-25가 동점인 d,z를 ID 순으로 유지한다. 목록 [a,e,b,c,d,z]에 인덱스 4,1,1을 적용하면 d,e,b다. d의 점수 80은 최고 점수의 80%인 80.8보다 낮다. ①은 정수 나눗셈의 버림을 올림으로 오해했다. ②는 후보 추가로 nextInt의 상한이 바뀌는 점을 무시했다. ④는 동점 후보 d,z의 정렬에 입력 순서를 적용했다. Recommendation.kt:15-19는 선택 때마다 제거한 뒤의 목록에 다음 인덱스를 적용한다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "품질 필터를 추첨 뒤로 옮겼을 때 현재 코드와 변경안의 SHOW 출력을 짝지은 것으로 옳은 것은?",
+      "context": "입력은 POOL shelf z:0 d:81 c:80 b:81 e:100 a:101 / PICK saved shelf Aa 7 4 80 / SHOW saved 순서다. 슬래시는 줄바꿈이다. 변경안은 같은 ID·점수 정렬로 얻은 전체 목록을 먼저 기존 draw에 넘겨 4개를 뽑고, 그 결과에 현재와 같은 하한을 적용한다. 탈락한 자리는 보충하지 않는다. 다음 호출열은 각각 새 Random(9407)에서 시작한다. 상한 4,3,2,1의 반환값은 3,0,1,0이고, 상한 6,5,4,3의 반환값은 1,4,2,1이다.",
+      "choices": [
+        "현재 코드: d,a,b,e / 변경안: e,b",
+        "현재 코드: d,a,b,e / 변경안: e,d,b",
+        "현재 코드: b,a,d,e / 변경안: e,b,d",
+        "현재 코드: d,a,b,e / 변경안: e,d,a"
+      ],
+      "answer": 2,
+      "refs": ["CandidatePool.kt:15-29", "Recommendation.kt:4-21"],
+      "quote": "val eligible = pool.eligible(request.qualityPercent)",
+      "explanation": "②가 옳다. 하한은 (101×80+99)/100=81이므로 현재 목록은 [a,e,b,d]다. 인덱스 3,0,1,0으로 d,a,b,e를 뽑는다. 변경안의 전체 목록은 [a,e,b,d,c,z]다. 인덱스 1로 e를 제거하면 [a,b,d,c,z]가 남는다. 이어서 인덱스 4로 z를 제거하면 [a,b,d,c], 인덱스 2로 d를 제거하면 [a,b,c]가 남고 마지막 인덱스 1로 b를 뽑는다. 뽑힌 e,z,d,b에서 z만 하한에 못 미치므로 e,d,b가 남는다. ①은 변경안에서 통과한 d를 누락했다. ③은 동점인 b,d의 순서를 뒤집었다. 입력에서 d가 먼저 나와도 ID 정렬과 안정적인 점수 정렬을 거치면 b가 앞선다. ④는 마지막 목록 [a,b,c]의 인덱스 1을 a로 잘못 읽었다."
+    }
+  ]
+}

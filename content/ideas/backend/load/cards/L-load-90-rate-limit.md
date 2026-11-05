@@ -3,10 +3,10 @@ id: L-load-90
 title: 속도 제한
 kind: lab
 track: backend-lab
-stage: rate-limit
-status: 후보
+stage: 09-rate-limit
+status: 제작 중
 wave: 5
-env: k6, redis
+env: redis
 prereq:
 ---
 

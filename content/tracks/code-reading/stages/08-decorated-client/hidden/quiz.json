@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력으로 실행했을 때 출력되는 한 줄은?",
+      "input": ["OPEN FRONT 2", "PLAN A FAIL,1,2,3", "PLAN B MISS,7", "GET A", "MANY A,B,A", "GET B", "GET A", "REPORT"],
+      "answers": ["results=A@1;[A@2,null,A@3];B@7;A@1 | log=3/1 cache=3/2 retry=6 source=6"],
+      "refs": ["CatalogSession.kt:16-19", "Decorators.kt:1-16", "Decorators.kt:30-42", "Decorators.kt:53-60", "Catalog.kt:27-34"],
+      "quote": "    override fun getMany(skus: List<String>): List<Product?> = skus.map(::get)",
+      "explanation": "CatalogSession.kt:16-19의 FRONT는 기록→캐시→재시도→저장소 순서다. 첫 GET A는 FAIL 뒤 A@1을 받아 캐시에 넣는다. 캐시가 getMany를 재정의하지 않으므로 MANY는 재시도 객체의 getMany로 전달된다(Decorators.kt:1-16, 42). 이 메서드 안의 get은 재시도 객체의 get이며 바깥 캐시를 거치지 않는다. 저장소는 A@2, null, A@3을 내놓고 이 묶음은 캐시도 갱신하지 않는다. GET B는 B@7을 저장하고 마지막 GET A는 A@1을 반환한다. 기록은 단건 3회·묶음 1회, 캐시는 reads 3·loads 2다. 재시도와 저장소 호출은 첫 단건 2회, 묶음 3회, GET B 1회로 각각 6회다. null은 정상 반환이므로 재시도하지 않는다(Decorators.kt:30-37)."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력으로 실행했을 때 출력되는 한 줄은?",
+      "input": ["OPEN INNER 2", "PLAN A MISS,FAIL,4,8", "GET A", "MANY A,A", "GET A", "REPORT"],
+      "answers": ["results=null;[A@4,A@4];A@4 | log=2/1 cache=5/3 retry=5 source=3"],
+      "refs": ["CatalogSession.kt:21-24", "Decorators.kt:10-15", "Decorators.kt:30-42", "Catalog.kt:27-34"],
+      "quote": "        return products.getOrPut(sku) {",
+      "explanation": "INNER는 기록→재시도→캐시→저장소다(CatalogSession.kt:21-24). 첫 GET A는 null을 반환하며 캐시에 null이 들어간다. MANY의 첫 A에서는 getOrPut이 그 null을 재사용하지 않고 다시 계산한다(Decorators.kt:10-15). FAIL은 저장 없이 전파되고 재시도의 다음 시도에서 A@4를 저장한다. 묶음의 두 번째 A와 마지막 GET A는 A@4를 재사용한다. 재시도 getMany는 자신의 get을 항목마다 부르므로 캐시 적중도 attempts를 늘린다(Decorators.kt:30-42). attempts와 cache.reads는 1+2+1+1=5, loads는 MISS·FAIL·4의 3회이며 source도 3이다. 예약된 8은 소비되지 않는다. 기록 계층은 외부 단건 2회·묶음 1회만 센다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "두 입력을 각각 새 프로세스에서 실행했을 때 FRONT와 INNER의 마지막 source 값으로 옳은 것은?",
+      "context": "FRONT 입력:\nOPEN FRONT 2\nPLAN A FAIL,2,3\nMANY A,A\nGET A\nREPORT\n\nINNER 입력은 위 입력의 첫 줄만 OPEN INNER 2로 바꾼다.",
+      "choices": [
+        "FRONT는 3, INNER는 2다.",
+        "FRONT는 4, INNER는 3이다.",
+        "FRONT는 2, INNER는 2다.",
+        "FRONT는 4, INNER는 2다.",
+        "FRONT는 5, INNER는 3이다."
+      ],
+      "answer": 4,
+      "refs": ["CatalogSession.kt:16-24", "Decorators.kt:1-16", "Decorators.kt:30-42", "Catalog.kt:27-34"],
+      "quote": "                cache = CachedProductClient(retry)",
+      "explanation": "④가 맞다. FRONT의 MANY는 캐시에서 재시도 객체로 위임되고 재시도 객체의 getMany가 자신의 get을 부른다. 첫 A는 FAIL·2로 저장소를 2회, 두 번째 A는 3으로 1회 호출한다. 바깥 캐시는 비어 있으므로 GET A가 소진된 저장소를 한 번 더 호출해 source=4다. INNER에서는 첫 A의 FAIL·2가 캐시를 거치며 2가 저장된다. 두 번째 A와 GET A는 캐시에 적중해 source=2다(CatalogSession.kt:16-24, Decorators.kt:10-15, 30-42). ①은 FRONT의 마지막 GET A가 빈 캐시에서 저장소까지 가는 1회를 빠뜨린다. ②는 INNER의 두 번째 A도 저장소를 읽는다고 보지만 양의 개정 번호의 상품은 재사용된다. ③은 FRONT의 MANY도 바깥 캐시를 사용한다고 보지만 위임 대상 내부의 자기 호출은 그 캐시를 지나지 않는다. ⑤는 실패 뒤 묶음 전체를 재실행한다고 보지만 재시도는 get 하나에만 적용되며 getMany는 항목별 get을 호출한다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "다음 입력의 REPORT 출력으로 옳은 것은?",
+      "context": "OPEN FRONT 2\nPLAN A 1,2\nGET A\nPLAN A FAIL,3\nMANY A\nGET A\nREPORT",
+      "choices": [
+        "results=A@1;[A@3];A@1 | log=2/1 cache=2/1 retry=3 source=3",
+        "results=A@1;[A@1];A@1 | log=2/1 cache=3/1 retry=1 source=1",
+        "results=A@1;[A@3];A@3 | log=2/1 cache=2/1 retry=3 source=3",
+        "results=A@1;error;A@1 | log=2/1 cache=2/1 retry=2 source=2",
+        "results=A@1;[A@3];A@1 | log=4/1 cache=2/1 retry=3 source=3"
+      ],
+      "answer": 1,
+      "refs": ["Catalog.kt:23-25", "CatalogSession.kt:16-19", "Decorators.kt:1-16", "Decorators.kt:30-42", "Decorators.kt:53-60"],
+      "quote": "        return delegate.getMany(skus)",
+      "explanation": "①이 맞다. 첫 GET A가 A@1을 캐시에 저장한 뒤 PLAN은 저장소 예약만 FAIL·3으로 교체한다(Catalog.kt:23-25). MANY는 기록 계층의 getMany에서 바깥 캐시의 위임 메서드를 거쳐 재시도 객체로 간다. 여기서 첫 저장소 실패 뒤 A@3을 받지만 바깥 캐시는 갱신하지 않는다(Decorators.kt:1-16, 30-42, 58-60). 마지막 GET A는 A@1이다. ②는 위임 대상 내부의 get도 바깥 캐시를 지난다고 보아 MANY의 FAIL·3 소비를 놓친다. ③은 묶음 결과가 바깥 캐시를 덮어쓴다고 보지만 캐시의 get 자체가 호출되지 않는다. ④는 위임된 MANY에서 재시도가 사라진다고 보지만 실제 대상은 getMany 안에서 자신의 재시도 get을 호출한다. ⑤는 기록 계층이 재시도 두 번을 추가 단건 호출로 센다고 보지만 기록 계층에는 외부 GET 두 번과 MANY 한 번만 들어온다. 따라서 cache=2/1, retry와 source는 첫 GET 1회와 묶음 2회를 합친 3이다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "다음 입력의 REPORT 출력으로 옳은 것은?",
+      "context": "OPEN INNER 2\nPLAN A 1,2\nPLAN B FAIL,FAIL,5\nMANY A,B\nGET A\nMANY A,B\nGET B\nREPORT",
+      "choices": [
+        "results=error;A@2;[A@2,B@5];B@5 | log=2/2 cache=7/5 retry=7 source=5",
+        "results=error;A@1;error;error | log=2/2 cache=10/3 retry=10 source=3",
+        "results=error;A@1;[A@1,B@5];B@5 | log=2/2 cache=7/4 retry=7 source=4",
+        "results=[A@1,null];A@1;[A@1,null];null | log=2/2 cache=7/3 retry=7 source=3",
+        "results=error;A@1;[A@2,B@5];B@5 | log=2/2 cache=7/5 retry=7 source=5"
+      ],
+      "answer": 3,
+      "refs": ["CatalogSession.kt:21-24", "CatalogSession.kt:40-54", "Decorators.kt:10-15", "Decorators.kt:30-42"],
+      "quote": "                if (attempt == maxAttempts) throw failure",
+      "explanation": "③이 맞다. 첫 MANY에서 A@1을 캐시에 저장한 뒤 B가 두 번 실패한다. 세션은 묶음 결과를 error로 기록하지만 이미 저장한 A를 지우지 않는다(CatalogSession.kt:40-54). GET A와 두 번째 MANY의 A는 A@1을 재사용한다. B의 실패는 getOrPut의 계산을 중단하므로 저장되지 않으며 두 번째 MANY에서 남은 B@5를 읽어 저장한다(Decorators.kt:10-15, 30-42). 마지막 GET B도 적중한다. 첫 묶음 3회, GET A 1회, 두 번째 묶음 2회, GET B 1회로 retry와 cache.reads는 7이다. loads와 source는 A@1·FAIL·FAIL·B@5의 4회다. ①은 실패한 묶음이 A 캐시도 되돌린다고 보지만 그런 처리는 없다. ②는 B의 예외 자체가 캐시된다고 보지만 계산이 예외로 끝나면 값은 저장되지 않는다. ④는 마지막 실패를 null로 바꿔 캐시한다고 보지만 최대 시도에 도달하면 예외를 전파하며 null로 바꾸지 않는다. ⑤는 두 번째 MANY의 A가 캐시를 우회한다고 보지만 INNER에서 재시도 객체의 get은 안쪽 캐시를 호출한다."
+    }
+  ]
+}

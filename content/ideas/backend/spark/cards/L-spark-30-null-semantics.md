@@ -3,10 +3,10 @@ id: L-spark-30
 title: NULL, 중복, 열 순서의 의미론
 kind: lab
 track: spark-lab
-stage: null-semantics
-status: 후보
+stage: 01-null-semantics
+status: 제작 중
 wave: 4
-env: spark
+env: docker
 prereq: R-spark-10
 ---
 

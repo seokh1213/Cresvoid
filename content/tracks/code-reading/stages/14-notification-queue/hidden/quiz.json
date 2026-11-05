@@ -1,0 +1,74 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["BURST"],
+      "answers": ["dropped=1 waiting=true sent=A,B,C,E pending=-"],
+      "refs": ["Main.kt:18-44", "NotificationQueue.kt:13-24", "DispatchWorker.kt:8-16"],
+      "quote": "val waiting = producerDone.count == 1L",
+      "explanation": "Main.kt:22-24에서 A가 큐를 떠나 발송 래치에 도달한 뒤 B와 C가 용량 2인 큐를 채운다. offer는 D를 거절하고 dropped만 1 늘린다. E를 넣는 생산자는 빈자리가 없으므로 producerDone을 내릴 수 없다. producerReady는 put 직전에 내려가지만 생산자가 아직 put을 호출하지 않았어도 완료할 수 없다는 결론은 같다. 따라서 waiting은 true다. 발송을 열면 B, C 다음 E가 들어가고, 생산자 완료 뒤 넣은 Stop까지 처리한다. 최종 발송 순서는 A,B,C,E이고 pending은 비어 있다. A까지 큐 용량에 포함하거나 put도 요청을 버린다고 읽으면 결과를 잘못 예측한다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["ABORT"],
+      "answers": ["returned=daily sent=- interrupted=A pending=B terminated=true"],
+      "refs": ["Main.kt:46-60", "DispatchShutdown.kt:5-9", "DispatchShutdown.kt:25-26", "DispatchWorker.kt:57-78"],
+      "quote": "val returned = group.abort()",
+      "explanation": "유일한 실행기 스레드는 A를 꺼내 DeliveryGate에서 기다린다. B는 NotificationQueue에 들어가고 ReceiptExport(daily)는 실행기 내부 대기열에 들어간다. shutdownNow가 돌려주는 것은 시작하지 않은 Runnable인 ReceiptExport이므로 returned는 daily다. send가 끝나야 delivered를 호출하지만, A는 인터럽트를 받아 catch로 이동한다. sent는 비고 interrupted에는 A가 남는다. B는 실행기에 제출한 작업이 아니므로 반환 목록에 포함되지 않고 알림 큐에 남는다. finish가 실행 중 작업자의 종료까지 기다린 뒤 terminated는 true가 된다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "SHORTAGE의 보고 문자열과 이어서 use의 close()가 반환한 직후 같은 journal·queue·executor를 관찰한 결과를 순서대로 옳게 짝지은 것은?",
+      "context": "뒤쪽 관찰에서 sent와 interrupted는 journal의 목록, pending은 queue.pending(), terminated는 executor.isTerminated 값이다. 관찰을 위한 참조 보관만 추가하며 작업 순서는 바꾸지 않는다.",
+      "choices": [
+        "보고 stopped=1 terminated=false pending=B / 정리 후 sent=A interrupted=- pending=B terminated=true",
+        "보고 stopped=1 terminated=false pending=B / 정리 후 sent=- interrupted=A pending=B terminated=true",
+        "보고 stopped=1 terminated=false pending=B / 정리 후 sent=- interrupted=B pending=A terminated=true",
+        "보고 stopped=1 terminated=false pending=B / 정리 후 sent=- interrupted=A,B pending=- terminated=true",
+        "보고 stopped=1 terminated=true pending=B / 정리 후 sent=- interrupted=A pending=B terminated=true"
+      ],
+      "answer": 2,
+      "refs": ["Main.kt:62-76", "DispatchWorker.kt:8-12", "DispatchWorker.kt:57-78", "DispatchShutdown.kt:28-31"],
+      "quote": "group.journal.firstStop.awaitSignal()",
+      "explanation": "②가 맞다. A를 꺼낸 작업자가 발송 래치에서 기다리는 동안 다른 작업자가 Stop 하나를 소비한다. firstStop을 기다린 뒤 B를 넣으므로 보고를 만들 때 B를 꺼낼 수 있는 작업자는 없다. 보고는 stopped=1 terminated=false pending=B다. 이 문자열을 만든 뒤 close가 남은 작업자를 인터럽트하고 종료를 기다린다. A는 delivered에 도달하지 못하므로 sent=-, interrupted=A다. B는 알림 큐에 남고 실행기는 종료한다. ①은 닫힌 발송 래치에서 기다리던 A가 발송 완료된다고 읽었다. ③은 발송 중인 A와 아직 꺼내지 않은 B를 뒤바꿨다. ④는 강제 종료가 알림 큐의 B까지 꺼내 인터럽트 기록에 넣는다고 읽었다. ⑤는 close 이후 종료 상태를 앞서 만든 보고에도 적용했다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "TAIL 명령의 보고와, lateArrival()에서 B의 put을 enqueueStops(1) 앞으로 옮긴 경우의 보고를 순서대로 옳게 짝지은 것은?",
+      "choices": [
+        "원본 sent=A,B stopped=1 pending=- / 변경 sent=A,B stopped=1 pending=-",
+        "원본 sent=A stopped=1 pending=- / 변경 sent=A,B stopped=1 pending=-",
+        "원본 sent=A stopped=1 pending=B / 변경 sent=B,A stopped=1 pending=-",
+        "원본 sent=A stopped=1 pending=B / 변경 sent=A,B stopped=1 pending=-",
+        "원본 sent=A stopped=0 pending=B / 변경 sent=A,B stopped=0 pending=-"
+      ],
+      "answer": 4,
+      "refs": ["Main.kt:78-91", "DispatchWorker.kt:59-70", "NotificationQueue.kt:23-31"],
+      "quote": "queue.put(\"B\")",
+      "explanation": "④가 맞다. 작업자 시작 전에 A, Stop, B 순서로 채운다. FIFO 큐에서 유일한 작업자는 A를 보낸 뒤 Stop을 받아 끝나므로 B가 남는다. pending은 그 B를 보고한다. B를 Stop 앞으로 옮기면 A, B, Stop 순서가 되어 둘 다 발송한다. ①은 shutdown이 알림 큐까지 모두 비워 준다고 읽은 오답이다. ②는 처리하지 않은 B가 종료와 함께 자동 삭제된다고 읽었다. ③은 B를 Stop 앞으로 옮기는 것을 A보다도 앞으로 옮기는 것으로 읽었으나 A의 put은 여전히 먼저다. ⑤는 Stop을 처리하면 반환만 하고 집계는 하지 않는다고 읽었지만 journal.stopped()를 먼저 호출한다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "GRACEFUL 원본과, gracefulShutdown()의 gateway.open() 한 줄만 group.abort()로 바꾼 경우의 보고를 순서대로 옳게 짝지은 것은?",
+      "context": "변경한 호출의 반환값은 사용하지 않는다. 두 보고의 before와 after는 모두 before=false after=true다. 선지는 그 뒤의 네 필드를 비교한다.",
+      "choices": [
+        "원본 sent=A,B,receipt:daily interrupted=- stopped=1 pending=C / 변경 sent=A interrupted=B stopped=0 pending=C",
+        "원본 sent=A,B interrupted=- stopped=1 pending=C / 변경 sent=A interrupted=B stopped=0 pending=C",
+        "원본 sent=A,B,receipt:daily interrupted=- stopped=1 pending=C / 변경 sent=- interrupted=A,B stopped=0 pending=C",
+        "원본 sent=A,B,C,receipt:daily interrupted=- stopped=1 pending=- / 변경 sent=A interrupted=B stopped=0 pending=C",
+        "원본 sent=A,B,receipt:daily interrupted=- stopped=1 pending=C / 변경 sent=A,receipt:daily interrupted=B stopped=0 pending=C"
+      ],
+      "answer": 1,
+      "refs": ["Main.kt:93-111", "DispatchWorker.kt:4-16", "DispatchWorker.kt:57-78", "DispatchShutdown.kt:5-9", "DispatchShutdown.kt:21-26"],
+      "quote": "group.executor.execute(ReceiptExport(\"daily\", group.journal))",
+      "explanation": "①이 맞다. DeliveryGate(\"B\")는 A를 막지 않는다. 작업자가 B를 처리하며 entered를 내리기 전에 A의 delivered를 끝내므로 A는 이미 발송됐다. 이후 알림 큐에는 Stop,C가 남고 실행기 대기열에는 ReceiptExport(daily)가 있다. 원본은 open 뒤 B를 발송하고 Stop으로 작업자를 끝낸 다음 같은 실행기 스레드가 내보내기를 실행해 receipt:daily를 기록한다. C는 Stop 뒤에 남는다. 변경하면 abort가 대기 중인 내보내기를 반환하고 B의 발송 대기를 인터럽트한다. 반환값을 버려도 내보내기가 실행되지는 않는다. A의 완료 기록은 유지되고 Stop은 소비되지 않으며 C도 남는다. ②는 정상 종료에서 이미 제출한 내보내기도 버린다고 읽었다. ③은 발송 완료된 A까지 인터럽트 목록으로 옮긴다고 읽었다. ④는 작업자가 Stop 뒤의 C도 발송한다고 읽었다. ⑤는 강제 종료가 반환한 내보내기도 나중에 실행한다고 읽었다."
+    }
+  ]
+}

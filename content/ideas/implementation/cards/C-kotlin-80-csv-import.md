@@ -3,8 +3,8 @@ id: C-kotlin-80
 title: 상품 일괄 등록
 kind: code
 track: code-reading
-stage: csv-import
-status: 후보
+stage: 13-csv-import
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

@@ -3,8 +3,8 @@ id: C-search-80
 title: 재조회해도 유지되는 추천 다양성
 kind: code
 track: code-reading
-stage: stable-diversity
-status: 후보
+stage: 15-stable-diversity
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq: B-search-60

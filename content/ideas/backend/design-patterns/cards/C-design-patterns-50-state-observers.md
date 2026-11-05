@@ -3,8 +3,8 @@ id: C-design-patterns-50
 title: 주문 상태 객체와 구독자 알림
 kind: code
 track: code-reading
-stage: state-observers
-status: 후보
+stage: 09-state-observers
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq: R-design-patterns-30

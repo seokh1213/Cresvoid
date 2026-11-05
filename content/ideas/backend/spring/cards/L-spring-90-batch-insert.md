@@ -3,10 +3,10 @@ id: L-spring-90
 title: IDENTITY 와 배치 삽입
 kind: lab
 track: spring-lab
-stage: batch-insert
-status: 후보
+stage: 09-batch-insert
+status: 제작 중
 wave: 5
-env: maven
+env: docker
 prereq:
 ---
 

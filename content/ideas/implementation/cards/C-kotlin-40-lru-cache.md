@@ -3,8 +3,8 @@ id: C-kotlin-40
 title: 상품 상세 로컬 캐시
 kind: code
 track: code-reading
-stage: lru-cache
-status: 후보
+stage: 06-lru-cache
+status: 완료(2026-11-05)
 wave: 4
 env: 없음
 prereq:

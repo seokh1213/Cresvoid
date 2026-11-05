@@ -3,10 +3,10 @@ id: L-spring-10
 title: REQUIRES_NEW 와 풀 교착
 kind: lab
 track: spring-lab
-stage: pool-deadlock
-status: 후보
+stage: 01-pool-deadlock
+status: 제작 중
 wave: 4
-env: maven
+env: docker
 prereq:
 ---
 

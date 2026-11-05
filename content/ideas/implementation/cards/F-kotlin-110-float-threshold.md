@@ -3,8 +3,8 @@ id: F-kotlin-110
 title: 무료 배송 기준 금액
 kind: fix
 track: bug-fix
-stage: float-threshold
-status: 후보
+stage: 23-float-threshold
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

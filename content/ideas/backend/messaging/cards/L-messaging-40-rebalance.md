@@ -6,7 +6,7 @@ track: kafka-lab
 stage: rebalance
 status: 후보
 wave: 5
-env: docker, maven
+env: docker
 prereq: B-messaging-20
 ---
 

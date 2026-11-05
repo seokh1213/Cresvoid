@@ -3,8 +3,8 @@ id: L-jvm-30
 title: 스레드 덤프로 교착 찾기
 kind: lab
 track: jvm-lab
-stage: thread-dump
-status: 후보
+stage: 03-thread-dump
+status: 제작 중
 wave: 4
 env: 없음
 prereq:

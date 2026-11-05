@@ -3,8 +3,8 @@ id: L-search-50
 title: 동적 매핑과 필드 폭증
 kind: lab
 track: es-lab
-stage: mapping-explosion
-status: 후보
+stage: 01-mapping-explosion
+status: 제작 중
 wave: 4
 env: docker
 prereq: R-search-10

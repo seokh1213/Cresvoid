@@ -3,8 +3,8 @@ id: F-kotlin-70
 title: 가격 문자열 출력
 kind: fix
 track: bug-fix
-stage: locale-format
-status: 후보
+stage: 19-locale-format
+status: 제작 중
 wave: 5
 env: 없음
 prereq:

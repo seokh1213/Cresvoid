@@ -3,8 +3,8 @@ id: L-olap-41
 title: 병합 때만 지워지는 중복
 kind: lab
 track: olap-lab
-stage: replacing-merge
-status: 후보
+stage: 02-replacing-merge
+status: 제작 중
 wave: 4
 env: docker
 prereq: L-olap-40

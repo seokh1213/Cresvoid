@@ -33,7 +33,7 @@
 | `reading` | reading | 15 |
 | `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |
-| `code-reading` | code | 5 |
+| `code-reading` | code | 15 |
 | `bug-fix` | fix | 7 |
 
 ## 채점용 파일

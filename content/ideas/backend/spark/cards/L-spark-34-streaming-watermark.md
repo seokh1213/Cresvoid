@@ -3,10 +3,10 @@ id: L-spark-34
 title: 워터마크와 늦은 이벤트
 kind: lab
 track: spark-lab
-stage: streaming-watermark
-status: 후보
+stage: 05-streaming-watermark
+status: 제작 중
 wave: 5
-env: spark
+env: docker
 prereq: R-spark-10
 ---
 

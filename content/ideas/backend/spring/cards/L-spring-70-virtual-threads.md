@@ -3,10 +3,10 @@ id: L-spring-70
 title: 가상 스레드와 풀
 kind: lab
 track: spring-lab
-stage: virtual-threads
-status: 후보
+stage: 07-virtual-threads
+status: 제작 중
 wave: 5
-env: gradle, maven, k6
+env: docker
 prereq:
 ---
 

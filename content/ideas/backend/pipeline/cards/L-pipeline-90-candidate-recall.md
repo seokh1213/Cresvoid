@@ -3,8 +3,8 @@ id: L-pipeline-90
 title: 비교 비용과 놓친 중복쌍 측정
 kind: lab
 track: pipeline-lab
-stage: candidate-recall
-status: 후보
+stage: 01-candidate-recall
+status: 제작 중
 wave: 5
 env: 없음
 prereq: B-pipeline-80

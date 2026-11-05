@@ -3,8 +3,8 @@ id: C-design-patterns-90
 title: 알림 발송 작업 큐
 kind: code
 track: code-reading
-stage: notification-queue
-status: 후보
+stage: 14-notification-queue
+status: 완료(2026-11-05)
 wave: 5
 env: 없음
 prereq:

@@ -3,10 +3,10 @@ id: L-spring-20
 title: OSIV 와 느린 외부 호출
 kind: lab
 track: spring-lab
-stage: open-in-view
-status: 후보
+stage: 02-open-in-view
+status: 제작 중
 wave: 4
-env: gradle, maven, k6
+env: docker
 prereq:
 ---
 

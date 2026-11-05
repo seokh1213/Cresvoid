@@ -3,10 +3,10 @@ id: L-load-120
 title: 적응형 동시성 제한
 kind: lab
 track: backend-lab
-stage: adaptive-concurrency
-status: 후보
+stage: 10-adaptive-concurrency
+status: 제작 중
 wave: 5
-env: k6
+env: 없음
 prereq: L-load-80
 ---
 

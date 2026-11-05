@@ -3,10 +3,10 @@ id: L-database-52
 title: 인덱스를 쓰지 못하는 질의
 kind: lab
 track: db-lab
-stage: index-usage
-status: 후보
+stage: 03-index-usage
+status: 제작 중
 wave: 5
-env: docker, maven
+env: docker
 prereq:
 ---
 

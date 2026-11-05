@@ -3,8 +3,8 @@ id: L-search-53
 title: terms 집계의 오차
 kind: lab
 track: es-lab
-stage: terms-agg-accuracy
-status: 후보
+stage: 04-terms-agg-accuracy
+status: 제작 중
 wave: 5
 env: docker
 prereq: B-search-20
