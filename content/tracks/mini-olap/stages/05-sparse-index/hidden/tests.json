@@ -1,0 +1,644 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "scan-session",
+      "refs": [
+        "4.1",
+        "4.6",
+        "3.2"
+      ],
+      "quote": "기존 `CREATE TABLE <테이블> ( <열 정의> , … )` 뒤에 `ORDER BY ( <첫 키 열> , <둘째 키 열> ) GRANULARITY <g>`를 붙일 수 있다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT) ORDER BY (k, d) GRANULARITY 2",
+        "INSERT INTO e VALUES (1, 1)",
+        "SCAN SELECT COUNT(*) FROM e"
+      ],
+      "expected": [
+        "COUNT(*)",
+        "1",
+        "READ granules=1 rows=1"
+      ]
+    },
+    {
+      "name": "key-session",
+      "refs": [
+        "4.10",
+        "4.11",
+        "4.12",
+        "4.13",
+        "4.14",
+        "4.16"
+      ],
+      "quote": "4.8에서 모은 첫 키의 각 비교를 일차원 구간으로 바꾸어 교집합 I1을 만든다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE d = 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d = 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d = 4",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 3",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "4|100",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "3|130",
+        "READ granules=3 rows=8",
+        "COUNT(*)|SUM(v)",
+        "2|50",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "1|40",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "2|150",
+        "READ granules=2 rows=5",
+        "COUNT(*)|SUM(v)",
+        "4|100",
+        "READ granules=2 rows=6"
+      ]
+    },
+    {
+      "name": "range-session",
+      "refs": [
+        "4.9",
+        "4.10",
+        "4.11",
+        "4.12",
+        "4.13"
+      ],
+      "quote": "범위 계산에는 값보다 작은 가상 경계 −∞와 NULL을 포함한 모든 값보다 큰 가상 경계 +∞를 사용한다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k > 1 AND k < 3",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k >= 1 AND k <= 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k >= 2 AND k <= 3 AND d = 1",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k >= 1 AND k <= 1 AND d > 1 AND d <= 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d < 4",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d <= 4",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d > 2 AND d < 4",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d >= 2 AND d < 4",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k < 1",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k > 3"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "2|110",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "6|210",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "1|50",
+        "READ granules=2 rows=5",
+        "COUNT(*)|SUM(v)",
+        "2|50",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "3|60",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "4|100",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "2|50",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=0 rows=0",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=1 rows=2"
+      ]
+    },
+    {
+      "name": "paging-session",
+      "refs": [
+        "4.15",
+        "4.16",
+        "3.2"
+      ],
+      "quote": "후보 그래뉼을 한 번씩 읽고 그 안의 모든 행에 원래 WHERE를 적용한다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "SCAN SELECT COUNT(*) FROM e WHERE k = 1 LIMIT 0",
+        "SCAN SELECT k, COUNT(*), SUM(v) FROM e GROUP BY k ORDER BY k DESC LIMIT 1",
+        "SCAN SELECT k, COUNT(*) FROM e WHERE k = 0 GROUP BY k",
+        "SCAN SELECT COUNT(*) FROM e WHERE k = 1 LIMIT 1",
+        "SCAN SELECT COUNT(*) FROM e WHERE k = 1"
+      ],
+      "expected": [
+        "COUNT(*)",
+        "READ granules=2 rows=6",
+        "k|COUNT(*)|SUM(v)",
+        "3|2|150",
+        "READ granules=3 rows=8",
+        "k|COUNT(*)",
+        "READ granules=0 rows=0",
+        "COUNT(*)",
+        "4",
+        "READ granules=2 rows=6",
+        "COUNT(*)",
+        "4",
+        "READ granules=2 rows=6"
+      ]
+    },
+    {
+      "name": "interval-session",
+      "refs": [
+        "4.10",
+        "4.11",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "4.8에서 모은 첫 키의 각 비교를 일차원 구간으로 바꾸어 교집합 I1을 만든다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND k = 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k > 1 AND k <= 1",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d >= 4 AND d < 4",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k > 1 AND k < 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 2 AND d > 1 AND d < 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 9",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = -9",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k >= 0 AND k > 1 AND k <= 2 AND k < 3"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=0 rows=0",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=0 rows=0",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=0 rows=0",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=1 rows=3",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=1 rows=2",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=0 rows=0",
+        "COUNT(*)|SUM(v)",
+        "2|110",
+        "READ granules=1 rows=3"
+      ]
+    },
+    {
+      "name": "predicate-session",
+      "refs": [
+        "4.8",
+        "4.11",
+        "4.12"
+      ],
+      "quote": "후보 선정에 사용하는 조건을 아래처럼 제한한다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND (d = 2 OR v = 40)",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND NOT d = 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k IS NOT NULL AND d = 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d IS NOT NULL",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d <> 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 1 AND d = NULL",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k IS NULL",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE v = 20",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE (k = 1 AND (d >= 1 AND v > 15))",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k <> 1 AND k <= 2"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "3|90",
+        "READ granules=3 rows=8",
+        "COUNT(*)|SUM(v)",
+        "2|50",
+        "READ granules=3 rows=8",
+        "COUNT(*)|SUM(v)",
+        "3|130",
+        "READ granules=3 rows=8",
+        "COUNT(*)|SUM(v)",
+        "4|100",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "2|50",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=3 rows=8",
+        "COUNT(*)|SUM(v)",
+        "1|20",
+        "READ granules=3 rows=8",
+        "COUNT(*)|SUM(v)",
+        "3|90",
+        "READ granules=2 rows=6",
+        "COUNT(*)|SUM(v)",
+        "2|110",
+        "READ granules=2 rows=6"
+      ]
+    },
+    {
+      "name": "text-session",
+      "refs": [
+        "4.2",
+        "4.4",
+        "4.9",
+        "4.13"
+      ],
+      "quote": "모든 행을 첫 키 열, 둘째 키 열 순으로 오름차순 정렬한 것을 이 테이블의 논리적인 정렬 순서라 한다.",
+      "input": [
+        "CREATE TABLE words (k STRING, d INT, v INT) ORDER BY (k, d) GRANULARITY 2",
+        "INSERT INTO words VALUES (NULL, NULL, 7), ('가', 1, 5), ('a', NULL, 3), ('', 2, 1), (NULL, 0, 6), ('b', 0, 4), ('a', 1, 2)",
+        "SCAN SELECT COUNT(*), SUM(v) FROM words WHERE k = 'a'",
+        "SCAN SELECT COUNT(*) FROM words WHERE k < 'b'",
+        "SCAN SELECT COUNT(*) FROM words WHERE k IS NULL",
+        "SCAN SELECT COUNT(*) FROM words WHERE k = 'a' AND d IS NULL",
+        "SCAN SELECT COUNT(*) FROM words WHERE k = '가' AND d > 1",
+        "SCAN SELECT COUNT(*) FROM words WHERE k IS NOT NULL"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "2|5",
+        "READ granules=2 rows=4",
+        "COUNT(*)",
+        "3",
+        "READ granules=2 rows=4",
+        "COUNT(*)",
+        "2",
+        "READ granules=4 rows=7",
+        "COUNT(*)",
+        "1",
+        "READ granules=2 rows=4",
+        "COUNT(*)",
+        "0",
+        "READ granules=1 rows=2",
+        "COUNT(*)",
+        "5",
+        "READ granules=4 rows=7"
+      ]
+    },
+    {
+      "name": "group-session",
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.15",
+        "4.16"
+      ],
+      "quote": "`SCAN <SELECT 문>`은 SELECT를 실행하고 읽기 통계를 더한다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "SCAN SELECT k, GROUPING(k), COUNT(*), APPROX_COUNT_DISTINCT(u) FROM e WHERE k = 1 GROUP BY ROLLUP(k)",
+        "SCAN SELECT k, d, COUNT(*) FROM e WHERE k = 1 AND d = 2 GROUP BY CUBE(k, d)",
+        "SCAN SELECT k, GROUPING(k), COUNT(*) FROM e WHERE k = 0 GROUP BY GROUPING SETS ((k), ())"
+      ],
+      "expected": [
+        "k|GROUPING(k)|COUNT(*)|APPROX_COUNT_DISTINCT(u)",
+        "1|0|4|3.004403",
+        "NULL|1|4|3.004403",
+        "READ granules=2 rows=6",
+        "k|d|COUNT(*)",
+        "1|2|2",
+        "1|NULL|2",
+        "NULL|2|2",
+        "NULL|NULL|2",
+        "READ granules=1 rows=3",
+        "k|GROUPING(k)|COUNT(*)",
+        "NULL|1|0",
+        "READ granules=0 rows=0"
+      ]
+    },
+    {
+      "name": "loading-session",
+      "refs": [
+        "4.3",
+        "4.2",
+        "4.4"
+      ],
+      "quote": "INSERT·COPY는 앞 단계처럼 행을 추가한다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT) ORDER BY (k, d) GRANULARITY 2",
+        "INSERT INTO e VALUES (3, 1, 30), (1, 1, 10), (2, 1, 20)",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 2",
+        "COPY e FROM STDIN",
+        "0\t1\t5",
+        "2\t1\t7",
+        "\\.",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 2",
+        "INSERT INTO e VALUES (2, 1, 100), (0, 1)",
+        "COPY e FROM STDIN",
+        "0\t1\t100",
+        "1\tbad\t100",
+        "\\.",
+        "COPY e FROM STDIN",
+        "2\t1\t100",
+        "1\t1",
+        "\\.",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e WHERE k = 2",
+        "SCAN SELECT COUNT(*), SUM(v) FROM e"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "1|20",
+        "READ granules=1 rows=2",
+        "COUNT(*)|SUM(v)",
+        "2|27",
+        "READ granules=2 rows=4",
+        "ERR VALUE_COUNT",
+        "ERR TYPE 2",
+        "ERR VALUE_COUNT 2",
+        "COUNT(*)|SUM(v)",
+        "2|27",
+        "READ granules=2 rows=4",
+        "COUNT(*)|SUM(v)",
+        "5|72",
+        "READ granules=3 rows=5"
+      ]
+    },
+    {
+      "name": "layout-session",
+      "refs": [
+        "4.1",
+        "4.4",
+        "4.13",
+        "4.15"
+      ],
+      "quote": "기존 `CREATE TABLE <테이블> ( <열 정의> , … )` 뒤에 `ORDER BY ( <첫 키 열> , <둘째 키 열> ) GRANULARITY <g>`를 붙일 수 있다.",
+      "input": [
+        "CREATE TABLE small (k INT, d INT) ORDER BY (k, d) GRANULARITY 1",
+        "CREATE TABLE large (k INT, d INT) ORDER BY (k, d) GRANULARITY 65536",
+        "SCAN SELECT COUNT(*) FROM small",
+        "SCAN SELECT k, COUNT(*) FROM large GROUP BY k",
+        "INSERT INTO small VALUES (2, 0), (1, 0), (1, 0)",
+        "INSERT INTO large VALUES (2, 0), (1, 0), (1, 0)",
+        "SCAN SELECT COUNT(*) FROM small WHERE k = 1 AND d = 0",
+        "SCAN SELECT COUNT(*) FROM large WHERE k = 1 AND d = 0",
+        "SCAN SELECT COUNT(*) FROM small WHERE k = 3",
+        "SCAN SELECT COUNT(*) FROM large WHERE k = 0"
+      ],
+      "expected": [
+        "COUNT(*)",
+        "0",
+        "READ granules=0 rows=0",
+        "k|COUNT(*)",
+        "READ granules=0 rows=0",
+        "COUNT(*)",
+        "2",
+        "READ granules=2 rows=2",
+        "COUNT(*)",
+        "2",
+        "READ granules=1 rows=3",
+        "COUNT(*)",
+        "0",
+        "READ granules=1 rows=1",
+        "COUNT(*)",
+        "0",
+        "READ granules=0 rows=0"
+      ]
+    },
+    {
+      "name": "definition-session",
+      "refs": [
+        "4.5",
+        "4.1",
+        "5.1"
+      ],
+      "quote": "문법에 맞는 CREATE TABLE은 테이블·사전 집계·스케치 중 그 이름이 이미 있으면 `ERR EXISTS`, 키 열을 쓴 순서로 처음 없는 열이 있으면 `ERR NO_COLUMN <열>`, g가 범위 밖이면 `ERR GRANULARITY`의 순서로 확인한다.",
+      "input": [
+        "CREATE TABLE existing (k INT, d INT)",
+        "CREATE SKETCH daily ON existing (k) BY d PRECISION 4",
+        "CREATE AGGREGATE totals AS SELECT k, COUNT(*) FROM existing GROUP BY k",
+        "CREATE TABLE existing (a INT, b INT) ORDER BY (missing, b) GRANULARITY 0",
+        "CREATE TABLE daily (a INT, b INT) ORDER BY (missing, b) GRANULARITY 0",
+        "CREATE TABLE totals (a INT, b INT) ORDER BY (missing, b) GRANULARITY 0",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (first, second) GRANULARITY 0",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, second) GRANULARITY 0",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b) GRANULARITY 0",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b) GRANULARITY -1",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b) GRANULARITY 65537",
+        "CREATE TABLE existing (a INT, b INT) ORDER BY (a, a) GRANULARITY 0",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a) GRANULARITY 2",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b, a) GRANULARITY 2",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b)",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a DESC, b) GRANULARITY 2",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b) GRANULARITY 007",
+        "CREATE TABLE bad (a INT, b INT) ORDER BY (a, b) GRANULARITY 2",
+        "SCAN SELECT COUNT(*) FROM bad"
+      ],
+      "expected": [
+        "ERR EXISTS",
+        "ERR EXISTS",
+        "ERR EXISTS",
+        "ERR NO_COLUMN first",
+        "ERR NO_COLUMN second",
+        "ERR GRANULARITY",
+        "ERR GRANULARITY",
+        "ERR GRANULARITY",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "COUNT(*)",
+        "0",
+        "READ granules=0 rows=0"
+      ]
+    },
+    {
+      "name": "command-session",
+      "refs": [
+        "4.6",
+        "5.1",
+        "5.2",
+        "3.2"
+      ],
+      "quote": "`SCAN <SELECT 문>`은 SELECT를 실행하고 읽기 통계를 더한다.",
+      "input": [
+        "CREATE TABLE plain (k INT, s STRING)",
+        "SCAN SELECT missing FROM plain",
+        "SCAN SELECT SUM(s) FROM plain",
+        "SCAN SELECT s, COUNT(*) FROM plain",
+        "SCAN SELECT COUNT(*) FROM plain ORDER BY COUNT(k)",
+        "SCAN SELECT COUNT(*) FROM plain",
+        "SCAN SELECT COUNT(*) FROM absent",
+        "SCAN EXPLAIN SELECT COUNT(*) FROM plain",
+        "SCAN ESTIMATE daily FROM 0 TO 1",
+        "SCAN SELECT APPROX_COUNT_DISTINCT(*) FROM plain",
+        "SCAN SELECT COUNT(*) FROM plain;",
+        "SCAN SELECT COUNT(*) FROM plain WHERE k = '1'",
+        "SCAN SELECT COUNT(*) FROM plain WHERE missing = 1",
+        "SCAN SELECT COUNT(*) FROM plain LIMIT -1"
+      ],
+      "expected": [
+        "ERR NO_COLUMN missing",
+        "ERR TYPE",
+        "ERR NOT_GROUPED s",
+        "ERR NOT_SELECTED",
+        "ERR NO_INDEX",
+        "ERR NO_TABLE",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR SYNTAX",
+        "ERR TYPE",
+        "ERR NO_COLUMN missing",
+        "ERR SYNTAX"
+      ]
+    },
+    {
+      "name": "planning-session",
+      "refs": [
+        "4.7",
+        "4.3",
+        "4.16",
+        "1.2"
+      ],
+      "quote": "SCAN은 항상 원본 테이블을 읽는다.",
+      "input": [
+        "CREATE TABLE e (k INT, d INT, v INT, u STRING) ORDER BY (k, d) GRANULARITY 3",
+        "INSERT INTO e VALUES (3, 2, 80, 'a'), (1, 2, 20, 'b'), (2, 1, 50, NULL), (1, 1, 10, 'a'), (3, 0, 70, '서울'), (1, 4, 40, ''), (2, 3, 60, '가'), (1, 2, 30, 'a')",
+        "CREATE AGGREGATE totals AS SELECT k, COUNT(*), SUM(v) FROM e GROUP BY k",
+        "CREATE SKETCH daily ON e (u) BY d PRECISION 4",
+        "EXPLAIN SELECT SUM(v) FROM e WHERE k = 1",
+        "SELECT SUM(v) FROM e WHERE k = 1",
+        "ESTIMATE daily FROM 0 TO 4",
+        "SCAN SELECT SUM(v) FROM e WHERE k = 1",
+        "EXPLAIN SELECT SUM(v) FROM e WHERE k = 1",
+        "SELECT APPROX_COUNT_DISTINCT(u) FROM e WHERE k = 1",
+        "SCAN SELECT APPROX_COUNT_DISTINCT(u) FROM e WHERE k = 1",
+        "ESTIMATE daily FROM 0 TO 4",
+        "INSERT INTO e VALUES (1, 3, 5, 'c')",
+        "EXPLAIN SELECT SUM(v) FROM e WHERE k = 1",
+        "SCAN SELECT SUM(v) FROM e WHERE k = 1",
+        "SELECT SUM(v) FROM e WHERE k = 1",
+        "ESTIMATE daily FROM 0 TO 4"
+      ],
+      "expected": [
+        "AGGREGATE totals",
+        "SUM(v)",
+        "100",
+        "estimate|exact|relative_error",
+        "4.602913|5|0.079417",
+        "SUM(v)",
+        "100",
+        "READ granules=2 rows=6",
+        "AGGREGATE totals",
+        "APPROX_COUNT_DISTINCT(u)",
+        "3.004403",
+        "APPROX_COUNT_DISTINCT(u)",
+        "3.004403",
+        "READ granules=2 rows=6",
+        "estimate|exact|relative_error",
+        "4.602913|5|0.079417",
+        "AGGREGATE totals",
+        "SUM(v)",
+        "105",
+        "READ granules=2 rows=6",
+        "SUM(v)",
+        "105",
+        "estimate|exact|relative_error",
+        "5.995095|6|0.000817"
+      ]
+    },
+    {
+      "name": "nullable-session",
+      "refs": [
+        "4.2",
+        "4.8",
+        "4.9",
+        "4.11",
+        "4.13",
+        "4.14"
+      ],
+      "quote": "모든 행을 첫 키 열, 둘째 키 열 순으로 오름차순 정렬한 것을 이 테이블의 논리적인 정렬 순서라 한다.",
+      "input": [
+        "CREATE TABLE pairs (k STRING, d STRING, v INT) ORDER BY (k, d) GRANULARITY 2",
+        "INSERT INTO pairs VALUES (NULL, NULL, 6), ('a', NULL, 3), (NULL, 'a', 5), ('a', '', 1), ('b', 'a', 4), ('a', 'b', 2)",
+        "SCAN SELECT COUNT(*), SUM(v) FROM pairs WHERE k = 'a' AND d > 'b'",
+        "SCAN SELECT COUNT(*) FROM pairs WHERE k = 'a' AND d IS NOT NULL",
+        "SCAN SELECT COUNT(*) FROM pairs WHERE k >= 'b'",
+        "SCAN SELECT COUNT(*) FROM pairs WHERE k > NULL",
+        "SCAN SELECT COUNT(*) FROM pairs WHERE k = 'z'",
+        "SCAN SELECT COUNT(*) FROM pairs WHERE k IS NULL AND d IS NULL",
+        "SCAN SELECT COUNT(*) FROM pairs WHERE k = 'a' AND d = ''"
+      ],
+      "expected": [
+        "COUNT(*)|SUM(v)",
+        "0|NULL",
+        "READ granules=2 rows=4",
+        "COUNT(*)",
+        "2",
+        "READ granules=2 rows=4",
+        "COUNT(*)",
+        "1",
+        "READ granules=2 rows=4",
+        "COUNT(*)",
+        "0",
+        "READ granules=3 rows=6",
+        "COUNT(*)",
+        "0",
+        "READ granules=1 rows=2",
+        "COUNT(*)",
+        "1",
+        "READ granules=3 rows=6",
+        "COUNT(*)",
+        "1",
+        "READ granules=1 rows=2"
+      ]
+    },
+    {
+      "name": "generated-session",
+      "refs": [
+        "7.2",
+        "7.4"
+      ],
+      "quote": "앞 단계의 입력 한계를 유지한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--rows",
+        "240",
+        "--queries",
+        "180"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "scale-session",
+      "refs": [
+        "7.3"
+      ],
+      "quote": "새 대규모 테스트는 INT 키 두 열과 INT 측정값 한 열인 테이블에 COPY로 2,000,000행을 넣는다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--rows",
+        "2000000",
+        "--queries",
+        "100000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 60
+    }
+  ]
+}

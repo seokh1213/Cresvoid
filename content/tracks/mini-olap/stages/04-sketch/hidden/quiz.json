@@ -1,0 +1,85 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 값을 스케치에 넣을 때 레지스터 번호 j, 관측값 r, 갱신 뒤 해당 레지스터 값으로 옳은 것은?",
+      "context": "정밀도는 p=4다. SHA-256 결과의 앞 64비트는 최상위부터 1011 0001로 시작한다. 앞 4비트를 제외한 w는 0001로 시작하며, 선택된 레지스터의 기존 값은 2다.",
+      "choices": [
+        "j=11, r=3, 갱신 뒤 값=3이다.",
+        "j=11, r=4, 갱신 뒤 값=2다.",
+        "j=1, r=4, 갱신 뒤 값=4다.",
+        "j=11, r=4, 갱신 뒤 값=4다.",
+        "j=-5, r=1, 갱신 뒤 값=2다."
+      ],
+      "answer": 4,
+      "refs": ["4.2", "4.3"],
+      "quote": "앞 p비트는 0의 개수에 포함하지 않는다.",
+      "explanation": "④가 옳다. 앞 4비트 1011을 부호 없는 번호로 읽으면 11이고, w의 앞자리 0은 3개이므로 r은 4다. 기존 값 2와 4 중 큰 4를 저장한다. ①은 0의 개수에 1을 더하지 않았다. ②는 번호와 r은 맞지만 최댓값 갱신을 적용하지 않았다. ③은 번호를 정할 앞 4비트 대신 그다음 4비트를 사용했다. ⑤는 앞 비트를 부호 있는 수로 해석했고 w의 앞자리 0도 세지 않았다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 상태에서 ESTIMATE daily FROM 1 TO 3의 병합과 정확한 고유 수에 관한 설명으로 옳은 것은?",
+      "context": "visits(day INT, user STRING)에 (1, 'a'), (2, 'a'), (3, NULL), (NULL, 'b')가 있다. daily는 user를 값 열, day를 날짜 열로 하여 p=4로 만든 일별 스케치다.",
+      "choices": [
+        "병합 결과는 날짜 1의 스케치와 같고 정확한 고유 수는 1이다.",
+        "날짜가 NULL인 행은 제외하므로 날짜 1과 날짜 2의 고유 수를 더한 2가 정확한 고유 수다.",
+        "빈 날짜 3의 레지스터가 모두 0이므로 병합 결과는 빈 스케치이고 정확한 고유 수는 1이다.",
+        "NULL 값도 날짜 3의 값 하나로 세므로 정확한 고유 수는 2다.",
+        "날짜가 NULL인 'b'도 기간의 정확한 고유 수에는 포함하므로 정확한 고유 수는 2다."
+      ],
+      "answer": 1,
+      "refs": ["4.11", "4.16", "4.17"],
+      "quote": "날짜가 달라도 같은 값은 한 번만 센다.",
+      "explanation": "①이 옳다. 날짜 1과 2는 같은 값 'a'로 같은 레지스터 상태를 만들고 날짜 3은 빈 스케치다. 위치별 최댓값으로 병합하면 날짜 1의 상태가 유지되며 정확한 고유 수는 1이다. ②는 NULL 날짜는 제외했지만 날짜 사이의 중복을 제거하지 않았다. ③은 빈 스케치를 병합하면 상대 스케치가 유지된다는 규칙을 어겼다. ④는 값 열의 NULL을 고유 수에서 제외하지 않았다. ⑤는 날짜 열이 NULL인 행을 정확한 고유 수에서도 제외한다는 규칙을 어겼다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 기간 조회의 결과 행으로 옳은 것은?",
+      "context": "p=4인 일별 스케치들을 병합한 결과 레지스터 0은 1, 레지스터 1은 2이고 나머지 14개는 모두 0이다. 해당 기간의 정확한 고유 수 C는 2다. 머리줄 다음의 A|C|R 한 줄을 고른다.",
+      "choices": [
+        "2.000000|2|0.000000",
+        "2.136502|2|6.825114",
+        "2.136502|2|0.068251",
+        "2.136502|2|0.136502",
+        "2.136502|2|0.063891"
+      ],
+      "answer": 3,
+      "refs": ["3.2", "4.4", "4.5", "4.17", "4.18"],
+      "quote": "C가 0이면 상대 오차 R은 0이고 그 밖에는 `abs(A − C) / C`다.",
+      "explanation": "③이 옳다. m=16이고 Z=14+1/2+1/4=14.75다. 기본 추정값 E=0.673×16×16/14.75는 40 이하이고 V=14이므로 A=16×log(16/14)=2.136502281…로 보정한다. R=abs(A−2)/2=0.068251140…이며 둘을 각각 소수 여섯 자리로 반올림한다. ①은 추정값을 정확한 고유 수로 교체했다. ②는 상대 오차를 비율이 아닌 백분율로 썼다. ④는 차이의 절댓값을 C로 나누지 않았다. ⑤는 C 대신 A로 나누었다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "CREATE TABLE visits (day INT, user STRING)",
+        "CREATE AGGREGATE daily AS SELECT day, COUNT(*) FROM visits GROUP BY day",
+        "CREATE SKETCH daily ON absent (missing) BY missing PRECISION 3"
+      ],
+      "answers": ["ERR EXISTS"],
+      "refs": ["4.13", "4.14", "5.1"],
+      "quote": "테이블, 사전 집계, 일별 스케치는 이름 공간을 함께 쓴다.",
+      "explanation": "앞의 두 명령은 성공하여 아무것도 출력하지 않는다. 사전 집계가 daily라는 이름을 쓰고 있으므로 마지막 CREATE SKETCH는 이름 확인에서 ERR EXISTS 한 줄을 출력한다. 공유 이름 공간 규칙과 의미 오류의 확인 순서를 함께 적용한다. absent가 없어도 ERR NO_TABLE이 먼저 나오지 않으며, 없는 열과 범위 밖 p도 이보다 뒤에서 확인한다. p=3은 정수 토큰이므로 ERR SYNTAX도 아니다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": [
+        "CREATE TABLE visits (day INT, user STRING)",
+        "INSERT INTO visits VALUES (1, 'a'), (2, 'a'), (NULL, 'b')",
+        "CREATE AGGREGATE totals AS SELECT day, SUM(day) FROM visits GROUP BY day",
+        "CREATE SKETCH daily ON visits (user) BY day PRECISION 4",
+        "EXPLAIN SELECT SUM(day), APPROX_COUNT_DISTINCT(user) FROM visits"
+      ],
+      "answers": ["TABLE visits"],
+      "refs": ["1.2", "4.7", "4.9"],
+      "quote": "APPROX_COUNT_DISTINCT가 SELECT 목록에 있는 질의는 3단계 사전 집계로 답할 수 없다.",
+      "explanation": "앞의 네 명령은 성공하여 아무것도 출력하지 않는다. SUM(day)는 totals로 답할 수 있어도 같은 SELECT 목록에 APPROX_COUNT_DISTINCT가 있으므로 질의 전체를 사전 집계로 답할 수 없다. 일별 스케치가 있어도 이 SELECT 집계를 대신하지 않으며 EXPLAIN은 TABLE visits 한 줄을 출력한다. AGGREGATE totals나 스케치 이름을 출력하는 답은 근사 집계가 포함된 질의의 선택 규칙과 일별 스케치의 독립성을 어긴다."
+    }
+  ]
+}

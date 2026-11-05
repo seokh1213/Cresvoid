@@ -1,0 +1,69 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 실행했을 때 마지막 GET의 출력으로 알맞은 것을 고른다.",
+      "context": "DURABILITY async\nPUT note red\nPUT note blue\nDURABILITY request\nPUT tag green\nDURABILITY async\nPUT note gold\nREFRESH\nDEL note\nPUT note violet\nDURABILITY request\nCRASH\nGET note",
+      "choices": ["MISSING", "red", "blue", "gold", "violet"],
+      "answer": 3,
+      "refs": ["4.2", "4.3", "4.7", "4.9", "4.10"],
+      "quote": "같은 모드로 바꿔도 성공이며, 모드 변경 자체는 동기화하지 않는다.",
+      "explanation": "③이 맞다. request 모드의 PUT tag가 앞선 두 PUT note까지 포함한 접두부 전체를 동기화하므로 note의 복구 본문은 blue다. 뒤의 gold, DEL, violet은 async 기록이다. REFRESH와 마지막 모드 변경은 동기화하지 않으므로 이 세 기록은 장애로 사라진다. ①은 request 쓰기가 자기 기록만 저장한다고 가정했다. ②는 동기화된 두 PUT 중 첫 본문만 반영했다. ④는 REFRESH를 동기화로 오해했다. ⑤는 마지막 모드 변경만으로 뒤의 기록도 저장된다고 가정했다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 실행했을 때 STATE의 출력은?",
+      "context": "PUT note old\nFLUSH\nDURABILITY async\nDEL note\nREFRESH\nCRASH\nSTATE",
+      "choices": [
+        "time=0 buffer=0 visible=0",
+        "time=0 buffer=1 visible=1",
+        "time=0 buffer=0 visible=1",
+        "time=0 buffer=1 visible=0",
+        "time=5000 buffer=0 visible=1"
+      ],
+      "answer": 3,
+      "refs": ["4.6", "4.7", "4.9", "4.10"],
+      "quote": "삭제가 동기화되지 않은 채 사라지면 장애 전 삭제되었던 문서가 되살아날 수 있다.",
+      "explanation": "③이 맞다. FLUSH가 note의 살아 있는 행을 커밋한다. 뒤의 async DEL은 refresh로 검색에만 반영되므로 CRASH 때 사라진다. 커밋의 공개 문서 하나를 복원하고 재적용할 동기화 기록은 없어 버퍼는 빈다. ①은 미동기화 삭제가 살아남는다고 계산했다. ②는 커밋의 문서를 복구 버퍼에도 쌓았다. ④는 사라진 삭제를 버퍼에 복구하면서 커밋의 공개 문서를 제외했다. ⑤는 실제 경과 시간이나 CRASH가 가상 시각을 전진시킨다고 가정했다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 실행했을 때 LOG의 출력은?",
+      "context": "DURABILITY async\nPUT a red\nSYNC\nPUT b blue\nREFRESH\nCRASH\nLOG",
+      "choices": [
+        "generation=1 total=2 synced=2",
+        "generation=1 total=2 synced=1",
+        "generation=2 total=1 synced=1",
+        "generation=1 total=0 synced=0",
+        "generation=1 total=1 synced=1"
+      ],
+      "answer": 5,
+      "refs": ["4.2", "4.7", "4.8", "4.10"],
+      "quote": "CRASH 뒤 translog 세대 번호는 그대로이며, 남은 total과 synced는 둘 다 장애 직전의 synced와 같다.",
+      "explanation": "⑤가 맞다. SYNC는 a의 기록 하나를 저장한다. 뒤의 b는 REFRESH로 공개되어도 동기화되지 않으므로 CRASH가 그 접미부를 버린다. 세대는 1이며 a의 기록은 total과 synced에 각각 남는다. ①은 REFRESH가 동기화한다고 계산했다. ②는 버려진 접미부를 total에 남겼다. ③은 CRASH가 세대를 늘린다고 가정했다. ④는 복구에 쓴 기록을 translog에서 제거했다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 명령을 순서대로 실행했을 때 마지막 LOG의 출력 한 줄을 쓴다.",
+      "context": "PUT note red\nFLUSH\nDURABILITY async\nPUT note blue\nDEL ghost\nSYNC\nPUT note gold\nDEL note\nREFRESH\nCRASH\nCRASH\nLOG",
+      "answers": ["generation=2 total=2 synced=2"],
+      "refs": ["3.3", "4.1", "4.2", "4.6", "4.7", "4.8"],
+      "quote": "CRASH 뒤 translog 세대 번호는 그대로이며, 남은 total과 synced는 둘 다 장애 직전의 synced와 같다.",
+      "explanation": "FLUSH가 세대를 2로 바꾸고 기존 기록 수를 0으로 만든다. SYNC는 PUT note blue와 없는 id에 대한 DEL ghost까지 두 기록을 동기화한다. 뒤의 gold와 DEL note는 REFRESH로 공개되어도 동기화되지 않아 첫 CRASH가 버린다. 두 번째 CRASH도 커밋부터 같은 두 기록을 재적용하며 기록을 추가하지 않는다. 따라서 generation=2 total=2 synced=2다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 명령을 순서대로 실행했을 때 마지막 STATE의 출력 한 줄을 쓴다.",
+      "context": "PUT note red\nPUT tag green\nFLUSH\nDURABILITY async\nDEL note\nPUT tag blue\nPUT tag gold\nTICK 5000\nREFRESH\nPUT note lost\nCRASH\nSTATE",
+      "answers": ["time=5000 buffer=3 visible=2"],
+      "refs": ["3.1", "4.5", "4.6", "4.7", "4.9", "7.1"],
+      "quote": "SEGMENTS와 STATE의 visible은 커밋의 공개 상태만 본다.",
+      "explanation": "FLUSH가 note와 tag 두 문서를 커밋한다. TICK이 시각 5000의 동기화 경계에서 DEL note와 tag의 두 PUT을 저장한다. 뒤의 PUT note lost는 동기화되지 않아 장애로 사라진다. 복구는 커밋의 공개 문서 두 개를 복원하고 동기화된 세 연산을 버퍼에 쌓는다. CRASH 자체는 refresh하지 않으므로 최신 문서가 tag 하나여도 visible은 2이고 buffer는 문서 수가 아닌 연산 수 3이다. 시각은 유지되므로 time=5000 buffer=3 visible=2다."
+    }
+  ]
+}

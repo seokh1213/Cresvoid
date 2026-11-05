@@ -1,0 +1,529 @@
+{
+  "timeout_sec": 60,
+  "tests": [
+    {
+      "name": "check-01",
+      "refs": [
+        "4.1",
+        "3.1",
+        "3.2",
+        "1.1"
+      ],
+      "quote": "`MARKET <id> <owner> <side> <qty>`는 가격 조건 없이 상대 주문을 가격-시간 우선으로 체결한다.",
+      "input": [
+        "MARKET A u BUY 3",
+        "BOOK",
+        "CANCEL A"
+      ],
+      "expected": [
+        "ORDER A 0 3",
+        "BOOK B - S -",
+        "ERR NOT_FOUND"
+      ]
+    },
+    {
+      "name": "check-02",
+      "refs": [
+        "4.1",
+        "2.1",
+        "3.2"
+      ],
+      "quote": "`MARKET <id> <owner> <side> <qty>`는 가격 조건 없이 상대 주문을 가격-시간 우선으로 체결한다.",
+      "input": [
+        "LIMIT Z u SELL 101 2",
+        "LIMIT A u SELL 100 3",
+        "LIMIT B v SELL 100 4",
+        "MARKET C u BUY 10",
+        "BOOK",
+        "LIMIT C u BUY 100 1"
+      ],
+      "expected": [
+        "ORDER Z 2 0",
+        "ORDER A 3 0",
+        "ORDER B 4 0",
+        "TRADE 1 C A 100 3",
+        "TRADE 2 C B 100 4",
+        "TRADE 3 C Z 101 2",
+        "ORDER C 0 1",
+        "BOOK B - S -",
+        "ERR DUPLICATE"
+      ]
+    },
+    {
+      "name": "check-03",
+      "refs": [
+        "4.1",
+        "3.2"
+      ],
+      "quote": "`MARKET <id> <owner> <side> <qty>`는 가격 조건 없이 상대 주문을 가격-시간 우선으로 체결한다.",
+      "input": [
+        "LIMIT Z u BUY 100 2",
+        "LIMIT A v BUY 100 3",
+        "LIMIT H u BUY 102 1",
+        "LIMIT L u BUY 1 4",
+        "MARKET S u SELL 8",
+        "BOOK",
+        "MARKET T u SELL 3",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Z 2 0",
+        "ORDER A 3 0",
+        "ORDER H 1 0",
+        "ORDER L 4 0",
+        "TRADE 1 H S 102 1",
+        "TRADE 2 Z S 100 2",
+        "TRADE 3 A S 100 3",
+        "TRADE 4 L S 1 2",
+        "ORDER S 0 0",
+        "BOOK B 1:2 S -",
+        "TRADE 5 L T 1 2",
+        "ORDER T 0 1",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-04",
+      "refs": [
+        "4.2",
+        "2.2",
+        "3.2"
+      ],
+      "quote": "`IOC <id> <owner> <side> <price> <qty>`는 같은 인자의 `LIMIT`와 같은 상대 주문을 같은 순서·가격으로 체결하되, 더 체결할 수 없으면 남은 전량을 취소한다.",
+      "input": [
+        "LIMIT Z u SELL 101 5",
+        "LIMIT A u SELL 99 2",
+        "LIMIT B v SELL 100 3",
+        "IOC C u BUY 100 7",
+        "BOOK",
+        "IOC D u BUY 100 1",
+        "CANCEL C",
+        "LIMIT C u BUY 100 1"
+      ],
+      "expected": [
+        "ORDER Z 5 0",
+        "ORDER A 2 0",
+        "ORDER B 3 0",
+        "TRADE 1 C A 99 2",
+        "TRADE 2 C B 100 3",
+        "ORDER C 0 2",
+        "BOOK B - S 101:5",
+        "ORDER D 0 1",
+        "ERR NOT_FOUND",
+        "ERR DUPLICATE"
+      ]
+    },
+    {
+      "name": "check-05",
+      "refs": [
+        "4.2",
+        "3.2"
+      ],
+      "quote": "`IOC <id> <owner> <side> <price> <qty>`는 같은 인자의 `LIMIT`와 같은 상대 주문을 같은 순서·가격으로 체결하되, 더 체결할 수 없으면 남은 전량을 취소한다.",
+      "input": [
+        "LIMIT A u BUY 100 3",
+        "LIMIT B u BUY 99 4",
+        "IOC C u SELL 100 5",
+        "BOOK",
+        "IOC D u SELL 99 2",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 3 0",
+        "ORDER B 4 0",
+        "TRADE 1 A C 100 3",
+        "ORDER C 0 2",
+        "BOOK B 99:4 S -",
+        "TRADE 2 B D 99 2",
+        "ORDER D 0 0",
+        "BOOK B 99:2 S -"
+      ]
+    },
+    {
+      "name": "check-06",
+      "refs": [
+        "4.3",
+        "2.2",
+        "2.3",
+        "3.1",
+        "3.2"
+      ],
+      "quote": "`FOK <id> <owner> <side> <price> <qty>`는 지정가 이내의 상대 잔량 합이 `qty` 이상이면 전량을 체결하고 `ORDER <id> 0 0`을 출력한다.",
+      "input": [
+        "LIMIT Z u SELL 100 2",
+        "LIMIT A v SELL 100 3",
+        "LIMIT H u SELL 101 10",
+        "FOK F u BUY 100 6",
+        "BOOK",
+        "FOK F u BUY 100 1",
+        "FOK G u BUY 100 5",
+        "BOOK",
+        "CANCEL F"
+      ],
+      "expected": [
+        "ORDER Z 2 0",
+        "ORDER A 3 0",
+        "ORDER H 10 0",
+        "ORDER F 0 6",
+        "BOOK B - S 100:5,101:10",
+        "ERR DUPLICATE",
+        "TRADE 1 G Z 100 2",
+        "TRADE 2 G A 100 3",
+        "ORDER G 0 0",
+        "BOOK B - S 101:10",
+        "ERR NOT_FOUND"
+      ]
+    },
+    {
+      "name": "check-07",
+      "refs": [
+        "4.3",
+        "2.2",
+        "3.2"
+      ],
+      "quote": "`FOK <id> <owner> <side> <price> <qty>`는 지정가 이내의 상대 잔량 합이 `qty` 이상이면 전량을 체결하고 `ORDER <id> 0 0`을 출력한다.",
+      "input": [
+        "LIMIT A same BUY 103 2",
+        "LIMIT Z same BUY 102 3",
+        "LIMIT B v BUY 102 4",
+        "LIMIT L same BUY 101 5",
+        "FOK S same SELL 102 7",
+        "BOOK",
+        "FOK T same SELL 101 7",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 2 0",
+        "ORDER Z 3 0",
+        "ORDER B 4 0",
+        "ORDER L 5 0",
+        "TRADE 1 A S 103 2",
+        "TRADE 2 Z S 102 3",
+        "TRADE 3 B S 102 2",
+        "ORDER S 0 0",
+        "BOOK B 102:2,101:5 S -",
+        "TRADE 4 B T 102 2",
+        "TRADE 5 L T 101 5",
+        "ORDER T 0 0",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-08",
+      "refs": [
+        "4.5",
+        "2.4",
+        "4.4",
+        "4.7"
+      ],
+      "quote": "새 잔량이 양수이고 가격이 같으며 새 잔량이 현재 잔량 이하이면 잔량만 바꾸고 도착 순번을 유지한다.",
+      "input": [
+        "LIMIT Z u SELL 100 8",
+        "LIMIT A v SELL 100 4",
+        "MARKET B u BUY 2",
+        "AMEND Z 100 4",
+        "AMEND Z 100 4",
+        "BOOK",
+        "MARKET C u BUY 5",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Z 8 0",
+        "ORDER A 4 0",
+        "TRADE 1 B Z 100 2",
+        "ORDER B 0 0",
+        "AMEND Z 4 2",
+        "AMEND Z 4 0",
+        "BOOK B - S 100:8",
+        "TRADE 2 C Z 100 4",
+        "TRADE 3 C A 100 1",
+        "ORDER C 0 0",
+        "BOOK B - S 100:3"
+      ]
+    },
+    {
+      "name": "check-09",
+      "refs": [
+        "4.6",
+        "4.4",
+        "2.4",
+        "4.7"
+      ],
+      "quote": "새 잔량이 양수이고 가격이 달라지거나 잔량이 증가하면 기존 대기 위치를 없애고 도착 시계를 1 늘려 새 도착 순번을 준다.",
+      "input": [
+        "LIMIT Z u BUY 100 10",
+        "LIMIT A v BUY 100 4",
+        "MARKET S u SELL 4",
+        "AMEND Z 100 8",
+        "MARKET T u SELL 7",
+        "BOOK",
+        "CANCEL Z"
+      ],
+      "expected": [
+        "ORDER Z 10 0",
+        "ORDER A 4 0",
+        "TRADE 1 Z S 100 4",
+        "ORDER S 0 0",
+        "AMEND Z 8 0",
+        "TRADE 2 A T 100 4",
+        "TRADE 3 Z T 100 3",
+        "ORDER T 0 0",
+        "BOOK B 100:5 S -",
+        "CANCEL Z 5"
+      ]
+    },
+    {
+      "name": "check-10",
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.4"
+      ],
+      "quote": "새 잔량이 양수이고 가격이 달라지거나 잔량이 증가하면 기존 대기 위치를 없애고 도착 시계를 1 늘려 새 도착 순번을 준다.",
+      "input": [
+        "LIMIT B u BUY 99 4",
+        "LIMIT S v SELL 101 2",
+        "LIMIT T w SELL 102 5",
+        "AMEND B 102 6",
+        "BOOK",
+        "LIMIT C u BUY 98 2",
+        "AMEND C 102 1",
+        "BOOK",
+        "LIMIT D u BUY 97 1",
+        "AMEND D 96 1",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER B 4 0",
+        "ORDER S 2 0",
+        "ORDER T 5 0",
+        "TRADE 1 B S 101 2",
+        "TRADE 2 B T 102 4",
+        "AMEND B 0 0",
+        "BOOK B - S 102:1",
+        "ORDER C 2 0",
+        "TRADE 3 C T 102 1",
+        "AMEND C 0 1",
+        "BOOK B - S -",
+        "ORDER D 1 0",
+        "AMEND D 1 0",
+        "BOOK B 96:1 S -"
+      ]
+    },
+    {
+      "name": "check-11",
+      "refs": [
+        "4.6",
+        "4.7",
+        "4.5"
+      ],
+      "quote": "새 잔량이 양수이고 가격이 달라지거나 잔량이 증가하면 기존 대기 위치를 없애고 도착 시계를 1 늘려 새 도착 순번을 준다.",
+      "input": [
+        "LIMIT S u SELL 110 8",
+        "LIMIT B v BUY 100 2",
+        "LIMIT C v BUY 99 4",
+        "AMEND S 99 5",
+        "BOOK",
+        "LIMIT A u SELL 105 3",
+        "LIMIT Z v SELL 104 2",
+        "AMEND A 104 2",
+        "MARKET T u BUY 3",
+        "BOOK",
+        "AMEND A 1 0",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER S 8 0",
+        "ORDER B 2 0",
+        "ORDER C 4 0",
+        "TRADE 1 B S 100 2",
+        "TRADE 2 C S 99 3",
+        "AMEND S 0 3",
+        "BOOK B 99:1 S -",
+        "ORDER A 3 0",
+        "ORDER Z 2 0",
+        "AMEND A 2 1",
+        "TRADE 3 T Z 104 2",
+        "TRADE 4 T A 104 1",
+        "ORDER T 0 0",
+        "BOOK B 99:1 S 104:1",
+        "AMEND A 0 1",
+        "BOOK B 99:1 S -"
+      ]
+    },
+    {
+      "name": "check-12",
+      "refs": [
+        "4.5",
+        "4.7",
+        "5.2",
+        "3.1"
+      ],
+      "quote": "새 잔량이 0이면 가격 변경 여부와 관계없이 현재 잔량 전부를 취소한다.",
+      "input": [
+        "LIMIT A u BUY 1 4",
+        "AMEND A 1000000000 -0",
+        "BOOK",
+        "AMEND A 1 1",
+        "CANCEL A",
+        "LIMIT A u BUY 1 1",
+        "MARKET B u SELL 2",
+        "AMEND B 1 0",
+        "FOK C u BUY 1 1",
+        "AMEND C 1 1",
+        "IOC D u SELL 1 1",
+        "AMEND D 1 1"
+      ],
+      "expected": [
+        "ORDER A 4 0",
+        "AMEND A 0 4",
+        "BOOK B - S -",
+        "ERR NOT_FOUND",
+        "ERR NOT_FOUND",
+        "ERR DUPLICATE",
+        "ORDER B 0 2",
+        "ERR NOT_FOUND",
+        "ORDER C 0 1",
+        "ERR NOT_FOUND",
+        "ORDER D 0 1",
+        "ERR NOT_FOUND"
+      ]
+    },
+    {
+      "name": "check-13",
+      "refs": [
+        "5.1",
+        "5.2",
+        "4.5"
+      ],
+      "quote": "01단계의 오류 우선순위를 새 명령에도 적용한다.",
+      "input": [
+        "LIMIT Z u SELL 100 3",
+        "LIMIT A u SELL 100 2",
+        "MARKET Z u BUY 0",
+        "IOC Z u BUY 100 0",
+        "FOK Z u BUY 100 0",
+        "MARKET Z u BUY +1",
+        "IOC Z u BUY 1e2 1",
+        "FOK Z u BUY 100 x",
+        "MARKET Z bad! BUY 1",
+        "IOC Z u buy 100 1",
+        "FOK Z u BUY 1000000001 1",
+        "MARKET Z u BUY 1",
+        "IOC Z u BUY 100 1",
+        "FOK Z u BUY 100 1",
+        "AMEND Z 100 -1",
+        "AMEND Z 0 2",
+        "AMEND Z 100 +2",
+        "AMEND Z 100 1000000001",
+        "AMEND Z 100 9223372036854775808",
+        "AMEND Z 100 2 extra",
+        "AMEND bad! 100 0",
+        "AMEND Missing 0 0",
+        "AMEND Missing 100 0",
+        "MARKET Fresh u BUY 0",
+        "MARKET Fresh u BUY 4",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Z 3 0",
+        "ORDER A 2 0",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR DUPLICATE",
+        "ERR DUPLICATE",
+        "ERR DUPLICATE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR FORMAT",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR FORMAT",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR NOT_FOUND",
+        "ERR VALUE",
+        "TRADE 1 Fresh Z 100 3",
+        "TRADE 2 Fresh A 100 1",
+        "ORDER Fresh 0 0",
+        "BOOK B - S 100:1"
+      ]
+    },
+    {
+      "name": "check-14",
+      "refs": [
+        "4.3",
+        "3.2",
+        "4.4",
+        "4.7"
+      ],
+      "quote": "`FOK <id> <owner> <side> <price> <qty>`는 지정가 이내의 상대 잔량 합이 `qty` 이상이면 전량을 체결하고 `ORDER <id> 0 0`을 출력한다.",
+      "input": [
+        "LIMIT A u SELL 1000000000 1000000000",
+        "LIMIT B u SELL 1000000000 1000000000",
+        "LIMIT C u SELL 1000000000 1000000000",
+        "BOOK",
+        "FOK T u BUY 1000000000 1000000000",
+        "BOOK",
+        "AMEND B 1000000000 000000001",
+        "IOC V u BUY 1000000000 2",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 1000000000 0",
+        "ORDER B 1000000000 0",
+        "ORDER C 1000000000 0",
+        "BOOK B - S 1000000000:3000000000",
+        "TRADE 1 T A 1000000000 1000000000",
+        "ORDER T 0 0",
+        "BOOK B - S 1000000000:2000000000",
+        "AMEND B 1 999999999",
+        "TRADE 2 V B 1000000000 1",
+        "TRADE 3 V C 1000000000 1",
+        "ORDER V 0 0",
+        "BOOK B - S 1000000000:999999999"
+      ]
+    },
+    {
+      "name": "check-15",
+      "refs": [
+        "7.1"
+      ],
+      "quote": "입력 방식, 출력 비교, JDK·라이브러리 범위와 테스트별 60초 제한은 01단계와 같다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--orders",
+        "400",
+        "--mode",
+        "mixed"
+      ],
+      "repeat": 3,
+      "timeout_sec": 60
+    },
+    {
+      "name": "check-16",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "대규모 검사는 재사용하지 않은 ID의 새 주문 총 1,000,000건을 처리한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--orders",
+        "1000000",
+        "--mode",
+        "scale"
+      ],
+      "repeat": 2,
+      "timeout_sec": 60
+    }
+  ]
+}

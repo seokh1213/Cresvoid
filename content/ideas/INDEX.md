@@ -21,13 +21,13 @@
 | [메시징: Kafka](backend/messaging/README.md) | 5 | 2 | 0 | 3 | 0 |
 | [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
-| [OLAP](backend/olap/README.md) | 6 | 1 | 0 | 5 | 0 |
+| [OLAP](backend/olap/README.md) | 6 | 0 | 0 | 6 | 0 |
 | [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
-| [검색: Elasticsearch](backend/search/README.md) | 11 | 2 | 0 | 9 | 0 |
+| [검색: Elasticsearch](backend/search/README.md) | 11 | 1 | 0 | 10 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
-| [시스템 설계](backend/system-design/README.md) | 17 | 13 | 0 | 4 | 0 |
-| 합계 | 185 | 42 | 24 | 117 | 2 |
+| [시스템 설계](backend/system-design/README.md) | 17 | 12 | 0 | 5 | 0 |
+| 합계 | 185 | 39 | 24 | 120 | 2 |
 
 ## 다음 후보
 
@@ -36,9 +36,6 @@
 | 차수 | 카드 | 제목 | 종류 | 트랙 | 단계 | 환경 |
 |---|---|---|---|---|---|---|
 | 3 | [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 없음 |
-| 3 | [B-olap-30](backend/olap/cards/B-olap-30-sketch-and-sparse-index.md) | 근사 집계와 희소 인덱스 | build | mini-olap | 04-sketch, 05-sparse-index | 없음 |
-| 3 | [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 없음 |
-| 3 | [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 없음 |
 | 4 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 없음 |
 | 4 | [B-distributed-40](backend/distributed/cards/B-distributed-40-consistent-hashing.md) | 일관 해싱 만들기 | build | consistent-hashing | 01-ring, 02-rebalance, 03-replication | 없음 |
 | 4 | [B-distributed-60](backend/distributed/cards/B-distributed-60-lease-lock.md) | 가상 시간의 lease 잠금 만들기 | build | lease-lock | 01-acquisition, 02-expiry | 없음 |
@@ -119,18 +116,18 @@
 | lease-lock | build | 없음 | 04 |  | 01-acquisition(B-distributed-60 4차), 02-expiry(B-distributed-60 4차), 03-fenced-writes(B-distributed-80 5차) |
 | ledger | build | 있음 | 04 | 01-double-entry(B-system-design-40 완료), 02-psp-idempotency(B-system-design-40 완료), 03-reconciliation(B-system-design-40 완료) |  |
 | lsm | build | 없음 | 04 |  | 01-memtable(B-database-30 4차), 02-compaction(B-database-30 4차), 03-bloom-and-range(B-database-30 4차) |
-| matching-engine | build | 없음 | 04 |  | 01-order-book(B-system-design-50 3차), 02-order-types(B-system-design-50 3차), 03-replay(B-system-design-50 3차) |
+| matching-engine | build | 있음 | 04 | 01-order-book(B-system-design-50 완료), 02-order-types(B-system-design-50 완료), 03-replay(B-system-design-50 완료) |  |
 | mcp-server | build | 없음 | 04 |  | 01-tools(B-ai-agent-40 3차), 02-resources-prompts(B-ai-agent-40 3차), 03-errors-and-versions(B-ai-agent-40 3차) |
 | metrics | build | 있음 | 04 | 01-counters(B-observability-20 완료), 02-histograms(B-observability-20 완료), 03-slo-alerts(B-observability-20 완료) |  |
 | mini-dfs | build | 있음 | 04 | 01-namespace(B-hdfs-20 완료), 02-placement(B-hdfs-20 완료), 03-recovery(B-hdfs-20 완료) |  |
 | mini-log | build | 있음 | 05 | 01-partitions(B-messaging-20 완료), 02-idempotence(B-messaging-20 완료), 03-groups(B-messaging-20 완료), 04-compaction(B-messaging-20 완료) |  |
-| mini-olap | build | 있음 | 06 | 01-aggregate(B-olap-20 완료), 02-scale(B-olap-20 완료), 03-rollup(B-olap-20 완료) | 04-sketch(B-olap-30 3차), 05-sparse-index(B-olap-30 3차) |
+| mini-olap | build | 있음 | 06 | 01-aggregate(B-olap-20 완료), 02-scale(B-olap-20 완료), 03-rollup(B-olap-20 완료), 04-sketch(B-olap-30 완료), 05-sparse-index(B-olap-30 완료) |  |
 | mini-sql | build | 없음 | 04 |  | 01-select(B-mini-sql-10 5차), 02-group(B-mini-sql-10 5차), 03-join(B-mini-sql-10 5차) |
 | mvcc | build | 있음 | 04 | 01-snapshot(B-database-20 완료), 02-locking(B-database-20 완료), 03-serializable(B-database-20 완료) |  |
 | net-lab | lab | 없음 | 01 |  | keepalive-race(L-network-10 4차), timeout-layers(L-network-20 5차) |
 | news-feed | build | 없음 | 04 |  | 01-fanout-on-write(B-system-design-70 4차), 02-fanout-on-read(B-system-design-70 4차), 03-hybrid(B-system-design-70 4차) |
 | notifier | build | 없음 | 04 |  | 01-dispatch(B-system-design-150 5차), 02-reliability(B-system-design-150 5차), 03-throttling(B-system-design-150 5차) |
-| nrt-index | build | 없음 | 04 |  | 01-refresh(B-search-30 3차), 02-durability(B-search-30 3차), 03-concurrency(B-search-30 3차) |
+| nrt-index | build | 있음 | 04 | 01-refresh(B-search-30 완료), 02-durability(B-search-30 완료), 03-concurrency(B-search-30 완료) |  |
 | object-store | build | 없음 | 04 |  | 01-versioning(B-system-design-160 5차), 02-multipart(B-system-design-160 5차), 03-durability(B-system-design-160 5차) |
 | olap-lab | lab | 있음 | 04 | 01-sorting-key(L-olap-40 완료), 02-replacing-merge(L-olap-41 완료), 03-too-many-parts(L-olap-42 완료) |  |
 | pipeline-lab | lab | 있음 | 02 | 01-candidate-recall(L-pipeline-90 완료) |  |
@@ -391,7 +388,7 @@
 |---|---|---|---|---|---|---|---|---|
 | [R-olap-10](backend/olap/cards/R-olap-10-columnar-execution.md) | 열 저장과 분석 질의 | reading | tech-reading | 03-columnar-execution | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-olap-20](backend/olap/cards/B-olap-20-mini-olap.md) | 열 지향 집계 엔진 만들기 | build | mini-olap | 01-aggregate, 02-scale, 03-rollup | 완료(2026-10-10) | 2 | 없음 | R-olap-10 |
-| [B-olap-30](backend/olap/cards/B-olap-30-sketch-and-sparse-index.md) | 근사 집계와 희소 인덱스 | build | mini-olap | 04-sketch, 05-sparse-index | 후보 | 3 | 없음 | B-olap-20 |
+| [B-olap-30](backend/olap/cards/B-olap-30-sketch-and-sparse-index.md) | 근사 집계와 희소 인덱스 | build | mini-olap | 04-sketch, 05-sparse-index | 완료(2026-11-06) | 3 | 없음 | B-olap-20 |
 | [L-olap-40](backend/olap/cards/L-olap-40-sorting-key.md) | 정렬 키와 읽는 그래뉼 수 | lab | olap-lab | 01-sorting-key | 완료(2026-11-06) | 4 | docker | R-olap-10 |
 | [L-olap-41](backend/olap/cards/L-olap-41-replacing-merge.md) | 병합 때만 지워지는 중복 | lab | olap-lab | 02-replacing-merge | 완료(2026-11-06) | 4 | docker | L-olap-40 |
 | [L-olap-42](backend/olap/cards/L-olap-42-too-many-parts.md) | 작은 삽입과 파트 폭증 | lab | olap-lab | 03-too-many-parts | 완료(2026-11-06) | 5 | docker | L-olap-40 |
@@ -420,7 +417,7 @@
 |---|---|---|---|---|---|---|---|---|
 | [R-search-10](backend/search/cards/R-search-10-near-real-time-search.md) | 거의 실시간 검색과 내구성 | reading | tech-reading | 04-near-real-time-search | 완료(2026-10-09) | 2 | 없음 |  |
 | [B-search-20](backend/search/cards/B-search-20-es-cluster.md) | 분산 검색 조정 노드 만들기 | build | es-cluster | 01-routing, 02-terms-agg, 03-paging | 완료(2026-10-10) | 2 | 없음 | R-search-10 |
-| [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 후보 | 3 | 없음 | R-search-10 |
+| [B-search-30](backend/search/cards/B-search-30-nrt-index.md) | 세그먼트와 translog 시뮬레이터 만들기 | build | nrt-index | 01-refresh, 02-durability, 03-concurrency | 완료(2026-11-06) | 3 | 없음 | R-search-10 |
 | [F-search-40](backend/search/cards/F-search-40-hangul-normalization.md) | 한글 정규화가 어긋난 상품 검색 | fix | bug-fix | 16-hangul-normalization | 완료(2026-11-06) | 4 | 없음 |  |
 | [L-search-50](backend/search/cards/L-search-50-mapping-explosion.md) | 동적 매핑과 필드 폭증 | lab | es-lab | 01-mapping-explosion | 완료(2026-11-06) | 4 | docker | R-search-10 |
 | [L-search-51](backend/search/cards/L-search-51-deep-paging.md) | 깊은 페이지 넘기기 | lab | es-lab | 02-deep-paging | 완료(2026-11-06) | 4 | docker | B-search-20 |
@@ -472,7 +469,7 @@
 | [B-system-design-25](backend/system-design/cards/B-system-design-25-client-throttling.md) | 호출자 쪽 적응형 쓰로틀링 | build | rate-limiter | 04-client-throttle | 후보 | 4 | 없음 | B-system-design-20 |
 | [B-system-design-30](backend/system-design/cards/B-system-design-30-id-generator.md) | 분산 고유 ID 생성기 만들기 | build | id-generator | 01-snowflake, 02-sharded-ids, 03-ordering | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-40](backend/system-design/cards/B-system-design-40-ledger.md) | 결제 원장 만들기 | build | ledger | 01-double-entry, 02-psp-idempotency, 03-reconciliation | 완료(2026-11-06) | 3 | 없음 |  |
-| [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 후보 | 3 | 없음 |  |
+| [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-60](backend/system-design/cards/B-system-design-60-crawler.md) | 웹 크롤러 만들기 | build | crawler | 01-frontier, 02-dedup, 03-politeness | 후보 | 4 | 없음 |  |
 | [B-system-design-70](backend/system-design/cards/B-system-design-70-news-feed.md) | 뉴스 피드 팬아웃 만들기 | build | news-feed | 01-fanout-on-write, 02-fanout-on-read, 03-hybrid | 후보 | 4 | 없음 |  |
 | [B-system-design-80](backend/system-design/cards/B-system-design-80-chat.md) | 채팅 순서와 동기화 만들기 | build | chat | 01-sequencing, 02-sync, 03-presence | 후보 | 4 | 없음 |  |

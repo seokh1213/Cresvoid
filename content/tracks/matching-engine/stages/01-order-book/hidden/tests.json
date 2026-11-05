@@ -1,0 +1,548 @@
+{
+  "timeout_sec": 60,
+  "tests": [
+    {
+      "name": "check-01",
+      "refs": [
+        "4.3",
+        "3.3",
+        "3.4",
+        "4.5",
+        "1.1"
+      ],
+      "quote": "더 체결할 수 없거나 taker의 잔량이 0이 되면 체결을 끝낸다.",
+      "input": [
+        "LIMIT A user BUY 100 2",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 2 0",
+        "BOOK B 100:2 S -"
+      ]
+    },
+    {
+      "name": "check-02",
+      "refs": [
+        "2.2",
+        "2.1",
+        "2.3",
+        "4.1",
+        "4.2",
+        "4.3",
+        "6.1"
+      ],
+      "quote": "가격 우선은 매수 taker에게 가장 싼 매도를, 매도 taker에게 가장 비싼 매수를 먼저 배정한다는 뜻이다.",
+      "input": [
+        "LIMIT S1 kim SELL 101 5",
+        "LIMIT S2 lee SELL 100 3",
+        "LIMIT S3 park SELL 100 4",
+        "LIMIT B1 cho BUY 102 8",
+        "BOOK",
+        "CANCEL S1",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER S1 5 0",
+        "ORDER S2 3 0",
+        "ORDER S3 4 0",
+        "TRADE 1 B1 S2 100 3",
+        "TRADE 2 B1 S3 100 4",
+        "TRADE 3 B1 S1 101 1",
+        "ORDER B1 0 0",
+        "BOOK B - S 101:4",
+        "CANCEL S1 4",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-03",
+      "refs": [
+        "2.2",
+        "4.1",
+        "4.2"
+      ],
+      "quote": "가격이 같으면 먼저 도착한 maker를 먼저 배정한다.",
+      "input": [
+        "LIMIT Zulu z BUY 100 3",
+        "LIMIT Alpha a BUY 100 2",
+        "LIMIT High h BUY 101 1",
+        "LIMIT Low l BUY 99 4",
+        "LIMIT Sell s SELL 100 5",
+        "BOOK",
+        "LIMIT Next s SELL 99 3",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Zulu 3 0",
+        "ORDER Alpha 2 0",
+        "ORDER High 1 0",
+        "ORDER Low 4 0",
+        "TRADE 1 High Sell 101 1",
+        "TRADE 2 Zulu Sell 100 3",
+        "TRADE 3 Alpha Sell 100 1",
+        "ORDER Sell 0 0",
+        "BOOK B 100:1,99:4 S -",
+        "TRADE 4 Alpha Next 100 1",
+        "TRADE 5 Low Next 99 2",
+        "ORDER Next 0 0",
+        "BOOK B 99:2 S -"
+      ]
+    },
+    {
+      "name": "check-04",
+      "refs": [
+        "4.2",
+        "4.3",
+        "4.4",
+        "2.3"
+      ],
+      "quote": "체결 한 건마다 체결 시계를 1 늘리고 `TRADE <tradeNo> <buyId> <sellId> <price> <qty>`를 한 줄 출력한다.",
+      "input": [
+        "LIMIT Z z SELL 90 5",
+        "LIMIT A a SELL 90 4",
+        "LIMIT B u BUY 90 2",
+        "LIMIT C u BUY 90 4",
+        "BOOK",
+        "CANCEL A",
+        "LIMIT D u BUY 89 2",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Z 5 0",
+        "ORDER A 4 0",
+        "TRADE 1 B Z 90 2",
+        "ORDER B 0 0",
+        "TRADE 2 C Z 90 3",
+        "TRADE 3 C A 90 1",
+        "ORDER C 0 0",
+        "BOOK B - S 90:3",
+        "CANCEL A 3",
+        "ORDER D 2 0",
+        "BOOK B 89:2 S -"
+      ]
+    },
+    {
+      "name": "check-05",
+      "refs": [
+        "4.5",
+        "4.6"
+      ],
+      "quote": "`BOOK`은 한 줄 `BOOK B <bids> S <asks>`를 출력한다.",
+      "input": [
+        "BOOK",
+        "LIMIT B1 u BUY 98 3",
+        "LIMIT B2 u BUY 100 2",
+        "LIMIT B3 u BUY 100 4",
+        "LIMIT B4 u BUY 99 1",
+        "LIMIT S1 u SELL 103 5",
+        "LIMIT S2 u SELL 101 2",
+        "LIMIT S3 u SELL 102 4",
+        "LIMIT S4 u SELL 101 3",
+        "BOOK",
+        "BOOK",
+        "CANCEL B2",
+        "CANCEL S2",
+        "BOOK"
+      ],
+      "expected": [
+        "BOOK B - S -",
+        "ORDER B1 3 0",
+        "ORDER B2 2 0",
+        "ORDER B3 4 0",
+        "ORDER B4 1 0",
+        "ORDER S1 5 0",
+        "ORDER S2 2 0",
+        "ORDER S3 4 0",
+        "ORDER S4 3 0",
+        "BOOK B 100:6,99:1,98:3 S 101:5,102:4,103:5",
+        "BOOK B 100:6,99:1,98:3 S 101:5,102:4,103:5",
+        "CANCEL B2 2",
+        "CANCEL S2 2",
+        "BOOK B 100:4,99:1,98:3 S 101:3,102:4,103:5"
+      ]
+    },
+    {
+      "name": "check-06",
+      "refs": [
+        "4.4",
+        "2.4",
+        "4.2",
+        "5.2"
+      ],
+      "quote": "`CANCEL <id>`는 현재 호가창에 있는 주문의 잔량 전부를 제거하고 `CANCEL <id> <removedQty>`를 출력한다.",
+      "input": [
+        "LIMIT A u SELL 20 2",
+        "LIMIT B u SELL 20 3",
+        "LIMIT C u SELL 20 4",
+        "LIMIT D u SELL 20 5",
+        "CANCEL B",
+        "CANCEL A",
+        "CANCEL D",
+        "CANCEL B",
+        "LIMIT E u BUY 20 2",
+        "BOOK",
+        "CANCEL C",
+        "LIMIT F u SELL 20 1",
+        "LIMIT G u BUY 20 1",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 2 0",
+        "ORDER B 3 0",
+        "ORDER C 4 0",
+        "ORDER D 5 0",
+        "CANCEL B 3",
+        "CANCEL A 2",
+        "CANCEL D 5",
+        "ERR NOT_FOUND",
+        "TRADE 1 E C 20 2",
+        "ORDER E 0 0",
+        "BOOK B - S 20:2",
+        "CANCEL C 2",
+        "ORDER F 1 0",
+        "TRADE 2 G F 20 1",
+        "ORDER G 0 0",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-07",
+      "refs": [
+        "1.2",
+        "3.2",
+        "4.1",
+        "4.2",
+        "6.2"
+      ],
+      "quote": "소유자 식별자는 주문에 붙는 정보이며 같은 소유자의 매수·매도도 다른 주문과 똑같이 체결한다. 거래 규칙은 이 스펙에서 정한 계약을 따른다.",
+      "input": [
+        "LIMIT A same BUY 100 0",
+        "LIMIT A same BUY 100 4",
+        "LIMIT B same SELL 99 1",
+        "BOOK",
+        "CANCEL A",
+        "LIMIT A same BUY 100 1",
+        "CANCEL B",
+        "LIMIT same A SELL 100 1",
+        "LIMIT Same A BUY 100 1",
+        "BOOK"
+      ],
+      "expected": [
+        "ERR VALUE",
+        "ORDER A 4 0",
+        "TRADE 1 A B 100 1",
+        "ORDER B 0 0",
+        "BOOK B 100:3 S -",
+        "CANCEL A 3",
+        "ERR DUPLICATE",
+        "ERR NOT_FOUND",
+        "ORDER same 1 0",
+        "TRADE 2 Same same 100 1",
+        "ORDER Same 0 0",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-08",
+      "refs": [
+        "3.3",
+        "5.2",
+        "4.4"
+      ],
+      "quote": "성공한 새 주문 ID는 사용 ID 집합에 영구히 남으며 전량 체결하거나 취소해도 재사용하지 못한다.",
+      "input": [
+        "LIMIT A u BUY 10 1",
+        "CANCEL A",
+        "LIMIT A u SELL 11 1",
+        "LIMIT B u SELL 11 2",
+        "LIMIT C u BUY 11 2",
+        "LIMIT C u BUY 12 1",
+        "LIMIT B u SELL 11 1",
+        "CANCEL C",
+        "CANCEL Missing",
+        "LIMIT Retry u BUY 12 0",
+        "LIMIT Retry u BUY 12 2",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 1 0",
+        "CANCEL A 1",
+        "ERR DUPLICATE",
+        "ORDER B 2 0",
+        "TRADE 1 C B 11 2",
+        "ORDER C 0 0",
+        "ERR DUPLICATE",
+        "ERR DUPLICATE",
+        "ERR NOT_FOUND",
+        "ERR NOT_FOUND",
+        "ERR VALUE",
+        "ORDER Retry 2 0",
+        "BOOK B 12:2 S -"
+      ]
+    },
+    {
+      "name": "check-09",
+      "refs": [
+        "3.1",
+        "3.2",
+        "3.4"
+      ],
+      "quote": "표준 입력을 EOF까지 한 줄씩 읽고 줄마다 명령 하나를 처리한다.",
+      "input": [
+        " \t",
+        "  LIMIT\tZ___________\tA12345678901 BUY\t000001 0002  \t",
+        "\tBOOK \t",
+        "LIMIT a Z___________ SELL 01 01",
+        "CANCEL\tZ___________",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Z___________ 2 0",
+        "BOOK B 1:2 S -",
+        "TRADE 1 Z___________ a 1 1",
+        "ORDER a 0 0",
+        "CANCEL Z___________ 1",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-10",
+      "refs": [
+        "5.1",
+        "3.1",
+        "5.2"
+      ],
+      "quote": "알 수 없는 명령, 인자 수 불일치, 정수 토큰 문법 위반은 `ERR FORMAT`이다.",
+      "input": [
+        "limit A u BUY 1 1",
+        "BOOk",
+        "BOOK extra",
+        "CANCEL",
+        "CANCEL A extra",
+        "LIMIT",
+        "LIMIT A u BUY 1",
+        "LIMIT A u BUY 1 1 extra",
+        "LIMIT bad! u NO +1 0",
+        "LIMIT A u BUY 1.0 1",
+        "LIMIT A u BUY 1 1e2",
+        "LIMIT A u BUY --1 1",
+        "LIMIT A u BUY 1 +1",
+        "LIMIT A u BUY - 1",
+        "LIMIT A u BUY 1 1",
+        "BOOK"
+      ],
+      "expected": [
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ERR FORMAT",
+        "ORDER A 1 0",
+        "BOOK B 1:1 S -"
+      ]
+    },
+    {
+      "name": "check-11",
+      "refs": [
+        "3.2",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "문법에 맞는 정수라도 signed 64비트 범위를 벗어나거나 해당 필드의 허용 범위를 벗어나면 값 오류다.",
+      "input": [
+        "LIMIT 1A u BUY 1 1",
+        "LIMIT abcdefghijklm u BUY 1 1",
+        "LIMIT A bad! BUY 1 1",
+        "LIMIT A u buy 1 1",
+        "LIMIT A u SELL 0 1",
+        "LIMIT A u BUY -0 1",
+        "LIMIT A u BUY -1 1",
+        "LIMIT A u BUY 1000000001 1",
+        "LIMIT A u BUY 1 0",
+        "LIMIT A u BUY 1 -0",
+        "LIMIT A u BUY 1 -1",
+        "LIMIT A u BUY 1 1000000001",
+        "LIMIT A u BUY 9223372036854775808 1",
+        "LIMIT A u BUY -9223372036854775809 1",
+        "LIMIT A u BUY 1 999999999999999999999999999",
+        "CANCEL bad!",
+        "LIMIT A u BUY 1 1",
+        "BOOK"
+      ],
+      "expected": [
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ORDER A 1 0",
+        "BOOK B 1:1 S -"
+      ]
+    },
+    {
+      "name": "check-12",
+      "refs": [
+        "5.2",
+        "5.1",
+        "3.3",
+        "4.2"
+      ],
+      "quote": "형식과 모든 값이 올바른 새 주문에서 이미 사용한 주문 ID이면 `ERR DUPLICATE`다.",
+      "input": [
+        "LIMIT A u SELL 100 4",
+        "LIMIT B u SELL 100 2",
+        "LIMIT A u SELL 100 0",
+        "LIMIT A u bad 100 1",
+        "LIMIT A u SELL 100 x",
+        "LIMIT A u SELL 100 1",
+        "LIMIT Fresh bad! BUY 100 3",
+        "LIMIT Fresh u BUY 100 3",
+        "BOOK",
+        "CANCEL Unknown",
+        "LIMIT C u BUY 100 3",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 4 0",
+        "ORDER B 2 0",
+        "ERR VALUE",
+        "ERR VALUE",
+        "ERR FORMAT",
+        "ERR DUPLICATE",
+        "ERR VALUE",
+        "TRADE 1 Fresh A 100 3",
+        "ORDER Fresh 0 0",
+        "BOOK B - S 100:3",
+        "ERR NOT_FOUND",
+        "TRADE 2 C A 100 1",
+        "TRADE 3 C B 100 2",
+        "ORDER C 0 0",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-13",
+      "refs": [
+        "4.6",
+        "3.2",
+        "4.4",
+        "4.5"
+      ],
+      "quote": "호가 합산 잔량과 시계는 signed 64비트 정수 범위에서 계산한다.",
+      "input": [
+        "LIMIT A u BUY 1 1000000000",
+        "LIMIT B u BUY 1 1000000000",
+        "LIMIT C u BUY 1 1000000000",
+        "LIMIT S u SELL 1000000000 1000000000",
+        "BOOK",
+        "LIMIT T u SELL 1 1000000000",
+        "BOOK",
+        "CANCEL B",
+        "CANCEL C",
+        "CANCEL S",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER A 1000000000 0",
+        "ORDER B 1000000000 0",
+        "ORDER C 1000000000 0",
+        "ORDER S 1000000000 0",
+        "BOOK B 1:3000000000 S 1000000000:1000000000",
+        "TRADE 1 A T 1 1000000000",
+        "ORDER T 0 0",
+        "BOOK B 1:2000000000 S 1000000000:1000000000",
+        "CANCEL B 1000000000",
+        "CANCEL C 1000000000",
+        "CANCEL S 1000000000",
+        "BOOK B - S -"
+      ]
+    },
+    {
+      "name": "check-14",
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.5",
+        "2.1"
+      ],
+      "quote": "`LIMIT <id> <owner> <side> <price> <qty>`는 지정가 주문을 접수한다.",
+      "input": [
+        "LIMIT Bid u BUY 99 2",
+        "LIMIT Ask u SELL 101 3",
+        "LIMIT Mid u BUY 100 5",
+        "BOOK",
+        "LIMIT Hit u SELL 100 7",
+        "BOOK",
+        "LIMIT Lift u BUY 101 4",
+        "BOOK"
+      ],
+      "expected": [
+        "ORDER Bid 2 0",
+        "ORDER Ask 3 0",
+        "ORDER Mid 5 0",
+        "BOOK B 100:5,99:2 S 101:3",
+        "TRADE 1 Mid Hit 100 5",
+        "ORDER Hit 2 0",
+        "BOOK B 99:2 S 100:2,101:3",
+        "TRADE 2 Lift Hit 100 2",
+        "TRADE 3 Lift Ask 101 2",
+        "ORDER Lift 0 0",
+        "BOOK B 99:2 S 101:1"
+      ]
+    },
+    {
+      "name": "check-15",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "고정 검사와 작은 무작위 혼합 검사는 가격·시간 우선, 부분 체결, 양방향 체결 가격, 취소, 합산 잔량, ID 재사용, 오류 후 상태, 자기 주문 간 체결을 함께 확인한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--orders",
+        "400",
+        "--mode",
+        "mixed"
+      ],
+      "repeat": 3,
+      "timeout_sec": 60
+    },
+    {
+      "name": "check-16",
+      "refs": [
+        "7.3"
+      ],
+      "quote": "대규모 검사는 새 주문 1,000,000건이다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--orders",
+        "1000000",
+        "--mode",
+        "scale"
+      ],
+      "repeat": 2,
+      "timeout_sec": 60
+    }
+  ]
+}

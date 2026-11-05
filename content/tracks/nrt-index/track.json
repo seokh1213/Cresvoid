@@ -1,0 +1,10 @@
+{
+  "title": "색인 경로 시뮬레이터",
+  "kind": "build",
+  "summary": "샤드 하나의 색인 경로를 시뮬레이터로 만들어 refresh 와 세그먼트, translog 내구성, 시퀀스 번호 기반 동시성 규칙을 구현한다.",
+  "stages": [
+    { "dir": "01-refresh", "title": "refresh와 세그먼트" },
+    { "dir": "02-durability", "title": "translog와 내구성" },
+    { "dir": "03-concurrency", "title": "시퀀스 번호와 조건부 색인" }
+  ]
+}

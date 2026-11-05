@@ -4,7 +4,7 @@ title: 주문 매칭 엔진 만들기
 kind: build
 track: matching-engine
 stage: 01-order-book, 02-order-types, 03-replay
-status: 후보
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq:

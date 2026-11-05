@@ -4,7 +4,7 @@ title: 세그먼트와 translog 시뮬레이터 만들기
 kind: build
 track: nrt-index
 stage: 01-refresh, 02-durability, 03-concurrency
-status: 후보
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq: R-search-10

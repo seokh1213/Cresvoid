@@ -19,7 +19,7 @@
 | `rag` | build | 4 |
 | `mini-dfs` | build | 3 |
 | `es-cluster` | build | 3 |
-| `mini-olap` | build | 3 |
+| `mini-olap` | build | 5 |
 | `dataflow` | build | 4 |
 | `rate-limiter` | build | 3 |
 | `mvcc` | build | 3 |
@@ -31,6 +31,8 @@
 | `coroutine-runtime` | build | 8 |
 | `id-generator` | build | 3 |
 | `ledger` | build | 3 |
+| `matching-engine` | build | 3 |
+| `nrt-index` | build | 3 |
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
 | `jvm-lab` | lab | 3 |

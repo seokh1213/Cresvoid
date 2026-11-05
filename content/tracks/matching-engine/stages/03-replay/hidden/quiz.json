@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력의 마지막 JOURNAL 명령이 출력하는 내용은?",
+      "context": "빈 엔진에 다음 행을 순서대로 입력한다.\nLIMIT A u BUY 00100 0\nEVENT 2 CANCEL\nEVENT 2 CANCEL A\nBOOK\nJOURNAL",
+      "choices": [
+        "JOURNAL 0 1\nEVENT 1 CANCEL A",
+        "JOURNAL 0 3\nEVENT 1 LIMIT A u BUY 00100 0\nEVENT 2 CANCEL\nEVENT 3 CANCEL A",
+        "JOURNAL 0 2\nEVENT 1 LIMIT A u BUY 00100 0\nEVENT 2 CANCEL",
+        "JOURNAL 0 2\nEVENT 1 LIMIT A u BUY 100 0\nEVENT 2 CANCEL",
+        "JOURNAL 0 0"
+      ],
+      "answer": 3,
+      "refs": ["3.2", "3.3", "4.2", "4.3", "5.1", "5.2"],
+      "quote": "정상 순번으로 받은 알려진 변경 명령의 본문은 형식 오류나 값 오류가 있어도 기록을 소비한다.",
+      "explanation": "③가 맞다. 수량 0인 직접 LIMIT도 알려진 변경 명령이므로 1번 기록이다. EVENT 2 CANCEL은 바깥 검사를 통과한 뒤 본문의 인자 부족 오류를 내면서 2번을 소비한다. 그다음 EVENT 2는 중복 순번이라 기록하지 않으며 BOOK과 JOURNAL도 기록하지 않는다. ①은 실패 명령을 누락하고 순번을 다시 매겼다. ②는 중복 EVENT를 자동 순번으로 다시 기록했다. ④는 기록에 보존해야 할 원래 가격 토큰의 철자를 바꿨다. ⑤는 실패한 변경 명령도 기록한다는 규칙을 빠뜨렸다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 SNAPSHOT의 헤더와 OPEN 행을 올바르게 짝지은 것은?",
+      "context": "빈 엔진에 다음 명령을 순서대로 입력한다.\nLIMIT A u SELL 100 5\nFOK B v BUY 99 1\nAMEND A 100 3\nCANCEL Missing\nSNAPSHOT\n각 선지는 SNAPSHOT 헤더와 OPEN 행만 적으며 USED 행은 생략한다.",
+      "choices": [
+        "SNAPSHOT 4 2 0 2 1 / OPEN A u SELL 100 3 1",
+        "SNAPSHOT 4 4 0 2 1 / OPEN A u SELL 100 3 1",
+        "SNAPSHOT 2 2 0 2 1 / OPEN A u SELL 100 3 1",
+        "SNAPSHOT 4 2 0 1 1 / OPEN A u SELL 100 3 1",
+        "SNAPSHOT 4 2 1 2 1 / OPEN A u SELL 100 3 3"
+      ],
+      "answer": 1,
+      "refs": ["2.2", "3.2", "4.2", "4.4", "4.5"],
+      "quote": "사용 ID에는 전량 체결, 취소, 시장가 잔량 취소, FOK 전량 취소로 닫힌 주문도 포함하고 오류로 접수하지 못한 ID는 포함하지 않는다.",
+      "explanation": "①이 맞다. 네 변경 명령이 각각 기록을 소비해 lastSeq는 4다. 정상 접수한 새 주문 A와 B로 도착 시계는 2이고 체결은 없어 체결 시계는 0이다. 수량 감소 정정은 A의 도착 순번 1을 유지하며 A만 잔량 3으로 대기한다. ②는 기록 순번을 도착 시계로 썼다. ③은 정정과 실패한 취소의 기록을 누락했다. ④는 전량 취소된 FOK의 사용 ID를 빠뜨렸다. ⑤는 수량 감소 정정에 체결과 새 도착 순번을 부여했다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력을 모두 처리한 뒤의 기록 상태와 ID 사용 이력을 올바르게 설명한 것은?",
+      "context": "빈 엔진에 다음 행을 순서대로 입력한다. 복원 본문은 다른 실행에서 얻은 유효한 스냅숏이다.\nLIMIT Future u BUY 100 1\nRESTORE 8 2 0 2 1\nUSED Closed\nUSED Old\nOPEN Old v BUY 100 3 1\nEVENT 9 LIMIT Closed w SELL 101 1\nLIMIT Future u BUY 99 2\nJOURNAL",
+      "choices": [
+        "JOURNAL 0 10이며 복원 전 기록도 남아 있다.",
+        "JOURNAL 8 1이며 Closed의 중복 오류는 기록하지 않는다.",
+        "JOURNAL 8 2이며 Closed와 Future의 새 주문은 모두 ERR DUPLICATE다.",
+        "JOURNAL 8 2이며 Closed는 ERR DUPLICATE이고 Future는 접수되어 잔량 2가 대기한다.",
+        "JOURNAL 8 2이며 Closed의 주문은 접수되고 Future는 ERR DUPLICATE다."
+      ],
+      "answer": 4,
+      "refs": ["4.2", "4.3", "4.6", "4.7", "4.8"],
+      "quote": "반대로 복원으로 버린 미래 상태에만 있던 ID는 다른 사용 이력이 없다면 다시 쓸 수 있다.",
+      "explanation": "④가 맞다. 복원은 기존 기록을 버리고 baseSeq와 lastSeq를 8로 만든다. Closed는 스냅숏의 사용 ID라 중복 오류가 나지만 정상 바깥 EVENT의 9번 기록은 소비한다. 복원 전에만 있던 Future의 사용 이력은 사라져 다음 직접 주문을 10번으로 접수한다. ①은 복원 전 기록을 남겼다. ②는 본문 오류가 난 EVENT를 기록에서 제외했다. ③은 복원으로 버린 Future의 사용 이력을 보존했다. ⑤는 닫힌 ID 이력과 버린 미래 ID 이력을 반대로 처리했다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["EVENT 2 LIMIT A u BUY 100 0"],
+      "answers": ["ERR SEQUENCE"],
+      "refs": ["3.1", "4.1", "5.1", "5.2"],
+      "quote": "`EVENT` 바깥 검사가 실패하면 본문을 실행하지 않으며 어떤 상태도 바꾸지 않는다.",
+      "explanation": "빈 엔진의 다음 기록 순번은 1이다. 바깥 형식과 순번 범위는 올바르지만 2는 다음 순번이 아니므로 ERR SEQUENCE 한 줄만 출력한다. 본문의 수량 0을 검사하는 단계에는 이르지 않아 ERR VALUE가 아니며 두 오류를 함께 출력하지도 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["RESTORE 0008 2 0 2 1", "USED Closed", "USED Old", "OPEN Old v BUY 100 3 1"],
+      "answers": ["RESTORED 8"],
+      "refs": ["4.6", "4.7", "5.3"],
+      "quote": "`RESTORE` 본문 행은 명령이 아니므로 개별 실행·기록·출력을 하지 않는다.",
+      "explanation": "헤더의 개수에 따라 USED 두 행과 OPEN 한 행을 복원 본문으로 읽는다. Old가 도착 순번 1로 대기하고 두 ID를 사용한 유효 스냅숏이며 다른 실행에서 가져와도 허용한다. 본문을 명령으로 실행하거나 복원 중 주문 접수 출력을 만들지 않으므로 RESTORED 8 한 줄만 출력한다. RESTORED 0008은 숫자 출력 형식에 어긋나고 USED·OPEN에 대한 ERR FORMAT을 추가하는 것도 잘못이다."
+    }
+  ]
+}

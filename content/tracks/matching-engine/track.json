@@ -1,0 +1,10 @@
+{
+  "title": "주문 매칭 엔진",
+  "kind": "build",
+  "summary": "가격-시간 우선 규칙으로 주문을 체결하는 엔진을 만들고 주문 유형을 더한 뒤 입력 기록으로 상태를 복원한다.",
+  "stages": [
+    { "dir": "01-order-book", "title": "지정가 호가창과 체결" },
+    { "dir": "02-order-types", "title": "시장가·IOC·FOK와 정정" },
+    { "dir": "03-replay", "title": "기록 재생과 스냅숏 복원" }
+  ]
+}

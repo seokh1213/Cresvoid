@@ -4,7 +4,7 @@ title: 근사 집계와 희소 인덱스
 kind: build
 track: mini-olap
 stage: 04-sketch, 05-sparse-index
-status: 후보
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq: B-olap-20
