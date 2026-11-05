@@ -79,6 +79,16 @@ class HarnessTest : FunSpec({
             withClue("남은 sleep 이 없어야 한다") { !processExists(marker) shouldBe true }
         }
     }
+    test("제한 시간을 넘기면 자손이 종료 훅을 마칠 때까지 기다린다") {
+        withTempDir { dir ->
+            val cleaned = dir.resolve("cleaned")
+            // Docker 묶음을 내리는 JVM 종료 훅처럼 TERM 을 받으면 잠깐 걸리는 정리를 한다
+            val script = "trap 'sleep 1; echo done > \"$cleaned\"; exit 0' TERM; while :; do sleep 0.1; done"
+            val run = runner.run(dir, listOf("bash", "-c", script), ByteArray(0), Duration.ofMillis(500))
+            withClue("시간 초과") { run.timedOut shouldBe true }
+            withClue("종료 훅이 끝까지 돌아야 한다") { Files.exists(cleaned) shouldBe true }
+        }
+    }
     test("프로세스가 끝난 뒤 남은 자손도 끝낸다") {
         withTempDir { dir ->
             val lingering = "42.5${System.nanoTime() % 1000}"
