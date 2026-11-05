@@ -194,7 +194,10 @@ fun expectHiddenCaseNotShown(what: String, stageDir: File, run: Run) {
         return
     }
     val hiddenLines = listOf("input", "expected").flatMap { field -> (test[field] as? List<*>).orEmpty().map { it.toString() } }
-    val shown = hiddenLines.filter { it.length >= 8 && it in run.output }
+    // The failure report prints the test's public spec quote on purpose; only the rest of the output can leak a hidden case.
+    val quote = test["quote"] as? String
+    val visible = if (quote.isNullOrEmpty()) run.output else run.output.replace(quote, "")
+    val shown = hiddenLines.filter { it.length >= 8 && it in visible }
     expect(shown.isEmpty(), "$what 실패 출력에 $failedName 의 숨은 입력이나 기대 출력이 보입니다: ${shown.joinToString(" | ")}")
 }
 
