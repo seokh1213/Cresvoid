@@ -4,7 +4,7 @@ title: 과부하와 load shedding
 kind: lab
 track: backend-lab
 stage: 08-load-shedding
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

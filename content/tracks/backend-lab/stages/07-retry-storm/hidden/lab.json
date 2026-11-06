@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "morning-traffic",
+      "refs": ["7", "8", "9", "10", "11", "12"],
+      "quote": "장애 구간의 하위 요청 수는 상위 요청 수의 1.2배 이하여야 한다.",
+      "timeout_sec": 90,
+      "repeat": 1
+    },
+    {
+      "name": "afternoon-traffic",
+      "refs": ["7", "8", "9", "10", "11", "12"],
+      "quote": "회복 조회를 장애 종료 직후부터 2초 동안 보내고 모두 6초 안에 끝내므로 이 조건은 장애 종료 후 10초 안의 회복을 확인한다.",
+      "timeout_sec": 90,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/no-retries", "variants/long-timeout", "variants/fixed-delay"]
+}

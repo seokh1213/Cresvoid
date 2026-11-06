@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "mixed-catalogue",
+      "refs": ["6", "7", "9"],
+      "quote": "시나리오 A의 없는 상품 원천 호출 수는 24건 이하여야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    },
+    {
+      "name": "catalogue-sweep",
+      "refs": ["5", "8", "9"],
+      "quote": "두 시나리오 모두 원천 호출 시작의 이동 1초 최댓값은 100건 이하, 원천 동시 호출 최댓값은 12건 이하, HTTP 5xx와 응답 오류는 각각 0건이어야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/no-negative-cache", "variants/fixed-expiry", "variants/no-start-rate"]
+}

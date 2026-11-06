@@ -4,7 +4,7 @@ title: 타임아웃, 재시도, 백오프
 kind: lab
 track: backend-lab
 stage: 07-retry-storm
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

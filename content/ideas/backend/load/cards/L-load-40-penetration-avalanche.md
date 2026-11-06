@@ -4,7 +4,7 @@ title: 캐시 관통과 동시 만료
 kind: lab
 track: backend-lab
 stage: 04-penetration-avalanche
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 3
 env: redis
 prereq:

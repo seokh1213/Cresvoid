@@ -4,7 +4,7 @@ title: 적응형 동시성 제한
 kind: lab
 track: backend-lab
 stage: 10-adaptive-concurrency
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq: L-load-80

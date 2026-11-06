@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "steady-arrivals",
+      "refs": ["6", "7", "8"],
+      "quote": "받아들인 요청의 p99는 1,000ms 이하여야 한다.",
+      "timeout_sec": 100,
+      "repeat": 1
+    },
+    {
+      "name": "changing-arrivals",
+      "refs": ["6", "7", "8"],
+      "quote": "goodput은 같은 실행에서 보정한 처리 능력의 90% 이상이어야 한다.",
+      "timeout_sec": 100,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/no-deadline", "variants/small-pool"]
+}

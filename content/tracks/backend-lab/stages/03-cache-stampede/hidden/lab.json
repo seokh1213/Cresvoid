@@ -1,0 +1,36 @@
+{
+  "scenarios": [
+    {
+      "name": "storefront-morning",
+      "refs": [
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "quote": "인기 상품의 원천 조회 수는 만료 횟수 + 2 이하여야 한다.",
+      "timeout_sec": 180,
+      "repeat": 1
+    },
+    {
+      "name": "storefront-evening",
+      "refs": [
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ],
+      "quote": "모든 불변식은 두 실험에서 각각 만족해야 한다.",
+      "timeout_sec": 180,
+      "repeat": 1
+    }
+  ],
+  "must_fail": [
+    "variants/no-coordination",
+    "variants/unconditional-release",
+    "variants/short-lease",
+    "variants/non-atomic-release"
+  ]
+}

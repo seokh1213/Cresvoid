@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "parallel-arrivals",
+      "refs": ["8", "10", "11"],
+      "quote": "합격 조건은 모든 키의 대행 호출 수가 정확히 1이고",
+      "timeout_sec": 120,
+      "repeat": 3
+    },
+    {
+      "name": "later-arrivals",
+      "refs": ["7", "8", "10"],
+      "quote": "504를 받은 클라이언트가 같은 키로 재시도해도 대행을 다시 호출하지 않고 같은 504와 같은 본문을 돌려준다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/success-only", "variants/key-only", "variants/inflight-conflict"]
+}

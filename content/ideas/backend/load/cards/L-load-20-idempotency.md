@@ -4,7 +4,7 @@ title: 중복 요청과 멱등 키
 kind: lab
 track: backend-lab
 stage: 02-idempotency
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq:

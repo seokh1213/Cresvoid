@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "weekday-traffic",
+      "refs": ["5", "6", "7"],
+      "quote": "각 안정 구간의 goodput 비율은 0.70 이상이어야 한다.",
+      "timeout_sec": 90,
+      "repeat": 3
+    },
+    {
+      "name": "evening-traffic",
+      "refs": ["5", "6", "7"],
+      "quote": "각 안정 구간의 goodput 비율은 0.70 이상이어야 한다.",
+      "timeout_sec": 90,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/fixed-concurrency", "variants/fixed-rate"]
+}

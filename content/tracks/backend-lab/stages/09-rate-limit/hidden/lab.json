@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "shared-traffic",
+      "refs": ["5", "9", "10", "13", "15"],
+      "quote": "두 인스턴스의 허용 요청을 합쳐 어떤 구간 `(t − 1초, t]`에서도 한 사용자에게 L + B = 30건을 초과해 허용하지 마라.",
+      "timeout_sec": 120,
+      "repeat": 1
+    },
+    {
+      "name": "paced-traffic",
+      "refs": ["5", "11", "12", "13", "15"],
+      "quote": "정수 초가 바뀌었다는 이유로 직전 허용 기록을 잊으면 실패다.",
+      "timeout_sec": 120,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/local-window", "variants/fixed-window"]
+}

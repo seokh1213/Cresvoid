@@ -4,7 +4,7 @@ title: 캐시와 원천의 불일치
 kind: lab
 track: backend-lab
 stage: 05-stale-set
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 3
 env: redis
 prereq:

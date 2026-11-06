@@ -1,0 +1,17 @@
+{
+  "title": "백엔드 부하 실험",
+  "kind": "lab",
+  "summary": "개방형 부하로 동시 주문, 멱등성, 캐시 스탬피드, 재시도 폭주, 과부하, 속도 제한 같은 백엔드 현상을 재현하고 불변식을 지키도록 고친다.",
+  "stages": [
+    { "dir": "01-stock-race", "title": "재고 차감과 동시 주문" },
+    { "dir": "02-idempotency", "title": "중복 요청과 멱등 키" },
+    { "dir": "03-cache-stampede", "title": "캐시 스탬피드" },
+    { "dir": "04-penetration-avalanche", "title": "캐시 관통과 동시 만료" },
+    { "dir": "05-stale-set", "title": "캐시와 원천의 불일치" },
+    { "dir": "06-cache-outage", "title": "캐시 장애와 원천 보호" },
+    { "dir": "07-retry-storm", "title": "타임아웃, 재시도, 백오프" },
+    { "dir": "08-load-shedding", "title": "과부하와 load shedding" },
+    { "dir": "09-rate-limit", "title": "속도 제한" },
+    { "dir": "10-adaptive-concurrency", "title": "적응형 동시성 제한" }
+  ]
+}

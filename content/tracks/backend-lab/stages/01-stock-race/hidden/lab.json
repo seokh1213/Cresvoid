@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "order-window",
+      "refs": ["5", "6", "7", "8"],
+      "quote": "201 응답 수는 100에서 남은 재고를 뺀 값과 같아야 한다.",
+      "timeout_sec": 180,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/unlocked-check", "variants/atomic-get-set", "variants/instance-monitor"]
+}

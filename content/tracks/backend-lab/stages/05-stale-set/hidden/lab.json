@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "shop-browse",
+      "refs": ["8", "9", "10", "11", "12"],
+      "quote": "합격하려면 응답 계약, 오래된 응답 비율, 수렴, 캐시 사용 조건을 모두 만족해야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    },
+    {
+      "name": "price-rounds",
+      "refs": ["8", "9", "10", "11", "12"],
+      "quote": "합격하려면 응답 계약, 오래된 응답 비율, 수렴, 캐시 사용 조건을 모두 만족해야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/short-expiry"]
+}

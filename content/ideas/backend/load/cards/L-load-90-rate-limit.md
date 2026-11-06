@@ -4,7 +4,7 @@ title: 속도 제한
 kind: lab
 track: backend-lab
 stage: 09-rate-limit
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: redis
 prereq:

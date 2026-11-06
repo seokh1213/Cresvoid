@@ -17,7 +17,7 @@
 | [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [JVM](backend/jvm/README.md) | 4 | 1 | 0 | 3 | 0 |
 | [레이크하우스: 파일 포맷과 테이블 포맷](backend/lakehouse/README.md) | 3 | 1 | 0 | 2 | 0 |
-| [부하 엣지 케이스](backend/load/README.md) | 12 | 0 | 10 | 0 | 2 |
+| [부하 엣지 케이스](backend/load/README.md) | 12 | 0 | 0 | 10 | 2 |
 | [메시징: Kafka](backend/messaging/README.md) | 5 | 0 | 0 | 5 | 0 |
 | [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 0 | 10 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
-| 합계 | 185 | 28 | 10 | 145 | 2 |
+| 합계 | 185 | 28 | 0 | 155 | 2 |
 
 ## 다음 후보
 
@@ -75,7 +75,7 @@
 | agent-runtime | build | 있음 | 06 | 01-loop(B-ai-agent-20 완료), 02-schema(B-ai-agent-20 완료), 03-parallel(B-ai-agent-20 완료), 04-context(B-ai-agent-20 완료), 05-guard(B-ai-agent-20 완료) |  |
 | algorithm-drills | build | 없음 | 06 |  | 01-strings(B-algorithm-drills-10 5차), 02-arrays(B-algorithm-drills-10 5차), 03-sort-search(B-algorithm-drills-10 5차), 04-structures(B-algorithm-drills-10 5차), 05-grids-recursion(B-algorithm-drills-10 5차) |
 | autocomplete | build | 있음 | 04 | 01-trie(B-system-design-90 완료), 02-cached-top-k(B-system-design-90 완료), 03-filters-and-shards(B-system-design-90 완료) |  |
-| backend-lab | lab | 없음 | 11 | 01-stock-race(L-load-10 제작 중), 02-idempotency(L-load-20 제작 중), 03-cache-stampede(L-load-30 제작 중), 04-penetration-avalanche(L-load-40 제작 중), 05-stale-set(L-load-50 제작 중), 06-cache-outage(L-load-60 제작 중), 07-retry-storm(L-load-70 제작 중), 08-load-shedding(L-load-80 제작 중), 09-rate-limit(L-load-90 제작 중), 10-adaptive-concurrency(L-load-120 제작 중) | idempotent-consumer(L-load-100 5차), outbox(L-load-110 5차) |
+| backend-lab | lab | 있음 | 11 | 01-stock-race(L-load-10 완료), 02-idempotency(L-load-20 완료), 03-cache-stampede(L-load-30 완료), 04-penetration-avalanche(L-load-40 완료), 05-stale-set(L-load-50 완료), 06-cache-outage(L-load-60 완료), 07-retry-storm(L-load-70 완료), 08-load-shedding(L-load-80 완료), 09-rate-limit(L-load-90 완료), 10-adaptive-concurrency(L-load-120 완료) | idempotent-consumer(L-load-100 5차), outbox(L-load-110 5차) |
 | batch-workflow | build | 없음 | 04 |  | 01-markers(B-pipeline-30 4차), 02-resume(B-pipeline-30 4차), 03-seal(B-pipeline-30 4차) |
 | bug-fix | fix | 있음 | 27 | 01-cursor-pagination(F-kotlin-10 완료), 02-order-deadline(F-coroutines-31 완료), 03-skipped-subscriber(F-design-patterns-60 완료), 04-stale-redo(F-design-patterns-70 완료), 05-instant-finish(F-coroutines-34 완료), 06-point-accrual(F-kotlin-20 완료), 07-daily-limit(F-kotlin-30 완료), 08-option-equality(F-kotlin-40 완료), 09-comparator-contract(F-kotlin-50 완료), 10-byte-offset(F-kotlin-130 완료), 11-short-read(F-kotlin-140 완료), 12-late-lock-release(F-distributed-70 완료), 13-rollover-delete-scope(F-pipeline-20 완료), 14-missing-chunk(F-pipeline-40 완료), 15-replay-regression(F-pipeline-60 완료), 16-hangul-normalization(F-search-40 완료), 17-fallback-constraints(F-search-70 완료), 18-sublist-view(F-kotlin-60 완료), 19-locale-format(F-kotlin-70 완료), 20-code-pattern(F-kotlin-80 완료), 21-retry-duplicate(F-kotlin-90 완료), 22-cache-key(F-kotlin-100 완료), 23-float-threshold(F-kotlin-110 완료), 24-sale-window(F-kotlin-120 완료), 25-double-start(F-design-patterns-100 완료), 26-unchecked-wakeup(F-design-patterns-110 완료) |  |
 | chat | build | 없음 | 04 |  | 01-sequencing(B-system-design-80 4차), 02-sync(B-system-design-80 4차), 03-presence(B-system-design-80 4차) |
@@ -326,18 +326,18 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [L-load-10](backend/load/cards/L-load-10-stock-race.md) | 재고 차감과 동시 주문 | lab | backend-lab | 01-stock-race | 제작 중 | 3 | 없음 |  |
-| [L-load-20](backend/load/cards/L-load-20-idempotency.md) | 중복 요청과 멱등 키 | lab | backend-lab | 02-idempotency | 제작 중 | 3 | 없음 |  |
-| [L-load-30](backend/load/cards/L-load-30-cache-stampede.md) | 캐시 스탬피드 | lab | backend-lab | 03-cache-stampede | 제작 중 | 3 | redis |  |
-| [L-load-40](backend/load/cards/L-load-40-penetration-avalanche.md) | 캐시 관통과 동시 만료 | lab | backend-lab | 04-penetration-avalanche | 제작 중 | 3 | redis |  |
-| [L-load-50](backend/load/cards/L-load-50-stale-set.md) | 캐시와 원천의 불일치 | lab | backend-lab | 05-stale-set | 제작 중 | 3 | redis |  |
-| [L-load-60](backend/load/cards/L-load-60-cache-outage.md) | 캐시 장애와 원천 보호 | lab | backend-lab | 06-cache-outage | 제작 중 | 3 | redis |  |
-| [L-load-70](backend/load/cards/L-load-70-retry-storm.md) | 타임아웃, 재시도, 백오프 | lab | backend-lab | 07-retry-storm | 제작 중 | 5 | 없음 |  |
-| [L-load-80](backend/load/cards/L-load-80-load-shedding.md) | 과부하와 load shedding | lab | backend-lab | 08-load-shedding | 제작 중 | 5 | 없음 |  |
-| [L-load-90](backend/load/cards/L-load-90-rate-limit.md) | 속도 제한 | lab | backend-lab | 09-rate-limit | 제작 중 | 5 | redis |  |
+| [L-load-10](backend/load/cards/L-load-10-stock-race.md) | 재고 차감과 동시 주문 | lab | backend-lab | 01-stock-race | 완료(2026-11-06) | 3 | 없음 |  |
+| [L-load-20](backend/load/cards/L-load-20-idempotency.md) | 중복 요청과 멱등 키 | lab | backend-lab | 02-idempotency | 완료(2026-11-06) | 3 | 없음 |  |
+| [L-load-30](backend/load/cards/L-load-30-cache-stampede.md) | 캐시 스탬피드 | lab | backend-lab | 03-cache-stampede | 완료(2026-11-06) | 3 | redis |  |
+| [L-load-40](backend/load/cards/L-load-40-penetration-avalanche.md) | 캐시 관통과 동시 만료 | lab | backend-lab | 04-penetration-avalanche | 완료(2026-11-06) | 3 | redis |  |
+| [L-load-50](backend/load/cards/L-load-50-stale-set.md) | 캐시와 원천의 불일치 | lab | backend-lab | 05-stale-set | 완료(2026-11-06) | 3 | redis |  |
+| [L-load-60](backend/load/cards/L-load-60-cache-outage.md) | 캐시 장애와 원천 보호 | lab | backend-lab | 06-cache-outage | 완료(2026-11-06) | 3 | redis |  |
+| [L-load-70](backend/load/cards/L-load-70-retry-storm.md) | 타임아웃, 재시도, 백오프 | lab | backend-lab | 07-retry-storm | 완료(2026-11-06) | 5 | 없음 |  |
+| [L-load-80](backend/load/cards/L-load-80-load-shedding.md) | 과부하와 load shedding | lab | backend-lab | 08-load-shedding | 완료(2026-11-06) | 5 | 없음 |  |
+| [L-load-90](backend/load/cards/L-load-90-rate-limit.md) | 속도 제한 | lab | backend-lab | 09-rate-limit | 완료(2026-11-06) | 5 | redis |  |
 | [L-load-100](backend/load/cards/L-load-100-idempotent-consumer.md) | 멱등 소비자와 순서 | lab | backend-lab | idempotent-consumer | 보류(메시지 브로커 실행 방식 결정 필요) | 5 | docker |  |
 | [L-load-110](backend/load/cards/L-load-110-outbox.md) | 트랜잭셔널 아웃박스 | lab | backend-lab | outbox | 보류(L-load-100 과 같은 이유) | 5 | docker |  |
-| [L-load-120](backend/load/cards/L-load-120-adaptive-concurrency.md) | 적응형 동시성 제한 | lab | backend-lab | 10-adaptive-concurrency | 제작 중 | 5 | 없음 | L-load-80 |
+| [L-load-120](backend/load/cards/L-load-120-adaptive-concurrency.md) | 적응형 동시성 제한 | lab | backend-lab | 10-adaptive-concurrency | 완료(2026-11-06) | 5 | 없음 | L-load-80 |
 
 ### 메시징: Kafka
 

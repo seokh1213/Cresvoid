@@ -4,7 +4,7 @@ title: 재고 차감과 동시 주문
 kind: lab
 track: backend-lab
 stage: 01-stock-race
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 3
 env: 없음
 prereq:

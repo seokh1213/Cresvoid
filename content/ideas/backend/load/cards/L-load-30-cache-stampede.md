@@ -4,7 +4,7 @@ title: 캐시 스탬피드
 kind: lab
 track: backend-lab
 stage: 03-cache-stampede
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 3
 env: redis
 prereq:
