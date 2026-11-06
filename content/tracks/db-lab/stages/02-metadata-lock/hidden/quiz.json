@@ -1,0 +1,144 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 순서에서 D가 대기하는 원인과 이를 해소하는 조작을 골라라.",
+      "context": "A와 B는 서로 다른 JDBC 연결이며 REPEATABLE READ, autoCommit=false다.\n1. A가 items를 일반 SELECT하고 ResultSet을 닫은 뒤 commit한다. A 연결은 열어 둔다.\n2. B가 items를 일반 SELECT하고 ResultSet과 Statement만 닫는다.\n3. 별도 연결 D가 스펙의 ALTER를 요청해 EXCLUSIVE/PENDING을 확인한다.\n4. A 연결을 닫는다.\n모든 SELECT는 같은 행을 읽으며, 명시한 조작 외에는 수행하지 않는다. D의 잠금 대기 제한 시간은 지나지 않았다.",
+      "choices": [
+        "A의 연결 종료로 잠금이 모두 해제되므로 D가 완료된다.",
+        "B의 ResultSet이 닫혔으므로 D는 잠금 외의 원인으로 대기한다.",
+        "B의 트랜잭션이 잠금을 유지하므로 B를 rollback하면 D가 진행할 수 있다.",
+        "A가 commit한 뒤에도 잠금이 남으므로 B를 rollback해도 D는 계속 막힌다."
+      ],
+      "answer": 3,
+      "refs": [
+        "4",
+        "5",
+        "6"
+      ],
+      "quote": "SELECT가 끝나도 트랜잭션의 메타데이터 잠금은 유지된다.",
+      "explanation": "③이 맞다. A는 commit으로 잠금을 해제했지만 B는 결과 집합과 문장만 닫아 잠금을 유지한다. B의 rollback은 이 읽기 트랜잭션을 끝내므로 D가 진행할 수 있다. ①은 연결 A만 추적했고 ②는 ResultSet의 수명을 트랜잭션의 수명으로 보았다. ④는 commit 뒤 열린 연결이 계속 잠금을 보유한다고 보았다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "같은 JDBC 연결을 재사용하는 다음 두 실험에서 ALTER의 대기 여부를 비교해라.",
+      "context": "각 실험은 독립된 새 데이터베이스에서 시작한다. A는 REPEATABLE READ, autoCommit=false이며 items를 일반 SELECT하고 ResultSet과 Statement를 닫은 뒤 commit한다.\n실험 X: A를 열린 채 두고 별도 연결 D에서 ALTER를 요청한다.\n실험 Y: commit 뒤 A에서 items를 다시 일반 SELECT하고 ResultSet과 Statement만 닫은 뒤 별도 연결 D에서 ALTER를 요청한다.\n두 실험 모두 이외의 트랜잭션은 없고 A의 추가 commit·rollback·close도 없다. ALTER에는 잠금 이외의 대기 원인이 없다.",
+      "choices": [
+        "X와 Y 모두 A 연결이 열려 있어 ALTER가 대기한다.",
+        "X는 A 때문에 대기하지 않지만 Y는 두 번째 SELECT의 트랜잭션 때문에 대기한다.",
+        "X와 Y 모두 첫 commit 이후이므로 ALTER가 대기하지 않는다.",
+        "X는 첫 SELECT의 잠금 때문에 대기하지만 Y는 두 번째 ResultSet을 닫았으므로 대기하지 않는다."
+      ],
+      "answer": 2,
+      "refs": [
+        "4",
+        "5",
+        "6"
+      ],
+      "quote": "커밋과 롤백 모두 메타데이터 잠금을 해제하므로 ALTER와 후속 조회가 진행될 수 있다.",
+      "explanation": "②가 맞다. X의 A는 commit 뒤 테이블을 다시 읽지 않아 기존 잠금이 해제된 상태다. Y는 자동 커밋이 여전히 꺼져 있으므로 두 번째 SELECT가 새 트랜잭션에서 잠금을 얻는다. ResultSet과 Statement를 닫아도 그 트랜잭션은 끝나지 않는다. ①은 열린 연결과 열린 트랜잭션을 혼동했고 ③은 두 번째 SELECT를 놓쳤다. ④는 commit과 ResultSet 닫기의 효과를 거꾸로 적용했다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "연결별 종료 순서를 바꾼 다음 관찰에서 두 시점의 ALTER 상태를 골라라.",
+      "context": "A와 B는 각각 REPEATABLE READ, autoCommit=false로 items를 일반 SELECT하고 결과 집합을 닫은 채 트랜잭션을 유지한다. 별도 연결 D의 ALTER가 EXCLUSIVE/PENDING인 것을 확인한다.\n시점 P: A만 rollback하고 닫았다. B는 그대로다.\n시점 Q: 이어서 B도 commit하고 닫았다.\n다른 연결은 없으며 D의 제한 시간은 지나지 않았다. Q에서는 D가 처리할 시간을 충분히 준다.",
+      "choices": [
+        "P에서 ALTER가 완료되고 Q에서 B의 commit이 그 변경을 확정한다.",
+        "P에서 A의 rollback이 D도 취소하므로 Q에서도 ALTER는 FAILED다.",
+        "P와 Q 모두 A를 commit하지 않았으므로 ALTER가 계속 대기한다.",
+        "P에서는 B의 잠금 때문에 계속 대기하고 Q에서는 ALTER가 완료되어 marker 열이 생긴다."
+      ],
+      "answer": 4,
+      "refs": [
+        "4",
+        "5",
+        "6"
+      ],
+      "quote": "커밋과 롤백 모두 메타데이터 잠금을 해제하므로 ALTER와 후속 조회가 진행될 수 있다.",
+      "explanation": "④가 맞다. P에서는 A의 잠금만 해제되고 B가 가진 잠금은 남는다. Q에서는 B의 잠금도 해제되므로 별도 연결 D의 ALTER가 완료된다. ①은 P에 남은 B의 잠금을 놓쳤고 B의 commit이 D의 변경을 확정한다고 보았다. ②는 A의 rollback 범위를 다른 연결로 넓혔다. ③은 rollback도 잠금을 해제한다는 규칙과 어긋난다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "대기 구간에서 요청을 같은 간격으로 예약하며 첫 요청의 응답에 2초가 걸린다고 가정해라. 초당 4건의 개방형 부하를 유지할 때 다음 요청의 예정 전송 간격은 몇 밀리초인가? 숫자만 써라.",
+      "answers": [
+        "250"
+      ],
+      "refs": [
+        "7"
+      ],
+      "quote": "모든 구간은 초당 4건의 개방형 부하이며 앞 요청이 느려져도 예정된 도착률을 낮추지 않는다.",
+      "explanation": "1000밀리초를 4로 나누면 250밀리초다. 앞 요청의 응답을 기다린 뒤 다음 요청을 보내는 방식으로 바꾸면 스펙의 개방형 부하를 유지하지 못한다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음은 대기 구간 전체 12건의 응답 시간을 오름차순으로 정렬한 값이다. blocked_p95_ms를 최근접 순위 방식으로 계산해 숫자만 써라.",
+      "context": "단위: 밀리초\n1600, 1700, 1800, 1900, 1950, 2000, 2050, 2100, 2200, 2300, 2400, 2800",
+      "answers": [
+        "2800"
+      ],
+      "refs": [
+        "8"
+      ],
+      "quote": "`blocked_p95_ms`는 대기 구간 전체 12건의 요청 전송부터 응답까지 걸린 시간의 최근접 순위 95백분위수다.",
+      "explanation": "최근접 순위는 12 × 0.95 = 11.4를 올림한 12다. 정렬한 값 중 이 순위에 있는 2800이 답이다. 바로 앞 값이나 두 값 사이를 보간한 값을 쓰지 않는다. 오류 응답도 대기 구간 전체 12건에 포함한다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "다음 관찰 중 메타데이터 잠금 증거에 관한 [9]의 두 합격 조건을 모두 충족하는 것은 무엇인가?",
+      "choices": [
+        "lab.items에 EXCLUSIVE/PENDING과 SHARED_READ/GRANTED가 함께 보였고, 조회 부하 중 SHARED_READ/PENDING의 최댓값은 2였다.",
+        "lab.items에 EXCLUSIVE/PENDING과 SHARED_READ/GRANTED가 함께 보였고, 조회 부하 중 SHARED_READ/PENDING은 관찰되지 않았다.",
+        "lab.items에 SHARED_READ/PENDING이 2개 보였지만, EXCLUSIVE/PENDING과 SHARED_READ/GRANTED가 함께 보인 대상은 다른 테이블이었다.",
+        "SQL 실행 시간이 약 2초였지만 metadata_locks의 잠금 유형과 상태는 확인하지 않았다."
+      ],
+      "answer": 1,
+      "refs": [
+        "9"
+      ],
+      "quote": "`ddl_pending = 1`과 `queued_reads ≥ 1`을 모두 만족해야 한다.",
+      "explanation": "①은 lab.items에서 ddl_pending을 1로 만드는 잠금 조합과 queued_reads가 1 이상인 관찰을 모두 갖췄다. ②는 queued_reads가 0이고 ③은 ddl_pending의 대상 테이블 조건을 충족하지 못한다. ④는 긴 SQL 실행 시간만으로 잠금 종류를 판단한다."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "[8]의 다섯 지표를 모두 만족하는 보고를 골라라. 다른 합격 조건은 모두 충족했다고 가정한다.",
+      "context": "각 선지의 순서는 baseline_ok, held_ok, blocked_errors, recovered_ok, blocked_p95_ms다.",
+      "choices": [
+        "8, 8, 12, 12, 50",
+        "8, 8, 12, 11, 2000",
+        "8, 8, 12, 12, 1500",
+        "8, 8, 12, 12, 15001"
+      ],
+      "answer": 3,
+      "refs": [
+        "8"
+      ],
+      "quote": "합격 범위는 `baseline_ok = 8`, `held_ok = 8`, `blocked_errors = 12`, `recovered_ok = 12`, `1500 ≤ blocked_p95_ms ≤ 15000`이다.",
+      "explanation": "③은 네 건수 조건과 지연 범위의 하한을 모두 만족한다. ①은 빠르게 오류를 반환했더라도 잠금 대기를 관찰하는 지연 하한에 못 미친다. ②는 회복 성공이 한 건 부족하고 ④는 지연 상한을 초과한다."
+    },
+    {
+      "id": "q8",
+      "type": "choice",
+      "prompt": "실험 종료 후 관찰만으로 [10]의 스키마 변경과 잠금 정리 조건을 모두 확인하려 한다. 두 조건을 충족하는 관찰을 골라라.",
+      "choices": [
+        "/state가 DONE이며 marker 열이 없고 locks_after는 0이다.",
+        "/state가 RUNNING이며 marker 열이 있고 locks_after는 0이다.",
+        "/state가 DONE이며 marker 열이 있고 locks_after는 1이다.",
+        "/state가 DONE이며 marker 열이 있고 locks_after는 0이다."
+      ],
+      "answer": 4,
+      "refs": [
+        "5",
+        "10"
+      ],
+      "quote": "`schema_changed`는 DONE 상태와 실제 `marker` 열을 모두 확인했으면 1, 아니면 0이다.",
+      "explanation": "④는 schema_changed가 1이고 locks_after가 0이다. ①은 실제 열이 없고 ②는 DONE이 아니므로 schema_changed 조건에 못 미친다. ③은 스키마 변경을 확인했어도 잠금이 남아 실패한다."
+    }
+  ]
+}

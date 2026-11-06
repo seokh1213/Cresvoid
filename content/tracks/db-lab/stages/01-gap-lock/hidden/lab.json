@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "adjacent-arrivals",
+      "refs": ["6", "8", "9"],
+      "quote": "서로 다른 키를 요청한 쌍은 두 삽입 모두 inserted로 끝나야 한다.",
+      "timeout_sec": 240,
+      "repeat": 3
+    },
+    {
+      "name": "repeated-arrivals",
+      "refs": ["6", "8", "9"],
+      "quote": "같은 키를 요청한 쌍은 inserted 하나와 duplicate 하나로 끝나야 한다.",
+      "timeout_sec": 240,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/ignore-affected-count", "variants/compensating-results"]
+}

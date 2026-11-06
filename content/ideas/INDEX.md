@@ -10,7 +10,7 @@
 | [구현](implementation/README.md) | 32 | 6 | 0 | 26 | 0 |
 | [AI 에이전트](backend/ai-agent/README.md) | 5 | 1 | 0 | 4 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
-| [데이터베이스](backend/database/README.md) | 8 | 0 | 4 | 4 | 0 |
+| [데이터베이스](backend/database/README.md) | 8 | 0 | 0 | 8 | 0 |
 | [설계 패턴](backend/design-patterns/README.md) | 11 | 1 | 0 | 10 | 0 |
 | [분산 시스템](backend/distributed/README.md) | 8 | 3 | 0 | 5 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
-| 합계 | 185 | 28 | 24 | 131 | 2 |
+| 합계 | 185 | 28 | 20 | 135 | 2 |
 
 ## 다음 후보
 
@@ -88,7 +88,7 @@
 | crawler | build | 없음 | 04 |  | 01-frontier(B-system-design-60 4차), 02-dedup(B-system-design-60 4차), 03-politeness(B-system-design-60 4차) |
 | crdt | build | 없음 | 04 |  | 01-counters(B-distributed-30 5차), 02-sets-and-registers(B-distributed-30 5차), 03-convergence(B-distributed-30 5차) |
 | dataflow | build | 있음 | 05 | 01-plan(B-spark-20 완료), 02-shuffle(B-spark-20 완료), 03-join(B-spark-20 완료), 04-adaptive(B-spark-20 완료) |  |
-| db-lab | lab | 없음 | 05 | 01-gap-lock(L-database-50 제작 중), 02-metadata-lock(L-database-51 제작 중), 03-index-usage(L-database-52 제작 중), 04-serializable-retry(L-database-53 제작 중) |  |
+| db-lab | lab | 있음 | 05 | 01-gap-lock(L-database-50 완료), 02-metadata-lock(L-database-51 완료), 03-index-usage(L-database-52 완료), 04-serializable-retry(L-database-53 완료) |  |
 | dedup-candidates | build | 없음 | 04 |  | 01-exact(B-pipeline-80 5차), 02-candidates(B-pipeline-80 5차), 03-components(B-pipeline-80 5차) |
 | doc-editor | build | 없음 | 05 |  | 01-edit(B-design-patterns-80 5차), 02-undo(B-design-patterns-80 5차), 03-macro(B-design-patterns-80 5차), 04-snapshot(B-design-patterns-80 5차) |
 | es-cluster | build | 있음 | 04 | 01-routing(B-search-20 완료), 02-terms-agg(B-search-20 완료), 03-paging(B-search-20 완료) |  |
@@ -238,10 +238,10 @@
 | [B-database-20](backend/database/cards/B-database-20-mvcc.md) | 트랜잭션 격리 엔진 만들기 | build | mvcc | 01-snapshot, 02-locking, 03-serializable | 완료(2026-10-10) | 3 | 없음 | R-database-10 |
 | [B-database-30](backend/database/cards/B-database-30-lsm.md) | LSM 저장소 만들기 | build | lsm | 01-memtable, 02-compaction, 03-bloom-and-range | 완료(2026-11-06) | 4 | 없음 |  |
 | [R-database-40](backend/database/cards/R-database-40-online-resharding.md) | 서비스를 멈추지 않는 데이터 이전과 샤딩 | reading | tech-reading | 13-online-resharding | 완료(2026-11-05) | 4 | 없음 | R-database-10 |
-| [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | 01-gap-lock | 제작 중 | 4 | docker | R-database-10 |
-| [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | 02-metadata-lock | 제작 중 | 4 | docker | R-database-10 |
-| [L-database-52](backend/database/cards/L-database-52-index-usage.md) | 인덱스를 쓰지 못하는 질의 | lab | db-lab | 03-index-usage | 제작 중 | 5 | docker |  |
-| [L-database-53](backend/database/cards/L-database-53-serializable-retry.md) | 직렬화 실패와 재시도 | lab | db-lab | 04-serializable-retry | 제작 중 | 5 | docker | B-database-20 |
+| [L-database-50](backend/database/cards/L-database-50-gap-lock.md) | 갭 잠금과 삽입 교착 | lab | db-lab | 01-gap-lock | 완료(2026-11-06) | 4 | docker | R-database-10 |
+| [L-database-51](backend/database/cards/L-database-51-metadata-lock.md) | 긴 트랜잭션과 스키마 변경 대기 | lab | db-lab | 02-metadata-lock | 완료(2026-11-06) | 4 | docker | R-database-10 |
+| [L-database-52](backend/database/cards/L-database-52-index-usage.md) | 인덱스를 쓰지 못하는 질의 | lab | db-lab | 03-index-usage | 완료(2026-11-06) | 5 | docker |  |
+| [L-database-53](backend/database/cards/L-database-53-serializable-retry.md) | 직렬화 실패와 재시도 | lab | db-lab | 04-serializable-retry | 완료(2026-11-06) | 5 | docker | B-database-20 |
 
 ### 설계 패턴
 

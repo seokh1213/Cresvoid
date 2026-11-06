@@ -4,7 +4,7 @@ title: 인덱스를 쓰지 못하는 질의
 kind: lab
 track: db-lab
 stage: 03-index-usage
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq:

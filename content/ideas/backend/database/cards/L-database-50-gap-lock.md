@@ -4,7 +4,7 @@ title: 갭 잠금과 삽입 교착
 kind: lab
 track: db-lab
 stage: 01-gap-lock
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq: R-database-10

@@ -4,7 +4,7 @@ title: 직렬화 실패와 재시도
 kind: lab
 track: db-lab
 stage: 04-serializable-retry
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq: B-database-20

@@ -1,0 +1,11 @@
+{
+  "title": "데이터베이스 실험",
+  "kind": "lab",
+  "summary": "Docker 로 띄운 MySQL 8.4 와 PostgreSQL 18 에서 갭 잠금 교착, 메타데이터 잠금 대기, 인덱스를 못 쓰는 질의, 직렬화 실패와 재시도를 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-gap-lock", "title": "갭 잠금과 삽입 교착" },
+    { "dir": "02-metadata-lock", "title": "긴 트랜잭션과 스키마 변경 대기" },
+    { "dir": "03-index-usage", "title": "인덱스를 쓰지 못하는 질의" },
+    { "dir": "04-serializable-retry", "title": "직렬화 실패와 재시도" }
+  ]
+}

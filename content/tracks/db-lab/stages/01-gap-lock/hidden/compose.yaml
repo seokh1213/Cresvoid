@@ -1,0 +1,36 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    environment:
+      MYSQL_ROOT_PASSWORD: lab
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_DATABASE: lab
+    ports: ["127.0.0.1::3306"]
+    command: ["--innodb-deadlock-detect=ON", "--performance-schema=ON"]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -plab --silent"]
+      interval: 1s
+      timeout: 2s
+      retries: 90
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 512m }
+  app:
+    image: ${JVM_RUNNER_IMAGE}
+    volumes: ["${PROGRAM_DIR}:/work:ro"]
+    working_dir: /work
+    command: ["lab-run", "jdbc-mysql", "lab.MainKt"]
+    environment:
+      PORT: "8080"
+      JDBC_URL: jdbc:mysql://mysql:3306/lab?allowPublicKeyRetrieval=true&useSSL=false&connectTimeout=5000&socketTimeout=20000
+    ports: ["127.0.0.1::8080"]
+    depends_on:
+      mysql: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs localhost:8080/health >/dev/null"]
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 256m }

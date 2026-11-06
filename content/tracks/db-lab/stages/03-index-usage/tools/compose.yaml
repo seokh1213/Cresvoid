@@ -1,0 +1,43 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE}
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: lab
+      MYSQL_USER: lab
+      MYSQL_PASSWORD: lab
+    command:
+      - --performance-schema=ON
+      - --performance-schema-events-statements-history-long-size=10000
+      - --innodb-buffer-pool-size=268435456
+    ports: ["127.0.0.1::3306"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+      interval: 1s
+      timeout: 2s
+      retries: 120
+    deploy:
+      resources:
+        limits: { cpus: "2", memory: 768m }
+  app:
+    image: ${JVM_RUNNER_IMAGE}
+    volumes: ["${PROGRAM_DIR}:/work:ro"]
+    working_dir: /work
+    command: ["lab-run", "jdbc-mysql", "lab.MainKt"]
+    environment:
+      PORT: "8080"
+      DB_URL: "jdbc:mysql://mysql:3306/lab?useSSL=false&allowPublicKeyRetrieval=true"
+      DB_USER: lab
+      DB_PASSWORD: lab
+    ports: ["127.0.0.1::8080"]
+    depends_on:
+      mysql: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs localhost:8080/health >/dev/null"]
+      interval: 1s
+      timeout: 2s
+      retries: 90
+    deploy:
+      replicas: 0
+      resources:
+        limits: { cpus: "1", memory: 384m }

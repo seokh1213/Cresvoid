@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "paired-arrivals",
+      "refs": ["5", "6", "7", "10", "13"],
+      "quote": "24개 요청 모두 200이어야 하고, 각 조의 응답은 left 하나와 stayed 하나여야 한다.",
+      "timeout_sec": 240,
+      "repeat": 3
+    },
+    {
+      "name": "bounded-arrivals",
+      "refs": ["5", "7", "11", "12", "13"],
+      "quote": "bounded-arrivals의 전체 시도 수는 60번, 대기는 32번이어야 한다.",
+      "timeout_sec": 240,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/fixed-delay"]
+}
