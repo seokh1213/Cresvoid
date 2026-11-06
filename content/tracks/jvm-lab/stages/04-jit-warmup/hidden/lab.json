@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "first-window",
+      "refs": ["7", "8", "9", "10"],
+      "quote": "합격하려면 응답 오류, 배치 절차 오류, 결과 소비 오류가 모두 0이어야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    },
+    {
+      "name": "second-window",
+      "refs": ["7", "8", "9", "10"],
+      "quote": "합격하려면 응답 오류, 배치 절차 오류, 결과 소비 오류가 모두 0이어야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/grouped-order"]
+}

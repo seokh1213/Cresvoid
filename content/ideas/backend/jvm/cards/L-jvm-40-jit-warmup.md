@@ -3,8 +3,8 @@ id: L-jvm-40
 title: JIT 예열과 측정 함정
 kind: lab
 track: jvm-lab
-stage: jit-warmup
-status: 후보
+stage: 04-jit-warmup
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

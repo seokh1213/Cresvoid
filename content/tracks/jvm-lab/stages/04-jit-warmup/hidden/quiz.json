@@ -1,0 +1,123 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "실행 전에 Benchmark.kt를 읽고 order=abba와 order=baab의 procedure_errors, consumption_errors를 예측해라. HTTP 응답의 형식과 시간은 모두 유효하다고 가정한다. 두 order에 대한 예측을 골라라.",
+      "choices": [
+        "abba는 2,4이고 baab는 0,4다.",
+        "둘 다 2,2다.",
+        "둘 다 2,4다.",
+        "둘 다 4,4다."
+      ],
+      "answer": 3,
+      "refs": ["7", "9"],
+      "quote": "유효한 응답에서 배치 절차 오류는 위치별 phase·candidate·calls가 [7]과 다른 줄 수다.",
+      "explanation": "③이 맞다. 시작 코드는 abba에서 A,A,B,B를, baab에서 B,B,A,A를 실행한다. 두 order 모두 두 번째와 네 번째 measure 줄이 합격 순서와 다르므로 절차 오류는 2건이다. 마지막 네 measure 배치는 모두 DISCARDED이므로 네 줄 모두 소비 오류다. 순서가 틀린 줄도 실제 candidate·calls를 기준으로 소비를 판정한다. 따라서 두 종류의 오류를 서로 빼거나 같은 줄의 retention과 checksum 오류를 두 건으로 세지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "시작 코드의 실험에서 response_errors=0이고 discard_used_ratio가 아주 작게 나왔다. Benchmark.kt와 비율 정의를 함께 읽었을 때 가능한 해석을 골라라.",
+      "choices": [
+        "분자와 분모 모두 결과를 버린 배치의 시간이므로 결과 폐기와 결과 소비의 비용 차이를 보여 주는 값으로 해석할 수 없다.",
+        "지표 이름에 used가 있으므로 분모는 항상 결과를 소비한 배치의 시간이다.",
+        "분자와 분모의 호출 횟수가 같으므로 이 값은 제거된 커널 호출의 비율이다.",
+        "분모가 결과를 버렸으면 비율은 반드시 0으로 표시되므로 실험기 오류다."
+      ],
+      "answer": 1,
+      "refs": ["4", "10"],
+      "quote": "소비 오류가 있으면 discard_used_ratio의 분모도 결과를 소비하지 않았을 수 있고, 예열·순서 오류가 있으면 각 비율의 비교 조건도 어긋난다.",
+      "explanation": "①이 맞다. 시작 코드는 discard뿐 아니라 measure 네 배치도 DISCARDED로 실행한다. 분모는 실제 measure 기록의 평균이므로 이 값으로 폐기 대 소비의 비용 차이나 계산 제거 여부를 판단할 수 없다. ②는 이름을 실행 사실로 오해했고 ③은 시간 비율을 제거된 호출 수로 바꿨다. ④와 달리 유효한 measure A·B가 각각 두 개이면 소비 오류가 있어도 실제 비율을 표시한다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "시작 코드에서 measure의 retention만 USED로 고쳤다. candidate 순서와 나머지 코드는 그대로다. 새 JVM에 order=baab로 요청했을 때 procedure_errors, consumption_errors를 이 순서로 쉼표로 연결해 써라. 공백은 넣지 마라. 응답 형식과 시간은 모두 유효하다고 가정한다.",
+      "answers": ["2,0"],
+      "refs": ["3", "7", "9"],
+      "quote": "결과 소비 오류는 retention이나 checksum이 해당 줄의 실제 candidate·calls와 [3]·[4]에서 유도한 값과 다른 줄 수다.",
+      "explanation": "시작 코드의 baab 분기는 B,B,A,A다. 두 번째와 네 번째 measure 줄이 합격 순서 B,A,A,B와 다르므로 절차 오류는 2건이다. USED로 바꾸면 MeasurementRig가 실제 반환값을 합산한다. A와 B는 같은 변환을 계산하며 소비 판정도 실제 candidate·calls를 따르므로 순서 오류가 남아 있어도 소비 오류는 0이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 가상 기록에서 cold_warm_ratio를 계산해 소수로 써라. 나머지 필드와 checksum은 모두 유효하며 배치 절차도 맞다.",
+      "context": "cold A: calls=1000, elapsed_ns=2000000\ncold B: calls=1000, elapsed_ns=4000000\nwarmup A·B: 각각 calls=60000, elapsed_ns=60000000\n마지막 네 measure 배치의 calls는 각각 500000이다. 실행 순서 A,B,B,A의 elapsed_ns는 각각 500000000, 1000000000, 1500000000, 1000000000이다.",
+      "answers": ["1.5"],
+      "refs": ["10"],
+      "quote": "cold_warm_ratio는 첫 두 줄의 호출당 평균 시간의 산술평균을 마지막 네 measure 배치의 호출당 평균 시간의 산술평균으로 나눈 값이다.",
+      "explanation": "cold의 호출당 시간은 2,000ns와 4,000ns이므로 평균은 3,000ns다. measure의 호출당 시간은 1,000ns, 2,000ns, 3,000ns, 2,000ns이므로 평균은 2,000ns다. 따라서 3,000/2,000=1.5다. 이름에 warm이 들어 있어도 warmup 배치 시간은 이 비율에 쓰지 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 가상 응답의 procedure_errors와 consumption_errors를 이 순서로 쉼표로 연결해 써라. 공백은 넣지 마라.",
+      "context": "응답은 HTTP 200이고 열 줄의 형식과 시간은 모두 유효하다. order=abba의 첫 measure A 줄에서만 calls가 499999다. 그 줄의 retention은 USED이며 checksum은 해당 seed로 A를 실제 499999회 호출해 얻은 올바른 합계다. 나머지 아홉 줄은 합격 기록의 규칙을 모두 지킨다.",
+      "answers": ["1,0"],
+      "refs": ["3", "7", "9"],
+      "quote": "결과 소비 오류는 retention이나 checksum이 해당 줄의 실제 candidate·calls와 [3]·[4]에서 유도한 값과 다른 줄 수다.",
+      "explanation": "measure는 500,000회여야 하므로 calls가 다른 한 줄이 절차 오류다. 소비 오류는 예정된 500,000회가 아니라 기록에 적힌 실제 candidate와 calls를 기준으로 판정한다. 이 줄의 499,999회 합계와 USED 표시는 맞으므로 소비 오류는 0이다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "열 줄 중 한 줄의 elapsed_ns가 0이고 다른 줄에는 순서 오류도 있다. 이 응답을 집계할 때의 처리를 골라라.",
+      "choices": [
+        "0인 시간만 평균에서 빼고 순서 오류와 다섯 비율은 그대로 집계한다.",
+        "순서 오류를 먼저 세고 모든 시간 비율을 1로 표시한다.",
+        "문제가 있는 줄마다 response_errors를 늘리고 나머지 줄만으로 비율을 계산한다.",
+        "response_errors는 1이고 나머지 두 오류는 집계하지 않으며 다섯 비율은 0으로 표시한다."
+      ],
+      "answer": 4,
+      "refs": ["9", "10"],
+      "quote": "응답 오류가 있으면 나머지 두 오류는 집계하지 않는다.",
+      "explanation": "④가 맞다. 0 이하 시간은 응답 오류이며 응답당 한 건으로 센다. 응답 오류가 있으면 절차·소비 오류를 집계하지 않고 다섯 비율은 0으로 표시한다. ①과 ③의 일부 줄 제외 방식은 규칙에 없고 ②의 집계 순서와 대체 비율 1도 규칙과 다르다."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "first-window와 second-window의 관찰 기록을 비교하려 한다. 정해진 부하와 JVM 사용법을 모두 지키는 계획을 골라라.",
+      "choices": [
+        "한 JVM에서 첫 관찰 완료 후 100ms 뒤에 두 번째 관찰을 보내 같은 컴파일 상태를 유지한다.",
+        "각각 새 JVM에서 준비 확인 후 100ms 시점에 요청 하나를 예정하고 seed와 order를 시나리오별로 지정한다.",
+        "각각 새 JVM에서 관찰 요청을 두 개씩 동시에 보내 빠른 응답만 채택한다.",
+        "한 JVM에서 health를 반복 호출해 커널을 예열한 뒤 두 order를 차례로 요청한다."
+      ],
+      "answer": 2,
+      "refs": ["5", "8"],
+      "quote": "각 시나리오는 새 서비스 JVM을 사용한다.",
+      "explanation": "②가 맞다. first-window는 seed=17·order=abba, second-window는 seed=29·order=baab이며 각각 준비 확인 뒤 100ms 시점에 요청 하나를 예정한다. ①은 같은 JVM을 재사용하고 완료 시각으로 다음 도착을 정한다. ③은 정해진 요청 수와 다르다. ④의 health는 커널을 호출하지 않으며, 같은 JVM의 두 번째 유효 관찰 요청은 409와 USED를 반환한다."
+    },
+    {
+      "id": "q8",
+      "type": "choice",
+      "prompt": "두 시나리오를 각각 세 번 실행했고 세 오류 지표가 매번 모두 0이라고 가정하자. abba에서는 a_b_ratio=0.8, baab에서는 a_b_ratio=1.2가 관찰되었다. 판정을 골라라.",
+      "choices": [
+        "두 시나리오 모두 불변식은 통과한다. 순서·입력·새 JVM 환경이 함께 바뀌므로 비율 차이를 순서 효과만으로 설명할 수 없다.",
+        "baab는 a_b_ratio가 1을 넘었으므로 실패하고 abba만 통과한다.",
+        "역순에서 값이 바뀌었으므로 A와 B의 계산 결과가 다르다는 뜻이다.",
+        "여섯 실행의 오류가 없으므로 모든 실행에서 JIT 최적화 완료가 보장된다."
+      ],
+      "answer": 1,
+      "refs": ["2", "8", "9", "10"],
+      "quote": "비율은 관찰용이며 합격 임계값이 없다.",
+      "explanation": "①이 맞다. 각 시나리오를 세 번 통과했고 세 오류 지표가 모두 0이므로 비율이 1의 어느 쪽인지로 실패를 판정하지 않는다. [8]에서 seed도 17에서 29로 바뀌므로 입력 차이와 새 JVM 환경 차이를 순서 효과에서 분리할 수 없다. ②는 없는 임계값을 적용했다. ③은 시간 비율을 계산 결과의 차이로 오해했다. ④와 달리 오류가 없거나 예열 횟수를 채워도 JIT 최적화 완료는 보장되지 않는다."
+    },
+    {
+      "id": "q9",
+      "type": "choice",
+      "prompt": "USED 배치에서 각 커널 반환값을 Long으로 바꿔 합산하는 작업만 타이머를 멈춘 뒤로 옮겼다. checksum은 이전과 같다고 하자. 측정 계약을 지켰는지 골라라.",
+      "choices": [
+        "지켰다. checksum이 같으면 합산 위치는 측정 대상과 무관하다.",
+        "지켰다. volatile 쓰기가 측정 밖에 있으므로 합산도 반드시 밖에 있어야 한다.",
+        "어겼다. volatile 쓰기와 달리 반환값 합산은 측정 구간 안에 있어야 한다.",
+        "어겼다. HTTP 응답까지 타이머를 계속 실행해야 한다."
+      ],
+      "answer": 3,
+      "refs": ["3"],
+      "quote": "출력·HTTP·volatile 쓰기는 측정 구간 밖에 있고 결과 합산은 측정 구간 안에 있다.",
+      "explanation": "③이 맞다. 합계 값이 같아도 합산 비용을 제외하면 공개된 측정 경계가 달라진다. ①은 결과의 일치만으로 절차도 같다고 판단했고 ②는 volatile 쓰기와 합산의 경계를 혼동했다. ④의 HTTP 응답은 측정 구간 밖이다."
+    }
+  ]
+}

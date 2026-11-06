@@ -15,7 +15,7 @@
 | [분산 시스템](backend/distributed/README.md) | 8 | 3 | 0 | 5 | 0 |
 | [HDFS](backend/hdfs/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [장애 보고서 독해](backend/incidents/README.md) | 7 | 0 | 0 | 7 | 0 |
-| [JVM](backend/jvm/README.md) | 4 | 1 | 0 | 3 | 0 |
+| [JVM](backend/jvm/README.md) | 4 | 0 | 0 | 4 | 0 |
 | [레이크하우스: 파일 포맷과 테이블 포맷](backend/lakehouse/README.md) | 3 | 1 | 0 | 2 | 0 |
 | [부하 엣지 케이스](backend/load/README.md) | 12 | 0 | 0 | 10 | 2 |
 | [메시징: Kafka](backend/messaging/README.md) | 5 | 0 | 0 | 5 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 0 | 10 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
-| 합계 | 185 | 28 | 0 | 155 | 2 |
+| 합계 | 185 | 27 | 0 | 156 | 2 |
 
 ## 다음 후보
 
@@ -52,7 +52,6 @@
 | 5 | [B-distributed-30](backend/distributed/cards/B-distributed-30-crdt.md) | 복제 자료형 만들기 | build | crdt | 01-counters, 02-sets-and-registers, 03-convergence | 없음 |
 | 5 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 없음 |
 | 5 | [B-distributed-80](backend/distributed/cards/B-distributed-80-fenced-writes.md) | 저장소가 검사하는 펜싱 토큰 만들기 | build | lease-lock | 03-fenced-writes | 없음 |
-| 5 | [L-jvm-40](backend/jvm/cards/L-jvm-40-jit-warmup.md) | JIT 예열과 측정 함정 | lab | jvm-lab | jit-warmup | 없음 |
 | 5 | [B-mini-sql-10](implementation/cards/B-mini-sql-10-mini-sql.md) | 작은 SQL 엔진 | build | mini-sql | 01-select, 02-group, 03-join | 없음 |
 | 5 | [L-network-20](backend/network/cards/L-network-20-timeout-layers.md) | 타임아웃의 층 | lab | net-lab | timeout-layers | 없음 |
 | 5 | [B-pipeline-70](backend/pipeline/cards/B-pipeline-70-experiment-recovery.md) | 실험 종료 뒤 운영 상태로 복구하는 도구 만들기 | build | index-overlay | 04-reconcile | 없음 |
@@ -98,7 +97,7 @@
 | id-generator | build | 있음 | 04 | 01-snowflake(B-system-design-30 완료), 02-sharded-ids(B-system-design-30 완료), 03-ordering(B-system-design-30 완료) |  |
 | incident-reading | reading | 있음 | 08 | 01-cloudflare-regex(R-incidents-10 완료), 02-github-split-writes(R-incidents-20 완료), 03-s3-capacity-removal(R-incidents-30 완료), 04-crowdstrike-channel-file(R-incidents-50 완료), 05-gcp-service-control(R-incidents-60 완료), 06-meta-backbone(R-incidents-40 완료), 07-slack-cold-start(R-incidents-70 완료) |  |
 | index-overlay | build | 없음 | 05 |  | 01-current-state(B-pipeline-50 4차), 02-round-merge(B-pipeline-50 4차), 03-replay(B-pipeline-50 4차), 04-reconcile(B-pipeline-70 5차) |
-| jvm-lab | lab | 있음 | 04 | 01-container-heap(L-jvm-10 완료), 02-threadlocal-leak(L-jvm-20 완료), 03-thread-dump(L-jvm-30 완료) | jit-warmup(L-jvm-40 5차) |
+| jvm-lab | lab | 있음 | 05 | 01-container-heap(L-jvm-10 완료), 02-threadlocal-leak(L-jvm-20 완료), 03-thread-dump(L-jvm-30 완료), 04-jit-warmup(L-jvm-40 완료) |  |
 | kafka-lab | lab | 있음 | 03 | 01-rebalance(L-messaging-40 완료), 02-durability(L-messaging-41 완료) |  |
 | kv-store | build | 없음 | 04 |  | 01-basic(B-kv-store-10 4차), 02-log(B-kv-store-10 4차), 03-transactions(B-kv-store-10 4차) |
 | leaderboard | build | 있음 | 04 | 01-sorted-set(B-system-design-130 완료), 02-range-queries(B-system-design-130 완료), 03-sharding(B-system-design-130 완료) |  |
@@ -308,7 +307,7 @@
 | [L-jvm-10](backend/jvm/cards/L-jvm-10-container-heap.md) | 메모리 한도와 기본 힙 크기 | lab | jvm-lab | 01-container-heap | 완료(2026-11-06) | 4 | 없음 |  |
 | [L-jvm-20](backend/jvm/cards/L-jvm-20-threadlocal-leak.md) | 스레드 풀과 ThreadLocal | lab | jvm-lab | 02-threadlocal-leak | 완료(2026-11-06) | 4 | 없음 |  |
 | [L-jvm-30](backend/jvm/cards/L-jvm-30-thread-dump.md) | 스레드 덤프로 교착 찾기 | lab | jvm-lab | 03-thread-dump | 완료(2026-11-06) | 4 | 없음 |  |
-| [L-jvm-40](backend/jvm/cards/L-jvm-40-jit-warmup.md) | JIT 예열과 측정 함정 | lab | jvm-lab | jit-warmup | 후보 | 5 | 없음 |  |
+| [L-jvm-40](backend/jvm/cards/L-jvm-40-jit-warmup.md) | JIT 예열과 측정 함정 | lab | jvm-lab | 04-jit-warmup | 완료(2026-11-06) | 5 | 없음 |  |
 
 ### 레이크하우스: 파일 포맷과 테이블 포맷
 

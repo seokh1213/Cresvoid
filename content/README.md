@@ -43,7 +43,7 @@
 | `news-feed` | build | 3 |
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
-| `jvm-lab` | lab | 3 |
+| `jvm-lab` | lab | 4 |
 | `olap-lab` | lab | 3 |
 | `es-lab` | lab | 4 |
 | `spark-lab` | lab | 5 |
