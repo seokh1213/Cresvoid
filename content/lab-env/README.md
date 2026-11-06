@@ -137,4 +137,4 @@ MySQL 은 `MYSQL_ROOT_PASSWORD`·`MYSQL_DATABASE`와 `mysqladmin ping` 준비 �
 | `KAFKA_IMAGE` | `apache/kafka@sha256:833b867a9585a141da455dc2b57431c65cbccb27f11c91f694444cca9f777e0f` | 4.4.0 |
 | `JVM_RUNNER_IMAGE` | `cresvoid-lab/jvm-runner:2` | `images/jvm-runner`에서 로컬로 만든다. 그 디렉터리를 바꾸면 태그도 함께 올린다 |
 
-실행 이미지의 라이브러리 묶음은 Spring Boot 4.1.2(Spring 7.0.10, Hibernate 7.4), MySQL Connector/J 26.10.0, PostgreSQL JDBC 42.7.14, kafka-clients 4.4.0, HikariCP 7.1.0, H2(Spring Boot 관리 버전), Spark SQL 4.3.0(Scala 2.13)이다. Kotlin 런타임은 컴파일러와 같은 2.4.21 로 맞춘다.
+실행 이미지의 라이브러리 묶음은 Spring Boot 4.1.2(Spring 7.0.10, Hibernate 7.4), MySQL Connector/J 26.10.0, PostgreSQL JDBC 42.7.14, kafka-clients 4.4.0, HikariCP 7.1.0(jdbc-mysql·jdbc-postgres 묶음, spring 묶음은 Spring Boot 관리 버전 7.0.2), H2(Spring Boot 관리 버전), Spark SQL 4.3.0(Scala 2.13)이다. Kotlin 런타임은 컴파일러와 같은 2.4.21 로 맞춘다.
