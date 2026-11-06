@@ -4,7 +4,7 @@ title: 호텔 예약 재고 만들기
 kind: build
 track: reservation
 stage: 01-inventory, 02-idempotency, 03-concurrency
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

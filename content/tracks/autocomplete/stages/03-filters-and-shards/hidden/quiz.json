@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 세 조회의 출력이 차례로 올바른 것은?",
+      "context": "ADD app 10\nADD apple 9\nADD apricot 8\nADD banana 10\nCACHE BATCH 1\nBAN app\nADD apple 3\nSQUERY 2 a\nCQUERY 1 a\nQUERY 2 a",
+      "choices": [
+        "ERR / app:10 / apple:12 app:10",
+        "apple:12 / app:10 / apple:12 app:10",
+        "apple:12 apricot:8 / app:10 / apple:12 app:10",
+        "apple:12 apricot:8 / apple:12 / apple:12 app:10",
+        "apple:12 apricot:8 / app:10 / apple:12 apricot:8"
+      ],
+      "answer": 3,
+      "refs": ["1.1", "1.2", "4.1", "4.2", "4.8"],
+      "quote": "허용 후보가 k개 이상이면 반드시 k개를 출력한다.",
+      "explanation": "③이 맞다. SQUERY는 최신 원본에서 app만 정확히 제외하고 apple:12와 apricot:8을 모두 반환한다. k=2가 캐시 용량 1보다 커도 허용된다. CQUERY는 BATCH 생성 시점의 app:10을 그대로 반환하고 QUERY는 금지어의 영향을 받지 않아 apple:12 app:10을 반환한다. ①은 SQUERY에도 캐시 용량 제한을 적용했다. ②는 일부 상위 목록에서 금지어만 지우고 후보를 보충하지 않았다. ④는 BATCH 캐시에 갱신과 금지를 반영했다. ⑤는 QUERY에도 금지를 적용했다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 두 LAYOUT의 출력이 차례로 올바른 것은?",
+      "context": "ADD ant 1\nADD ape 1\nADD bat 1\nADD bee 1\nADD cat 99\nBAN ant\nSHARDS 2\nADD car 1\nADD cow 1\nLAYOUT\nSHARDS 2\nLAYOUT",
+      "choices": [
+        "0:2 1:5 / 0:4 1:3",
+        "0:5 1:2 / 0:3 1:4",
+        "0:4 1:3 / 0:3 1:4",
+        "0:5 1:1 / 0:3 1:3",
+        "0:5 1:2 / 0:5 1:2"
+      ],
+      "answer": 2,
+      "refs": ["2.3", "4.2", "4.3", "4.4", "4.5"],
+      "quote": "각 묶음의 크기는 그 묶음에 속한 서로 다른 검색어 수이며 금지 여부와 빈도는 무시한다.",
+      "explanation": "②가 맞다. 처음에는 a와 b 묶음의 크기가 2이고 c는 1이다. 첫 글자 코드로 동점을 풀어 a를 0번, b를 1번에 넣고 부하 동점에서 c를 0번에 넣어 부하는 3과 2가 된다. car와 cow도 기존 c 묶음의 0번에 들어가 5와 2가 된다. 다시 SHARDS를 실행하면 크기 3의 c가 0번, 크기 2의 a와 b가 차례로 1번에 들어가 3과 4가 된다. ①은 처음 묶음 동점 배정을 뒤집었다. ③은 ADD마다 기존 묶음을 재배치하거나 나누었다. ④는 금지된 ant를 부하에서 뺐다. ⑤는 같은 개수의 SHARDS가 재계산한다는 규칙을 놓쳤다. cat의 높은 빈도는 부하에 영향을 주지 않는다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 두 명령의 출력이 차례로 올바른 것은?",
+      "context": "ADD apple 3\nSHARDS 3\nBAN apple\nROUTE az\nSQUERY 1 az",
+      "choices": [
+        "(none) / (none)",
+        "0 1 2 / (none)",
+        "0 / apple:3",
+        "0 / (none)",
+        "ERR / ERR"
+      ],
+      "answer": 4,
+      "refs": ["1.2", "4.3", "4.6", "4.8"],
+      "quote": "첫 글자 묶음이 있기만 하면 전체 접두어와 일치하는 검색어가 없어도 그 샤드를 출력한다.",
+      "explanation": "④가 맞다. a 묶음은 SHARDS에서 부하가 모두 0인 샤드 중 번호가 가장 작은 0번에 배정된다. 금지 여부와 전체 접두어 일치 여부는 ROUTE에 영향을 주지 않아 az도 0번으로 간다. SQUERY에서는 az와 일치하는 검색어가 없어 (none)이다. ①은 필터 조회의 후보 없음과 라우팅 대상 없음을 혼동했다. ②는 비어 있지 않은 접두어를 전체 샤드로 보냈다. ③은 첫 글자만 같으면 전체 접두어도 일치한다고 보았고 금지도 무시했다. ⑤는 새 명령에도 캐시가 필요하다고 보았다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "빈 상태에서 다음 명령을 순서대로 처리할 때 두 ROUTE의 샤드 번호는? 답은 두 번호를 차례로 쓰고 /로 구분한다.",
+      "context": "ADD ant 1\nADD ape 1\nADD bat 1\nADD cat 1\nSHARDS 3\nBAN dog\nADD dog 9\nADD dove 1\nADD deer 1\nADD cat 7\nROUTE d\nSHARDS 3\nROUTE d",
+      "answers": ["1 / 0", "1/0"],
+      "refs": ["2.3", "4.2", "4.3", "4.4", "4.5", "4.6"],
+      "quote": "ADD마다 기존 묶음을 재배치하지 않는다.",
+      "explanation": "첫 SHARDS 뒤 a는 0번, b는 1번, c는 2번이며 부하는 2, 1, 1이다. 새 d 묶음은 부하 동점에서 번호가 작은 1번에 배정된다. dove와 deer도 1번에 들어가고 cat의 빈도 증가와 dog의 금지는 배치와 부하에 영향을 주지 않아 첫 ROUTE는 1이다. 다시 SHARDS를 실행하면 크기 3의 d가 가장 먼저 0번에 배정되므로 두 번째 ROUTE는 0이다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "빈 상태에서 다음 명령을 순서대로 처리할 때 마지막 SQUERY의 출력 한 줄은?",
+      "context": "ADD app 9\nADD apple 8\nADD apply 7\nADD banana 8\nADD berry 6\nSHARDS 2\nCACHE BATCH 1\nBAN app\nBAN apple\nADD apple 2\nUNBAN apple\nBAN banana\nADD apricot 8\nADD berry 2\nSQUERY 3 *",
+      "answers": ["apple:10 apricot:8 berry:8"],
+      "refs": ["1.2", "4.1", "4.2", "4.5", "4.8"],
+      "quote": "여러 샤드에 걸치면 그 후보 전체를 하나의 순위로 합친다.",
+      "explanation": "app과 banana는 금지되어 제외된다. apple은 금지 중에도 빈도가 10으로 증가하고 해제 뒤 그 값으로 다시 후보가 된다. 새 검색어 apricot은 빈도 8이며 berry도 ADD 뒤 빈도 8이다. SQUERY는 BATCH 캐시의 용량 1과 저장 시점에 구애받지 않고 최신 원본을 조회한다. 서로 다른 샤드에 있는 apricot과 berry의 동점도 문자열 순서로 비교하므로 apple:10 apricot:8 berry:8을 출력한다."
+    }
+  ]
+}

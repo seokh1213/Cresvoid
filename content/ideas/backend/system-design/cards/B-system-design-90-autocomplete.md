@@ -4,7 +4,7 @@ title: 검색어 자동완성 만들기
 kind: build
 track: autocomplete
 stage: 01-trie, 02-cached-top-k, 03-filters-and-shards
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

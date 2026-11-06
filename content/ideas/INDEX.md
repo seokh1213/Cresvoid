@@ -26,8 +26,8 @@
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 1 | 0 | 10 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
-| [시스템 설계](backend/system-design/README.md) | 17 | 10 | 0 | 7 | 0 |
-| 합계 | 185 | 31 | 24 | 128 | 2 |
+| [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
+| 합계 | 185 | 28 | 24 | 131 | 2 |
 
 ## 다음 후보
 
@@ -44,12 +44,9 @@
 | 4 | [B-record-range-10](implementation/cards/B-record-range-10-record-range.md) | 레코드 경계를 지키는 파일 분할기 만들기 | build | record-range | 01-lines, 02-json-ranges, 03-range-read | 없음 |
 | 4 | [B-search-60](backend/search/cards/B-search-60-result-placement.md) | 제약을 만족하는 검색 결과 배치기 만들기 | build | result-placement | 01-ordered, 02-constraints, 03-exact-search | 없음 |
 | 4 | [B-system-design-60](backend/system-design/cards/B-system-design-60-crawler.md) | 웹 크롤러 만들기 | build | crawler | 01-frontier, 02-dedup, 03-politeness | 없음 |
-| 4 | [B-system-design-70](backend/system-design/cards/B-system-design-70-news-feed.md) | 뉴스 피드 팬아웃 만들기 | build | news-feed | 01-fanout-on-write, 02-fanout-on-read, 03-hybrid | 없음 |
 | 4 | [B-system-design-80](backend/system-design/cards/B-system-design-80-chat.md) | 채팅 순서와 동기화 만들기 | build | chat | 01-sequencing, 02-sync, 03-presence | 없음 |
-| 4 | [B-system-design-90](backend/system-design/cards/B-system-design-90-autocomplete.md) | 검색어 자동완성 만들기 | build | autocomplete | 01-trie, 02-cached-top-k, 03-filters-and-shards | 없음 |
 | 4 | [B-system-design-100](backend/system-design/cards/B-system-design-100-geo-index.md) | 근처 장소 검색 만들기 | build | geo-index | 01-geohash, 02-radius-search, 03-quadtree | 없음 |
 | 4 | [B-system-design-110](backend/system-design/cards/B-system-design-110-ad-click-aggregator.md) | 광고 클릭 집계기 만들기 | build | ad-click-aggregator | 01-windows, 02-late-events, 03-exactly-once | 없음 |
-| 4 | [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 없음 |
 | 5 | [B-algorithm-drills-10](implementation/cards/B-algorithm-drills-10-algorithm-drills.md) | 주제별 알고리즘 문제 묶음 | build | algorithm-drills | 01-strings, 02-arrays, 03-sort-search, 04-structures, 05-grids-recursion | 없음 |
 | 5 | [B-design-patterns-80](backend/design-patterns/cards/B-design-patterns-80-doc-editor.md) | 되돌리기를 지원하는 문서 편집기 만들기 | build | doc-editor | 01-edit, 02-undo, 03-macro, 04-snapshot | 없음 |
 | 5 | [B-distributed-30](backend/distributed/cards/B-distributed-30-crdt.md) | 복제 자료형 만들기 | build | crdt | 01-counters, 02-sets-and-registers, 03-convergence | 없음 |
@@ -77,7 +74,7 @@
 | agent-lab | lab | 없음 | 01 |  | real-model(L-ai-agent-50 5차) |
 | agent-runtime | build | 있음 | 06 | 01-loop(B-ai-agent-20 완료), 02-schema(B-ai-agent-20 완료), 03-parallel(B-ai-agent-20 완료), 04-context(B-ai-agent-20 완료), 05-guard(B-ai-agent-20 완료) |  |
 | algorithm-drills | build | 없음 | 06 |  | 01-strings(B-algorithm-drills-10 5차), 02-arrays(B-algorithm-drills-10 5차), 03-sort-search(B-algorithm-drills-10 5차), 04-structures(B-algorithm-drills-10 5차), 05-grids-recursion(B-algorithm-drills-10 5차) |
-| autocomplete | build | 없음 | 04 |  | 01-trie(B-system-design-90 4차), 02-cached-top-k(B-system-design-90 4차), 03-filters-and-shards(B-system-design-90 4차) |
+| autocomplete | build | 있음 | 04 | 01-trie(B-system-design-90 완료), 02-cached-top-k(B-system-design-90 완료), 03-filters-and-shards(B-system-design-90 완료) |  |
 | backend-lab | lab | 없음 | 11 | 01-stock-race(L-load-10 제작 중), 02-idempotency(L-load-20 제작 중), 03-cache-stampede(L-load-30 제작 중), 04-penetration-avalanche(L-load-40 제작 중), 05-stale-set(L-load-50 제작 중), 06-cache-outage(L-load-60 제작 중), 07-retry-storm(L-load-70 제작 중), 08-load-shedding(L-load-80 제작 중), 09-rate-limit(L-load-90 제작 중), 10-adaptive-concurrency(L-load-120 제작 중) | idempotent-consumer(L-load-100 5차), outbox(L-load-110 5차) |
 | batch-workflow | build | 없음 | 04 |  | 01-markers(B-pipeline-30 4차), 02-resume(B-pipeline-30 4차), 03-seal(B-pipeline-30 4차) |
 | bug-fix | fix | 있음 | 27 | 01-cursor-pagination(F-kotlin-10 완료), 02-order-deadline(F-coroutines-31 완료), 03-skipped-subscriber(F-design-patterns-60 완료), 04-stale-redo(F-design-patterns-70 완료), 05-instant-finish(F-coroutines-34 완료), 06-point-accrual(F-kotlin-20 완료), 07-daily-limit(F-kotlin-30 완료), 08-option-equality(F-kotlin-40 완료), 09-comparator-contract(F-kotlin-50 완료), 10-byte-offset(F-kotlin-130 완료), 11-short-read(F-kotlin-140 완료), 12-late-lock-release(F-distributed-70 완료), 13-rollover-delete-scope(F-pipeline-20 완료), 14-missing-chunk(F-pipeline-40 완료), 15-replay-regression(F-pipeline-60 완료), 16-hangul-normalization(F-search-40 완료), 17-fallback-constraints(F-search-70 완료), 18-sublist-view(F-kotlin-60 완료), 19-locale-format(F-kotlin-70 완료), 20-code-pattern(F-kotlin-80 완료), 21-retry-duplicate(F-kotlin-90 완료), 22-cache-key(F-kotlin-100 완료), 23-float-threshold(F-kotlin-110 완료), 24-sale-window(F-kotlin-120 완료), 25-double-start(F-design-patterns-100 완료), 26-unchecked-wakeup(F-design-patterns-110 완료) |  |
@@ -117,7 +114,7 @@
 | mini-sql | build | 없음 | 04 |  | 01-select(B-mini-sql-10 5차), 02-group(B-mini-sql-10 5차), 03-join(B-mini-sql-10 5차) |
 | mvcc | build | 있음 | 04 | 01-snapshot(B-database-20 완료), 02-locking(B-database-20 완료), 03-serializable(B-database-20 완료) |  |
 | net-lab | lab | 없음 | 01 |  | keepalive-race(L-network-10 4차), timeout-layers(L-network-20 5차) |
-| news-feed | build | 없음 | 04 |  | 01-fanout-on-write(B-system-design-70 4차), 02-fanout-on-read(B-system-design-70 4차), 03-hybrid(B-system-design-70 4차) |
+| news-feed | build | 있음 | 04 | 01-fanout-on-write(B-system-design-70 완료), 02-fanout-on-read(B-system-design-70 완료), 03-hybrid(B-system-design-70 완료) |  |
 | notifier | build | 없음 | 04 |  | 01-dispatch(B-system-design-150 5차), 02-reliability(B-system-design-150 5차), 03-throttling(B-system-design-150 5차) |
 | nrt-index | build | 있음 | 04 | 01-refresh(B-search-30 완료), 02-durability(B-search-30 완료), 03-concurrency(B-search-30 완료) |  |
 | object-store | build | 없음 | 04 |  | 01-versioning(B-system-design-160 5차), 02-multipart(B-system-design-160 5차), 03-durability(B-system-design-160 5차) |
@@ -129,7 +126,7 @@
 | reading | reading | 있음 | 16 | 01-auction(R-economics-10 완료), 02-agency(R-law-10 완료), 03-grue(R-philosophy-10 완료), 04-enzyme(R-science-10 완료), 05-key-exchange(R-technology-10 완료), 06-rescission(R-society-10 완료), 07-saussure(R-humanities-10 완료), 08-perspective(R-art-10 완료), 09-falsification(R-interdisciplinary-10 완료), 10-carnot(R-science-20 완료), 11-monetary-policy(R-society-20 완료), 12-congestion-control(R-technology-20 완료), 13-source-criticism(R-humanities-20 완료), 14-plate-tectonics(R-science-30 완료), 15-prospect-theory(R-society-30 완료) |  |
 | record-range | build | 없음 | 04 |  | 01-lines(B-record-range-10 4차), 02-json-ranges(B-record-range-10 4차), 03-range-read(B-record-range-10 4차) |
 | regex | build | 없음 | 04 |  | 01-basic(B-regex-10 5차), 02-classes(B-regex-10 5차), 03-linear(B-regex-10 5차) |
-| reservation | build | 없음 | 04 |  | 01-inventory(B-system-design-120 4차), 02-idempotency(B-system-design-120 4차), 03-concurrency(B-system-design-120 4차) |
+| reservation | build | 있음 | 04 | 01-inventory(B-system-design-120 완료), 02-idempotency(B-system-design-120 완료), 03-concurrency(B-system-design-120 완료) |  |
 | result-placement | build | 없음 | 04 |  | 01-ordered(B-search-60 4차), 02-constraints(B-search-60 4차), 03-exact-search(B-search-60 4차) |
 | search-engine | build | 있음 | 07 | 01-boolean(B-search-engine-10 완료), 02-ranking(B-search-engine-10 완료), 03-phrase(B-search-engine-10 완료), 04-fuzzy(B-search-engine-20 완료), 05-suggest(B-search-engine-30 완료), 06-snippet(B-search-engine-40 완료) |  |
 | sim-testing | build | 없음 | 04 |  | 01-scheduler(B-distributed-50 5차), 02-faults(B-distributed-50 5차), 03-shrink(B-distributed-50 5차) |
@@ -463,12 +460,12 @@
 | [B-system-design-40](backend/system-design/cards/B-system-design-40-ledger.md) | 결제 원장 만들기 | build | ledger | 01-double-entry, 02-psp-idempotency, 03-reconciliation | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-50](backend/system-design/cards/B-system-design-50-matching-engine.md) | 주문 매칭 엔진 만들기 | build | matching-engine | 01-order-book, 02-order-types, 03-replay | 완료(2026-11-06) | 3 | 없음 |  |
 | [B-system-design-60](backend/system-design/cards/B-system-design-60-crawler.md) | 웹 크롤러 만들기 | build | crawler | 01-frontier, 02-dedup, 03-politeness | 후보 | 4 | 없음 |  |
-| [B-system-design-70](backend/system-design/cards/B-system-design-70-news-feed.md) | 뉴스 피드 팬아웃 만들기 | build | news-feed | 01-fanout-on-write, 02-fanout-on-read, 03-hybrid | 후보 | 4 | 없음 |  |
+| [B-system-design-70](backend/system-design/cards/B-system-design-70-news-feed.md) | 뉴스 피드 팬아웃 만들기 | build | news-feed | 01-fanout-on-write, 02-fanout-on-read, 03-hybrid | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-system-design-80](backend/system-design/cards/B-system-design-80-chat.md) | 채팅 순서와 동기화 만들기 | build | chat | 01-sequencing, 02-sync, 03-presence | 후보 | 4 | 없음 |  |
-| [B-system-design-90](backend/system-design/cards/B-system-design-90-autocomplete.md) | 검색어 자동완성 만들기 | build | autocomplete | 01-trie, 02-cached-top-k, 03-filters-and-shards | 후보 | 4 | 없음 |  |
+| [B-system-design-90](backend/system-design/cards/B-system-design-90-autocomplete.md) | 검색어 자동완성 만들기 | build | autocomplete | 01-trie, 02-cached-top-k, 03-filters-and-shards | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-system-design-100](backend/system-design/cards/B-system-design-100-geo-index.md) | 근처 장소 검색 만들기 | build | geo-index | 01-geohash, 02-radius-search, 03-quadtree | 후보 | 4 | 없음 |  |
 | [B-system-design-110](backend/system-design/cards/B-system-design-110-ad-click-aggregator.md) | 광고 클릭 집계기 만들기 | build | ad-click-aggregator | 01-windows, 02-late-events, 03-exactly-once | 후보 | 4 | 없음 |  |
-| [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 후보 | 4 | 없음 |  |
+| [B-system-design-120](backend/system-design/cards/B-system-design-120-reservation.md) | 호텔 예약 재고 만들기 | build | reservation | 01-inventory, 02-idempotency, 03-concurrency | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-system-design-130](backend/system-design/cards/B-system-design-130-leaderboard.md) | 실시간 순위표 만들기 | build | leaderboard | 01-sorted-set, 02-range-queries, 03-sharding | 완료(2026-11-06) | 4 | 없음 |  |
 | [B-system-design-140](backend/system-design/cards/B-system-design-140-url-shortener.md) | URL 단축기 만들기 | build | url-shortener | 01-base62, 02-collisions, 03-expiry | 후보 | 5 | 없음 | B-system-design-30 |
 | [B-system-design-150](backend/system-design/cards/B-system-design-150-notifier.md) | 알림 발송기 만들기 | build | notifier | 01-dispatch, 02-reliability, 03-throttling | 후보 | 5 | 없음 |  |

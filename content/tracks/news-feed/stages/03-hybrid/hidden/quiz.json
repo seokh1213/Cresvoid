@@ -1,0 +1,63 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 POST와 FEED의 출력으로 옳은 것은?",
+      "context": "MODE HYBRID 2 2\nPOST 10 2 100\nPOST 20 2 200\nFOLLOW 1 2\nFOLLOW 3 2\nFOLLOW 3 2\nFOLLOW 4 2\nPOST 30 2 10\nFEED 1",
+      "choices": [
+        "POSTED 3 / FEED 2 20,10",
+        "POSTED 0 / FEED 2 30,20",
+        "POSTED 0 / FEED 4 20,10",
+        "POSTED 0 / FEED 0 NONE",
+        "POSTED 0 / FEED 2 20,10"
+      ],
+      "answer": 5,
+      "refs": ["3.2", "4.1", "4.2", "4.4"],
+      "quote": "분류는 모든 기존 글과 이후 글에 즉시 적용하며 관계 변경 명령이 끝난 뒤 다음 명령은 전환된 상태를 관찰한다.",
+      "explanation": "⑤가 맞다. 팔로워가 정확히 T인 두 명일 때까지는 복사 작성자이며 중복 FOLLOW는 수를 늘리지 않는다. 팔로워 4가 추가되어 세 명이 되면 기존 글까지 수집 방식으로 전환된다. 마지막 POST의 비용은 0이고 수집 후보 두 개는 시각이 큰 20과 10이다. ①은 기준 초과 뒤에도 복사 비용을 낸다. ②는 발행 순서로 정렬한다. ③은 전환 전 복사본과 전환 후 수집 후보를 중복 계산한다. ④는 전환 뒤 기존 글까지 수집 후보로 삼는 규칙을 놓친다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 FEED의 출력은?",
+      "context": "MODE HYBRID 2 1\nFOLLOW 1 2\nFOLLOW 3 2\nFOLLOW 1 4\nPOST 90 2 90\nPOST 91 2 91\nPOST 40 4 40\nPOST 41 4 41\nFEED 1",
+      "choices": ["FEED 2 91,90", "FEED 3 91,90", "FEED 4 91,90", "FEED 4 91,41", "FEED 4 91,90,41,40"],
+      "answer": 3,
+      "refs": ["3.2", "4.3", "4.4"],
+      "quote": "수집 작성자의 글이 최종 피드 상위권을 모두 차지하더라도 복사 피드의 길이 한도를 줄이지 않는다.",
+      "explanation": "③이 맞다. 작성자 2는 팔로워 두 명으로 수집 작성자이고 작성자 4는 한 명으로 복사 작성자다. 독자 1의 복사 피드에는 41과 40이 남고 수집 후보는 91과 90이다. 네 후보를 비용으로 세되 최신 두 글 91과 90만 반환한다. ①은 수집 글이 최종 결과를 모두 차지한다는 이유로 복사 피드 후보를 비용에서 지운다. ②는 복사 피드를 작성자 수 한 개로 센다. ④는 각 출처에서 반드시 한 글씩 반환해야 한다고 가정한다. ⑤는 최종 길이 L을 지키지 않는다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 FEED의 출력은?",
+      "context": "MODE HYBRID 2 1\nFOLLOW 1 2\nFOLLOW 3 2\nPOST 10 2 10\nPOST 20 2 20\nPOST 30 2 30\nFOLLOW 1 4\nPOST 40 4 40\nUNFOLLOW 3 2\nDELETE 40\nDELETE 30\nFEED 1",
+      "choices": ["FEED 1 20", "FEED 0 NONE", "FEED 2 30,20", "FEED 2 20,10", "FEED 2 20,20"],
+      "answer": 4,
+      "refs": ["3.2", "4.4", "4.5", "4.6", "4.7"],
+      "quote": "과거에 길이 제한으로 밀려난 글도 보충 대상이다.",
+      "explanation": "④가 맞다. UNFOLLOW 3 2 뒤 작성자 2는 팔로워가 한 명이 되어 복사 작성자로 바뀐다. 독자 1의 관계는 유지되고 삭제된 40과 30은 즉시 빠진다. 과거에 밀려났던 10을 보충하므로 복사 피드는 20과 10이고 읽기비용은 2다. ①은 삭제 뒤 빈자리 보충을 놓친다. ②는 독자 3의 취소를 독자 1의 취소로 취급한다. ③은 삭제된 30을 남긴다. ⑤는 분류 전환 전후의 같은 글을 중복으로 넣으며 글 10 보충도 놓친다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 명령을 순서대로 처리했을 때 마지막 POST의 출력 한 줄을 쓰라.",
+      "context": "MODE HYBRID 2 1\nFOLLOW 1 2\nPOST 10 2 100\nFOLLOW 3 2\nPOST 20 2 200\nFOLLOW 3 2\nUNFOLLOW 3 2\nPOST 30 2 0",
+      "answers": ["POSTED 1"],
+      "refs": ["3.2", "4.1", "4.2", "4.5"],
+      "quote": "정확히 T명이면 복사 작성자다.",
+      "explanation": "작성자 2는 팔로워가 한 명일 때 복사 작성자이고 FOLLOW 3 2 뒤에는 두 명이 되어 수집 작성자로 바뀐다. 중복 FOLLOW는 팔로워 수를 늘리지 않는다. UNFOLLOW 3 2 뒤에는 정확히 T인 한 명이므로 다시 복사 작성자가 된다. 마지막 글 30은 오래된 시각 때문에 피드에서 바로 밀려나도 한 번 넣은 비용을 세어 POSTED 1을 출력한다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 명령을 순서대로 처리했을 때 마지막 FEED의 출력 한 줄을 쓰라.",
+      "context": "MODE HYBRID 3 1\nFOLLOW 1 2\nFOLLOW 3 2\nFOLLOW 1 4\nPOST 10 2 10\nPOST 20 2 20\nPOST 30 2 30\nPOST 40 4 40\nPOST 50 4 50\nUNFOLLOW 3 2\nFEED 1\nDELETE 50\nDELETE 40\nFEED 1",
+      "answers": ["FEED 3 30,20,10"],
+      "refs": ["3.2", "4.3", "4.4", "4.5", "4.6", "4.7"],
+      "quote": "읽기비용은 복사 피드의 글 수에 수집 작성자별 후보 수를 더한 값이다.",
+      "explanation": "UNFOLLOW 3 2 뒤 작성자 2의 팔로워 수는 정확히 T인 한 명이므로 복사 작성자로 돌아온다. 첫 FEED의 복사 피드는 50, 40, 30이다. 50과 40을 삭제하면 전에 밀려난 20과 10을 원본에서 보충한다. 마지막에는 복사 후보 세 개만 남아 읽기비용은 3이고 글목록은 30,20,10이다."
+    }
+  ]
+}

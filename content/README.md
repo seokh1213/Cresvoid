@@ -38,6 +38,9 @@
 | `leaderboard` | build | 3 |
 | `lsm` | build | 3 |
 | `lease-lock` | build | 2 |
+| `autocomplete` | build | 3 |
+| `reservation` | build | 3 |
+| `news-feed` | build | 3 |
 | `coroutine-lab` | lab | 1 |
 | `pipeline-lab` | lab | 1 |
 | `jvm-lab` | lab | 3 |

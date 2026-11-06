@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 입력에서 마지막 두 조회의 출력이 차례로 올바른 것은?",
+      "context": "ADD app 7\nADD apple 7\nADD apply 2\nCACHE BATCH 2\nADD apply 6\nADD app 1\nCQUERY 2 app\nQUERY 2 app",
+      "choices": [
+        "app:8 apple:7 / app:8 apply:8",
+        "app:8 apply:8 / app:8 apply:8",
+        "app:7 apple:7 / apply:8 app:8",
+        "app:7 apple:7 / app:8 apply:8",
+        "app:7 apply:2 / app:8 apply:8"
+      ],
+      "answer": 4,
+      "refs": ["1.1", "1.2", "3.2", "4.3"],
+      "quote": "캐시의 검색어, 빈도, 순위와 두 카운터는 모두 그대로다.",
+      "explanation": "④가 맞다. 캐시 생성 시점에는 app과 apple이 빈도 7로 상위 2개다. BATCH는 이후 ADD의 빈도와 순위를 반영하지 않으므로 CQUERY는 이 내용을 그대로 출력한다. QUERY는 원본을 보고 빈도 8의 app과 apply를 문자열 오름차순으로 출력한다. ①은 캐시 순서에 원본의 새 빈도를 섞었다. ②는 BATCH를 즉시 갱신했다. ③은 원본의 동점 순서를 뒤집었다. ⑤는 캐시 생성 시 더 높은 빈도의 apple 대신 apply를 넣었다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령 뒤 COST가 출력하는 값은?",
+      "context": "ADD 가 2\nADD 가방 3\nCACHE IMMEDIATE 1\nADD 가방 1\nADD 가방 1\nREFRESH\nCACHE BATCH 2\nADD 가 1\nREFRESH\nCOST",
+      "choices": [
+        "incremental=0 rebuilt=10",
+        "incremental=6 rebuilt=20",
+        "incremental=0 rebuilt=15",
+        "incremental=2 rebuilt=10",
+        "incremental=0 rebuilt=5"
+      ],
+      "answer": 1,
+      "refs": ["2.3", "4.1", "4.2", "4.3", "4.4"],
+      "quote": "이미 캐시가 있으면 모드, 용량, 저장 내용과 카운터를 모두 교체한다.",
+      "explanation": "①이 맞다. 서로 다른 검색어 가와 가방의 길이+1 합은 2+3=5다. 첫 캐시에서는 ADD 두 번으로 incremental=6, REFRESH로 rebuilt=10이 된다. 두 번째 CACHE가 이를 incremental=0 rebuilt=5로 교체한다. BATCH의 ADD는 비용을 바꾸지 않고 마지막 REFRESH가 5를 더하므로 0과 10이다. ②는 CACHE에서 카운터를 초기화하지 않았다. ③은 길이+1의 합 대신 두 번째 CACHE와 마지막 REFRESH 시점의 빈도 합인 7과 8을 더했다. ④는 BATCH의 ADD를 즉시 갱신 비용에 넣었다. ⑤는 마지막 REFRESH에서 rebuilt에 더하지 않고 5로 덮어썼다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 입력에서 CQUERY 1 app과 마지막 COST의 출력이 차례로 올바른 것은?",
+      "context": "ADD app 9\nADD apple 8\nADD apply 1\nCACHE IMMEDIATE 1\nADD apply 9\nCQUERY 1 app\nCQUERY 2 app\nCOST",
+      "choices": [
+        "app:9 / incremental=6 rebuilt=16",
+        "apply:9 / incremental=6 rebuilt=16",
+        "apply:10 / incremental=12 rebuilt=16",
+        "apply:10 / incremental=0 rebuilt=22",
+        "apply:10 / incremental=6 rebuilt=16"
+      ],
+      "answer": 5,
+      "refs": ["2.1", "4.1", "4.2", "4.5", "5.1", "5.2"],
+      "quote": "검색어가 신규인지, 기존인지, 상위 용량 개에 드는지와 무관하게 같은 수식을 쓴다.",
+      "explanation": "⑤가 맞다. 최초 rebuilt는 app의 4, apple의 6, apply의 6을 더한 16이다. 목록 밖이던 apply도 원본에 남아 있으므로 ADD 뒤 빈도 10으로 상위 1개에 들어온다. 이 ADD의 incremental은 길이 5+1=6이다. 용량 1을 넘긴 CQUERY 2는 ERR이며 상태와 비용을 보존한다. ①은 목록 밖의 apply를 잃었다. ②는 누적 빈도 대신 증가량을 썼다. ③은 실패한 조회까지 갱신 비용에 넣었다. ④는 즉시 갱신을 전체 재생성 비용으로 계산했다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "빈 상태에서 다음 명령을 순서대로 처리할 때 마지막 COST의 출력 한 줄은?",
+      "context": "ADD 가 2\nADD 가방 3\nCACHE IMMEDIATE 2\nADD 가방 1\nREFRESH\nCACHE BATCH 1\nADD 가나 7\nREFRESH\nADD 가 1\nCOST",
+      "answers": ["incremental=0 rebuilt=13"],
+      "refs": ["2.3", "4.1", "4.3", "4.4"],
+      "quote": "이미 캐시가 있으면 모드, 용량, 저장 내용과 카운터를 모두 교체한다.",
+      "explanation": "가와 가방의 길이+1 합은 5다. IMMEDIATE에서 누적된 비용은 CACHE BATCH 1이 incremental=0 rebuilt=5로 교체한다. 새 검색어 가나는 길이+1이 3이지만 BATCH의 ADD 자체는 비용을 더하지 않는다. REFRESH는 그때의 세 검색어에 대한 2+3+3=8을 더해 rebuilt=13이 된다. 마지막 ADD도 BATCH이므로 두 카운터를 보존한다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "빈 상태에서 다음 명령을 순서대로 처리할 때 마지막 CQUERY의 출력 한 줄은?",
+      "context": "ADD app 8\nADD apple 7\nADD apply 1\nCACHE IMMEDIATE 2\nADD apply 8\nCACHE BATCH 2\nADD apple 3\nREFRESH\nADD app 1\nCQUERY 2 app",
+      "answers": ["apple:10 apply:9"],
+      "refs": ["2.1", "3.2", "4.1", "4.2", "4.3", "4.4", "4.5"],
+      "quote": "캐시의 검색어, 빈도, 순위와 두 카운터는 모두 그대로다.",
+      "explanation": "처음 목록 밖에 있던 apply는 IMMEDIATE의 ADD 뒤 빈도 9로 1위가 된다. BATCH로 교체한 뒤 apple의 원본 빈도가 10이 되고 REFRESH가 apple:10 apply:9를 캐시에 저장한다. 마지막 ADD로 원본의 app도 빈도 9가 되지만 BATCH 캐시는 바뀌지 않는다. 원본에서는 동점의 app이 apply보다 앞서더라도 CQUERY는 저장된 apple:10 apply:9를 출력한다."
+    }
+  ]
+}

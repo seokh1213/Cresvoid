@@ -1,0 +1,498 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "registration",
+      "refs": [
+        "4.1",
+        "3.6",
+        "1.1"
+      ],
+      "quote": "`ADD <검색어> <증가량>`은 검색어의 빈도에 증가량을 더한다.",
+      "input": [
+        "ADD a 2",
+        "QUERY 1 a"
+      ],
+      "expected": [
+        "OK",
+        "a:2"
+      ]
+    },
+    {
+      "name": "catalog-query",
+      "refs": [
+        "4.2",
+        "1.2",
+        "3.3",
+        "3.6"
+      ],
+      "quote": "`QUERY <k> <접두어>`는 현재까지 성공한 모든 ADD를 반영한 상태에서 접두어와 일치하는 검색어 상위 k개를 출력한다.",
+      "input": [
+        "QUERY 100 *",
+        "QUERY 1 a",
+        "ADD b 3",
+        "QUERY 100 *",
+        "QUERY 100 *"
+      ],
+      "expected": [
+        "(none)",
+        "(none)",
+        "OK",
+        "b:3",
+        "b:3"
+      ]
+    },
+    {
+      "name": "prefix-query",
+      "refs": [
+        "2.1",
+        "2.2",
+        "4.2"
+      ],
+      "quote": "접두어는 문자열의 맨 앞부터 연속해서 취한 부분이다.",
+      "input": [
+        "ADD a 3",
+        "ADD ab 5",
+        "ADD cab 9",
+        "QUERY 10 a",
+        "QUERY 1 b",
+        "QUERY 10 ab",
+        "QUERY 10 abc"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "ab:5 a:3",
+        "(none)",
+        "ab:5",
+        "(none)"
+      ]
+    },
+    {
+      "name": "ranking",
+      "refs": [
+        "3.5",
+        "2.3",
+        "3.6"
+      ],
+      "quote": "빈도가 큰 검색어를 먼저 내보낸다.",
+      "input": [
+        "ADD 힣 7",
+        "ADD 가 7",
+        "ADD ㆎ 7",
+        "ADD ㄱ 7",
+        "ADD ᇿ 7",
+        "ADD ᄀ 7",
+        "ADD z 7",
+        "ADD aa 7",
+        "ADD a 7",
+        "ADD 9 7",
+        "ADD 0 7",
+        "QUERY 100 *",
+        "QUERY 3 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "0:7 9:7 a:7 aa:7 z:7 ᄀ:7 ᇿ:7 ㄱ:7 ㆎ:7 가:7 힣:7",
+        "0:7 9:7 a:7"
+      ]
+    },
+    {
+      "name": "text-query",
+      "refs": [
+        "2.4",
+        "3.2",
+        "6.2"
+      ],
+      "quote": "한글 완성 음절과 자모는 서로 다른 문자 코드로 표현될 수 있다.",
+      "input": [
+        "ADD 가 4",
+        "ADD 가방 4",
+        "ADD ㄱㅏ 4",
+        "ADD 가 4",
+        "QUERY 10 가",
+        "QUERY 10 ㄱ",
+        "QUERY 10 ᄀ",
+        "QUERY 10 가",
+        "QUERY 10 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "가:4 가방:4",
+        "ㄱㅏ:4",
+        "가:4",
+        "가:4",
+        "가:4 ㄱㅏ:4 가:4 가방:4"
+      ]
+    },
+    {
+      "name": "updates",
+      "refs": [
+        "4.3",
+        "4.1",
+        "4.2",
+        "6.1"
+      ],
+      "quote": "예를 들어 빈도가 7인 `app`, `apple`, `apply`는 `app`, `apple`, `apply` 순이다.",
+      "input": [
+        "ADD apple 7",
+        "ADD app 7",
+        "ADD apply 2",
+        "QUERY 2 app",
+        "ADD apply 5",
+        "QUERY 2 app",
+        "ADD apply 1",
+        "QUERY 3 app",
+        "ADD app 2",
+        "QUERY 2 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "app:7 apple:7",
+        "OK",
+        "app:7 apple:7",
+        "OK",
+        "apply:8 app:7 apple:7",
+        "OK",
+        "app:9 apply:8"
+      ]
+    },
+    {
+      "name": "frequency-input",
+      "refs": [
+        "3.4",
+        "3.5",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "모든 숫자 인자는 ASCII 숫자 `0`~`9`만으로 이루어진 십진수다.",
+      "input": [
+        "ADD a 9007199254740992",
+        "ADD b 9007199254740993",
+        "QUERY 2 *",
+        "ADD c 9223372036854775807",
+        "ADD c 1",
+        "ADD d 9223372036854775808",
+        "QUERY 100 *",
+        "ADD a 1",
+        "QUERY 3 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "b:9007199254740993 a:9007199254740992",
+        "OK",
+        "ERR",
+        "ERR",
+        "c:9223372036854775807 b:9007199254740993 a:9007199254740992",
+        "OK",
+        "c:9223372036854775807 a:9007199254740993 b:9007199254740993"
+      ]
+    },
+    {
+      "name": "numeric-input",
+      "refs": [
+        "3.4",
+        "3.2",
+        "3.6"
+      ],
+      "quote": "모든 숫자 인자는 ASCII 숫자 `0`~`9`만으로 이루어진 십진수다.",
+      "input": [
+        "ADD 0 0001",
+        "ADD 000 0002",
+        "ADD z9 0003",
+        "QUERY 000100 *",
+        "QUERY 01 0",
+        "ADD 0 0009",
+        "QUERY 2 0"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "z9:3 000:2 0:1",
+        "000:2",
+        "OK",
+        "0:10 000:2"
+      ]
+    },
+    {
+      "name": "command-input",
+      "refs": [
+        "3.1",
+        "5.2",
+        "7.1"
+      ],
+      "quote": "입력은 UTF-8 텍스트이며 한 줄에 명령 하나를 쓴다.",
+      "input": [
+        "",
+        " \t ",
+        " \tADD\t kiwi\t 2 \t\r",
+        "\tQUERY 01\tki \t\r",
+        "",
+        "query 1 ki",
+        "QUERY\t1\tki"
+      ],
+      "expected": [
+        "OK",
+        "kiwi:2",
+        "ERR",
+        "kiwi:2"
+      ]
+    },
+    {
+      "name": "word-input",
+      "refs": [
+        "3.2",
+        "3.3"
+      ],
+      "quote": "검색어와 비어 있지 않은 접두어의 길이는 1~32글자다.",
+      "input": [
+        "ADD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1",
+        "ADD ᄀᇿㄱㆎ가힣09az 2",
+        "QUERY 100 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "QUERY 100 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "QUERY 1 ᄀᇿ",
+        "QUERY 1 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+        "ᄀᇿㄱㆎ가힣09az:2",
+        "ᄀᇿㄱㆎ가힣09az:2"
+      ]
+    },
+    {
+      "name": "word-validation",
+      "refs": [
+        "5.1",
+        "3.2",
+        "3.3",
+        "5.2"
+      ],
+      "quote": "알 수 없는 명령, 인자 개수 불일치, 잘못된 문자열, 잘못된 숫자 또는 범위 밖의 숫자를 받으면 `ERR` 한 줄을 출력한다.",
+      "input": [
+        "ADD a 4",
+        "ADD * 1",
+        "ADD A 1",
+        "ADD a_b 1",
+        "ADD 😀 1",
+        "ADD   1",
+        "ADD ჿ 1",
+        "ADD ሀ 1",
+        "ADD ㄰ 1",
+        "ADD ㆏ 1",
+        "ADD ꯿ 1",
+        "ADD 힤 1",
+        "ADD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1",
+        "QUERY 1 a*",
+        "QUERY 1 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "QUERY 1 A",
+        "QUERY 100 *"
+      ],
+      "expected": [
+        "OK",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "a:4"
+      ]
+    },
+    {
+      "name": "numeric-validation",
+      "refs": [
+        "3.4",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "모든 숫자 인자는 ASCII 숫자 `0`~`9`만으로 이루어진 십진수다.",
+      "input": [
+        "ADD a 5",
+        "ADD a 0",
+        "ADD a -1",
+        "ADD a +1",
+        "ADD a 1.0",
+        "ADD a １",
+        "ADD a ١",
+        "ADD a 1e2",
+        "ADD a 9223372036854775808",
+        "QUERY 0 *",
+        "QUERY 101 *",
+        "QUERY -1 *",
+        "QUERY +1 *",
+        "QUERY 1.0 *",
+        "QUERY １ *",
+        "QUERY 999999999999999999999999999999 *",
+        "QUERY 100 *"
+      ],
+      "expected": [
+        "OK",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "a:5"
+      ]
+    },
+    {
+      "name": "request-validation",
+      "refs": [
+        "5.1",
+        "5.2",
+        "3.1"
+      ],
+      "quote": "알 수 없는 명령, 인자 개수 불일치, 잘못된 문자열, 잘못된 숫자 또는 범위 밖의 숫자를 받으면 `ERR` 한 줄을 출력한다.",
+      "input": [
+        "ADD a 6",
+        "BOGUS",
+        "add a 1",
+        "ADD",
+        "ADD a",
+        "ADD a 3 extra",
+        "QUERY",
+        "QUERY 1",
+        "QUERY 1 * extra",
+        "ADD A -1 extra",
+        "QUERY 1 a"
+      ],
+      "expected": [
+        "OK",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "a:6"
+      ]
+    },
+    {
+      "name": "catalog-session",
+      "refs": [
+        "5.2",
+        "4.1",
+        "4.2",
+        "3.4"
+      ],
+      "quote": "실패한 명령은 어떤 상태도 바꾸지 않는다.",
+      "input": [
+        "ADD a 9223372036854775806",
+        "ADD b 8",
+        "QUERY 1 *",
+        "ADD a 2",
+        "ADD a 1",
+        "ADD b 0",
+        "QUERY 2 *",
+        "QUERY 1 aa",
+        "ADD aa 9",
+        "QUERY 3 a"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "a:9223372036854775806",
+        "ERR",
+        "OK",
+        "ERR",
+        "a:9223372036854775807 b:8",
+        "(none)",
+        "OK",
+        "a:9223372036854775807 aa:9"
+      ]
+    },
+    {
+      "name": "generated-session",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "고정 예시와 오류 조합, 한글 표현 구분, 무작위 입력을 검사한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--terms",
+        "80",
+        "--commands",
+        "400"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "generated-catalog",
+      "refs": [
+        "7.2"
+      ],
+      "quote": "고정 예시와 오류 조합, 한글 표현 구분, 무작위 입력을 검사한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--terms",
+        "240",
+        "--commands",
+        "1000"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "generated-workload",
+      "refs": [
+        "7.3"
+      ],
+      "quote": "마지막 대규모 테스트는 서로 다른 검색어 2,000,000개를 포함하고 ADD는 최대 2,050,000회, QUERY는 최대 50,000회다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--scale",
+        "--terms",
+        "2000000",
+        "--commands",
+        "49999"
+      ],
+      "repeat": 2,
+      "timeout_sec": 120
+    }
+  ]
+}

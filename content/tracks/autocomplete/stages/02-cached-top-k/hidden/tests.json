@@ -1,0 +1,561 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "cache-creation",
+      "refs": [
+        "4.1",
+        "4.5"
+      ],
+      "quote": "`CACHE <모드> <용량>`은 현재 원본 전체를 바탕으로 캐시 하나를 새로 만들고 `OK`를 출력한다.",
+      "input": [
+        "CACHE IMMEDIATE 1",
+        "ADD a 2",
+        "CQUERY 1 a"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "a:2"
+      ]
+    },
+    {
+      "name": "cache-lifecycle",
+      "refs": [
+        "5.1",
+        "4.1",
+        "4.4",
+        "4.6",
+        "3.3"
+      ],
+      "quote": "캐시를 만들기 전에 CQUERY, REFRESH, COST를 실행하면 `ERR`다.",
+      "input": [
+        "CQUERY 1 *",
+        "REFRESH",
+        "COST",
+        "CACHE BATCH 1",
+        "COST",
+        "REFRESH",
+        "CQUERY 1 *",
+        "QUERY 1 *",
+        "COST"
+      ],
+      "expected": [
+        "ERR",
+        "ERR",
+        "ERR",
+        "OK",
+        "incremental=0 rebuilt=0",
+        "OK",
+        "(none)",
+        "(none)",
+        "incremental=0 rebuilt=0"
+      ]
+    },
+    {
+      "name": "cache-query",
+      "refs": [
+        "3.2",
+        "4.5",
+        "3.1",
+        "4.1"
+      ],
+      "quote": "캐시의 논리 상태는 생성 또는 갱신 시점의 검색어와 그때의 빈도를 담는다.",
+      "input": [
+        "ADD app 7",
+        "ADD apple 7",
+        "ADD apply 8",
+        "CACHE BATCH 2",
+        "CQUERY 1 app",
+        "CQUERY 2 app",
+        "QUERY 3 app",
+        "CQUERY 3 app",
+        "CQUERY 2 z",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "apply:8",
+        "apply:8 app:7",
+        "apply:8 app:7 apple:7",
+        "ERR",
+        "(none)",
+        "incremental=0 rebuilt=16"
+      ]
+    },
+    {
+      "name": "snapshot-query",
+      "refs": [
+        "4.3",
+        "3.2",
+        "1.2",
+        "4.5"
+      ],
+      "quote": "캐시가 BATCH 모드이면 ADD는 원본만 바꾼다.",
+      "input": [
+        "ADD a 9",
+        "ADD ab 8",
+        "CACHE BATCH 2",
+        "ADD a 1",
+        "ADD ab 4",
+        "ADD ax 20",
+        "CQUERY 2 a",
+        "QUERY 3 a",
+        "CQUERY 1 ax",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "a:9 ab:8",
+        "ax:20 ab:12 a:10",
+        "(none)",
+        "incremental=0 rebuilt=5"
+      ]
+    },
+    {
+      "name": "cache-updates",
+      "refs": [
+        "4.2",
+        "2.1",
+        "4.5",
+        "3.2"
+      ],
+      "quote": "캐시가 IMMEDIATE 모드이면 성공한 ADD마다 그 등록이 만든 원본 상태를 즉시 반영한다.",
+      "input": [
+        "ADD a 10",
+        "ADD ab 9",
+        "ADD ac 1",
+        "CACHE IMMEDIATE 2",
+        "ADD ac 9",
+        "CQUERY 2 a",
+        "ADD ab 1",
+        "CQUERY 2 a",
+        "ADD ad 11",
+        "CQUERY 2 a",
+        "QUERY 2 a",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "a:10 ac:10",
+        "OK",
+        "a:10 ab:10",
+        "OK",
+        "ad:11 a:10",
+        "ad:11 a:10",
+        "incremental=9 rebuilt=8"
+      ]
+    },
+    {
+      "name": "batch-refresh",
+      "refs": [
+        "4.4",
+        "4.3",
+        "4.5",
+        "6.1",
+        "2.2"
+      ],
+      "quote": "`REFRESH`는 모드와 용량을 유지한 채 현재 원본 전체로 캐시를 다시 만들고 `OK`를 출력한다.",
+      "input": [
+        "ADD app 2",
+        "CACHE BATCH 2",
+        "ADD app 3",
+        "ADD apple 7",
+        "CQUERY 2 app",
+        "REFRESH",
+        "CQUERY 2 app",
+        "COST",
+        "REFRESH",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "app:2",
+        "OK",
+        "apple:7 app:5",
+        "incremental=0 rebuilt=14",
+        "OK",
+        "incremental=0 rebuilt=24"
+      ]
+    },
+    {
+      "name": "immediate-refresh",
+      "refs": [
+        "4.4",
+        "4.2",
+        "4.6",
+        "2.3"
+      ],
+      "quote": "`REFRESH`는 모드와 용량을 유지한 채 현재 원본 전체로 캐시를 다시 만들고 `OK`를 출력한다.",
+      "input": [
+        "CACHE IMMEDIATE 2",
+        "ADD 가 3",
+        "ADD 가 4",
+        "ADD ㄱㅏ 5",
+        "COST",
+        "REFRESH",
+        "CQUERY 2 *",
+        "QUERY 2 *",
+        "COST",
+        "REFRESH",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "incremental=8 rebuilt=0",
+        "OK",
+        "ㄱㅏ:5 가:4",
+        "ㄱㅏ:5 가:4",
+        "incremental=8 rebuilt=8",
+        "OK",
+        "incremental=8 rebuilt=16"
+      ]
+    },
+    {
+      "name": "cache-replacement",
+      "refs": [
+        "4.1",
+        "4.2",
+        "4.3",
+        "5.2"
+      ],
+      "quote": "`CACHE <모드> <용량>`은 현재 원본 전체를 바탕으로 캐시 하나를 새로 만들고 `OK`를 출력한다.",
+      "input": [
+        "ADD a 2",
+        "CACHE IMMEDIATE 1",
+        "ADD ab 3",
+        "COST",
+        "CACHE BATCH 2",
+        "COST",
+        "ADD a 5",
+        "CQUERY 2 *",
+        "QUERY 2 *",
+        "CACHE IMMEDIATE 2",
+        "COST",
+        "ADD ab 5",
+        "CQUERY 2 *",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "incremental=3 rebuilt=2",
+        "OK",
+        "incremental=0 rebuilt=5",
+        "OK",
+        "ab:3 a:2",
+        "a:7 ab:3",
+        "OK",
+        "incremental=0 rebuilt=5",
+        "OK",
+        "ab:8 a:7",
+        "incremental=3 rebuilt=5"
+      ]
+    },
+    {
+      "name": "update-cost",
+      "refs": [
+        "4.2",
+        "3.3",
+        "4.6",
+        "4.4"
+      ],
+      "quote": "캐시가 IMMEDIATE 모드이면 성공한 ADD마다 그 등록이 만든 원본 상태를 즉시 반영한다.",
+      "input": [
+        "ADD a 100",
+        "CACHE IMMEDIATE 1",
+        "ADD zzz 1",
+        "ADD zzz 1",
+        "COST",
+        "CQUERY 1 *",
+        "QUERY 100 *",
+        "COST",
+        "REFRESH",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "incremental=8 rebuilt=2",
+        "a:100",
+        "a:100 zzz:2",
+        "incremental=8 rebuilt=2",
+        "OK",
+        "incremental=8 rebuilt=8"
+      ]
+    },
+    {
+      "name": "cache-validation",
+      "refs": [
+        "5.2",
+        "5.1",
+        "3.1"
+      ],
+      "quote": "실패한 명령은 원본, 모드, 용량, 저장 내용과 두 카운터를 모두 보존한다.",
+      "input": [
+        "ADD a 4",
+        "CACHE IMMEDIATE 2",
+        "CACHE WRONG 2",
+        "CACHE immediate 2",
+        "CACHE BATCH 0",
+        "CACHE IMMEDIATE 101",
+        "CACHE BATCH +2",
+        "CACHE BATCH １",
+        "CACHE BATCH 9223372036854775808",
+        "CACHE BATCH",
+        "CACHE BATCH 2 extra",
+        "CACHE",
+        "CQUERY 3 *",
+        "CQUERY 0 *",
+        "CQUERY 1 A",
+        "CQUERY 1 a*",
+        "CQUERY 1",
+        "CQUERY 1 * extra",
+        "REFRESH extra",
+        "COST extra",
+        "ADD ab 5",
+        "CQUERY 2 *",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "OK",
+        "ab:5 a:4",
+        "incremental=3 rebuilt=2"
+      ]
+    },
+    {
+      "name": "registration-validation",
+      "refs": [
+        "5.2",
+        "4.2",
+        "3.3"
+      ],
+      "quote": "실패한 명령은 원본, 모드, 용량, 저장 내용과 두 카운터를 모두 보존한다.",
+      "input": [
+        "ADD a 9223372036854775807",
+        "CACHE IMMEDIATE 2",
+        "ADD a 1",
+        "ADD a 9223372036854775808",
+        "ADD abc 0",
+        "ADD * 1",
+        "CQUERY 2 *",
+        "QUERY 2 *",
+        "COST",
+        "REFRESH",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "a:9223372036854775807",
+        "a:9223372036854775807",
+        "incremental=0 rebuilt=2",
+        "OK",
+        "incremental=0 rebuilt=4"
+      ]
+    },
+    {
+      "name": "cache-input",
+      "refs": [
+        "3.1",
+        "4.1",
+        "4.5",
+        "4.6"
+      ],
+      "quote": "새 명령은 `CACHE <모드> <용량>`, `CQUERY <k> <접두어>`, `REFRESH`, `COST`다.",
+      "input": [
+        " \tCACHE\tIMMEDIATE\t00100\t",
+        "ADD 가 0002",
+        "CQUERY 00100 ᄀ",
+        "CQUERY 100 가",
+        "COST",
+        " \tREFRESH \t",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "가:2",
+        "(none)",
+        "incremental=3 rebuilt=0",
+        "OK",
+        "incremental=3 rebuilt=3"
+      ]
+    },
+    {
+      "name": "batch-catalog",
+      "refs": [
+        "4.3",
+        "4.4",
+        "3.2",
+        "6.2",
+        "4.6",
+        "1.1"
+      ],
+      "quote": "캐시가 BATCH 모드이면 ADD는 원본만 바꾼다.",
+      "input": [
+        "CACHE BATCH 1",
+        "ADD 가 9",
+        "CQUERY 1 *",
+        "QUERY 1 *",
+        "COST",
+        "REFRESH",
+        "CQUERY 1 *",
+        "ADD 가 1",
+        "CQUERY 1 *",
+        "QUERY 1 *",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "(none)",
+        "가:9",
+        "incremental=0 rebuilt=0",
+        "OK",
+        "가:9",
+        "OK",
+        "가:9",
+        "가:10",
+        "incremental=0 rebuilt=2"
+      ]
+    },
+    {
+      "name": "cache-session",
+      "refs": [
+        "4.1",
+        "4.3",
+        "4.4",
+        "4.2",
+        "5.2"
+      ],
+      "quote": "`CACHE <모드> <용량>`은 현재 원본 전체를 바탕으로 캐시 하나를 새로 만들고 `OK`를 출력한다.",
+      "input": [
+        "ADD a 5",
+        "ADD b 4",
+        "CACHE BATCH 1",
+        "ADD b 2",
+        "CACHE UNKNOWN 2",
+        "CQUERY 1 *",
+        "REFRESH",
+        "CQUERY 1 *",
+        "COST",
+        "CACHE IMMEDIATE 1",
+        "ADD a 2",
+        "CQUERY 1 *",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "ERR",
+        "a:5",
+        "OK",
+        "b:6",
+        "incremental=0 rebuilt=8",
+        "OK",
+        "OK",
+        "a:7",
+        "incremental=2 rebuilt=4"
+      ]
+    },
+    {
+      "name": "generated-session",
+      "refs": [
+        "7.1"
+      ],
+      "quote": "1단계와 같은 표준 입력 및 줄 단위 출력 비교를 사용한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--terms",
+        "80",
+        "--commands",
+        "400"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "generated-catalog",
+      "refs": [
+        "7.1"
+      ],
+      "quote": "1단계와 같은 표준 입력 및 줄 단위 출력 비교를 사용한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--terms",
+        "240",
+        "--commands",
+        "1000"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "generated-workload",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "마지막 대규모 테스트는 서로 다른 검색어 2,000,000개, 검색어 길이 최대 12, 빈 접두어를 포함한 서로 다른 접두어 최대 2,500,000개를 사용한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--scale",
+        "--terms",
+        "2000000",
+        "--commands",
+        "50000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 180
+    }
+  ]
+}

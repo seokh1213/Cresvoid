@@ -1,0 +1,10 @@
+{
+  "title": "뉴스 피드 팬아웃",
+  "kind": "build",
+  "summary": "글을 쓸 때 팔로워 피드에 넣는 방식과 읽을 때 모으는 방식을 구현해 비용을 비교하고, 팔로워 수 기준으로 두 방식을 섞는다.",
+  "stages": [
+    { "dir": "01-fanout-on-write", "title": "쓸 때 팔로워 피드에 넣기" },
+    { "dir": "02-fanout-on-read", "title": "읽을 때 모으기" },
+    { "dir": "03-hybrid", "title": "혼합 방식과 삭제 반영" }
+  ]
+}

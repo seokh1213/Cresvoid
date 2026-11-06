@@ -1,0 +1,553 @@
+{
+  "timeout_sec": 20,
+  "tests": [
+    {
+      "name": "hotel-booking",
+      "refs": [
+        "4.2.2",
+        "1.1",
+        "1.2",
+        "4.1.1",
+        "4.1.2",
+        "4.1.4",
+        "4.3.3"
+      ],
+      "quote": "각 날짜에서 현재 예약 수량 + quantity가 판매 한도 이하일 때만 예약을 확정하고 `OK BOOK <reservationId>`를 출력한다.",
+      "input": [
+        "TYPE Twin 0",
+        "STOCK Twin 2030-06-01 2030-06-02 2",
+        "BOOK stay Twin 2030-06-01 2030-06-02 1",
+        "STATUS stay",
+        "AVAIL Twin 2030-06-01"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK STOCK Twin",
+        "OK BOOK stay",
+        "STATUS stay Twin 2030-06-01 2030-06-02 1",
+        "STOCK Twin 2030-06-01 2 2 1 1"
+      ]
+    },
+    {
+      "name": "calendar-visit",
+      "refs": [
+        "2.1",
+        "3.3",
+        "4.1.2",
+        "4.3.3"
+      ],
+      "quote": "호텔의 재고 한 칸은 객실 유형과 숙박 날짜의 조합이다.",
+      "input": [
+        "TYPE Twin 0",
+        "STOCK Twin 2028-02-28 2028-03-02 2",
+        "BOOK visit Twin 2028-02-28 2028-03-01 1",
+        "STATUS visit",
+        "AVAIL Twin 2028-02-29",
+        "AVAIL Twin 2028-03-01",
+        "AVAIL Twin 2028-03-02",
+        "STOCK Twin 2031-12-31 2032-01-02 1",
+        "BOOK yearEnd Twin 2031-12-31 2032-01-02 1",
+        "STATUS yearEnd"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK STOCK Twin",
+        "OK BOOK visit",
+        "STATUS visit Twin 2028-02-28 2028-03-01 1,1",
+        "STOCK Twin 2028-02-29 2 2 1 1",
+        "STOCK Twin 2028-03-01 2 2 0 2",
+        "STOCK Twin 2028-03-02 0 0 0 0",
+        "OK STOCK Twin",
+        "OK BOOK yearEnd",
+        "STATUS yearEnd Twin 2031-12-31 2032-01-02 1,1"
+      ]
+    },
+    {
+      "name": "sales-policy",
+      "refs": [
+        "2.2",
+        "4.1.1",
+        "4.1.4"
+      ],
+      "quote": "초과 예약은 취소나 미방문을 예상하여 물리적인 객실 수보다 많은 예약을 받는 정책이다.",
+      "input": [
+        "TYPE Suite 33",
+        "TYPE Suite 0",
+        "STOCK Suite 2030-04-01 2030-04-02 3",
+        "STOCK Suite 2030-04-02 2030-04-03 4",
+        "AVAIL Suite 2030-04-01",
+        "AVAIL Suite 2030-04-02",
+        "BOOK a Suite 2030-04-01 2030-04-03 3",
+        "BOOK b Suite 2030-04-02 2030-04-03 2",
+        "AVAIL Suite 2030-04-02",
+        "BOOK c Suite 2030-04-01 2030-04-02 1"
+      ],
+      "expected": [
+        "OK TYPE Suite",
+        "ERROR TYPE_EXISTS",
+        "OK STOCK Suite",
+        "OK STOCK Suite",
+        "STOCK Suite 2030-04-01 3 3 0 3",
+        "STOCK Suite 2030-04-02 4 5 0 5",
+        "OK BOOK a",
+        "OK BOOK b",
+        "STOCK Suite 2030-04-02 4 5 5 0",
+        "ERROR FULL"
+      ]
+    },
+    {
+      "name": "reservation-flow",
+      "refs": [
+        "4.2.2",
+        "2.3",
+        "4.2.1"
+      ],
+      "quote": "각 날짜에서 현재 예약 수량 + quantity가 판매 한도 이하일 때만 예약을 확정하고 `OK BOOK <reservationId>`를 출력한다.",
+      "input": [
+        "TYPE Twin 0",
+        "STOCK Twin 2030-05-01 2030-05-04 3",
+        "BOOK old Twin 2030-05-02 2030-05-03 3",
+        "BOOK next Twin 2030-05-01 2030-05-04 1",
+        "STATUS next",
+        "AVAIL Twin 2030-05-01",
+        "AVAIL Twin 2030-05-03",
+        "CANCEL old 2030-05-02 2030-05-03 1",
+        "BOOK next Twin 2030-05-01 2030-05-04 1",
+        "STATUS next"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK STOCK Twin",
+        "OK BOOK old",
+        "ERROR FULL",
+        "ERROR RESERVATION_NOT_FOUND",
+        "STOCK Twin 2030-05-01 3 3 0 3",
+        "STOCK Twin 2030-05-03 3 3 0 3",
+        "OK CANCEL old",
+        "OK BOOK next",
+        "STATUS next Twin 2030-05-01 2030-05-04 1,1,1"
+      ]
+    },
+    {
+      "name": "inventory-update",
+      "refs": [
+        "4.1.3",
+        "4.1.2",
+        "4.1.4"
+      ],
+      "quote": "STOCK이 만들 새 판매 한도보다 현재 예약된 수량이 큰 날짜가 하나라도 있으면 ERROR BELOW_RESERVED이고 구간 전체를 바꾸지 않는다.",
+      "input": [
+        "TYPE Twin 25",
+        "STOCK Twin 2030-05-01 2030-05-04 4",
+        "BOOK old Twin 2030-05-02 2030-05-03 5",
+        "STOCK Twin 2030-05-01 2030-05-04 3",
+        "AVAIL Twin 2030-05-01",
+        "AVAIL Twin 2030-05-02",
+        "AVAIL Twin 2030-05-03",
+        "STOCK Twin 2030-05-01 2030-05-04 4",
+        "CANCEL old 2030-05-02 2030-05-03 2",
+        "STOCK Twin 2030-05-01 2030-05-04 3",
+        "STATUS old",
+        "AVAIL Twin 2030-05-02"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK STOCK Twin",
+        "OK BOOK old",
+        "ERROR BELOW_RESERVED",
+        "STOCK Twin 2030-05-01 4 5 0 5",
+        "STOCK Twin 2030-05-02 4 5 5 0",
+        "STOCK Twin 2030-05-03 4 5 0 5",
+        "OK STOCK Twin",
+        "OK CANCEL old",
+        "OK STOCK Twin",
+        "STATUS old Twin 2030-05-02 2030-05-03 3",
+        "STOCK Twin 2030-05-02 3 3 3 0"
+      ]
+    },
+    {
+      "name": "stay-adjustment",
+      "refs": [
+        "4.3.2",
+        "2.3",
+        "2.4",
+        "4.3.1",
+        "4.3.3"
+      ],
+      "quote": "취소 구간의 날짜 중 예약의 잔여 수량이 quantity보다 작은 날짜가 하나라도 있으면 ERROR CANCEL_QUANTITY이다.",
+      "input": [
+        "TYPE Suite 0",
+        "STOCK Suite 2030-05-01 2030-05-04 5",
+        "BOOK family Suite 2030-05-01 2030-05-04 4",
+        "CANCEL family 2030-05-02 2030-05-03 3",
+        "STATUS family",
+        "CANCEL family 2030-05-01 2030-05-04 2",
+        "STATUS family",
+        "AVAIL Suite 2030-05-01",
+        "AVAIL Suite 2030-05-03",
+        "CANCEL family 2030-05-01 2030-05-04 1",
+        "STATUS family",
+        "BOOK guest Suite 2030-05-02 2030-05-03 5",
+        "AVAIL Suite 2030-05-02"
+      ],
+      "expected": [
+        "OK TYPE Suite",
+        "OK STOCK Suite",
+        "OK BOOK family",
+        "OK CANCEL family",
+        "STATUS family Suite 2030-05-01 2030-05-04 4,1,4",
+        "ERROR CANCEL_QUANTITY",
+        "STATUS family Suite 2030-05-01 2030-05-04 4,1,4",
+        "STOCK Suite 2030-05-01 5 5 4 1",
+        "STOCK Suite 2030-05-03 5 5 4 1",
+        "OK CANCEL family",
+        "STATUS family Suite 2030-05-01 2030-05-04 3,0,3",
+        "OK BOOK guest",
+        "STOCK Suite 2030-05-02 5 5 5 0"
+      ]
+    },
+    {
+      "name": "reservation-history",
+      "refs": [
+        "4.2.1",
+        "2.4",
+        "4.3.1",
+        "4.3.2",
+        "4.3.3"
+      ],
+      "quote": "`BOOK <reservationId> <type> <from> <to> <quantity>`는 구간의 모든 날짜에 quantity개씩 예약한다.",
+      "input": [
+        "TYPE Twin 0",
+        "STOCK Twin 2030-05-01 2030-05-03 2",
+        "BOOK stay Twin 2030-05-01 2030-05-03 2",
+        "CANCEL stay 2030-05-01 2030-05-03 2",
+        "STATUS stay",
+        "BOOK stay Twin 2030-05-01 2030-05-03 1",
+        "CANCEL stay 2030-05-01 2030-05-02 1",
+        "CANCEL stay 2030-04-30 2030-05-02 1",
+        "CANCEL stay 2030-05-02 2030-05-04 1",
+        "BOOK other Twin 2030-05-01 2030-05-03 2"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK STOCK Twin",
+        "OK BOOK stay",
+        "OK CANCEL stay",
+        "STATUS stay Twin 2030-05-01 2030-05-03 0,0",
+        "ERROR RESERVATION_EXISTS",
+        "ERROR CANCEL_QUANTITY",
+        "ERROR PERIOD",
+        "ERROR PERIOD",
+        "OK BOOK other"
+      ]
+    },
+    {
+      "name": "hotel-ledger",
+      "refs": [
+        "4.1.4",
+        "2.1",
+        "3.2",
+        "4.3.2"
+      ],
+      "quote": "`AVAIL <type> <date>`는 해당 날짜의 재고를 조회한다.",
+      "input": [
+        "TYPE Twin 0",
+        "TYPE twin 100",
+        "STOCK Twin 2030-05-01 2030-05-02 5",
+        "STOCK twin 2030-05-01 2030-05-02 2",
+        "BOOK Twin Twin 2030-05-01 2030-05-02 2",
+        "BOOK twin twin 2030-05-01 2030-05-02 3",
+        "BOOK extra Twin 2030-05-01 2030-05-02 1",
+        "CANCEL Twin 2030-05-01 2030-05-02 1",
+        "AVAIL Twin 2030-05-01",
+        "AVAIL twin 2030-05-01",
+        "STATUS Twin",
+        "STATUS twin"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK TYPE twin",
+        "OK STOCK Twin",
+        "OK STOCK twin",
+        "OK BOOK Twin",
+        "OK BOOK twin",
+        "OK BOOK extra",
+        "OK CANCEL Twin",
+        "STOCK Twin 2030-05-01 5 5 2 3",
+        "STOCK twin 2030-05-01 2 4 3 1",
+        "STATUS Twin Twin 2030-05-01 2030-05-02 1",
+        "STATUS twin twin 2030-05-01 2030-05-02 3"
+      ]
+    },
+    {
+      "name": "capacity-accounting",
+      "refs": [
+        "3.3",
+        "2.2",
+        "4.1.4"
+      ],
+      "quote": "날짜 토큰은 정확히 YYYY-MM-DD 형식의 실재하는 역산 그레고리력 날짜다.",
+      "input": [
+        "TYPE Huge 100",
+        "STOCK Huge 2000-01-01 2000-01-02 1000000000",
+        "BOOK a Huge 2000-01-01 2000-01-02 1000000000",
+        "BOOK b Huge 2000-01-01 2000-01-02 1000000000",
+        "AVAIL Huge 2000-01-01",
+        "BOOK c Huge 2000-01-01 2000-01-02 1",
+        "CANCEL a 2000-01-01 2000-01-02 1000000000",
+        "AVAIL Huge 2000-01-01",
+        "TYPE Fine 99",
+        "STOCK Fine 2099-12-30 2099-12-31 999999999",
+        "AVAIL Fine 2099-12-30",
+        "AVAIL Fine 2099-12-31"
+      ],
+      "expected": [
+        "OK TYPE Huge",
+        "OK STOCK Huge",
+        "OK BOOK a",
+        "OK BOOK b",
+        "STOCK Huge 2000-01-01 1000000000 2000000000 2000000000 0",
+        "ERROR FULL",
+        "OK CANCEL a",
+        "STOCK Huge 2000-01-01 1000000000 2000000000 1000000000 1000000000",
+        "OK TYPE Fine",
+        "OK STOCK Fine",
+        "STOCK Fine 2099-12-30 999999999 1989999998 0 1989999998",
+        "STOCK Fine 2099-12-31 0 0 0 0"
+      ]
+    },
+    {
+      "name": "command-stream",
+      "refs": [
+        "3.1",
+        "3.2",
+        "3.4",
+        "4.1.1"
+      ],
+      "quote": "입력은 UTF-8 텍스트이며 한 줄에 명령 하나를 넣고 EOF까지 처리한다.",
+      "input": [
+        " \t",
+        "",
+        "\tTYPE\tRoom_1-x\t-0\t",
+        "TYPE Room_1-x 000",
+        "  STOCK  Room_1-x  2030-01-01\t2030-01-02\t0002",
+        "BOOK Stay_1-x Room_1-x 2030-01-01 2030-01-02 0001",
+        "STATUS Stay_1-x",
+        "STATUS stay_1-x",
+        "type New 0",
+        "TYPE A2345678901234567890123456789012 0",
+        "TYPE A23456789012345678901234567890123 0",
+        "AVAIL Room_1-x 2030-01-01"
+      ],
+      "expected": [
+        "OK TYPE Room_1-x",
+        "ERROR TYPE_EXISTS",
+        "OK STOCK Room_1-x",
+        "OK BOOK Stay_1-x",
+        "STATUS Stay_1-x Room_1-x 2030-01-01 2030-01-02 1",
+        "ERROR RESERVATION_NOT_FOUND",
+        "ERROR INPUT",
+        "OK TYPE A2345678901234567890123456789012",
+        "ERROR INPUT",
+        "STOCK Room_1-x 2030-01-01 2 2 1 1"
+      ]
+    },
+    {
+      "name": "command-validation",
+      "refs": [
+        "5.1",
+        "3.2",
+        "3.3",
+        "3.4"
+      ],
+      "quote": "알려지지 않은 명령, 잘못된 토큰 수, 식별자·정수·날짜 형식 위반은 ERROR INPUT이다.",
+      "input": [
+        "TYPE",
+        "TYPE Bad 0 extra",
+        "TYPE 9bad 0",
+        "TYPE 한글 0",
+        "TYPE Bad +1",
+        "TYPE Bad 9223372036854775808",
+        "TYPE Bad -9223372036854775809",
+        "AVAIL Missing 2030-02-29",
+        "AVAIL Missing 2000-2-29",
+        "AVAIL Missing 0000-02-30",
+        "AVAIL Missing 0000-02-29",
+        "BOOK id Missing 1999-01-01 2000-01-02 nope",
+        "TYPE Bad 1.0",
+        "TYPE Bad 0",
+        "AVAIL Bad 2000-02-29"
+      ],
+      "expected": [
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "ERROR RANGE",
+        "ERROR INPUT",
+        "ERROR INPUT",
+        "OK TYPE Bad",
+        "STOCK Bad 2000-02-29 0 0 0 0"
+      ]
+    },
+    {
+      "name": "value-validation",
+      "refs": [
+        "3.3",
+        "5.1",
+        "5.2"
+      ],
+      "quote": "날짜 토큰은 정확히 YYYY-MM-DD 형식의 실재하는 역산 그레고리력 날짜다.",
+      "input": [
+        "TYPE Bad -1",
+        "TYPE Bad 101",
+        "TYPE Bad -9223372036854775808",
+        "STOCK Missing 2030-01-01 2030-01-02 -1",
+        "STOCK Missing 2030-01-01 2030-01-02 1000000001",
+        "BOOK id Missing 2030-01-01 2030-01-02 0",
+        "CANCEL id 2030-01-01 2030-01-02 1000000001",
+        "AVAIL Missing 1999-12-31",
+        "AVAIL Missing 2100-01-01",
+        "STOCK Missing 2030-01-01 2030-01-01 1",
+        "BOOK id Missing 2030-01-02 2030-01-01 1",
+        "BOOK id Missing 2028-01-01 2029-01-02 1",
+        "AVAIL Missing 2100-02-29",
+        "TYPE Bad 0"
+      ],
+      "expected": [
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR RANGE",
+        "ERROR INPUT",
+        "OK TYPE Bad"
+      ]
+    },
+    {
+      "name": "state-validation",
+      "refs": [
+        "5.2",
+        "4.1.2",
+        "4.1.4",
+        "4.2.1",
+        "4.2.2",
+        "4.3.1"
+      ],
+      "quote": "형식과 기본 범위를 통과한 뒤 명령 규칙에 적힌 순서로 상태를 검사한다.",
+      "input": [
+        "TYPE Twin 0",
+        "STOCK Twin 2030-01-01 2030-01-02 1",
+        "BOOK used Twin 2030-01-01 2030-01-02 1",
+        "BOOK used Missing 2030-01-01 2030-01-02 1",
+        "BOOK used Twin 2030-01-01 2030-01-02 1",
+        "BOOK fresh Twin 2030-01-01 2030-01-02 1",
+        "STOCK Missing 2030-01-01 2030-01-02 0",
+        "AVAIL Missing 2030-01-01",
+        "CANCEL missing 2029-12-31 2030-01-02 9",
+        "CANCEL used 2029-12-31 2030-01-02 9",
+        "STATUS missing",
+        "CANCEL used 2030-01-01 2030-01-02 1",
+        "BOOK fresh Twin 2030-01-01 2030-01-02 1"
+      ],
+      "expected": [
+        "OK TYPE Twin",
+        "OK STOCK Twin",
+        "OK BOOK used",
+        "ERROR TYPE_NOT_FOUND",
+        "ERROR RESERVATION_EXISTS",
+        "ERROR FULL",
+        "ERROR TYPE_NOT_FOUND",
+        "ERROR TYPE_NOT_FOUND",
+        "ERROR RESERVATION_NOT_FOUND",
+        "ERROR PERIOD",
+        "ERROR RESERVATION_NOT_FOUND",
+        "OK CANCEL used",
+        "OK BOOK fresh"
+      ]
+    },
+    {
+      "name": "annual-inventory",
+      "refs": [
+        "3.3",
+        "4.1.2",
+        "4.1.3",
+        "4.2.2"
+      ],
+      "quote": "날짜 토큰은 정확히 YYYY-MM-DD 형식의 실재하는 역산 그레고리력 날짜다.",
+      "input": [
+        "TYPE Year 0",
+        "STOCK Year 2028-01-01 2029-01-01 1",
+        "BOOK last Year 2028-12-31 2029-01-01 1",
+        "BOOK other Year 2028-12-30 2029-01-01 1",
+        "AVAIL Year 2028-12-30",
+        "STOCK Year 2028-01-01 2029-01-02 2",
+        "AVAIL Year 2028-01-01",
+        "STOCK Year 2028-12-31 2029-01-01 0",
+        "AVAIL Year 2028-12-31",
+        "CANCEL last 2028-12-31 2029-01-01 1",
+        "STOCK Year 2028-01-01 2029-01-01 0",
+        "AVAIL Year 2028-12-31"
+      ],
+      "expected": [
+        "OK TYPE Year",
+        "OK STOCK Year",
+        "OK BOOK last",
+        "ERROR FULL",
+        "STOCK Year 2028-12-30 1 1 0 1",
+        "ERROR RANGE",
+        "STOCK Year 2028-01-01 1 1 0 1",
+        "ERROR BELOW_RESERVED",
+        "STOCK Year 2028-12-31 1 1 1 0",
+        "OK CANCEL last",
+        "OK STOCK Year",
+        "STOCK Year 2028-12-31 0 0 0 0"
+      ]
+    },
+    {
+      "name": "generated-journey",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "제한 시간은 컴파일을 제외하고 프로세스 한 번당 20초다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--cases",
+        "8"
+      ],
+      "repeat": 3,
+      "timeout_sec": 20
+    },
+    {
+      "name": "generated-workload",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "제한 시간은 컴파일을 제외하고 프로세스 한 번당 20초다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--cases",
+        "30"
+      ],
+      "repeat": 3,
+      "timeout_sec": 20
+    }
+  ]
+}

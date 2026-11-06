@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 처리할 때 마지막 STATUS의 응답으로 옳은 것은?",
+      "context": "TYPE Suite 0\nSTOCK Suite 2034-03-01 2034-03-03 3\nREQUEST bookKey BOOK stay Suite 2034-03-01 2034-03-03 03\nREQUEST cancelKey CANCEL stay 2034-03-02 2034-03-03 1\nREQUEST cancelKey CANCEL stay 2034-03-02 2034-03-03 01\nREQUEST bookKey BOOK stay Suite 2034-03-01 2034-03-03 3\nSTATUS stay",
+      "choices": [
+        "STATUS stay Suite 2034-03-01 2034-03-03 3,3",
+        "STATUS stay Suite 2034-03-01 2034-03-03 3,1",
+        "STATUS stay Suite 2034-03-01 2034-03-03 3,2",
+        "STATUS stay Suite 2034-03-01 2034-03-03 6,5",
+        "STATUS stay Suite 2034-03-02 2034-03-03 2"
+      ],
+      "answer": 3,
+      "refs": ["1.1", "3.1", "4.2", "4.4"],
+      "quote": "기록된 요청 ID와 내용이 같으면 저장한 응답을 그대로 출력하고 감싼 명령은 실행하지 않는다.",
+      "explanation": "③이 옳다. 최초 예약 뒤 잔여 수량은 3,3이고 최초 취소로 3,2가 된다. 수량 1과 01은 같은 정수 값이므로 취소 재전송은 저장한 OK CANCEL stay만 반환한다. 예약의 03과 3도 같은 내용이어서 마지막 재전송은 최초 OK BOOK stay를 반환하며 수량을 바꾸지 않는다. ①은 최초 예약 응답의 재전송이 부분 취소까지 되돌린다고 잘못 보았다. ②는 수량 표기의 정규화와 같은 내용의 재실행 금지를 함께 적용하지 않고 취소를 두 번 실행했다. ④는 예약을 다시 더했으며 ⑤는 STATUS가 원래 예약 구간을 유지한다는 앞 단계 규칙에 어긋난다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 처리할 때 마지막 두 명령의 응답을 차례로 나열한 것은?",
+      "context": "REQUEST first BOOK r Loft 2035-08-01 2035-08-02 1\nTYPE Loft 0\nSTOCK Loft 2035-08-01 2035-08-02 1\nREQUEST first BOOK r Loft 2035-08-01 2035-08-02 1\nBOOK r Loft 2035-08-01 2035-08-02 1",
+      "choices": [
+        "ERROR TYPE_NOT_FOUND / OK BOOK r",
+        "OK BOOK r / ERROR RESERVATION_EXISTS",
+        "ERROR TYPE_NOT_FOUND / ERROR RESERVATION_EXISTS",
+        "ERROR FULL / OK BOOK r",
+        "ERROR REQUEST_CONFLICT / OK BOOK r"
+      ],
+      "answer": 1,
+      "refs": ["4.3", "4.4", "4.5", "5.2"],
+      "quote": "실패 응답을 저장해도 예약 ID를 사용한 것으로 만들지는 않는다.",
+      "explanation": "①이 옳다. first의 최초 요청은 유형이 없어 실패했고 그 응답을 저장했다. 재전송 때 유형과 재고가 생겼어도 같은 ERROR TYPE_NOT_FOUND를 반환한다. 이 실패는 예약 ID r을 차지하지 않고 재전송도 예약을 실행하지 않으므로 감싸지 않은 BOOK은 성공한다. ②는 현재 상태로 재전송을 다시 실행했다. ③은 실패 응답의 저장과 예약 ID의 사용 이력을 혼동했다. 저장된 실패를 재사용한다는 규칙과 실패가 예약 ID를 차지하지 않는다는 규칙을 함께 보아야 배제할 수 있다. ④는 최초 응답을 재고 부족으로 잘못 판단했다. ⑤는 내용이 같은 재전송을 충돌로 보았다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 처리할 때 마지막 두 REQUEST의 응답과 재고 변화에 관한 설명으로 옳은 것은?",
+      "context": "TYPE Twin 0\nSTOCK Twin 2036-04-01 2036-04-02 2\nREQUEST shared BOOK r Twin 2036-04-01 2036-04-02 1\nREQUEST shared CANCEL r 2036-04-01 2036-04-02 1\nREQUEST shared BOOK r Twin 2036-04-01 2036-04-02 1",
+      "choices": [
+        "OK CANCEL r, OK BOOK r이며 취소와 재예약이 각각 한 번 실행된다.",
+        "ERROR REQUEST_CONFLICT, ERROR REQUEST_CONFLICT이며 충돌한 취소 내용이 최초 기록을 대체한다.",
+        "ERROR REQUEST_CONFLICT, ERROR RESERVATION_EXISTS이며 마지막 요청에서 현재 예약 ID의 중복을 검사한다.",
+        "ERROR REQUEST_CONFLICT, OK BOOK r이며 예약 수량은 최초 예약이 차지한 1개 그대로다.",
+        "ERROR REQUEST_CONFLICT, OK BOOK r이며 마지막 요청이 재실행되어 예약 수량이 2개가 된다."
+      ],
+      "answer": 4,
+      "refs": ["3.1", "4.2", "4.4", "5.1"],
+      "quote": "내용이 다르면 ERROR REQUEST_CONFLICT를 출력하고 최초 기록을 유지한다.",
+      "explanation": "④가 옳다. BOOK과 CANCEL은 요청 ID 이름 공간을 공유하지만 동작 종류가 달라 내용이 다르므로 취소는 충돌한다. 충돌은 최초 BOOK 기록을 덮어쓰지 않으며 마지막 요청은 최초 응답만 재사용한다. ①은 이름 공간 공유와 동작 종류의 비교를 함께 적용하지 않고 취소를 실행했다. ②는 충돌 응답이 기록을 대체한다고 잘못 보았다. ③은 저장된 요청 비교보다 현재 예약 ID의 상태 검사를 먼저 했다. ⑤는 같은 내용의 재전송에서 응답만 반환하고 명령은 실행하지 않는다는 규칙에 어긋난다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["REQUEST key STATUS missing"],
+      "answers": ["ERROR INPUT"],
+      "refs": ["3.2", "4.1", "5.1"],
+      "quote": "중첩 REQUEST나 다른 명령은 감싸지 않는다.",
+      "explanation": "REQUEST는 BOOK 또는 CANCEL만 감쌀 수 있다. STATUS는 허용된 형식이 아니므로 ERROR INPUT 한 줄이다. missing 예약의 존재 여부를 검사하기 전에 요청 형식을 검사하므로 ERROR RESERVATION_NOT_FOUND가 아니다. 요청 기록을 만들지 않으며 ERROR REQUEST_CONFLICT도 아니다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["REQUEST key BOOK r Ghost 0000-02-29 0000-03-01 01"],
+      "answers": ["ERROR RANGE"],
+      "refs": ["3.1", "4.1", "5.1"],
+      "quote": "ERROR INPUT이나 ERROR RANGE가 나면 요청 기록을 만들거나 비교하지 않고 즉시 그 오류를 출력한다.",
+      "explanation": "앞 단계의 날짜 규칙에 따라 연도 0000은 형식 검사에서 허용하며 400의 배수인 윤년이므로 0000-02-29는 실재하는 날짜다. 그러나 허용 날짜의 하한 2000-01-01보다 이르므로 ERROR RANGE 한 줄이다. 수량 01은 정수 1로 유효하다. 연도 0000을 형식 오류로 취급한 ERROR INPUT은 틀리며, Ghost 유형의 존재 검사는 기본 범위 검사 뒤이므로 ERROR TYPE_NOT_FOUND도 아니다."
+    }
+  ]
+}

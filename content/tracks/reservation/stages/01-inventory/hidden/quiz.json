@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 처리할 때 마지막 AVAIL의 응답으로 옳은 것은?",
+      "context": "TYPE Corner 25\nSTOCK Corner 2032-02-28 2032-02-29 3\nSTOCK Corner 2032-02-29 2032-03-01 4\nBOOK trip Corner 2032-02-28 2032-03-01 4\nAVAIL Corner 2032-02-29",
+      "choices": [
+        "STOCK Corner 2032-02-29 4 5 4 1",
+        "STOCK Corner 2032-02-29 4 5 0 5",
+        "STOCK Corner 2032-02-29 4 4 0 4",
+        "STOCK Corner 2032-02-29 4 5 3 2",
+        "STOCK Corner 2032-02-29 0 0 0 0"
+      ],
+      "answer": 2,
+      "refs": ["2.1", "2.2", "4.1.4", "4.2.2"],
+      "quote": "어느 날짜든 한도를 넘으면 ERROR FULL이다.",
+      "explanation": "②가 옳다. 윤년의 2월 28일과 29일이 모두 예약 대상이며 날짜별 한도는 각각 floor(3 × 125 / 100) = 3, floor(4 × 125 / 100) = 5다. 첫 날짜가 4개를 수용하지 못하므로 예약 전체가 실패하고 29일의 reserved는 0이다. ①은 첫 날짜의 버림과 다박 예약의 원자성을 함께 적용하면 배제된다. ③은 비율을 적용한 29일의 한도를 잘못 계산했다. ④처럼 실패한 예약을 한도에 맞춰 일부만 확정하지 않는다. ⑤는 윤년의 29일을 빠뜨렸으며 그 날짜에는 물리 객실 4개가 설정되어 있다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령을 순서대로 처리할 때 마지막 STATUS의 응답으로 옳은 것은?",
+      "context": "TYPE Suite 0\nSTOCK Suite 2034-03-10 2034-03-13 3\nBOOK stay Suite 2034-03-10 2034-03-13 3\nCANCEL stay 2034-03-11 2034-03-12 2\nCANCEL stay 2034-03-10 2034-03-13 2\nSTATUS stay",
+      "choices": [
+        "STATUS stay Suite 2034-03-10 2034-03-13 1,1,1",
+        "STATUS stay Suite 2034-03-10 2034-03-13 1,0,1",
+        "STATUS stay Suite 2034-03-10 2034-03-13 3,3,3",
+        "STATUS stay Suite 2034-03-11 2034-03-12 1",
+        "STATUS stay Suite 2034-03-10 2034-03-13 3,1,3"
+      ],
+      "answer": 5,
+      "refs": ["4.3.1", "4.3.2", "4.3.3"],
+      "quote": "이미 회수한 수량을 다시 취소하지 않으며 취소 실패 시 어느 날짜도 바꾸지 않는다.",
+      "explanation": "⑤가 옳다. 첫 취소는 11일에만 적용되어 잔여 수량이 3,1,3이 된다. 다음 취소는 11일의 1개로 2개 취소를 감당하지 못하므로 전체가 실패한다. ①은 날짜별 취소 가능 수량과 실패의 원자성을 함께 적용하지 않고 10일과 12일만 줄였다. ②처럼 잔여 수량만큼만 취소하는 동작은 없다. ③은 성공한 첫 부분 취소를 무시했다. ④는 STATUS가 원래 예약 구간 전체를 출력한다는 규칙에 어긋난다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 명령까지 처리한 상태에서 추가 명령 하나를 독립적으로 실행할 때 명령과 응답의 짝으로 옳은 것은?",
+      "context": "TYPE Twin 0\nSTOCK Twin 2035-07-01 2035-07-02 1\nBOOK failed Twin 2035-07-01 2035-07-02 2\nBOOK used Twin 2035-07-01 2035-07-02 1\nCANCEL used 2035-07-01 2035-07-02 1",
+      "choices": [
+        "BOOK failed Twin 2035-07-01 2035-07-02 1 → OK BOOK failed",
+        "BOOK used Twin 2035-07-01 2035-07-02 1 → OK BOOK used",
+        "STATUS failed → STATUS failed Twin 2035-07-01 2035-07-02 0",
+        "BOOK used Ghost 2035-07-01 2035-07-02 1 → ERROR RESERVATION_EXISTS",
+        "AVAIL Twin 2035-07-02 → STOCK Twin 2035-07-02 1 1 0 1"
+      ],
+      "answer": 1,
+      "refs": ["2.1", "4.1.2", "4.2.1", "4.2.2", "4.3.2", "4.3.3", "5.2"],
+      "quote": "실패하면 재고와 예약 이력을 전혀 바꾸지 않으며 실패한 BOOK의 예약 ID는 이후에 사용할 수 있다.",
+      "explanation": "①이 옳다. failed의 첫 예약은 한도 1을 넘겨 실패했으므로 ID를 다시 쓸 수 있고, used의 완전 취소로 1개가 비어 있다. ②는 완전히 취소된 성공 예약의 ID도 보존한다는 규칙에 어긋난다. ③은 실패한 예약에 조회할 이력이 없으므로 ERROR RESERVATION_NOT_FOUND다. ④는 성공 예약의 ID 보존과 오류 검사 순서를 함께 보아야 한다. Ghost 유형이 없다는 검사가 ID 중복보다 먼저이므로 ERROR TYPE_NOT_FOUND다. ⑤의 조회 날짜는 STOCK의 제외된 끝 날짜이며 설정하지 않은 재고는 0이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["BOOK r Ghost 2031-02-29 2031-03-01 0"],
+      "answers": ["ERROR INPUT"],
+      "refs": ["3.3", "5.1", "5.2"],
+      "quote": "같은 줄에 두 종류의 문제가 있으면 ERROR INPUT을 출력한다.",
+      "explanation": "2031년은 윤년이 아니므로 2031-02-29는 실재하지 않는 날짜이며 형식 오류다. 수량 0의 범위 오류보다 형식 오류가 우선하므로 ERROR INPUT 한 줄이다. 수량만 보아 ERROR RANGE라고 답하면 형식 검사를 빠뜨린 것이다. Ghost가 없더라도 상태 검사는 기본 검사 뒤이므로 ERROR TYPE_NOT_FOUND가 아니다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["CANCEL r 2032-01-01 2033-01-02 1"],
+      "answers": ["ERROR RANGE"],
+      "refs": ["3.3", "5.1", "5.2"],
+      "quote": "형식과 기본 범위를 통과한 뒤 명령 규칙에 적힌 순서로 상태를 검사한다.",
+      "explanation": "2032년은 윤년이므로 다음 해 1월 1일까지 366일이고, 입력의 끝 날짜까지는 367일이다. 형식이 맞고 두 날짜도 허용 연도 안에 있지만 구간의 상한 366일을 넘겨 ERROR RANGE 한 줄이다. r이 존재하지 않아도 예약 존재 검사는 구간 범위 검사 뒤이므로 ERROR RESERVATION_NOT_FOUND가 아니다. 실재하는 날짜이므로 ERROR INPUT도 아니다."
+    }
+  ]
+}

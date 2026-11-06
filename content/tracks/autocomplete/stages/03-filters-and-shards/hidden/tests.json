@@ -1,0 +1,658 @@
+{
+  "timeout_sec": 10,
+  "tests": [
+    {
+      "name": "filtered-query",
+      "refs": [
+        "4.8",
+        "1.2",
+        "3.3",
+        "1.1"
+      ],
+      "quote": "`SQUERY <k> <접두어>`는 현재 원본에서 접두어가 일치하고 금지 집합에 없는 검색어 전체의 상위 k개를 출력한다.",
+      "input": [
+        "ADD a 2",
+        "SQUERY 1 a"
+      ],
+      "expected": [
+        "OK",
+        "a:2"
+      ]
+    },
+    {
+      "name": "shard-lifecycle",
+      "refs": [
+        "3.2",
+        "4.6",
+        "4.7",
+        "4.4",
+        "5.1"
+      ],
+      "quote": "시작 시 금지어 집합은 비어 있고 샤드는 번호 0 하나다.",
+      "input": [
+        "LAYOUT",
+        "ROUTE *",
+        "ROUTE a",
+        "SQUERY 100 *",
+        "SHARDS 3",
+        "LAYOUT",
+        "ROUTE *",
+        "SHARDS 1",
+        "LAYOUT"
+      ],
+      "expected": [
+        "0:0",
+        "0",
+        "(none)",
+        "(none)",
+        "OK",
+        "0:0 1:0 2:0",
+        "0 1 2",
+        "OK",
+        "0:0"
+      ]
+    },
+    {
+      "name": "filter-lifecycle",
+      "refs": [
+        "4.1",
+        "4.2",
+        "3.2"
+      ],
+      "quote": "`BAN <검색어>`는 그 문자열 전체와 정확히 같은 검색어를 금지 집합에 추가한다.",
+      "input": [
+        "BAN apple",
+        "BAN apple",
+        "UNBAN absent",
+        "ADD apple 9",
+        "ADD app 8",
+        "ADD apples 7",
+        "SQUERY 100 app",
+        "UNBAN apple",
+        "UNBAN apple",
+        "SQUERY 100 app",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "app:8 apples:7",
+        "OK",
+        "OK",
+        "apple:9 app:8 apples:7",
+        "0:3"
+      ]
+    },
+    {
+      "name": "filter-updates",
+      "refs": [
+        "4.2",
+        "4.1",
+        "4.8"
+      ],
+      "quote": "금지와 해제는 빈도, 캐시, 캐시 모드·용량·카운터, 샤드 배치와 부하를 바꾸지 않는다.",
+      "input": [
+        "ADD a 3",
+        "ADD b 4",
+        "BAN a",
+        "ADD a 8",
+        "SQUERY 2 *",
+        "QUERY 2 *",
+        "UNBAN a",
+        "SQUERY 2 *",
+        "BAN a",
+        "BAN b",
+        "SQUERY 2 *",
+        "LAYOUT",
+        "ROUTE a"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "b:4",
+        "a:11 b:4",
+        "OK",
+        "a:11 b:4",
+        "OK",
+        "OK",
+        "(none)",
+        "0:2",
+        "0"
+      ]
+    },
+    {
+      "name": "candidate-query",
+      "refs": [
+        "4.8",
+        "2.1",
+        "1.2"
+      ],
+      "quote": "`SQUERY <k> <접두어>`는 현재 원본에서 접두어가 일치하고 금지 집합에 없는 검색어 전체의 상위 k개를 출력한다.",
+      "input": [
+        "ADD a 10",
+        "ADD ab 9",
+        "ADD ac 8",
+        "ADD ad 7",
+        "ADD ae 6",
+        "CACHE BATCH 1",
+        "BAN a",
+        "BAN ab",
+        "SHARDS 2",
+        "SQUERY 3 a",
+        "CQUERY 1 a",
+        "QUERY 3 a",
+        "SQUERY 100 a"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "ac:8 ad:7 ae:6",
+        "a:10",
+        "a:10 ab:9 ac:8",
+        "ac:8 ad:7 ae:6"
+      ]
+    },
+    {
+      "name": "shard-assignment",
+      "refs": [
+        "4.3",
+        "2.3",
+        "4.7",
+        "3.3"
+      ],
+      "quote": "`SHARDS <개수>`는 현재 원본의 서로 다른 검색어를 첫 글자가 같은 묶음으로 나눈다.",
+      "input": [
+        "ADD aa 1",
+        "ADD ab 1",
+        "ADD ac 1",
+        "ADD ad 1",
+        "ADD ba 999",
+        "ADD bb 999",
+        "ADD bc 999",
+        "ADD ca 1",
+        "ADD cb 1",
+        "ADD da 1",
+        "BAN aa",
+        "SHARDS 3",
+        "LAYOUT",
+        "ROUTE a",
+        "ROUTE b",
+        "ROUTE c",
+        "ROUTE d",
+        "SQUERY 3 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "0:4 1:3 2:3",
+        "0",
+        "1",
+        "2",
+        "2",
+        "ba:999 bb:999 bc:999"
+      ]
+    },
+    {
+      "name": "shard-ranking",
+      "refs": [
+        "4.3",
+        "4.8",
+        "4.6",
+        "2.2"
+      ],
+      "quote": "`SHARDS <개수>`는 현재 원본의 서로 다른 검색어를 첫 글자가 같은 묶음으로 나눈다.",
+      "input": [
+        "ADD ca 5",
+        "ADD bb 5",
+        "ADD ba 5",
+        "ADD a 5",
+        "SHARDS 3",
+        "ROUTE b",
+        "ROUTE a",
+        "ROUTE c",
+        "SQUERY 4 *",
+        "ROUTE *",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "0",
+        "1",
+        "2",
+        "a:5 ba:5 bb:5 ca:5",
+        "0 1 2",
+        "0:2 1:1 2:1"
+      ]
+    },
+    {
+      "name": "online-assignment",
+      "refs": [
+        "4.5",
+        "4.6",
+        "4.7"
+      ],
+      "quote": "성공한 ADD가 새 검색어를 만들면 그 검색어의 첫 글자 묶음이 이미 배정되어 있는지 확인한다.",
+      "input": [
+        "SHARDS 3",
+        "ADD b 1",
+        "ADD ba 1",
+        "ADD a 1",
+        "ADD c 1",
+        "ADD d 1",
+        "ADD b 20",
+        "ROUTE b",
+        "ROUTE azzz",
+        "ROUTE z",
+        "LAYOUT",
+        "ROUTE *",
+        "SQUERY 5 *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "0",
+        "1",
+        "(none)",
+        "0:2 1:2 2:1",
+        "0 1 2",
+        "b:21 a:1 ba:1 c:1 d:1"
+      ]
+    },
+    {
+      "name": "shard-replacement",
+      "refs": [
+        "4.4",
+        "4.3",
+        "4.5",
+        "6.1"
+      ],
+      "quote": "SHARDS는 이전 배치를 지우고 4.3의 계산 결과로 완전히 교체한다.",
+      "input": [
+        "SHARDS 2",
+        "ADD b 1",
+        "ADD a 1",
+        "ADD aa 1",
+        "ADD ab 1",
+        "LAYOUT",
+        "ROUTE a",
+        "SHARDS 2",
+        "LAYOUT",
+        "ROUTE a",
+        "ROUTE b",
+        "SHARDS 3",
+        "LAYOUT",
+        "ROUTE *"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "0:1 1:3",
+        "1",
+        "OK",
+        "0:3 1:1",
+        "0",
+        "1",
+        "OK",
+        "0:3 1:1 2:0",
+        "0 1 2"
+      ]
+    },
+    {
+      "name": "text-filter",
+      "refs": [
+        "4.2",
+        "4.1",
+        "4.8"
+      ],
+      "quote": "금지와 해제는 빈도, 캐시, 캐시 모드·용량·카운터, 샤드 배치와 부하를 바꾸지 않는다.",
+      "input": [
+        "ADD 가 4",
+        "ADD 가방 4",
+        "ADD ㄱㅏ 4",
+        "ADD 가 4",
+        "BAN 가",
+        "SHARDS 3",
+        "SQUERY 100 *",
+        "SQUERY 2 가",
+        "SQUERY 2 ㄱ",
+        "SQUERY 2 ᄀ",
+        "BAN 가",
+        "UNBAN 가",
+        "SQUERY 100 *",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "가:4 ㄱㅏ:4 가방:4",
+        "가방:4",
+        "ㄱㅏ:4",
+        "가:4",
+        "OK",
+        "OK",
+        "ㄱㅏ:4 가:4 가방:4",
+        "0:2 1:1 2:1"
+      ]
+    },
+    {
+      "name": "cache-and-filter",
+      "refs": [
+        "4.2",
+        "4.4",
+        "1.2",
+        "6.2"
+      ],
+      "quote": "금지와 해제는 빈도, 캐시, 캐시 모드·용량·카운터, 샤드 배치와 부하를 바꾸지 않는다.",
+      "input": [
+        "ADD a 5",
+        "ADD b 4",
+        "CACHE BATCH 1",
+        "BAN a",
+        "ADD b 3",
+        "SHARDS 2",
+        "SQUERY 2 *",
+        "CQUERY 1 *",
+        "QUERY 2 *",
+        "COST",
+        "UNBAN a",
+        "SHARDS 3",
+        "CQUERY 1 *",
+        "COST",
+        "REFRESH",
+        "CQUERY 1 *",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "b:7",
+        "a:5",
+        "b:7 a:5",
+        "incremental=0 rebuilt=4",
+        "OK",
+        "OK",
+        "a:5",
+        "incremental=0 rebuilt=4",
+        "OK",
+        "b:7",
+        "incremental=0 rebuilt=8"
+      ]
+    },
+    {
+      "name": "request-validation",
+      "refs": [
+        "5.2",
+        "5.1",
+        "4.2",
+        "4.6"
+      ],
+      "quote": "실패한 명령은 원본, 금지어, 배치, 부하와 캐시의 모든 상태를 보존한다.",
+      "input": [
+        "ADD a 3",
+        "BAN a",
+        "CACHE IMMEDIATE 1",
+        "SHARDS 2",
+        "BAN *",
+        "UNBAN *",
+        "BAN A",
+        "BAN a b",
+        "BAN",
+        "UNBAN",
+        "UNBAN a b",
+        "BAN a*",
+        "SHARDS",
+        "SHARDS 0",
+        "SHARDS 65",
+        "SHARDS -1",
+        "SHARDS +2",
+        "SHARDS １",
+        "SHARDS 9223372036854775808",
+        "SHARDS 2 extra",
+        "ROUTE",
+        "ROUTE a b",
+        "ROUTE a*",
+        "ROUTE A",
+        "LAYOUT extra",
+        "SQUERY 0 *",
+        "SQUERY 101 *",
+        "SQUERY 1",
+        "SQUERY 1 * extra",
+        "SQUERY 1 a*",
+        "ADD z 0",
+        "ADD z 9223372036854775808",
+        "ADD A 1",
+        "LAYOUT",
+        "ROUTE z",
+        "ROUTE a",
+        "ROUTE *",
+        "SQUERY 1 *",
+        "CQUERY 1 *",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "ERR",
+        "0:1 1:0",
+        "(none)",
+        "0",
+        "0 1",
+        "(none)",
+        "a:3",
+        "incremental=0 rebuilt=2"
+      ]
+    },
+    {
+      "name": "shard-input",
+      "refs": [
+        "3.1",
+        "3.3",
+        "4.4",
+        "4.6",
+        "5.1"
+      ],
+      "quote": "새 명령은 `BAN <검색어>`, `UNBAN <검색어>`, `SHARDS <개수>`, `ROUTE <접두어>`, `LAYOUT`, `SQUERY <k> <접두어>`다.",
+      "input": [
+        "\tSHARDS\t00064 \t",
+        "LAYOUT",
+        "ROUTE *",
+        "BAN aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ADD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 1",
+        "SQUERY 100 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "UNBAN aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "SQUERY 00100 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "BAN aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "ROUTE aunknown",
+        "SHARDS 0001",
+        "LAYOUT"
+      ],
+      "expected": [
+        "OK",
+        "0:0 1:0 2:0 3:0 4:0 5:0 6:0 7:0 8:0 9:0 10:0 11:0 12:0 13:0 14:0 15:0 16:0 17:0 18:0 19:0 20:0 21:0 22:0 23:0 24:0 25:0 26:0 27:0 28:0 29:0 30:0 31:0 32:0 33:0 34:0 35:0 36:0 37:0 38:0 39:0 40:0 41:0 42:0 43:0 44:0 45:0 46:0 47:0 48:0 49:0 50:0 51:0 52:0 53:0 54:0 55:0 56:0 57:0 58:0 59:0 60:0 61:0 62:0 63:0",
+        "0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63",
+        "OK",
+        "OK",
+        "(none)",
+        "OK",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1",
+        "ERR",
+        "0",
+        "OK",
+        "0:1"
+      ]
+    },
+    {
+      "name": "catalog-session",
+      "refs": [
+        "4.2",
+        "4.4",
+        "4.5",
+        "4.8",
+        "5.2"
+      ],
+      "quote": "금지와 해제는 빈도, 캐시, 캐시 모드·용량·카운터, 샤드 배치와 부하를 바꾸지 않는다.",
+      "input": [
+        "CACHE IMMEDIATE 1",
+        "SHARDS 2",
+        "BAN new",
+        "ADD a 5",
+        "ADD b 5",
+        "ADD new 8",
+        "ADD new 1",
+        "LAYOUT",
+        "SQUERY 2 *",
+        "CQUERY 1 *",
+        "COST",
+        "ADD new 9223372036854775807",
+        "UNBAN new",
+        "SQUERY 2 *",
+        "SHARDS 2",
+        "LAYOUT",
+        "COST"
+      ],
+      "expected": [
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "OK",
+        "0:2 1:1",
+        "a:5 b:5",
+        "new:9",
+        "incremental=12 rebuilt=0",
+        "ERR",
+        "OK",
+        "new:9 a:5",
+        "OK",
+        "0:2 1:1",
+        "incremental=12 rebuilt=0"
+      ]
+    },
+    {
+      "name": "generated-session",
+      "refs": [
+        "7.1"
+      ],
+      "quote": "앞 단계와 같은 표준 입력 및 줄 단위 출력 비교를 사용하고 1~2단계 검사도 누적 실행한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--terms",
+        "80",
+        "--commands",
+        "400"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "generated-catalog",
+      "refs": [
+        "7.1"
+      ],
+      "quote": "앞 단계와 같은 표준 입력 및 줄 단위 출력 비교를 사용하고 1~2단계 검사도 누적 실행한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--terms",
+        "240",
+        "--commands",
+        "1000"
+      ],
+      "repeat": 3
+    },
+    {
+      "name": "generated-workload",
+      "refs": [
+        "7.2",
+        "7.3"
+      ],
+      "quote": "마지막 대규모 테스트는 서로 다른 검색어 2,000,000개, 길이 최대 12, 빈 접두어를 포함한 서로 다른 접두어 최대 2,500,000개를 사용한다.",
+      "gen": [
+        "kotlin",
+        "gen.main.kts",
+        "--scale",
+        "--terms",
+        "2000000",
+        "--commands",
+        "50000"
+      ],
+      "repeat": 2,
+      "timeout_sec": 180
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "다음 명령까지 처리했을 때 마지막 STEP c의 응답으로 옳은 것은?",
+      "context": "TYPE Suite 0\nSTOCK Suite 2035-01-01 2035-01-04 2\nBEGIN PESSIMISTIC\nTX a ra Suite 2035-01-02 2035-01-03 1\nTX b rb Suite 2035-01-01 2035-01-03 1\nTX c rc Suite 2035-01-01 2035-01-02 1\nSTEP a\nSTEP b\nSTEP c",
+      "choices": [
+        "TX c READY 0 0 1",
+        "TX c PREPARED 1 0 1",
+        "TX c BOOKED 1 0 0",
+        "TX c PREPARED 2 0 0",
+        "TX c PREPARED 1 0 0"
+      ],
+      "answer": 5,
+      "refs": ["3.1", "3.2", "4.1.5", "4.2.1", "4.3.1", "4.3.2"],
+      "quote": "다른 요청이 대상 날짜 하나라도 잠그고 있으면 어떤 잠금도 얻지 않고 읽지도 않는다.",
+      "explanation": "⑤가 옳다. a는 2일만 잠근다. b는 2일의 잠금 때문에 대기하며 1일의 잠금도 얻지 못한다. c의 구간은 끝 날짜인 2일을 제외하여 1일만 포함하므로 한 번 읽고 PREPARED가 된다. ①은 b가 1일을 부분적으로 잠갔다고 보거나 c에 2일까지 포함했다. 이를 배제하려면 잠금의 전부 획득 규칙과 끝 날짜 제외를 함께 적용해야 한다. ②의 waits는 c가 실제 막힌 적이 없어 0이다. ③은 읽기 차례에 확정까지 했다. ④는 TX 등록이나 다른 요청의 STEP에서 c의 시도가 시작된다고 잘못 보았다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 명령까지 처리했을 때 마지막 STEP large의 응답으로 옳은 것은?",
+      "context": "TYPE Twin 0\nSTOCK Twin 2035-06-01 2035-06-02 2\nBEGIN OPTIMISTIC\nTX small rs Twin 2035-06-01 2035-06-02 1\nTX large rl Twin 2035-06-01 2035-06-02 3\nSTEP large\nSTEP small\nSTEP small\nSTEP large",
+      "choices": [
+        "TX large FULL 1 0 0",
+        "TX large READY 1 1 0",
+        "TX large FULL 1 1 0",
+        "TX large PREPARED 2 1 0",
+        "TX large BOOKED 1 0 0"
+      ],
+      "answer": 2,
+      "refs": ["4.2.1", "4.2.3", "4.2.4", "4.4.1", "4.4.2"],
+      "quote": "읽을 때 이미 수용 불가능하다고 판단했어도 버전이 달라졌으면 바로 FULL로 끝내지 않고 재시도한다.",
+      "explanation": "②가 옳다. large는 한도 2보다 많은 3개를 요청했지만 읽기에서는 PREPARED가 된다. small의 확정으로 버전이 바뀌었으므로 large의 확정 차례에는 수용 불가능 여부보다 버전 충돌을 먼저 처리하여 READY로 돌아간다. retries만 1 늘고 같은 STEP에서 다시 읽지 않으므로 attempts는 1이다. ①과 ③은 버전 우선 검사와 재시도 뒤 상태를 함께 적용하지 않고 FULL로 끝냈다. ④는 같은 STEP에서 새 읽기를 수행했다. ⑤는 수용 한도를 넘기고도 확정했으며 낙관적 잠금의 waits는 항상 0이다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "다음 명령을 처리한 뒤 END의 마지막 응답과 2036-05-01의 예약 수량의 조합으로 옳은 것은?",
+      "context": "TYPE Cabin 0\nSTOCK Cabin 2036-05-01 2036-05-03 2\nSTOCK Cabin 2036-05-02 2036-05-03 1\nBEGIN CONSTRAINT\nTX one rOne Cabin 2036-05-02 2036-05-03 1\nTX both rBoth Cabin 2036-05-01 2036-05-03 1\nSTEP both\nSTEP one\nSTEP one\nSTEP both\nSTEP both\nSTEP both\nEND",
+      "choices": [
+        "SUMMARY 1 1 2 0 0 / 예약 수량 0",
+        "SUMMARY 1 1 3 1 0 / 예약 수량 1",
+        "SUMMARY 2 0 2 0 0 / 예약 수량 1",
+        "SUMMARY 1 1 3 1 0 / 예약 수량 0",
+        "SUMMARY 1 1 3 0 1 / 예약 수량 0"
+      ],
+      "answer": 4,
+      "refs": ["3.3", "4.2.1", "4.2.3", "4.2.4", "4.5.1", "4.5.2", "4.6.2"],
+      "quote": "앞 날짜가 제약을 만족하더라도 그 날짜의 수량이나 버전을 바꾸지 않는다.",
+      "explanation": "④가 옳다. both의 첫 읽기는 수용 가능하지만 one이 2일을 먼저 예약하여 both의 첫 확정이 제약 위반으로 재시도된다. both는 다음 STEP에서 부족한 상태를 다시 읽고 그다음 STEP에서 FULL로 끝난다. one은 BOOKED 1 0 0, both는 FULL 2 1 0이므로 합계는 SUMMARY 1 1 3 1 0이다. 실패한 both의 시도는 1일에도 수량을 더하지 않아 그날 예약 수량은 0이다. ①은 제약 위반을 재시도 없이 곧바로 FULL로 처리했다. ②는 다박 변경의 원자성과 재시도 시 상태 유지를 함께 적용하지 않아 1일에 부분 변경을 남겼다. ③은 현재 제약 대신 오래된 읽기만으로 두 예약을 확정했다. ⑤는 재시도를 잠금 대기로 세었으며 이 방식의 waits는 항상 0이다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "다음 입력의 출력은?",
+      "input": ["TX job r Ghost 2037-01-01 2037-01-02 1"],
+      "answers": ["ERROR NO_BATCH"],
+      "refs": ["3.1", "4.1.2", "4.1.3", "5.1"],
+      "quote": "배치 밖에서 TX, STEP, END를 사용하면 ERROR NO_BATCH이다.",
+      "explanation": "이 입력은 새 프로세스에서 시작하므로 열린 배치가 없다. TX의 토큰 형식과 기본 범위는 모두 유효하며 그다음 배치 안팎을 검사하여 ERROR NO_BATCH 한 줄을 출력한다. Ghost 유형이 없는지는 그 뒤의 명령별 상태 검사이므로 ERROR TYPE_NOT_FOUND가 아니다. TX 자체는 알려진 명령이므로 ERROR INPUT도 아니다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "빈 호텔에서 다음 명령을 순서대로 처리할 때 END가 출력하는 SUMMARY 한 줄을 쓰라.",
+      "context": "TYPE Twin 0\nSTOCK Twin 2037-01-01 2037-01-02 1\nBEGIN PESSIMISTIC\nTX a ra Twin 2037-01-01 2037-01-02 2\nTX b rb Twin 2037-01-01 2037-01-02 1\nSTEP a\nSTEP b\nSTEP b\nSTEP a\nSTEP b\nSTEP b\nSTEP b\nEND",
+      "answers": ["SUMMARY 1 1 2 0 2"],
+      "refs": ["3.3", "4.1.5", "4.2.1", "4.3.1", "4.3.2"],
+      "quote": "수용 불가능한 읽기도 확정 차례 전까지 잠금을 유지한다.",
+      "explanation": "a가 요청한 수량 2는 한도를 넘지만 첫 STEP에서는 잠금을 얻고 PREPARED가 된다. b의 두 STEP은 모두 잠금에 막혀 waits만 2가 된다. a의 두 번째 STEP은 FULL로 끝나며 잠금을 놓는다. 이후 b는 새 STEP에서 읽고 다음 STEP에서 BOOKED로 끝난다. 마지막 STEP b는 종료한 요청의 상태와 카운터를 유지한다. 두 요청의 attempts는 각각 1이고 재시도는 없으므로 SUMMARY 1 1 2 0 2이다."
+    }
+  ]
+}

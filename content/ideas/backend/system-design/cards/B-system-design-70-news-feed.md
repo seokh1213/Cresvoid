@@ -4,7 +4,7 @@ title: 뉴스 피드 팬아웃 만들기
 kind: build
 track: news-feed
 stage: 01-fanout-on-write, 02-fanout-on-read, 03-hybrid
-status: 후보
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:
