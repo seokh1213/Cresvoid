@@ -374,6 +374,8 @@ log("프로젝트: $projectRoot")
 log("작업 디렉터리: $workspace")
 expect(launcher.canExecute(), "실행할 수 있는 ${launcher.path} 가 없습니다")
 copyContent(File(projectRoot, "content/tracks").toPath(), File(workspace, "content/tracks").toPath())
+// Lab experiments import content/lab-env by relative path; without it a script that is not in the compile cache fails to build.
+copyContent(File(projectRoot, "content/lab-env").toPath(), File(workspace, "content/lab-env").toPath())
 val trackDirs = File(workspace, "content/tracks").listFiles { file ->
     File(file, "track.json").isFile && (selectedTrack == null || file.name == selectedTrack)
 }.orEmpty().sortedBy { it.name }
