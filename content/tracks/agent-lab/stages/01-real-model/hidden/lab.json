@@ -1,0 +1,26 @@
+{
+  "scenarios": [
+    {
+      "name": "morning-work",
+      "refs": ["14", "15", "16", "17"],
+      "quote": "불변식 실패 수는 반드시 0이어야 한다.",
+      "timeout_sec": 900,
+      "repeat": 1
+    },
+    {
+      "name": "midday-work",
+      "refs": ["14", "15", "16", "17"],
+      "quote": "불변식 실패 수는 반드시 0이어야 한다.",
+      "timeout_sec": 900,
+      "repeat": 1
+    },
+    {
+      "name": "evening-work",
+      "refs": ["14", "15", "16", "17"],
+      "quote": "불변식 실패 수는 반드시 0이어야 한다.",
+      "timeout_sec": 900,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/last-response-only"]
+}

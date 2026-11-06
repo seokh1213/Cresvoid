@@ -52,6 +52,7 @@
 | `spring-lab` | lab | 10 |
 | `backend-lab` | lab | 10 |
 | `net-lab` | lab | 2 |
+| `agent-lab` | lab | 1 |
 | `reading` | reading | 15 |
 | `tech-reading` | reading | 16 |
 | `incident-reading` | reading | 7 |

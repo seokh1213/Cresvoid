@@ -8,7 +8,7 @@
 |---|---|---|---|---|---|
 | [읽기](reading/README.md) | 15 | 0 | 0 | 15 | 0 |
 | [구현](implementation/README.md) | 32 | 6 | 0 | 26 | 0 |
-| [AI 에이전트](backend/ai-agent/README.md) | 5 | 1 | 0 | 4 | 0 |
+| [AI 에이전트](backend/ai-agent/README.md) | 5 | 0 | 0 | 5 | 0 |
 | [Kotlin 코루틴](backend/coroutines/README.md) | 9 | 0 | 0 | 9 | 0 |
 | [데이터베이스](backend/database/README.md) | 8 | 0 | 0 | 8 | 0 |
 | [설계 패턴](backend/design-patterns/README.md) | 11 | 1 | 0 | 10 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 0 | 10 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
-| 합계 | 185 | 25 | 0 | 158 | 2 |
+| 합계 | 185 | 24 | 0 | 159 | 2 |
 
 ## 다음 후보
 
@@ -59,7 +59,6 @@
 | 5 | [B-system-design-140](backend/system-design/cards/B-system-design-140-url-shortener.md) | URL 단축기 만들기 | build | url-shortener | 01-base62, 02-collisions, 03-expiry | 없음 |
 | 5 | [B-system-design-150](backend/system-design/cards/B-system-design-150-notifier.md) | 알림 발송기 만들기 | build | notifier | 01-dispatch, 02-reliability, 03-throttling | 없음 |
 | 5 | [B-system-design-160](backend/system-design/cards/B-system-design-160-object-store.md) | 객체 저장소 만들기 | build | object-store | 01-versioning, 02-multipart, 03-durability | 없음 |
-| 5 | [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | real-model | llm-api |
 
 ## 트랙
 
@@ -68,7 +67,7 @@
 | 트랙 | 종류 | 컨텐츠 | 다음 번호 | 만든 단계 | 예정 단계 |
 |---|---|---|---|---|---|
 | ad-click-aggregator | build | 없음 | 04 |  | 01-windows(B-system-design-110 4차), 02-late-events(B-system-design-110 4차), 03-exactly-once(B-system-design-110 4차) |
-| agent-lab | lab | 없음 | 01 |  | real-model(L-ai-agent-50 5차) |
+| agent-lab | lab | 있음 | 02 | 01-real-model(L-ai-agent-50 완료) |  |
 | agent-runtime | build | 있음 | 06 | 01-loop(B-ai-agent-20 완료), 02-schema(B-ai-agent-20 완료), 03-parallel(B-ai-agent-20 완료), 04-context(B-ai-agent-20 완료), 05-guard(B-ai-agent-20 완료) |  |
 | algorithm-drills | build | 없음 | 06 |  | 01-strings(B-algorithm-drills-10 5차), 02-arrays(B-algorithm-drills-10 5차), 03-sort-search(B-algorithm-drills-10 5차), 04-structures(B-algorithm-drills-10 5차), 05-grids-recursion(B-algorithm-drills-10 5차) |
 | autocomplete | build | 있음 | 04 | 01-trie(B-system-design-90 완료), 02-cached-top-k(B-system-design-90 완료), 03-filters-and-shards(B-system-design-90 완료) |  |
@@ -207,7 +206,7 @@
 | [B-ai-agent-20](backend/ai-agent/cards/B-ai-agent-20-agent-runtime.md) | 에이전트 실행기 만들기 | build | agent-runtime | 01-loop, 02-schema, 03-parallel, 04-context, 05-guard | 완료(2026-10-10) | 2 | 없음 | R-ai-agent-10 |
 | [B-ai-agent-30](backend/ai-agent/cards/B-ai-agent-30-rag.md) | 검색 증강 파이프라인 만들기 | build | rag | 01-chunking, 02-retrieval, 03-hybrid, 04-eval | 완료(2026-11-05) | 2 | 없음 |  |
 | [B-ai-agent-40](backend/ai-agent/cards/B-ai-agent-40-mcp-server.md) | MCP 서버 만들기 | build | mcp-server | 01-tools, 02-resources-prompts, 03-errors-and-versions | 완료(2026-11-06) | 3 | 없음 | B-ai-agent-20 |
-| [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | real-model | 후보 | 5 | llm-api | B-ai-agent-20 |
+| [L-ai-agent-50](backend/ai-agent/cards/L-ai-agent-50-real-model.md) | 실제 모델로 도구 루프 평가하기 | lab | agent-lab | 01-real-model | 완료(2026-11-06) | 5 | llm-api | B-ai-agent-20 |
 
 ### Kotlin 코루틴
 
