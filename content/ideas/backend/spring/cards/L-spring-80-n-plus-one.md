@@ -4,7 +4,7 @@ title: N+1 과 페이징
 kind: lab
 track: spring-lab
 stage: 08-n-plus-one
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq:

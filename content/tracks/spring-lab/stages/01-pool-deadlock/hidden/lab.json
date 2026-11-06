@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "first-wave",
+      "refs": ["4", "8", "9"],
+      "quote": "감사 커밋은 주문 롤백과 독립적이어야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    },
+    {
+      "name": "mixed-wave",
+      "refs": ["4", "8", "9"],
+      "quote": "감사 커밋은 주문 롤백과 독립적이어야 한다.",
+      "timeout_sec": 150,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/larger-pool", "variants/shared-transaction"]
+}

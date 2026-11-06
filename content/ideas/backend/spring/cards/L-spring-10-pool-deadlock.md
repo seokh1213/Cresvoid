@@ -4,7 +4,7 @@ title: REQUIRES_NEW 와 풀 교착
 kind: lab
 track: spring-lab
 stage: 01-pool-deadlock
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq:

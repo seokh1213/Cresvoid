@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "bulk-window",
+      "refs": ["7", "8", "9"],
+      "quote": "모든 시나리오는 이어서 별도 키의 267행에 `duplicate=true`를 붙여 오류를 만들고, 새 키의 23행을 정상 삽입하여 복구를 확인한다.",
+      "timeout_sec": 180,
+      "repeat": 3
+    },
+    {
+      "name": "boundary-window",
+      "refs": ["7", "8"],
+      "quote": "느린 응답을 기다려 다음 요청을 늦추지 않는 개방형 부하다.",
+      "timeout_sec": 180,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/retained-context"]
+}

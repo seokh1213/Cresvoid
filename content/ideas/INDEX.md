@@ -25,9 +25,9 @@
 | [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
 | [검색: Elasticsearch](backend/search/README.md) | 11 | 1 | 0 | 10 | 0 |
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
-| [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 10 | 0 | 0 |
+| [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 0 | 10 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
-| 합계 | 185 | 28 | 20 | 135 | 2 |
+| 합계 | 185 | 28 | 10 | 145 | 2 |
 
 ## 다음 후보
 
@@ -132,7 +132,7 @@
 | sim-testing | build | 없음 | 04 |  | 01-scheduler(B-distributed-50 5차), 02-faults(B-distributed-50 5차), 03-shrink(B-distributed-50 5차) |
 | spark-lab | lab | 있음 | 06 | 01-null-semantics(L-spark-30 완료), 02-skew-and-aqe(L-spark-31 완료), 03-overwrite-and-small-files(L-spark-32 완료), 04-retries-and-side-effects(L-spark-33 완료), 05-streaming-watermark(L-spark-34 완료) |  |
 | spreadsheet | build | 없음 | 04 |  | 01-formula(B-spreadsheet-10 5차), 02-recalc(B-spreadsheet-10 5차), 03-cycles(B-spreadsheet-10 5차) |
-| spring-lab | lab | 없음 | 11 | 01-pool-deadlock(L-spring-10 제작 중), 02-open-in-view(L-spring-20 제작 중), 03-proxy-pitfalls(L-spring-30 제작 중), 04-async-executor(L-spring-40 제작 중), 05-http-client-pool(L-spring-50 제작 중), 06-max-lifetime(L-spring-60 제작 중), 07-virtual-threads(L-spring-70 제작 중), 08-n-plus-one(L-spring-80 제작 중), 09-batch-insert(L-spring-90 제작 중), 10-scheduler(L-spring-100 제작 중) |  |
+| spring-lab | lab | 있음 | 11 | 01-pool-deadlock(L-spring-10 완료), 02-open-in-view(L-spring-20 완료), 03-proxy-pitfalls(L-spring-30 완료), 04-async-executor(L-spring-40 완료), 05-http-client-pool(L-spring-50 완료), 06-max-lifetime(L-spring-60 완료), 07-virtual-threads(L-spring-70 완료), 08-n-plus-one(L-spring-80 완료), 09-batch-insert(L-spring-90 완료), 10-scheduler(L-spring-100 완료) |  |
 | table-format | build | 있음 | 04 | 01-snapshots(B-lakehouse-30 완료), 02-commits(B-lakehouse-30 완료), 03-deletes(B-lakehouse-30 완료) |  |
 | tech-reading | reading | 있음 | 17 | 01-agent-loop(R-ai-agent-10 완료), 02-hdfs-write-path(R-hdfs-10 완료), 03-columnar-execution(R-olap-10 완료), 04-near-real-time-search(R-search-10 완료), 05-spark-stages(R-spark-10 완료), 06-coroutines(R-coroutines-10 완료), 07-capacity-estimation(R-system-design-10 완료), 08-mvcc-isolation(R-database-10 완료), 09-raft(R-distributed-10 완료), 10-table-format(R-lakehouse-10 완료), 11-kafka-replication(R-messaging-10 완료), 12-percentiles-and-slo(R-observability-10 완료), 13-online-resharding(R-database-40 완료), 14-creational-patterns(R-design-patterns-10 완료), 15-structural-patterns(R-design-patterns-20 완료), 16-behavioral-patterns(R-design-patterns-30 완료) |  |
 | url-shortener | build | 없음 | 04 |  | 01-base62(B-system-design-140 5차), 02-collisions(B-system-design-140 5차), 03-expiry(B-system-design-140 5차) |
@@ -436,16 +436,16 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [L-spring-10](backend/spring/cards/L-spring-10-pool-deadlock.md) | REQUIRES_NEW 와 풀 교착 | lab | spring-lab | 01-pool-deadlock | 제작 중 | 4 | docker |  |
-| [L-spring-20](backend/spring/cards/L-spring-20-open-in-view.md) | OSIV 와 느린 외부 호출 | lab | spring-lab | 02-open-in-view | 제작 중 | 4 | docker |  |
-| [L-spring-30](backend/spring/cards/L-spring-30-proxy-pitfalls.md) | 트랜잭션 프록시의 함정 | lab | spring-lab | 03-proxy-pitfalls | 제작 중 | 4 | docker |  |
-| [L-spring-40](backend/spring/cards/L-spring-40-async-executor.md) | @Async 실행기와 큐 | lab | spring-lab | 04-async-executor | 제작 중 | 4 | docker |  |
-| [L-spring-50](backend/spring/cards/L-spring-50-http-client-pool.md) | HTTP 클라이언트 커넥션 풀 | lab | spring-lab | 05-http-client-pool | 제작 중 | 4 | docker |  |
-| [L-spring-60](backend/spring/cards/L-spring-60-max-lifetime.md) | maxLifetime 과 끊긴 연결 | lab | spring-lab | 06-max-lifetime | 제작 중 | 5 | docker |  |
-| [L-spring-70](backend/spring/cards/L-spring-70-virtual-threads.md) | 가상 스레드와 풀 | lab | spring-lab | 07-virtual-threads | 제작 중 | 5 | docker |  |
-| [L-spring-80](backend/spring/cards/L-spring-80-n-plus-one.md) | N+1 과 페이징 | lab | spring-lab | 08-n-plus-one | 제작 중 | 5 | docker |  |
-| [L-spring-90](backend/spring/cards/L-spring-90-batch-insert.md) | IDENTITY 와 배치 삽입 | lab | spring-lab | 09-batch-insert | 제작 중 | 5 | docker |  |
-| [L-spring-100](backend/spring/cards/L-spring-100-scheduler.md) | @Scheduled 단일 스레드 | lab | spring-lab | 10-scheduler | 제작 중 | 5 | docker |  |
+| [L-spring-10](backend/spring/cards/L-spring-10-pool-deadlock.md) | REQUIRES_NEW 와 풀 교착 | lab | spring-lab | 01-pool-deadlock | 완료(2026-11-06) | 4 | docker |  |
+| [L-spring-20](backend/spring/cards/L-spring-20-open-in-view.md) | OSIV 와 느린 외부 호출 | lab | spring-lab | 02-open-in-view | 완료(2026-11-06) | 4 | docker |  |
+| [L-spring-30](backend/spring/cards/L-spring-30-proxy-pitfalls.md) | 트랜잭션 프록시의 함정 | lab | spring-lab | 03-proxy-pitfalls | 완료(2026-11-06) | 4 | docker |  |
+| [L-spring-40](backend/spring/cards/L-spring-40-async-executor.md) | @Async 실행기와 큐 | lab | spring-lab | 04-async-executor | 완료(2026-11-06) | 4 | docker |  |
+| [L-spring-50](backend/spring/cards/L-spring-50-http-client-pool.md) | HTTP 클라이언트 커넥션 풀 | lab | spring-lab | 05-http-client-pool | 완료(2026-11-06) | 4 | docker |  |
+| [L-spring-60](backend/spring/cards/L-spring-60-max-lifetime.md) | maxLifetime 과 끊긴 연결 | lab | spring-lab | 06-max-lifetime | 완료(2026-11-06) | 5 | docker |  |
+| [L-spring-70](backend/spring/cards/L-spring-70-virtual-threads.md) | 가상 스레드와 풀 | lab | spring-lab | 07-virtual-threads | 완료(2026-11-06) | 5 | docker |  |
+| [L-spring-80](backend/spring/cards/L-spring-80-n-plus-one.md) | N+1 과 페이징 | lab | spring-lab | 08-n-plus-one | 완료(2026-11-06) | 5 | docker |  |
+| [L-spring-90](backend/spring/cards/L-spring-90-batch-insert.md) | IDENTITY 와 배치 삽입 | lab | spring-lab | 09-batch-insert | 완료(2026-11-06) | 5 | docker |  |
+| [L-spring-100](backend/spring/cards/L-spring-100-scheduler.md) | @Scheduled 단일 스레드 | lab | spring-lab | 10-scheduler | 완료(2026-11-06) | 5 | docker |  |
 
 ### 시스템 설계
 

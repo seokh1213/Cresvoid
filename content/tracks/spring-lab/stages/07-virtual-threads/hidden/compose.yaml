@@ -1,0 +1,38 @@
+services:
+  probe:
+    image: ${JVM_RUNNER_IMAGE}
+    profiles: ["client"]
+    volumes: ["${PROGRAM_DIR}:/work:ro", "./PermitProbe.kt:/probe/PermitProbe.kt:ro"]
+    working_dir: /work
+    command:
+      - sh
+      - -c
+      - >-
+        classpath=$$(find /opt/lab-libs/spring -name '*.jar' | sort | tr '\n' ':');
+        kotlinc /probe/PermitProbe.kt -jvm-target 21 -classpath "build/app.jar:$$classpath" -d /tmp/permit-probe.jar || exit 2;
+        exec java -cp "/tmp/permit-probe.jar:build/app.jar:/opt/kotlinc/lib/kotlin-stdlib.jar:$$classpath" lab.PermitProbeKt
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 1s
+      timeout: 2s
+      retries: 1
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 768m }
+  app:
+    image: ${JVM_RUNNER_IMAGE}
+    volumes: ["${PROGRAM_DIR}:/work:ro"]
+    working_dir: /work
+    command: ["lab-run", "spring", "lab.MainKt"]
+    environment:
+      PORT: "8080"
+      JAVA_OPTS: "-Xms64m -Xmx384m -Djdk.virtualThreadScheduler.parallelism=2 -Djdk.virtualThreadScheduler.maxPoolSize=2"
+    ports: ["127.0.0.1:${APP_PORT}:8080"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs localhost:8080/health >/dev/null"]
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 768m }

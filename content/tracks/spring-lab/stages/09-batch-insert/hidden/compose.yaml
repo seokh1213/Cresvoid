@@ -1,0 +1,18 @@
+services:
+  app:
+    image: ${JVM_RUNNER_IMAGE}
+    volumes: ["${PROGRAM_DIR}:/work:ro"]
+    working_dir: /work
+    command: ["lab-run", "spring", "lab.MainKt"]
+    environment:
+      PORT: "8080"
+      JAVA_OPTS: "-Xms128m -Xmx384m"
+    ports: ["127.0.0.1::8080"]
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs localhost:8080/health >/dev/null"]
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: "1", memory: 640m }

@@ -1,0 +1,112 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "103행을 저장하는 A·B·C의 커밋 뒤 결과를 예측해라. JDBC 배치 크기는 50이다. 모두 persist 64회마다 flush 후 clear한다. A는 IDENTITY, B·C는 SEQUENCE를 사용한다. 루프가 끝나면 A·B는 flush 후 clear하고 C는 clear만 한다. (INSERT 실행 호출 수, max_managed, 저장 행 수)의 조합으로 맞는 것을 골라라.",
+      "choices": [
+        "A=(3, 50, 103), B=(3, 50, 103), C=(2, 50, 64)다.",
+        "A=(103, 64, 103), B=(3, 64, 103), C=(2, 64, 64)다.",
+        "A=(103, 64, 103), B=(3, 64, 103), C=(3, 64, 103)다.",
+        "A=(103, 103, 103), B=(2, 103, 103), C=(2, 103, 64)다."
+      ],
+      "answer": 2,
+      "refs": ["6", "9", "12"],
+      "quote": "`max_managed`는 `ImportSession.persist` 직후 Hibernate SessionStatistics의 entityCount를 읽은 최댓값이다.",
+      "explanation": "②가 맞다. IDENTITY는 JDBC INSERT 배치를 사용하지 않아 A의 개별 실행은 103회다. SEQUENCE인 B는 64행에서 50+14행, 나머지 39행에서 한 번 실행하여 총 3회다. C는 나머지 39행을 flush하기 전에 clear하므로 그 행들이 저장되지 않아 2회·64행이다. 세 구현 모두 persist 직후 관리 엔티티 최댓값은 64다. ①은 IDENTITY 제약을 무시하고 JDBC 배치 크기를 관리 엔티티 상한으로 취급했다. ③은 clear가 버린 미실행 행을 커밋이 저장한다고 가정했다. ④는 중간 flush 경계와 clear를 무시했다. flush는 SQL을 실행하지만 커밋하지 않는다. 주기적으로 flush한 뒤 clear하고 나머지 행도 처리해야 한다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "성공한 키 saved에는 23행이 있다. 새 키 failed로 267행과 duplicate=true를 요청했다. Importer가 중간에 여러 번 flush한 뒤 마지막 중복 행에서 오류가 발생했다면 요청이 끝난 뒤 기대할 상태를 골라라.",
+      "choices": [
+        "HTTP 409이고 failed에는 마지막 flush까지의 행이 남으며 saved의 23행은 보존된다.",
+        "HTTP 200이고 failed에는 중복을 제외한 267행이 남으며 saved의 23행은 보존된다.",
+        "HTTP 409이고 failed와 saved의 행이 모두 사라진다.",
+        "HTTP 409이고 failed에는 0행, saved에는 23행이 남는다."
+      ],
+      "answer": 4,
+      "refs": ["3", "4", "11"],
+      "quote": "삽입 경로는 `import_row` 테이블을 사용하고, 각 요청은 독립된 트랜잭션 하나로 처리한다.",
+      "explanation": "④가 맞다. 각 요청은 독립된 트랜잭션 하나이고 commit과 rollback은 바깥 서비스가 소유한다. 중간 flush는 커밋이 아니므로 오류 요청 전체가 롤백되어야 한다. ①은 flush를 부분 커밋으로 오해했다. ②는 중복 오류 계약과 다르다. ③은 앞선 성공 요청까지 롤백한다고 잘못 가정했다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "boundary-window의 첫 요청이 전송 후 900ms에 끝난다고 가정해라. 측정 구간 시작을 0ms로 할 때 두 번째와 세 번째 요청의 예정 전송 시각을 골라라.",
+      "choices": [
+        "두 번째는 250ms, 세 번째는 500ms다.",
+        "두 번째는 900ms, 세 번째는 두 번째 응답 직후다.",
+        "두 번째는 1150ms, 세 번째는 두 번째 응답에서 250ms 뒤다.",
+        "단일 작업 스레드이므로 첫 응답 전에는 두 번째와 세 번째를 전송하지 않는다."
+      ],
+      "answer": 1,
+      "refs": ["2", "7"],
+      "quote": "느린 응답을 기다려 다음 요청을 늦추지 않는 개방형 부하다.",
+      "explanation": "①이 맞다. 전송 일정은 앞선 응답의 완료 시각과 독립적이다. ②와 ③은 응답을 기다려 후속 요청을 늦춘다. ④는 서버의 단일 작업 스레드와 클라이언트의 요청 전송 일정을 혼동한다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "103행의 정상 삽입에서 INSERT 문장에 addBatch를 103회, executeBatch를 3회 호출했다. INSERT의 개별 execute 계열 호출은 없고 시퀀스 조회와 검증 SELECT도 실행했다. 요청의 (singles, batches, batch_rows)와 INSERT 실행 호출 수를 골라라.",
+      "choices": [
+        "(0, 103, 3)이고 INSERT 실행 호출 수는 103이다.",
+        "(103, 3, 103)이고 INSERT 실행 호출 수는 106이다.",
+        "(0, 3, 103)이고 INSERT 실행 호출 수는 3이다.",
+        "(0, 3, 103)이고 INSERT 실행 호출 수는 SELECT 횟수만큼 3보다 크다."
+      ],
+      "answer": 3,
+      "refs": ["6", "9"],
+      "quote": "시퀀스 조회·DDL·검증 SELECT는 세지 않는다.",
+      "explanation": "③이 맞다. singles는 개별 INSERT 실행, batches는 INSERT 배치 실행, batch_rows는 addBatch 횟수다. 실행 호출 수는 singles + batches이므로 3이다. ①은 배치 실행 횟수와 addBatch 횟수를 바꾸었다. ②는 addBatch를 개별 실행으로도 중복 집계했다. ④는 측정 대상에서 제외한 SELECT를 더했다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "251행의 정상 요청이 행·ID·순번·payload 검사와 JDBC 호출 조건을 모두 만족했다. 다만 한 번의 persist 직후 관리 엔티티가 201개가 되었고 곧바로 flush와 clear를 호출했다. 이후 관리 엔티티는 0개였다. 이 요청의 판정을 골라라.",
+      "choices": [
+        "종료 시 관리 엔티티가 0개이므로 max_managed 조건을 만족한다.",
+        "persist 직후의 최댓값이 201이므로 max_managed 조건을 위반한다.",
+        "rows가 251이므로 max_managed 상한도 251로 늘어난다.",
+        "처리 시간이 관찰 경로보다 짧으면 max_managed 위반을 상쇄할 수 있다."
+      ],
+      "answer": 2,
+      "refs": ["6", "8", "9"],
+      "quote": "`max_managed`는 `ImportSession.persist` 직후 Hibernate SessionStatistics의 entityCount를 읽은 최댓값이다.",
+      "explanation": "②가 맞다. 상한은 요청 행 수와 무관하게 200이고 측정값은 persist 직후 관찰한 최댓값이다. ①처럼 나중에 clear해도 이미 관찰한 201은 사라지지 않는다. ③은 고정된 상한을 입력 크기로 바꾸었다. ④와 달리 시간 비율은 합격 조건이 아니며 다른 불변식 위반을 상쇄하지 못한다."
+    },
+    {
+      "id": "q6",
+      "type": "short",
+      "prompt": "boundary-window가 모든 불변식을 만족한다고 가정해라. 정상 측정 요청 103행·17행·251행과 복구 요청 23행을 합친 insert_calls의 허용 최댓값을 정수 하나로 써라. 예열과 관찰 요청, 중복 오류 요청은 제외해라.",
+      "answers": ["18"],
+      "refs": ["7", "8", "9", "10"],
+      "quote": "정상 삽입 요청의 INSERT 실행 호출 수 `singles + batches`는 관찰 경로와 달리 최대 ceil(N / 25)여야 한다.",
+      "explanation": "상한은 요청마다 적용한다. ceil(103/25) + ceil(17/25) + ceil(251/25) + ceil(23/25) = 5 + 1 + 11 + 1 = 18이다. 행 수를 먼저 합쳐 ceil(394/25) = 16으로 계산하면 요청별 경계를 없애는 오류다. 정상 요청의 singles는 0이므로 각 batches 상한의 합이 insert_calls 상한이다."
+    },
+    {
+      "id": "q7",
+      "type": "short",
+      "prompt": "boundary-window가 모든 불변식을 만족하고 끝났다면 최종 집계 지표 stored_rows는 얼마인지 정수 하나로 써라. 예열 100행, 관찰 10000행, 정상 측정 103행·17행·251행, 중복 오류 267행 요청, 복구 23행을 수행했다.",
+      "answers": ["394"],
+      "refs": ["7", "8", "10"],
+      "quote": "예열은 불변식을 검사하되 집계 지표에서는 제외한다. 예상한 중복 오류도 집계에서 제외한다.",
+      "explanation": "stored_rows는 정상 측정·복구 키들의 최종 행 수 합이므로 103 + 17 + 251 + 23 = 394다. 관찰 키는 집계 대상이 아니고 예열도 제외한다. 중복 오류 키는 롤백되어 0행이며 앞선 성공 키의 행은 보존된다. 같은 정상 요청들의 batch_rows 합도 394여야 한다."
+    },
+    {
+      "id": "q8",
+      "type": "choice",
+      "prompt": "10000행 정상 삽입이 singles=0, batches=200이고 다른 불변식도 모두 만족했다. 관찰 경로의 INSERT 실행 호출은 10000회다. 측정 결과의 해석으로 타당한 것을 골라라.",
+      "choices": [
+        "JDBC 실행 호출이 50분의 1이므로 운영 DB에서도 처리 시간이 50분의 1이다.",
+        "관찰 경로보다 elapsed_ms가 크면 호출 수 조건을 만족해도 시간 비율 기준에서 탈락한다.",
+        "H2에서도 네트워크 왕복 수가 정확히 50분의 1로 감소했다고 결론 내릴 수 있다.",
+        "JDBC 실행 호출은 감소했지만 운영 DB의 성능 배수는 알 수 없고, 처리 시간과 HTTP p95는 관찰값으로 해석한다."
+      ],
+      "answer": 4,
+      "refs": ["6", "9"],
+      "quote": "이는 JDBC 실행 호출의 감소를 검증하며 H2에서의 네트워크 왕복 수나 운영 DB의 성능 배수를 뜻하지 않는다.",
+      "explanation": "④가 맞다. 10000 / 200 = 50은 이 실험에서 센 JDBC 실행 호출 수의 비율이다. ①은 이를 운영 DB의 처리 시간 비율로 확대했고 ③은 네트워크 왕복 수로 바꾸었다. ②와 달리 처리 시간과 HTTP p95는 관찰용이며 시간 비율로 합격을 판정하지 않는다. elapsed_ms도 HTTP 지연과 별도로 측정한다."
+    }
+  ]
+}

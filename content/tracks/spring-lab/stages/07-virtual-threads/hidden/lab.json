@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "quote-arrivals",
+      "refs": ["6", "7", "8", "10", "10.1"],
+      "quote": "각 보류 구간에서 48개 중 정확히 4개가 200, 나머지 44개가 429여야 한다.",
+      "timeout_sec": 150,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/serial-gate", "variants/exception-leak"]
+}

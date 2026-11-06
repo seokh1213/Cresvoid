@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "submission-window",
+      "refs": ["5", "6", "7", "8"],
+      "quote": "tuned의 목적은 평상시 스레드 비용을 줄이면서 유한한 큐와 폭주 처리 여력을 확보하는 것이다.",
+      "timeout_sec": 210,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/oversized-pool"]
+}

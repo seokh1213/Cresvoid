@@ -1,0 +1,43 @@
+{
+  "scenarios": [
+    {
+      "name": "weekday-traffic",
+      "refs": [
+        "5",
+        "7",
+        "9"
+      ],
+      "quote": "모든 응답은 상태와 본문이 계약에 맞아야 한다.",
+      "timeout_sec": 180,
+      "repeat": 3
+    },
+    {
+      "name": "evening-traffic",
+      "refs": [
+        "6",
+        "8",
+        "9"
+      ],
+      "quote": "풀 대기로 거절한 응답의 p95는 1200ms 이하여야 한다.",
+      "timeout_sec": 180,
+      "repeat": 3
+    },
+    {
+      "name": "interrupted-traffic",
+      "refs": [
+        "9",
+        "13",
+        "13.1"
+      ],
+      "quote": "각 장애 응답 본문을 부하 클라이언트가 모두 받은 시점에서 200ms 뒤에는 임대·대기가 모두 0이어야 한다.",
+      "timeout_sec": 180,
+      "repeat": 3
+    }
+  ],
+  "must_fail": [
+    "variants/route-unchanged",
+    "variants/body-unreleased",
+    "variants/long-wait",
+    "variants/exception-unreleased"
+  ]
+}

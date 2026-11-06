@@ -4,7 +4,7 @@ title: IDENTITY 와 배치 삽입
 kind: lab
 track: spring-lab
 stage: 09-batch-insert
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq:

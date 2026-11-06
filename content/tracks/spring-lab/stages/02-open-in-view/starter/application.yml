@@ -1,0 +1,22 @@
+server:
+  port: ${PORT:8080}
+  tomcat:
+    threads:
+      max: 120
+spring:
+  main:
+    banner-mode: 'off'
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        connection:
+          handling_mode: DELAYED_ACQUISITION_AND_HOLD
+logging:
+  level:
+    root: WARN

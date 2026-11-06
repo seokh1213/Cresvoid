@@ -4,7 +4,7 @@ title: @Async 실행기와 큐
 kind: lab
 track: spring-lab
 stage: 04-async-executor
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq:

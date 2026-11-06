@@ -4,7 +4,7 @@ title: 가상 스레드와 풀
 kind: lab
 track: spring-lab
 stage: 07-virtual-threads
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq:

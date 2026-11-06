@@ -4,7 +4,7 @@ title: @Scheduled 단일 스레드
 kind: lab
 track: spring-lab
 stage: 10-scheduler
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq:

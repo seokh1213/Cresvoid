@@ -1,0 +1,17 @@
+{
+  "title": "Spring 운영 실험",
+  "kind": "lab",
+  "summary": "고정 실행 이미지의 Spring Boot 4 로 커넥션 풀 교착, OSIV, 트랜잭션 프록시, 비동기 실행기, HTTP 클라이언트 풀, 커넥션 수명, 가상 스레드, N+1, 배치 삽입, 스케줄러 문제를 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-pool-deadlock", "title": "REQUIRES_NEW 와 풀 교착" },
+    { "dir": "02-open-in-view", "title": "OSIV 와 느린 외부 호출" },
+    { "dir": "03-proxy-pitfalls", "title": "트랜잭션 프록시의 함정" },
+    { "dir": "04-async-executor", "title": "@Async 실행기와 큐" },
+    { "dir": "05-http-client-pool", "title": "HTTP 클라이언트 커넥션 풀" },
+    { "dir": "06-max-lifetime", "title": "maxLifetime 과 끊긴 연결" },
+    { "dir": "07-virtual-threads", "title": "가상 스레드와 풀" },
+    { "dir": "08-n-plus-one", "title": "N+1 과 페이징" },
+    { "dir": "09-batch-insert", "title": "IDENTITY 와 배치 삽입" },
+    { "dir": "10-scheduler", "title": "@Scheduled 단일 스레드" }
+  ]
+}

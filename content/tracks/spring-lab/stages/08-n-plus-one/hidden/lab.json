@@ -1,0 +1,32 @@
+{
+  "scenarios": [
+    {
+      "name": "catalog-browse",
+      "refs": [
+        "3",
+        "5",
+        "6",
+        "7"
+      ],
+      "quote": "각 목록 요청이 준비한 SQL 문 수는 1개 이상 3개 이하여야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    },
+    {
+      "name": "catalog-refresh",
+      "refs": [
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
+      "quote": "추가가 끝난 뒤의 모든 목록 응답은 갱신된 total과 항목을 반환해야 한다.",
+      "timeout_sec": 240,
+      "repeat": 1
+    }
+  ],
+  "must_fail": [
+    "variants/memory-window"
+  ]
+}

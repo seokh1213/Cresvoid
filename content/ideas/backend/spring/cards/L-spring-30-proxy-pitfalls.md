@@ -4,7 +4,7 @@ title: 트랜잭션 프록시의 함정
 kind: lab
 track: spring-lab
 stage: 03-proxy-pitfalls
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq:

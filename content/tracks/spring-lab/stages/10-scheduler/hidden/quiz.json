@@ -1,0 +1,98 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "baseline에서 slowJob이 시작된 뒤 800ms가 지났다고 가정해라. release는 아직 보내지 않았고 안전장치도 작동하지 않았다. 이때 snapshot에서 예상할 수 있는 값의 조합을 골라라.",
+      "choices": [
+        "pulses=6, during=6, pulse_thread는 long_thread와 같다.",
+        "pulses≥1, during=0, first_pulse_ms=200이다.",
+        "pulses=0, during=0, first_pulse_ms=-1, pulse_thread=0이다.",
+        "long_finished=1, pulses=0, expired=1이다."
+      ],
+      "answer": 3,
+      "refs": ["1", "2", "3", "5"],
+      "quote": "서로 다른 작업이라도 같은 스레드를 쓰면 한 작업의 대기가 다른 작업을 늦춘다.",
+      "explanation": "③이 맞다. baseline은 단일 스레드를 사용하고 slowJob이 그 스레드에서 해제를 기다린다. pulse의 initialDelay가 지나도 실행할 스레드가 비지 않으므로 실행 수는 0이고 첫 실행 시각과 스레드 ID는 각각 -1과 0이다. ①과 ②는 예약 시각을 실행 보장으로 취급한다. ④는 해제도 없고 15초도 지나지 않았는데 느린 작업이 끝났다고 본다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "comparison 풀 크기가 2이고, 서로 다른 두 느린 작업이 스케줄러 스레드에서 해제 신호를 기다리는 상황을 가정해라. pulse의 예정 시각은 지났다. 한 느린 작업만 해제해 종료시키고 그 작업의 다음 호출까지는 충분한 시간이 남아 있다면, 해제 전후 pulse의 실행 가능성을 옳게 설명한 것을 골라라. 안전장치는 작동하지 않으며 작업 본문을 다른 실행기로 넘기지 않는다.",
+      "choices": [
+        "해제 전에도 두 느린 작업과 pulse가 서로 다른 스레드에서 동시에 실행될 수 있다.",
+        "해제 전에는 pulse가 실행될 수 없고 한 느린 작업이 종료한 뒤에는 실행될 수 있다.",
+        "해제 전에는 실행될 수 없고, 한 느린 작업이 종료한 뒤에도 나머지 작업이 끝날 때까지 실행될 수 없다.",
+        "한 느린 작업이 종료하면 pulse는 반드시 최초 예정 시각으로부터 정확히 200ms 뒤에 실행된다."
+      ],
+      "answer": 2,
+      "refs": ["2", "3"],
+      "quote": "작업 본문을 스케줄러 스레드에서 직접 실행한다.",
+      "explanation": "②가 맞다. 두 느린 작업이 스레드 두 개를 모두 점유하므로 해제 전에는 pulse를 실행할 스레드가 없다. 한 작업이 종료하면 스레드 하나가 비어 pulse를 실행할 수 있다. ①은 풀 크기를 넘는 동시 실행을 가정하고 ③은 다른 스레드가 비어도 남은 작업이 pulse를 막는다고 본다. ④는 예정 시각을 실제 실행 시각으로 취급한다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "어떤 pulse 호출이 느린 작업 시작을 기준으로 1,240ms에 시작해 1,280ms에 끝났다고 가정해라. fixedDelay 규칙에 따른 다음 pulse의 예정 시각을 같은 기준의 밀리초 정수 하나로 써라. 실제 실행 지연은 계산에 넣지 마라.",
+      "answers": ["1380"],
+      "refs": ["3"],
+      "quote": "fixedDelay는 직전 호출이 끝난 뒤부터 다음 호출까지의 간격이다.",
+      "explanation": "pulse의 fixedDelay는 100ms이므로 직전 종료 시각 1,280ms에 100ms를 더한 1,380ms다. 시작 시각에 더한 1,340ms나 initialDelay 200ms를 다시 적용한 값은 아니다. 예정 시각에 실제로 실행된다는 보장은 없다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "long_started=1을 확인한 직후를 0ms 기준으로 삼아라. 0ms에 보낸 첫 snapshot 요청의 응답이 700ms에 도착한다. 실험기의 부하 모델에 따라 200ms와 400ms에 예정된 snapshot 요청을 어떻게 보내야 하는지 골라라.",
+      "choices": [
+        "첫 응답이 온 700ms부터 두 요청을 차례로 보낸다.",
+        "첫 요청이 진행 중이므로 두 요청을 생략하고 800ms부터 재개한다.",
+        "각 요청의 제한이 3초이므로 두 요청을 3,000ms와 6,000ms에 보낸다.",
+        "첫 응답을 기다리지 않고 각각의 예정 시각에 독립적으로 보낸다."
+      ],
+      "answer": 4,
+      "refs": ["3", "6"],
+      "quote": "각 HTTP 요청의 제한은 3초이며 이전 응답 때문에 다음 요청을 늦추지 않는 개방형 부하다.",
+      "explanation": "④가 맞다. 첫 응답이 늦어도 다음 요청의 예정 시각은 바뀌지 않는다. HTTP 처리 스레드는 스케줄러 스레드와 별개이므로 느린 작업의 대기를 이유로 부하를 직렬화하지도 않는다. ①은 응답을 기다리는 부하로 바꾸고 ②는 예정된 요청을 버린다. ③은 요청별 제한 시간을 발송 간격으로 잘못 해석한다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "comparison 설정을 고친 뒤 scheduled-window를 실행한다고 가정해라. 아래 지표가 나왔다면 이 실행의 판정을 골라라.",
+      "context": "baseline_during=0\nbaseline_same_thread=1\nbaseline_first_ms=1700\ncomparison_during=4\ncomparison_distinct_thread=1\ncomparison_first_ms=900\ncompleted=2\nhttp_errors=0\ncontract_failures=0",
+      "choices": [
+        "통과한다. 해제 전 실행 여부와 스레드 관계, 종료·오류 조건을 충족한다.",
+        "실패한다. comparison_first_ms가 initialDelay인 200ms와 다르다.",
+        "실패한다. baseline_first_ms가 release 예정 시각인 1,600ms보다 크다.",
+        "실패한다. comparison_during이 100ms 간격으로 계산한 실행 수보다 적다."
+      ],
+      "answer": 1,
+      "refs": ["3", "6", "7", "8"],
+      "quote": "경과 시간 자체에는 합격 임계값을 두지 않으며, 해제 전 실행 여부와 스레드 관계를 판정한다.",
+      "explanation": "①이 맞다. baseline은 해제 전 pulse가 없고 같은 스레드를 사용한다. comparison은 해제 전 pulse가 있고 다른 스레드를 사용한다. completed=2이며 두 오류 지표도 0이다. ②는 initialDelay를 정확한 실행 시각으로 오해한다. ③의 baseline 첫 pulse는 느린 작업 해제 뒤 실행되는 관측과 맞는다. ④는 fixedDelay와 실행 지연을 무시해 실행 수를 고정한다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "pulse 실행을 두 모드에서 모두 없애는 변경을 가정해라. 각 slowJob은 release로 정상 종료했고 HTTP 요청은 모두 성공했다. 판정을 예상해 골라라.",
+      "choices": [
+        "두 during이 모두 0이고 completed=2이므로 통과한다.",
+        "baseline만 평가하므로 comparison의 pulse가 없어도 통과한다.",
+        "실패한다. 두 실행의 pulses≥1 조건과 comparison의 during≥1 조건을 충족하지 못한다.",
+        "HTTP 실패가 없으므로 contract_failures도 반드시 0이다."
+      ],
+      "answer": 3,
+      "refs": ["5", "7", "8"],
+      "quote": "두 실행 모두 long_started=1, long_finished=1, pulses≥1, expired=0이어야 한다.",
+      "explanation": "③이 맞다. pulse를 없애면 두 실행 모두 pulses=0이고 comparison의 during도 0이다. 정상 종료와 HTTP 성공이 이 위반을 상쇄하지 못한다. ①은 종료 수만으로 통과를 판단하고 ②는 comparison도 평가한다는 조건을 빠뜨린다. ④는 HTTP 실패 수와 실행 계약 위반 수를 혼동한다."
+    },
+    {
+      "id": "q7",
+      "type": "short",
+      "prompt": "실험을 확장해 서로 다른 느린 작업 세 개와 pulse 하나를 같은 ThreadPoolTaskScheduler에 등록한다고 가정해라. 세 느린 작업이 모두 시작해 각자의 스케줄러 스레드에서 해제를 기다리는 동안에도 pulse가 실행될 여유를 두려 한다. 작업 본문을 다른 실행기로 넘기지 않고 다른 작업은 없을 때 필요한 최소 풀 크기를 정수 하나로 써라. 정확한 실행 시각은 보장하지 않아도 된다.",
+      "answers": ["4"],
+      "refs": ["2", "3"],
+      "quote": "작업 본문을 스케줄러 스레드에서 직접 실행한다.",
+      "explanation": "느린 작업 세 개가 스레드를 하나씩 점유하고 pulse를 위한 스레드가 하나 더 필요하므로 최소 풀 크기는 4다. 풀 크기가 3 이하면 세 작업이 모두 대기하는 동안 pulse를 실행할 스레드가 없다. 여유 스레드가 있어도 특정 밀리초에 실행된다는 보장은 없다."
+    }
+  ]
+}

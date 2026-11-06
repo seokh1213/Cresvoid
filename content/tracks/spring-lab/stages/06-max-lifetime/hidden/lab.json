@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "evening-traffic",
+      "refs": ["5", "6", "7"],
+      "quote": "프록시의 idle_drops와 age_drops는 모두 0이어야 한다.",
+      "timeout_sec": 210,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/heartbeat-only"]
+}

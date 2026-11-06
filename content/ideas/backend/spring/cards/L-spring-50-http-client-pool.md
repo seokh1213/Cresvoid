@@ -4,7 +4,7 @@ title: HTTP 클라이언트 커넥션 풀
 kind: lab
 track: spring-lab
 stage: 05-http-client-pool
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 4
 env: docker
 prereq:

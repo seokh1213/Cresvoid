@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "entry-samples",
+      "refs": ["6", "7", "10", "11", "12"],
+      "quote": "6개 모두 HTTP 200으로 완료되어야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    },
+    {
+      "name": "boundary-samples",
+      "refs": ["8", "9", "10", "11", "12"],
+      "quote": "6개 모두 HTTP 200으로 완료되어야 한다.",
+      "timeout_sec": 120,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/rollback-every-exception"]
+}

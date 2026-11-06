@@ -4,7 +4,7 @@ title: maxLifetime 과 끊긴 연결
 kind: lab
 track: spring-lab
 stage: 06-max-lifetime
-status: 제작 중
+status: 완료(2026-11-06)
 wave: 5
 env: docker
 prereq:

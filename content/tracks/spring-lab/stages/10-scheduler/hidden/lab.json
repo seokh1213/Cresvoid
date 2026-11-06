@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "scheduled-window",
+      "refs": ["6", "7", "8"],
+      "quote": "모든 pulse를 없애거나 양쪽 풀을 함께 늘리는 방식은 통과할 수 없다.",
+      "timeout_sec": 90,
+      "repeat": 3
+    },
+    {
+      "name": "extended-window",
+      "refs": ["6", "7", "8"],
+      "quote": "경과 시간 자체에는 합격 임계값을 두지 않으며, 해제 전 실행 여부와 스레드 관계를 판정한다.",
+      "timeout_sec": 90,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/shared-expansion"]
+}

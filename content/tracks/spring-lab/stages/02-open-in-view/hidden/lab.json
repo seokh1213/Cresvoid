@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "steady-arrivals",
+      "refs": ["5", "6", "7"],
+      "quote": "외부 호출 시작 시 자기 요청의 JDBC 연결을 보유한 횟수는 0이어야 한다.",
+      "timeout_sec": 150,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/setting-only"]
+}
