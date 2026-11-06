@@ -24,7 +24,7 @@ case "$1" in
   run)
     port="${PORT:-8080}"
     # Lab code lives in the lab package; compose starts the same entry point.
-    exec docker run --rm -i --init -p "127.0.0.1:$port:$port" -e PORT="$port" -v "$project:/work:ro" -w /work "$image" lab-run "$libs" lab.MainKt
+    exec docker run --rm -i --init -p "127.0.0.1:$port:$port" -e PORT="$port" -e JAVA_OPTS="${JAVA_OPTS:-}" -v "$project:/work:ro" -w /work "$image" lab-run "$libs" lab.MainKt
     ;;
   *)
     echo "usage: jvm-runner.sh build|run" >&2
