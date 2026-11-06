@@ -57,6 +57,19 @@ fun numberedSources(projectDir: Path): String {
     return kotlinSourceFiles(projectDir).joinToString("\n") { file -> numberedFile(file, sourceLines(root.resolve(file))) }
 }
 
+// Lab learners may edit root files beside src (e.g. application.yml); show the ones the solution changed from the starter.
+fun changedRootFiles(solutionDir: Path, starterDir: Path): List<String> {
+    if (!starterDir.isDirectory() || !solutionDir.isDirectory()) return emptyList()
+    val names = Files.list(solutionDir).use { paths -> paths.filter { it.isRegularFile() }.map { it.fileName.toString() }.toList() }
+    return names.filter { name ->
+        val starter = starterDir.resolve(name)
+        starter.isRegularFile() && starter.readUtf8() != solutionDir.resolve(name).readUtf8()
+    }.sorted()
+}
+
+fun numberedRootFiles(projectDir: Path, names: List<String>): String =
+    names.joinToString("\n") { name -> numberedFile(name, sourceLines(projectDir.resolve(name))) }
+
 private fun numberedFile(name: String, lines: List<String>): String = buildString {
     val width = lines.size.toString().length
     append("==> ").append(name).append(" <==\n")

@@ -31,6 +31,20 @@ class LabIntegrationTest : FunSpec({
         }
     }
 
+    test("lab 참조 풀이는 시작 코드에서 바뀐 루트 설정 파일도 보여 준다") {
+        Sandbox(engineJar).use { sandbox ->
+            addLabTrack(sandbox)
+            val stage = "content/tracks/mini-lab/stages/01-observe"
+            sandbox.file("$stage/starter/config.yml", "mode: slow\n")
+            sandbox.file("$stage/hidden/solution/config.yml", "mode: fast\n")
+            sandbox.cresvoid("start", "mini-lab").expectExit(0, "시작")
+            sandbox.cresvoid("solution", "mini-lab").expectExit(0, "참조 풀이")
+                .expectOutput("==> config.yml <==", "바뀐 설정 파일 제목")
+                .expectOutput("mode: fast", "바뀐 설정 내용")
+                .expectNoOutput("==> build.sh <==", "바뀌지 않은 루트 파일")
+        }
+    }
+
     test("lab 실험의 원시 출력은 실패 보고에 드러나지 않는다") {
         Sandbox(engineJar).use { sandbox ->
             addLabTrack(sandbox)

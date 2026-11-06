@@ -5,6 +5,9 @@ import cresvoid.cli.Command
 import cresvoid.cli.parseTrackArguments
 import cresvoid.cli.stageFlag
 import cresvoid.content.SolutionView
+import cresvoid.content.Stage
+import cresvoid.content.changedRootFiles
+import cresvoid.content.numberedRootFiles
 import cresvoid.content.numberedSources
 import cresvoid.project.Project
 import cresvoid.runner.ProcessRunner
@@ -32,11 +35,18 @@ class SolutionCommand(
         val view = track.kind.solutionView ?: throw CresvoidError("${track.kind.label} 트랙에는 참조 풀이가 없습니다")
         val stage = state.selectStage(arguments.stage)
         val text = when (view) {
-            SolutionView.SOURCE -> numberedSources(stage.solutionDir).ifEmpty { "참조 풀이에 Kotlin 소스가 없습니다.\n" }
+            SolutionView.SOURCE -> solutionSources(stage).ifEmpty { "참조 풀이에 Kotlin 소스가 없습니다.\n" }
             SolutionView.STARTER_DIFF -> starterDiff(stage, runner).ifEmpty { "시작 코드와 참조 풀이가 같습니다.\n" }
         }
         console.println(bold("${track.id} ${stage.dir} · ${stage.title} 참조 풀이"))
         console.println(dim(project.rel(stage.solutionDir)))
         showText(console, terminal, text)
     }
+}
+
+private fun solutionSources(stage: Stage): String {
+    val changed = changedRootFiles(stage.solutionDir, stage.starterDir)
+    return listOf(numberedSources(stage.solutionDir), numberedRootFiles(stage.solutionDir, changed))
+        .filter { it.isNotEmpty() }
+        .joinToString("\n")
 }
