@@ -3,8 +3,8 @@ id: L-network-20
 title: 타임아웃의 층
 kind: lab
 track: net-lab
-stage: timeout-layers
-status: 후보
+stage: 02-timeout-layers
+status: 완료(2026-11-06)
 wave: 5
 env: 없음
 prereq:

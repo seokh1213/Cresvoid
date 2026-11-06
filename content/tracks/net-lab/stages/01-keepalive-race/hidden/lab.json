@@ -1,0 +1,12 @@
+{
+  "scenarios": [
+    {
+      "name": "session-traffic",
+      "refs": ["7", "8", "9", "10"],
+      "quote": "정상 조회 7건은 모두 HTTP 200과 정확한 본문으로 끝나야 한다.",
+      "timeout_sec": 90,
+      "repeat": 1
+    }
+  ],
+  "must_fail": ["variants/retry-every-method", "variants/no-idle-retirement"]
+}

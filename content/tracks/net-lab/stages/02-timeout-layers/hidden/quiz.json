@@ -1,0 +1,130 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "수정 전 Gateway.kt를 읽어라. headers 요청의 하위 응답이 약 6500ms 뒤에 온다면 시작 코드가 반환할 상태·본문을 골라라. 스케줄링 지연은 무시하고 token은 sample1이다.",
+      "choices": [
+        "HTTP 504, RESPONSE_TIMEOUT",
+        "HTTP 504, TOTAL_TIMEOUT",
+        "HTTP 200, ok:sample1",
+        "HTTP 502, IO_ERROR"
+      ],
+      "answer": 3,
+      "refs": ["2", "4", "5"],
+      "quote": "`headers`는 하위 응답 전체를 6500ms 늦춘다.",
+      "explanation": "③이 맞다. 시작 코드는 연결·헤더 제한을 설정하지 않고 pending.get에서 8초를 기다린다. 6500ms 뒤 정상 응답이 도착하면 예외 처리로 가지 않고 상태와 본문을 그대로 반환한다. 계약의 RESPONSE_TIMEOUT 응답도, get 대기 만료의 TOTAL_TIMEOUT 응답도 나오지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "시작 코드에서 HttpRequest.Builder에 1500ms timeout만 추가했다. headers 요청의 Future가 HttpTimeoutException을 원인으로 ExecutionException을 던졌고, 이 원인 예외는 IOException의 하위 타입이다. 나머지 예외 처리는 그대로일 때 실제 HTTP 상태 코드는 얼마인가? 숫자만 써라.",
+      "answers": ["502"],
+      "refs": ["2", "4"],
+      "quote": "시간 제한이면 HTTP 504와 `CONNECT_TIMEOUT`, `RESPONSE_TIMEOUT`, `TOTAL_TIMEOUT` 중 실제 작동한 층을 반환해라.",
+      "explanation": "시작 코드의 TimeoutException 처리는 pending.get의 대기가 만료됐을 때만 실행된다. 여기서는 ExecutionException 처리로 들어가 원인 예외가 IOException인지 검사하므로 HTTP 502와 IO_ERROR를 반환한다. 헤더 제한만 추가해도 오류 분류를 함께 고치지 않으면 HTTP 504와 RESPONSE_TIMEOUT 계약을 만족하지 못한다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "Gateway.call 진입 후 900ms가 지난 시점에 응답 헤더를 받았다. 연결·헤더 제한은 위반하지 않았다. 본문을 전부 읽는 데 쓸 수 있는 전체 제한의 남은 예산은 몇 ms인가? 숫자만 써라.",
+      "answers": ["1600"],
+      "refs": ["4"],
+      "quote": "전체 제한은 `Gateway.call` 진입부터 본문을 전부 읽을 때까지 적용하고 이미 쓴 시간을 빼야 한다.",
+      "explanation": "전체 제한의 시작점은 Gateway.call 진입이다. 본문 읽기를 시작할 때 2500ms를 다시 주면 앞에서 쓴 시간이 빠진다. 남은 예산은 2500 − 900 = 1600ms다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "시작 코드의 pending.get(8, TimeUnit.SECONDS)만 pending.get(2500, TimeUnit.MILLISECONDS)로 바꿨다. connect·headers·body의 Future가 모두 2500ms까지 미완료라면 세 요청에 대한 예측으로 맞는 것을 골라라. 다른 지연은 무시해라.",
+      "choices": [
+        "셋 다 HTTP 504와 TOTAL_TIMEOUT을 반환한다. connect·headers의 제한 층 분류는 여전히 틀린다.",
+        "각각 CONNECT_TIMEOUT·RESPONSE_TIMEOUT·TOTAL_TIMEOUT을 반환한다. 대기 시간 하나가 세 층을 구분한다.",
+        "connect·headers만 TOTAL_TIMEOUT을 반환하고 body는 바이트가 도착할 때마다 2500ms를 다시 기다린다.",
+        "셋 다 HTTP 502와 IO_ERROR를 반환한다. get의 대기 만료는 ExecutionException으로만 전달된다."
+      ],
+      "answer": 1,
+      "refs": ["2", "4", "5"],
+      "quote": "따라서 `connect`, `headers`, `body`는 각각 연결, 응답 헤더, 전체 제한으로 끝나야 하고 `drop`은 I/O 오류로 끝나야 한다.",
+      "explanation": "①이 맞다. 세 요청 모두 get의 TimeoutException 처리로 들어가 통신을 취소하고 TOTAL_TIMEOUT을 반환한다. get은 본문 바이트마다 대기를 다시 시작하지 않으며 요청 종류로 예외를 나누지도 않는다. 이 변경만으로는 connect의 500ms와 headers의 1500ms 제한·오류 분류를 구현할 수 없다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "시작 코드의 get 대기를 2500ms로 줄이고 TimeoutException 처리의 pending.cancel(true)를 삭제했다. 다른 호출 없이 body 하나만 실행하며, 하위 본문은 6500ms까지 끝나지 않는다. 응답 반환 800ms 뒤에도 하위 통신이 진행 중이라고 할 때 active_calls와 pending_upstreams를 올바르게 예측한 것을 골라라.",
+      "choices": [
+        "active_calls > 0, pending_upstreams = 0. get이 끝나도 Gateway.call은 반환하지 않는다.",
+        "active_calls = 0, pending_upstreams = 0. get의 대기 만료가 하위 통신도 자동 취소한다.",
+        "active_calls > 0, pending_upstreams > 0. Future가 끝날 때까지 서버의 finally가 기다린다.",
+        "active_calls = 0, pending_upstreams > 0. 호출은 반환하지만 하위 통신은 남는다."
+      ],
+      "answer": 4,
+      "refs": ["4", "8"],
+      "quote": "호출을 끝내도 하위 통신을 계속하는 구현은 열린 연결 수로 검출한다.",
+      "explanation": "④가 맞다. get은 기다리는 호출의 대기만 끝낸다. 취소를 빼면 Future의 하위 통신은 계속될 수 있다. Gateway.call이 Reply를 반환하면 Server.kt의 finally가 active를 줄이므로 active_calls는 0이지만, 통신이 진행 중인 프록시 연결은 pending_upstreams에 남는다."
+    },
+    {
+      "id": "q6",
+      "type": "short",
+      "prompt": "first-pass의 부하 30개가 fast 6개, 시간 제한 18개, drop 6개로 끝났다. 모두 각 종류에 맞는 상태와 본문을 반환했고, 별도의 워밍업 3개와 회복 5개도 성공했다. correct 값은 얼마인가? 숫자만 써라.",
+      "answers": ["30"],
+      "refs": ["6", "9"],
+      "quote": "시간 제한·연결 끊김은 실험 대상이므로 해당 오류 응답도 `correct`에 포함한다.",
+      "explanation": "correct는 부하 요청의 상태·본문 일치 수다. 정상 응답 6개뿐 아니라 계약대로 끝난 시간 제한 18개와 연결 끊김 6개도 포함하여 30이다. 워밍업과 별도로 확인하는 회복 요청을 더해 38로 세지 마라."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "first-pass에서 correct = requests = 30이다. 29개는 4500ms 안에 끝났지만 한 요청은 상태·본문이 맞아도 5100ms가 걸렸다. 나머지 합격 조건은 모두 만족한다. 판정을 골라라.",
+      "choices": [
+        "불변식을 통과한다. 상태와 본문이 모두 맞으므로 지연은 판정하지 않는다.",
+        "불변식에 실패한다. within_bound가 29여서 requests와 같지 않다.",
+        "불변식을 통과한다. 외부 측정 제한인 10초 안에 끝났다.",
+        "실험기 오류다. 4500ms를 넘긴 응답은 불변식으로 판정할 수 없다."
+      ],
+      "answer": 2,
+      "refs": ["6", "7", "9"],
+      "quote": "외부 측정의 요청 제한은 10초이며 이는 합격 상한을 대신하지 않는다.",
+      "explanation": "②가 맞다. 클라이언트 관측 상한은 요청마다 4500ms이고, within_bound = requests여야 한다. 5100ms 응답은 측정 제한 10초 안에 수집되더라도 불변식 위반이다. 외부 측정 시간 초과나 실험기 자체 오류와 구별해라."
+    },
+    {
+      "id": "q8",
+      "type": "choice",
+      "prompt": "통계를 읽을 시점에 가상 스레드를 쓰는 구현 A는 active_calls = 2, pending_upstreams = 0이다. 구현 B는 active_calls = 0, pending_upstreams = 2다. 두 구현 모두 플랫폼 스레드 증가량은 0이고 이 두 지표 외의 합격 조건은 모두 만족했다. 자원 회수 조건을 만족하는 구현을 골라라.",
+      "choices": [
+        "A만 만족한다. 플랫폼 스레드와 열린 연결이 남지 않았다.",
+        "B만 만족한다. Gateway.call이 모두 반환했다.",
+        "둘 다 만족한다. 플랫폼 스레드 증가량이 0이다.",
+        "둘 다 만족하지 못한다. A는 실행 중인 호출이, B는 열린 하위 연결이 남았다."
+      ],
+      "answer": 4,
+      "refs": ["6", "8", "9"],
+      "quote": "가상 스레드는 이 값에 포함되지 않으므로 별도로 실행 중인 `Gateway.call` 호출 수가 0인지 확인한다.",
+      "explanation": "④가 맞다. 플랫폼 스레드 표본만으로 가상 스레드에서 실행 중인 호출의 종료를 확인할 수 없다. 또 호출이 반환했다고 하위 통신까지 끝난 것은 아니다. A는 active_calls = 0을, B는 pending_upstreams = 0을 만족하지 못한다."
+    },
+    {
+      "id": "q9",
+      "type": "choice",
+      "prompt": "요청·회복·하위 도착 수와 지연은 모두 합격 조건을 만족하고 active_calls = pending_upstreams = 0이다. 다음 중 플랫폼 스레드 조건도 만족하는 측정값을 골라라. 각 쌍은 (peak_thread_growth, end_thread_growth)다.",
+      "choices": [
+        "(41, 0)",
+        "(20, 17)",
+        "(40, 16)",
+        "(45, 20)"
+      ],
+      "answer": 3,
+      "refs": ["8", "9"],
+      "quote": "최대 증가는 40개 이하, 마지막 증가는 16개 이하여야 한다.",
+      "explanation": "③이 맞다. 두 상한을 동시에 만족해야 하고 경계값 40과 16도 허용된다. 마지막 증가량이 0이어도 최대 증가량 41은 실패하고, 최대 증가량이 20이어도 마지막 증가량 17은 실패한다."
+    },
+    {
+      "id": "q10",
+      "type": "short",
+      "prompt": "return-pass에서 실험기가 확인한 실제 하위 연결·요청 도착 수가 fast 12, connect 13, headers 12, body 11, drop 14였다. 이 부하에 대한 upstream_seen은 얼마인가? 숫자만 써라.",
+      "answers": ["4"],
+      "refs": ["3", "6", "7", "9"],
+      "quote": "다섯 종류 모두 예정된 횟수 이상 관측되어야 한다.",
+      "explanation": "return-pass의 예정 수는 종류별 12개다. body만 11개로 부족하므로 도착 수가 충족된 종류는 네 종류다. upstream_seen은 총 도착 수나 요청한 종류 수가 아니다. 다른 종류의 초과 도착으로 body의 부족을 상쇄할 수 없으므로 합격 조건 upstream_seen = 5도 만족하지 못한다."
+    }
+  ]
+}

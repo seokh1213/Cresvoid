@@ -19,7 +19,7 @@
 | [레이크하우스: 파일 포맷과 테이블 포맷](backend/lakehouse/README.md) | 3 | 1 | 0 | 2 | 0 |
 | [부하 엣지 케이스](backend/load/README.md) | 12 | 0 | 0 | 10 | 2 |
 | [메시징: Kafka](backend/messaging/README.md) | 5 | 0 | 0 | 5 | 0 |
-| [네트워크](backend/network/README.md) | 2 | 2 | 0 | 0 | 0 |
+| [네트워크](backend/network/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [관측성](backend/observability/README.md) | 2 | 0 | 0 | 2 | 0 |
 | [OLAP](backend/olap/README.md) | 6 | 0 | 0 | 6 | 0 |
 | [데이터 파이프라인](backend/pipeline/README.md) | 9 | 5 | 0 | 4 | 0 |
@@ -27,7 +27,7 @@
 | [Spark](backend/spark/README.md) | 7 | 0 | 0 | 7 | 0 |
 | [프레임워크 심화와 튜닝](backend/spring/README.md) | 10 | 0 | 0 | 10 | 0 |
 | [시스템 설계](backend/system-design/README.md) | 17 | 7 | 0 | 10 | 0 |
-| 합계 | 185 | 27 | 0 | 156 | 2 |
+| 합계 | 185 | 25 | 0 | 158 | 2 |
 
 ## 다음 후보
 
@@ -37,7 +37,6 @@
 |---|---|---|---|---|---|---|
 | 4 | [B-kv-store-10](implementation/cards/B-kv-store-10-kv-store.md) | 키-값 저장소 | build | kv-store | 01-basic, 02-log, 03-transactions | 없음 |
 | 4 | [B-lakehouse-20](backend/lakehouse/cards/B-lakehouse-20-columnar.md) | 열 지향 파일 만들기 | build | columnar | 01-encode, 02-pruning, 03-nested | 없음 |
-| 4 | [L-network-10](backend/network/cards/L-network-10-keepalive-race.md) | keep-alive 수명의 경합 | lab | net-lab | keepalive-race | 없음 |
 | 4 | [B-pipeline-10](backend/pipeline/cards/B-pipeline-10-history-rollover.md) | 현재 상태를 보존하는 이력 압축기 만들기 | build | history-rollover | 01-materialize, 02-baseline, 03-retention | 없음 |
 | 4 | [B-pipeline-30](backend/pipeline/cards/B-pipeline-30-batch-workflow.md) | 실행 증거로 연결하는 배치 단계 만들기 | build | batch-workflow | 01-markers, 02-resume, 03-seal | 없음 |
 | 4 | [B-pipeline-50](backend/pipeline/cards/B-pipeline-50-index-overlay.md) | 운영과 실험의 변경을 합치는 병합기 만들기 | build | index-overlay | 01-current-state, 02-round-merge, 03-replay | 없음 |
@@ -53,7 +52,6 @@
 | 5 | [B-distributed-50](backend/distributed/cards/B-distributed-50-simulation-testing.md) | 결정적 시뮬레이션 시험 만들기 | build | sim-testing | 01-scheduler, 02-faults, 03-shrink | 없음 |
 | 5 | [B-distributed-80](backend/distributed/cards/B-distributed-80-fenced-writes.md) | 저장소가 검사하는 펜싱 토큰 만들기 | build | lease-lock | 03-fenced-writes | 없음 |
 | 5 | [B-mini-sql-10](implementation/cards/B-mini-sql-10-mini-sql.md) | 작은 SQL 엔진 | build | mini-sql | 01-select, 02-group, 03-join | 없음 |
-| 5 | [L-network-20](backend/network/cards/L-network-20-timeout-layers.md) | 타임아웃의 층 | lab | net-lab | timeout-layers | 없음 |
 | 5 | [B-pipeline-70](backend/pipeline/cards/B-pipeline-70-experiment-recovery.md) | 실험 종료 뒤 운영 상태로 복구하는 도구 만들기 | build | index-overlay | 04-reconcile | 없음 |
 | 5 | [B-pipeline-80](backend/pipeline/cards/B-pipeline-80-dedup-candidates.md) | 중복 후보 생성과 대표 선택기 만들기 | build | dedup-candidates | 01-exact, 02-candidates, 03-components | 없음 |
 | 5 | [B-regex-10](implementation/cards/B-regex-10-regex.md) | 정규식 엔진 | build | regex | 01-basic, 02-classes, 03-linear | 없음 |
@@ -112,7 +110,7 @@
 | mini-olap | build | 있음 | 06 | 01-aggregate(B-olap-20 완료), 02-scale(B-olap-20 완료), 03-rollup(B-olap-20 완료), 04-sketch(B-olap-30 완료), 05-sparse-index(B-olap-30 완료) |  |
 | mini-sql | build | 없음 | 04 |  | 01-select(B-mini-sql-10 5차), 02-group(B-mini-sql-10 5차), 03-join(B-mini-sql-10 5차) |
 | mvcc | build | 있음 | 04 | 01-snapshot(B-database-20 완료), 02-locking(B-database-20 완료), 03-serializable(B-database-20 완료) |  |
-| net-lab | lab | 없음 | 01 |  | keepalive-race(L-network-10 4차), timeout-layers(L-network-20 5차) |
+| net-lab | lab | 있음 | 03 | 01-keepalive-race(L-network-10 완료), 02-timeout-layers(L-network-20 완료) |  |
 | news-feed | build | 있음 | 04 | 01-fanout-on-write(B-system-design-70 완료), 02-fanout-on-read(B-system-design-70 완료), 03-hybrid(B-system-design-70 완료) |  |
 | notifier | build | 없음 | 04 |  | 01-dispatch(B-system-design-150 5차), 02-reliability(B-system-design-150 5차), 03-throttling(B-system-design-150 5차) |
 | nrt-index | build | 있음 | 04 | 01-refresh(B-search-30 완료), 02-durability(B-search-30 완료), 03-concurrency(B-search-30 완료) |  |
@@ -356,8 +354,8 @@
 
 | 카드 | 제목 | 종류 | 트랙 | 단계 | 상태 | 차수 | 환경 | 선행 |
 |---|---|---|---|---|---|---|---|---|
-| [L-network-10](backend/network/cards/L-network-10-keepalive-race.md) | keep-alive 수명의 경합 | lab | net-lab | keepalive-race | 후보 | 4 | 없음 |  |
-| [L-network-20](backend/network/cards/L-network-20-timeout-layers.md) | 타임아웃의 층 | lab | net-lab | timeout-layers | 후보 | 5 | 없음 |  |
+| [L-network-10](backend/network/cards/L-network-10-keepalive-race.md) | keep-alive 수명의 경합 | lab | net-lab | 01-keepalive-race | 완료(2026-11-06) | 4 | 없음 |  |
+| [L-network-20](backend/network/cards/L-network-20-timeout-layers.md) | 타임아웃의 층 | lab | net-lab | 02-timeout-layers | 완료(2026-11-06) | 5 | 없음 |  |
 
 ### 관측성
 

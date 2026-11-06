@@ -3,8 +3,8 @@ id: L-network-10
 title: keep-alive 수명의 경합
 kind: lab
 track: net-lab
-stage: keepalive-race
-status: 후보
+stage: 01-keepalive-race
+status: 완료(2026-11-06)
 wave: 4
 env: 없음
 prereq:

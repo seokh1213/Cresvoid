@@ -1,0 +1,9 @@
+{
+  "title": "네트워크 실험",
+  "kind": "lab",
+  "summary": "JDK 로 만든 서버와 클라이언트, TCP 프록시에서 keep-alive 연결 수명의 경합과 연결·응답·전체 타임아웃의 층을 재현하고 고친다.",
+  "stages": [
+    { "dir": "01-keepalive-race", "title": "keep-alive 수명의 경합" },
+    { "dir": "02-timeout-layers", "title": "타임아웃의 층" }
+  ]
+}

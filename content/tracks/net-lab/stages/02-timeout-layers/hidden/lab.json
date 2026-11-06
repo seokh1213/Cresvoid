@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "first-pass",
+      "refs": ["5", "6", "7", "8", "9"],
+      "quote": "모든 요청은 클라이언트 관측 4500ms 안에 끝나야 한다.",
+      "timeout_sec": 90,
+      "repeat": 3
+    },
+    {
+      "name": "return-pass",
+      "refs": ["5", "6", "7", "8", "9"],
+      "quote": "최대 증가는 40개 이하, 마지막 증가는 16개 이하여야 한다.",
+      "timeout_sec": 90,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/per-call-client", "variants/headers-only", "variants/uncancelled-request"]
+}
