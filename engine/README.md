@@ -17,7 +17,7 @@ cresvoid 엔진이다. Gradle Kotlin DSL 프로젝트이고 실행 코드는 Kot
 
 ## 끝에서 끝까지 확인
 
-cresvoid 루트에서 `kotlin engine/e2e.main.kts` 를 실행한다. 스크립트는 `content/tracks` 를 임시 디렉터리에 복사한다. 그다음 트랙마다 검증하고 모든 단계를 푼 뒤 진행 기록을 초기화한다. 실패하면 임시 디렉터리를 남긴다.
+cresvoid 루트에서 `kotlin engine/e2e.main.kts` 를 실행한다. 스크립트는 `content/tracks` 를 임시 디렉터리에 복사한다. 그다음 트랙마다 검증하고 모든 단계를 푼 뒤 진행 기록을 초기화한다. 실패하면 임시 디렉터리를 남긴다. 같은 내용을 방금 `cresvoid validate` 로 따로 검증했으면 `--skip-validate` 를 붙여 검증을 건너뛴다. lab 트랙은 검증에 한두 시간이 걸린다.
 
 ## 패키지
 

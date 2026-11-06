@@ -41,7 +41,7 @@ Cresvoid의 공통 작업 규칙이다. 도구가 바뀌어도 이 파일과 `AG
 ## 5. 실행과 검증
 
 - 엔진 테스트: `engine/`에서 `./gradlew test`.
-- 전체 흐름: `kotlin engine/e2e.main.kts`.
+- 전체 흐름: `kotlin engine/e2e.main.kts`. 같은 내용을 방금 validate 했으면 `--skip-validate` 로 학습자 흐름만 확인해라. 트랙 전체 validate 는 커밋 직전에 한 번만 돌려라.
 - 콘텐츠: `engine/bin/cresvoid validate <트랙>`.
 - 템플릿: `kotlin content/templates/sync.main.kts --check`.
 - 카드 색인: `kotlin content/ideas/index.main.kts --check`.

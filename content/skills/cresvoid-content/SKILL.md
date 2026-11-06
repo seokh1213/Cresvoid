@@ -118,7 +118,7 @@ MOCK_PROMPTS=$RUN/prompts.md node content/skills/_shared/mock-workflow.mjs conte
 
 1. `engine/bin/cresvoid validate <트랙>` 을 실행한다.
 2. `kotlin content/templates/sync.main.kts --check` 를 실행한다.
-3. `kotlin engine/e2e.main.kts` 를 실행한다.
+3. `kotlin engine/e2e.main.kts <루트> <트랙> --skip-validate` 를 실행한다. 1의 validate 를 방금 같은 내용으로 돌렸으므로 e2e 는 학습자 흐름만 확인한다. 전체 validate 는 커밋 직전에 한 번만 돌린다. lab 트랙은 한두 시간이 걸린다.
 4. 결과의 `remaining` 과 `leftovers` 에 남은 문제를 하나씩 읽는다.
 5. 품질 관문을 통과하지 못한 문제는 고친다.
 6. 블라인드 풀이가 정답과 다르게 답한 문항은 직접 다시 푼다. 문서만으로 정답이 하나로 정해지는지 확인한다.

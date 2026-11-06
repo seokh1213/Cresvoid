@@ -103,8 +103,11 @@ val scriptFile: File = ProcessHandle.current().info().arguments().orElse(emptyAr
     .lastOrNull { it.endsWith(".main.kts") }
     ?.let { File(it).absoluteFile }
     ?: __FILE__.absoluteFile
-val projectRoot: File = (args.firstOrNull()?.let(::File) ?: scriptFile.parentFile.parentFile).canonicalFile
-val selectedTrack = args.getOrNull(1)
+// lab validate repeats Docker experiments for hours; skip it only when the same content was just validated on its own.
+val skipValidate = "--skip-validate" in args
+val positional = args.filterNot { it == "--skip-validate" }
+val projectRoot: File = (positional.firstOrNull()?.let(::File) ?: scriptFile.parentFile.parentFile).canonicalFile
+val selectedTrack = positional.getOrNull(1)
 val launcher = File(projectRoot, "engine/bin/cresvoid")
 val workspace: File = Files.createTempDirectory("cresvoid-e2e-").toFile()
 val problems = mutableListOf<String>()
@@ -376,7 +379,7 @@ for (trackDir in trackDirs) {
     val track = trackDir.name
     log()
     log("== $track")
-    cresvoid("validate", track).expectSuccess("검증 통과", "$track 검증")
+    if (skipValidate) log("$ cresvoid validate $track (--skip-validate 로 건너뜀)") else cresvoid("validate", track).expectSuccess("검증 통과", "$track 검증")
     val definition = File(trackDir, "track.json").readJsonObject()
     val stages = definition.objects("stages")
     when (val kind = definition["kind"]) {
