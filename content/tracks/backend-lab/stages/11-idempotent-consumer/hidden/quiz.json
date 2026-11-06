@@ -1,0 +1,119 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "short",
+      "prompt": "초기 상태에서 다음 이벤트를 적힌 순서대로 모두 처리했다. item-a의 최종 상태를 entity_id|version|value|total 형식으로 써라.",
+      "context": "e-a|item-a|4|80|5\ne-b|item-a|1|900|-3\ne-c|item-a|3|20|7\ne-a|item-a|4|80|5",
+      "answers": ["item-a|4|80|9"],
+      "refs": ["5", "6", "7"],
+      "quote": "모든 고유 이벤트의 delta 합이 total이 되어야 한다.",
+      "explanation": "고유 이벤트는 e-a, e-b, e-c 세 개이므로 total은 5 - 3 + 7 = 9다. 가장 큰 버전은 4이므로 value는 80이다. 옛 버전의 value나 delta를 최신 value에 더하지 않는다. e-a의 재수신은 상태를 바꾸지 않는다."
+    },
+    {
+      "id": "q2",
+      "type": "choice",
+      "prompt": "다음 상태에서 두 이벤트를 순서대로 처음 처리한다. 감사 기록과 최종 상태가 모두 계약에 맞는 예측을 골라라.",
+      "context": "item-a는 version=8, value=80, total=10이고 item-b는 아직 없다. 선지의 상태는 version|value|total이며 감사 버전은 previous_version→after_version이다.\n첫 이벤트: e-old|item-a|2|25|-4\n둘째 이벤트: e-new|item-b|1|15|3",
+      "choices": [
+        "e-old의 감사 버전은 8→2다. item-a는 2|25|6, item-b는 1|15|3이 된다.",
+        "e-old는 감사 행을 남기지 않는다. item-a는 8|80|10, item-b는 1|15|3이 된다.",
+        "e-old의 감사 버전은 8→8이다. item-a는 8|80|6, item-b는 1|15|3이 된다.",
+        "e-old의 감사 버전은 8→8이다. item-a는 8|80|6이 되고 item-b는 생성되지 않는다."
+      ],
+      "answer": 3,
+      "refs": ["5", "6", "7"],
+      "quote": "처음 받은 옛 버전의 이벤트는 감사 행과 total을 바꾸되 스냅숏 버전을 낮추면 안 된다.",
+      "explanation": "③은 처음 받은 옛 이벤트의 delta를 합산하고 감사 행을 남기면서 버전을 유지한다. ①은 버전을 낮추고 ②는 고유 이벤트의 반영을 누락한다. ④는 item-a의 높은 버전을 다른 엔터티에도 적용해 item-b의 유효한 이벤트를 버린다."
+    },
+    {
+      "id": "q3",
+      "type": "choice",
+      "prompt": "수정하지 않은 시작 코드에 e-a|item-a|2|90|7 한 건을 발행하고 그 ID에서 장애를 넣었다. dead:73을 확인한 뒤 빈 본문으로 재시작해 소비 완료를 기다렸다. 새 이벤트는 발행하지 않았다. 감사 행 수와 total의 변화로 맞는 것을 골라라.",
+      "choices": [
+        "장애 직후 감사 1행·total 7에서 재시작 후 감사 2행·total 14가 된다.",
+        "장애 직후 감사 0행·total 0에서 재시작 후 감사 1행·total 7이 된다.",
+        "장애 직후 감사 1행·total 7이고 재시작 뒤에도 같다.",
+        "장애 직후 감사 1행·total 7에서 재시작 후 감사 2행·total 7이 된다."
+      ],
+      "answer": 1,
+      "refs": ["3", "7", "9", "11"],
+      "quote": "40초 안에 `dead:73`이 되는지 확인하고, DB 반영이 남았지만 Kafka 커밋은 0인 상태를 확인한다.",
+      "explanation": "①이다. 시작 코드는 apply마다 delta를 더하고 감사 행을 넣으며 ID 중복을 검사하지 않는다. DB 커밋은 장애 뒤에도 남고 Kafka 오프셋은 미커밋이므로 같은 레코드를 다시 처리한다. ②는 DB 롤백을 가정하고 ③은 이미 멱등하게 고쳤다고 가정한다. ④는 감사 중복만 생기고 total은 중복 반영되지 않는다고 잘못 가정한다. 올바른 구현의 계약과 시작 코드의 실제 동작을 구별해야 한다."
+    },
+    {
+      "id": "q4",
+      "type": "short",
+      "prompt": "고유 입력 ID는 e-a, e-b, e-c다. 감사 행은 e-a가 2개, e-b가 1개, e-c가 0개이고 다른 ID는 없다. effect_rows|duplicate_effects|missing_effects를 계산해 써라.",
+      "answers": ["3|1|1"],
+      "refs": ["14"],
+      "quote": "`duplicate_effects`는 ID별 감사 행 수에서 1을 뺀 양수 부분의 합, `missing_effects`는 감사 행이 없는 고유 ID 수다.",
+      "explanation": "감사 행은 총 3개다. e-a에서 초과 행이 1개이고 e-c가 누락되었으므로 두 오류 지표는 각각 1이다. effect_rows와 unique_events가 같아도 중복과 누락이 상쇄될 수 있어 통과를 보장하지 않는다."
+    },
+    {
+      "id": "q5",
+      "type": "short",
+      "prompt": "최신 버전 부하 직후 검사에서는 item-a만 기준 상태와 달랐다. 최종 검사에서는 모든 엔터티가 기준 상태와 같았다. 두 검사 모두 없는 엔터티나 예상 밖 엔터티는 없었다. 보고할 state_mismatches 값을 써라.",
+      "answers": ["1"],
+      "refs": ["15"],
+      "quote": "최종 상태뿐 아니라 최신 버전 부하 직후 상태도 검사하고 두 결과를 더한다.",
+      "explanation": "첫 검사의 불일치 엔터티 수 1과 최종 검사의 0을 더하므로 1이다. 최종 상태가 맞아도 중간 검사에서 확인한 불일치는 사라지지 않는다."
+    },
+    {
+      "id": "q6",
+      "type": "choice",
+      "prompt": "어떤 수정본은 처리한 ID를 EventHandler의 메모리 집합에만 넣는다. 초기 DB에서 e-a 한 건을 발행하고 DB 반영 뒤 Kafka 커밋 전에 죽인 다음 재시작해 소비 완료를 기다렸다. HTTP 재발행은 아직 없다. replayed_records가 1일 때 예상할 수 있는 결과를 골라라.",
+      "choices": [
+        "메모리 집합도 부모 HTTP 서버와 함께 유지되므로 duplicate_effects는 0이다.",
+        "재전달은 새로운 고유 이벤트이므로 unique_events가 2가 된다.",
+        "HTTP로 다시 발행하지 않았으므로 replayed_records가 1일 수 없다.",
+        "자식 JVM의 집합이 사라져 다시 반영되므로 effect_rows는 2, duplicate_effects는 1이다."
+      ],
+      "answer": 4,
+      "refs": ["4", "11", "15"],
+      "quote": "`replayed_records`는 장애 이벤트의 마지막 재발행 부하를 보내기 전까지 `deliveries`에서 센 최초 수신 이후 추가 수신 수다.",
+      "explanation": "④다. handler와 메모리 집합은 자식 JVM에 있으므로 재시작하면 비어 있다. DB 반영은 남아 있고 미커밋 레코드는 다시 수신하므로 감사 행이 두 개가 된다. ①은 부모와 자식의 메모리를 혼동하고 ②는 재수신을 새 ID로 센다. ③은 Kafka 재수신과 HTTP 재발행을 혼동한다."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "시작 코드에 같은 엔터티의 아래 세 이벤트를 순서대로 적용한다. 장애와 재시작은 없다. effects의 행 수|버전 역행 행 수|최종 version|value|total을 예측해 골라라.",
+      "context": "e-a|item-a|6|60|2\ne-b|item-a|2|20|-1\ne-b|item-a|2|20|-1",
+      "choices": [
+        "2|0|6|60|1",
+        "3|1|2|20|0",
+        "3|2|2|20|0",
+        "3|0|6|60|0"
+      ],
+      "answer": 2,
+      "refs": ["7", "14"],
+      "quote": "`after_version < previous_version`인 감사 행은 0건이어야 한다.",
+      "explanation": "②다. 시작 코드는 세 번 모두 감사 행을 쓰고 version과 value를 입력으로 덮어쓴다. 감사 버전은 0→6, 6→2, 2→2라서 역행은 한 번이다. total은 2 - 1 - 1 = 0이다. ①은 올바른 구현의 결과이며 ③은 같은 버전으로의 갱신도 역행으로 센다. ④는 버전 비교만 고친 경우의 결과다."
+    },
+    {
+      "id": "q8",
+      "type": "choice",
+      "prompt": "seen 처리 기록과 비즈니스 상태를 서로 다른 DB 트랜잭션으로 커밋하는 구현이 두 시나리오를 통과했다. 이 결과로 내릴 수 있는 결론을 골라라.",
+      "choices": [
+        "두 DB 커밋 사이의 장애에도 안전하다. 시나리오 통과가 처리 기록과 상태의 원자성을 증명한다.",
+        "다중 소비자가 같은 엔터티를 동시에 갱신해도 안전하다. 파티션이 3개이므로 동시 갱신까지 검증했다.",
+        "DB 커밋 뒤 Kafka 커밋 전 재처리는 검증했다. 두 DB 커밋 사이의 장애에 대한 안전성은 이 결과로 보장할 수 없다.",
+        "Kafka와 PostgreSQL은 한 트랜잭션으로 묶인다. 따라서 DB에 처리 기록을 영속화할 필요가 없다."
+      ],
+      "answer": 3,
+      "refs": ["8", "9", "13", "18"],
+      "quote": "처리 기록과 상태를 따로 커밋하는 구현의 안전성을 이 결과만으로 일반화하지 마라.",
+      "explanation": "③은 장애 주입 범위 안과 밖을 구분한다. ①의 두 DB 커밋 사이 장애와 ②의 다중 소비자 동시 처리는 검증 범위 밖이다. ④는 Kafka 처리와 외부 DB 쓰기가 자동으로 하나의 트랜잭션이 되지 않는다는 계약에 어긋난다."
+    },
+    {
+      "id": "q9",
+      "type": "short",
+      "prompt": "시작 코드에 초기 상태에서 아래 입력을 순서대로 적용한다. 장애는 없다. 시작 코드가 실제로 만드는 최종 상태의 version|value|total을 써라.",
+      "context": "e-a|item-a|4|80|5\ne-b|item-a|1|900|-3\ne-c|item-a|3|20|7\ne-a|item-a|4|80|5",
+      "answers": ["4|80|14"],
+      "refs": ["5", "6", "7"],
+      "quote": "이미 반영한 이벤트의 재수신은 total·스냅숏·effects 어느 것도 바꾸면 안 된다.",
+      "explanation": "시작 코드는 마지막 e-a도 다시 반영해 total이 5 - 3 + 7 + 5 = 14가 된다. 스냅숏은 마지막 입력의 4|80이다. 최종 스냅숏만 맞아도 total과 감사 기록은 틀릴 수 있다. 계약을 만족하는 q1의 total 9와 비교해라."
+    }
+  ]
+}

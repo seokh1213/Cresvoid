@@ -1,0 +1,60 @@
+services:
+  kafka:
+    image: ${KAFKA_IMAGE}
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_HEAP_OPTS: -Xms128m -Xmx256m
+    healthcheck:
+      test: [CMD-SHELL, '/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 >/dev/null 2>&1']
+      interval: 2s
+      timeout: 10s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 640m }
+  postgres:
+    image: ${POSTGRES_IMAGE}
+    environment:
+      POSTGRES_USER: lab
+      POSTGRES_DB: lab
+      POSTGRES_HOST_AUTH_METHOD: trust
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U lab -d lab']
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 256m }
+  app:
+    image: ${JVM_RUNNER_IMAGE}
+    volumes: ['${PROGRAM_DIR}:/work:ro']
+    working_dir: /work
+    command: [lab-run, kafka, lab.MainKt]
+    environment:
+      PORT: '8080'
+      KAFKA_BOOTSTRAP: kafka:9092
+      PG_HOST: postgres
+      JAVA_OPTS: -Xms32m -Xmx128m
+    ports: ['127.0.0.1:${APP_PORT}:8080']
+    depends_on:
+      kafka: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: [CMD-SHELL, 'curl -fs localhost:8080/health >/dev/null']
+      interval: 1s
+      timeout: 2s
+      retries: 60
+    deploy:
+      resources:
+        limits: { cpus: '1', memory: 512m }

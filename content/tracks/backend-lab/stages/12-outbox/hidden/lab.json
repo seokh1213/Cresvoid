@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "weekday-orders",
+      "refs": ["9", "11", "12"],
+      "quote": "커밋된 주문마다 Kafka 이벤트가 적어도 한 건 있어야 한다.",
+      "timeout_sec": 300,
+      "repeat": 3
+    },
+    {
+      "name": "weekend-orders",
+      "refs": ["9", "11", "12"],
+      "quote": "롤백된 주문의 Kafka 이벤트는 0건이어야 한다.",
+      "timeout_sec": 300,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/precommit-send", "variants/repeated-effect"]
+}

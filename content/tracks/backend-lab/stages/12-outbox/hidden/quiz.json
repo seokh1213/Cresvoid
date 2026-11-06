@@ -1,0 +1,95 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "choice",
+      "prompt": "두 구현이 아래 순서로 동작하며 별도 복구 경로는 없다고 하자. 주입 장애가 주문과 이벤트의 관계를 깨뜨리는 경우를 바르게 짝지은 것은 무엇인가?",
+      "context": "구현 A: 트랜잭션에서 주문 저장 → Kafka 발행 성공 → beforeCommit 호출 → DB 커밋 → afterCommit 호출\n구현 B: 트랜잭션에서 주문 저장 → beforeCommit 호출 → DB 커밋 → afterCommit 호출 → Kafka 발행\n주입 장애 이외의 작업은 모두 성공한다고 가정한다.",
+      "choices": [
+        "A에서는 commit-gap 주문의 이벤트가 유실되고, B에서는 rollback 주문의 이벤트가 남는다.",
+        "A와 B 모두 rollback 주문에서만 관계가 깨진다.",
+        "A에서는 rollback 주문의 이벤트가 남고, B에서는 commit-gap 주문의 이벤트가 유실된다.",
+        "A와 B 모두 commit-gap 응답이 503이므로 해당 주문과 이벤트가 함께 사라진다."
+      ],
+      "answer": 3,
+      "refs": ["5", "9", "16"],
+      "quote": "commit-gap은 커밋 뒤 두 번째 지점에서 요청 처리가 끊기며 503과 `uncertain`을 반환한다. 이 경우 주문은 이미 DB에 남아야 한다.",
+      "explanation": "③이 맞다. A의 rollback은 이미 Kafka에 발행한 뒤 beforeCommit에서 실패하므로 주문만 롤백되어 유령 이벤트가 남는다. B의 commit-gap은 DB 커밋 뒤 afterCommit에서 끊기므로 주문은 남지만 발행에는 도달하지 못한다. ①은 두 실패를 뒤바꿨다. ②는 B의 commit-gap 유실을 놓쳤다. ④는 HTTP 실패가 커밋된 주문을 취소한다고 잘못 가정했다."
+    },
+    {
+      "id": "q2",
+      "type": "short",
+      "prompt": "weekend-orders가 모든 불변식을 만족한다고 하자. anchor 이벤트는 정확히 두 번, 나머지 커밋 주문의 이벤트는 각각 한 번 수신했다. published_records, replayed_records, 전체 effects 행 수를 이 순서로 공백으로 구분해 써라.",
+      "answers": ["26 1 25"],
+      "refs": ["9", "11", "13", "14"],
+      "quote": "합격하려면 전체 감사 행 수도 커밋 주문 수와 같아야 한다.",
+      "explanation": "N=12이면 커밋 주문은 anchor 한 건과 묶음마다 두 건으로 1+2×12=25건이다. anchor만 한 번 더 수신하므로 published_records는 26이다. replayed_records는 anchor 수신 수 2에서 1을 뺀 1이다. 중복 발행은 허용하지만 배송 준비는 한 번만 반영해야 하므로 effects는 25행이다."
+    },
+    {
+      "id": "q3",
+      "type": "short",
+      "prompt": "아래 관측에서 missing_events, ghost_events, duplicate_effects, missing_effects를 이 순서로 공백으로 구분해 써라. 전체 합격 여부가 아니라 네 지표의 정의만 적용해라.",
+      "context": "커밋 주문 집합: a, b, c\nKafka 수신 레코드: evt-a 두 건, evt-c 한 건, evt-x 세 건\n각 이벤트의 order-id는 접미사와 같다. x는 커밋 주문 집합에 없다.\neffects 행: evt-a 세 행, evt-b 한 행, evt-c 한 행이며 각 행의 order-id와 amount는 해당 원본 주문과 같다.\n나열하지 않은 수신 레코드와 effects 행은 없다.",
+      "answers": ["1 3 2 0"],
+      "refs": ["13", "14"],
+      "quote": "`missing_events`는 커밋 주문 중 수신 레코드가 없는 주문 수, `ghost_events`는 커밋 주문 집합에 없는 이벤트의 수신 레코드 수다.",
+      "explanation": "b는 수신 레코드가 없어 missing_events가 1이다. x는 주문 ID 하나지만 수신 레코드가 세 건이므로 ghost_events는 3이다. evt-a 감사 행 세 개의 초과분은 2이고 나머지는 초과분이 없어 duplicate_effects는 2다. a, b, c 모두 감사 행이 있으므로 missing_effects는 0이다. 다만 b는 수신 없이 감사 반영되었으므로 contract_errors의 검사 대상이기도 하다."
+    },
+    {
+      "id": "q4",
+      "type": "choice",
+      "prompt": "weekday-orders에서 아래 결과를 얻었다. 스펙의 합격 조건에 따른 판단으로 맞는 것은 무엇인가?",
+      "context": "attempted=25, committed_orders=17, published_records=18\nmissing_events=0, ghost_events=0, duplicate_effects=0, missing_effects=0\nreplayed_records=1, pending_events=0, contract_errors=1\n전체 effects 행 수는 17이다. 한 감사 행의 amount가 원본 주문과 달라 contract_errors가 증가했으며, 다른 계약 검사는 모두 통과했다.",
+      "choices": [
+        "실패다. published_records가 committed_orders보다 큰 것이 실패 원인이다.",
+        "통과다. 네 오류 지표가 모두 0이고 전체 감사 행 수도 맞는다.",
+        "실패다. replayed_records가 0보다 큰 것이 실패 원인이다.",
+        "실패다. 행 개수가 맞아도 감사 행의 원본 필드가 틀렸고 contract_errors가 0이 아니다."
+      ],
+      "answer": 4,
+      "refs": ["9", "13", "14"],
+      "quote": "`contract_errors`도 0이어야 한다.",
+      "explanation": "④가 맞다. 원본 주문과 감사 행의 금액이 같아야 하고 contract_errors도 0이어야 한다. 중복 발행 자체는 허용되므로 18건과 17건의 차이를 실패 원인으로 든 ①은 틀리다. ②는 필드 일치 검사를 빠뜨렸다. replayed_records는 장애 뒤 재발행의 증거로 1 이상이어야 하므로 ③도 틀리다."
+    },
+    {
+      "id": "q5",
+      "type": "choice",
+      "prompt": "아래 순서에서 두 번째 자식이 종료한 직후의 outbox.sent(a, b), 세 번째 자식까지 끝난 뒤의 총 수신 레코드 수와 effects 행 수를 바르게 예측한 것은 무엇인가?",
+      "context": "커밋된 주문은 a와 b뿐이며 두 outbox 행의 sent는 처음에 false다. 매번 미완료 행을 a, b 순서로 처리하고, send가 반환한 뒤 해당 행의 sent=true를 커밋한다. 소비자는 이벤트 ID로 중복 반영을 막으며 매 자식 종료 뒤 현재 발행분의 소비를 마친다.\n첫 번째 자식: a의 send 안에서 발행 확인 직후 73으로 종료한다.\n두 번째 자식: a를 정상 처리한 뒤 b의 send 안에서 발행 확인 직후 73으로 종료한다.\n세 번째 자식: 장애 없이 남은 작업을 처리한다.\n각 send 호출은 레코드를 정확히 한 건 발행하며, 이외의 발행과 장애는 없다.",
+      "choices": [
+        "(true, true), 수신 3건, effects 2행",
+        "(true, false), 수신 4건, effects 2행",
+        "(false, false), 수신 5건, effects 2행",
+        "(true, false), 수신 4건, effects 4행"
+      ],
+      "answer": 2,
+      "refs": ["4", "8", "9"],
+      "quote": "Kafka 발행은 이미 성공했지만 호출 뒤의 처리는 실행되지 않은 상태다.",
+      "explanation": "②가 맞다. 첫 자식은 a 한 건을 발행하지만 완료 표시는 못 한다. 두 번째 자식은 a를 다시 발행하고 완료 표시를 커밋한 뒤 b를 발행하다 종료하므로 sent는 (true, false)다. 세 번째 자식은 b만 재발행하므로 총 수신은 a 두 건과 b 두 건, 합계 4건이다. 소비 중복 방지로 effects는 2행이다. ①은 b의 send가 반환하지 않았는데도 완료로 셌다. ③은 두 번째 자식이 커밋한 a의 완료 표시까지 되돌렸다. ④는 중복 수신을 중복 반영으로 셌다."
+    },
+    {
+      "id": "q6",
+      "type": "short",
+      "prompt": "부하 시작을 0ms로 잡고 요청 인덱스는 0부터 센다. 요청 0이 900ms에 끝나고 요청 1도 아직 끝나지 않았다. 스펙의 개방형 부하에서 요청 i=4의 예정 시각은 몇 ms인가? 단위 없이 정수만 써라.",
+      "answers": ["133"],
+      "refs": ["11"],
+      "quote": "공용 `load.main.kts`로 초당 30건, 요청 i의 예정 시각 floor(i×1000/30)ms인 개방형 부하를 보낸다.",
+      "explanation": "floor(4×1000/30)=133ms다. 앞 요청의 완료 여부가 다음 도착을 늦추지 않으므로 900ms를 더하거나 요청 0의 완료를 기다리지 않는다. 이 값은 예정 시각이며 실제 HTTP 완료 시각을 뜻하지 않는다."
+    },
+    {
+      "id": "q7",
+      "type": "choice",
+      "prompt": "첫 발행 자식이 anchor 발행 직후 종료한 뒤 /relay/status는 done:73이고, /progress의 두 오프셋은 같다. 아직 정상 발행 작업을 재시작하지 않았다. 이 관측으로 확정할 수 있는 것은 무엇인가?",
+      "choices": [
+        "모든 커밋 주문의 발행 작업이 완료되어 pending_events는 0이다.",
+        "부모 HTTP 서버도 종료되었으므로 새 서버를 띄워야 한다.",
+        "현재 발행된 레코드의 소비는 끝났지만 남은 작업의 발행 완료까지 확인한 것은 아니다.",
+        "정상 발행 작업의 종료 코드 0까지 확인했으므로 추가 검사는 필요 없다."
+      ],
+      "answer": 3,
+      "refs": ["7", "8", "10", "12", "14"],
+      "quote": "`GET /progress`는 200과 `처리한 다음 오프셋|Kafka 끝 오프셋`이며 두 값이 같으면 현재 발행분의 소비가 끝난 상태다.",
+      "explanation": "③이 맞다. 두 오프셋의 일치는 현재 Kafka에 발행된 분량의 소비 완료만 뜻한다. ①에서 주장한 미완료 작업 0개는 재시작 뒤 별도로 확인해야 한다. ②와 달리 종료한 것은 발행 자식이며 부모 서버와 소비자는 살아 있다. ④의 done:73은 장애 자식의 종료 상태로, 정상 작업의 종료 코드 0을 확인한 결과가 아니다."
+    }
+  ]
+}

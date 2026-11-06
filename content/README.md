@@ -50,7 +50,7 @@
 | `db-lab` | lab | 4 |
 | `kafka-lab` | lab | 2 |
 | `spring-lab` | lab | 10 |
-| `backend-lab` | lab | 10 |
+| `backend-lab` | lab | 12 |
 | `net-lab` | lab | 2 |
 | `agent-lab` | lab | 1 |
 | `reading` | reading | 15 |

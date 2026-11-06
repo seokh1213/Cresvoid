@@ -1,0 +1,19 @@
+{
+  "scenarios": [
+    {
+      "name": "morning-traffic",
+      "refs": ["7", "11", "12", "14", "15", "16", "16.1", "16.2", "16.3", "16.4"],
+      "quote": "실패 화면의 이 값과 아래 절차로 원인을 좁혀라.",
+      "timeout_sec": 300,
+      "repeat": 3
+    },
+    {
+      "name": "evening-traffic",
+      "refs": ["6", "7", "11", "12", "14", "15", "16", "16.1", "16.2", "16.3", "16.4"],
+      "quote": "실패 화면의 이 값과 아래 절차로 원인을 좁혀라.",
+      "timeout_sec": 300,
+      "repeat": 3
+    }
+  ],
+  "must_fail": ["variants/memory-window", "variants/durable-unordered"]
+}
