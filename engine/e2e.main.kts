@@ -275,10 +275,14 @@ fun runCodeTrack(track: String, stages: List<Map<*, *>>, trackDir: File) {
     }
 }
 
+// A lab solution may also change root files the spec lets the learner edit, such as application.yml.
 fun replaceSources(solution: File, stageWorkspace: File) {
     val target = File(stageWorkspace, "src")
     target.deleteRecursively()
     File(solution, "src").copyRecursively(target)
+    solution.listFiles { file -> file.isFile }.orEmpty().forEach { file ->
+        file.copyTo(File(stageWorkspace, file.name), overwrite = true).setExecutable(file.canExecute())
+    }
 }
 
 fun runFixTrack(track: String, stages: List<Map<*, *>>, trackDir: File) {
